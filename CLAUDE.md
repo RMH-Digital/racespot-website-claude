@@ -1,9 +1,12 @@
 # Racespot Website
 
 Next.js (App Router) + Tailwind + next-i18next. `npm run dev` for local work
-(see `.claude/launch.json`). Deployed from the `origin` remote
-(`racespot-website-claude`); the `production` remote (`racespot-gg`) holds an
-unrelated history — check before pushing there.
+(see `.claude/launch.json`).
+
+Remotes: `origin` = `RMH-Digital/racespot-website-claude` (the working repo — the
+old `JuergenRacespot/...` URL only redirects). `production` still points at
+`JuergenRacespot/racespot-gg`, whose `main` holds an unrelated history — do not
+push there without checking what it actually is.
 
 ## Layout
 
