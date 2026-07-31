@@ -39,28 +39,55 @@ array (newest first; `generateStaticParams` picks up slugs automatically).
 interface Article {
   slug: string; category: string; title: string; excerpt: string
   date: string; readTime: string; image: string; imageAlt: string
-  content: string[]     // one plain-text paragraph per entry
+  imageCredit?: string  // shown bottom-right on the hero
+  author?: string       // byline; omitted = no byline shown
+  sources?: { label: string; url: string }[]   // recorded, NOT rendered
+  content: string[] | Block[]
 }
+
+type Block =
+  | { kind: 'p'; text: string }
+  | { kind: 'h2'; text: string }
+  | { kind: 'quote'; text: string; attribution?: string }
+  | { kind: 'image'; src: string; alt: string; credit?: string }
 ```
+
+Read `content` through `toBlocks()` from `src/lib/articleContent.tsx`, never
+directly — it normalises both shapes. A `string[]` still means "plain
+paragraphs", so every article written before blocks existed works untouched;
+articles 2 onwards in the array are exactly that.
+
+`text` may carry three inline constructs and no others: `**bold**`, `*italic*`
+and `[label](url)`. They are parsed into React elements by `renderInline()`.
+**Never** switch this to `dangerouslySetInnerHTML`: article text comes from an
+automated pipeline reading third-party feeds, so it has to stay text, not
+markup. If a fourth construct is ever needed, add it to that parser.
 
 `category` must be a key of `CATEGORY_COLORS` (Events, Broadcast, Esports,
 Motorsport, Industry, Company) — a category that is not a key renders without a
 colour. The Press Tool pipeline (`~/Press Tool`) mirrors this list in each
 project's `preview.categories`; add a category in both places or not at all.
 
-### Known limitations of this shape
+### What the body can carry (changed 2026-07-31)
 
-`content` is rendered as `content.map(p => <p>{p}</p>)`, so the article body can
-carry **only plain paragraphs**. There is no way to express:
+Sub-headings, pull quotes, inline links, several images and a byline — all of it,
+via `Block[]`. Before this the type was `content: string[]` and the renderer was
+`content.map(p => <p>{p}</p>)`, which silently flattened everything the Press
+Tool pipeline (`~/Press Tool`) writes: 2-4 sub-headings and up to 5 quotes per
+article were being thrown away on the way in.
 
-- sub-headings inside an article
-- blockquotes / pull quotes
-- **links inside the body text** (so a "source:" link cannot be clickable)
-- more than one image (only the `image` hero)
-- an **author byline** — the `Article` type has no author field
+Styling deliberately matches that pipeline's own review preview, so what a
+reviewer approves is what a reader gets:
 
-This matters for the Press Tool pipeline (`~/Press Tool`), which generates
-articles with sub-headings, quotes, per-persona bylines and mandatory source
-links for third-party material. Extending `Article` with `author`, `sources` and
-a richer `content` type (markdown or block list) is the agreed next step before
-that pipeline can publish here.
+| Block | Treatment |
+|---|---|
+| `h2` | display font, short yellow rule above (`before:` pseudo-element) |
+| `quote` | 3px yellow left edge, yellow-tinted gradient fading right, attribution line under it |
+| `image` | full-width figure, caption from `alt`, credit in mono after it |
+| `p` | unchanged from before |
+
+`sources` is carried but **not rendered**: RaceSpot keeps the origin as an
+editorial record and in the Press Tool review panel, not under the article. Same
+for the AI notice, which is why you will not find one here. Do not "helpfully"
+add either to the page — see `editorial.link_sources_in_body` and
+`editorial.ai_notice_enabled` in the pipeline's project config.

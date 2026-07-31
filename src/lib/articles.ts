@@ -1,3 +1,23 @@
+/**
+ * A block of article body. Articles used to be a flat `string[]` of paragraphs,
+ * which meant an editor could not set a sub-heading or pull out a quote — both
+ * were silently flattened on the way in. Blocks fix that.
+ *
+ * `text` may carry inline markup: `**bold**`, `*italic*` and
+ * `[label](https://…)`. It is parsed into React elements by `renderInline()` in
+ * ./articleContent — never injected as HTML.
+ */
+export type Block =
+  | { kind: 'p'; text: string }
+  | { kind: 'h2'; text: string }
+  | { kind: 'quote'; text: string; attribution?: string }
+  | { kind: 'image'; src: string; alt: string; credit?: string }
+
+export interface Source {
+  label: string
+  url: string
+}
+
 export interface Article {
   slug: string
   category: string
@@ -7,7 +27,22 @@ export interface Article {
   readTime: string
   image: string
   imageAlt: string
-  content: string[]
+  /** Who to credit for the hero image. Shown under it when present. */
+  imageCredit?: string
+  /** Byline. Articles written before bylines existed simply have none. */
+  author?: string
+  /**
+   * Where the story came from. Deliberately NOT rendered in the article body —
+   * it is an editorial record, kept with the article so it stays available for
+   * structured data and for anyone checking the origin later.
+   */
+  sources?: Source[]
+  /**
+   * `string[]` is still valid and means "these are plain paragraphs", so every
+   * article written before blocks existed keeps working untouched. Read it
+   * through `toBlocks()` from ./articleContent rather than directly.
+   */
+  content: string[] | Block[]
 }
 
 export const ARTICLES: Article[] = [
