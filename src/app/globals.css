@@ -2,10 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Eurostile Extended Bold — Racespot brand font */
+/* Eurostile Extended Bold — Racespot brand font.
+   The original .ttf files are 1990-era Macintosh TrueType and are REJECTED by
+   browsers ("Invalid font data"), so headlines silently fell back to Oswald.
+   The .woff2 files are the same typefaces rebuilt for the web — keep them first.
+   See docs/FONTS.md before touching this block. */
 @font-face {
   font-family: 'Eurostile';
-  src: url('/fonts/eurostile-2-extended-bold.ttf') format('truetype');
+  src: url('/fonts/eurostile-2-extended-bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -13,7 +17,7 @@
 
 @font-face {
   font-family: 'Eurostile';
-  src: url('/fonts/eurostile-2-extended.ttf') format('truetype');
+  src: url('/fonts/eurostile-2-extended.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -21,7 +25,7 @@
 
 @font-face {
   font-family: 'Eurostile';
-  src: url('/fonts/eurostile-becker-bold.ttf') format('truetype');
+  src: url('/fonts/eurostile-becker-bold.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
