@@ -107,6 +107,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Events: 'text-rs-yellow',
   Broadcast: 'text-green-400',
   Esports: 'text-blue-400',
+  Motorsport: 'text-orange-400',
   Industry: 'text-purple-400',
   Company: 'text-purple-400',
 }

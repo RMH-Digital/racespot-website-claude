@@ -44,7 +44,9 @@ interface Article {
 ```
 
 `category` must be a key of `CATEGORY_COLORS` (Events, Broadcast, Esports,
-Industry, Company).
+Motorsport, Industry, Company) — a category that is not a key renders without a
+colour. The Press Tool pipeline (`~/Press Tool`) mirrors this list in each
+project's `preview.categories`; add a category in both places or not at all.
 
 ### Known limitations of this shape
 
