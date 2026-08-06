@@ -47,6 +47,35 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "corsair-buys-trak-racer-fanatec",
+    category: "Industry",
+    title: "Corsair Buys Trak Racer, Adding a Second Cockpit Brand Alongside Fanatec",
+    excerpt: "Corsair has acquired Australian cockpit manufacturer Trak Racer, less than two years after buying Fanatec — and the two brands' product lines already overlap more than the official statements admit.",
+    date: "2026-08-06",
+    readTime: "3 min",
+    image: "/images/news/corsair-buys-trak-racer-fanatec/sim-hardware-keyvisual.webp",
+    imageAlt: "Corsair Buys Trak Racer, Adding a Second Cockpit Brand Alongside Fanatec",
+    imageCredit: "Illustration: RACESPOT",
+    author: "Lauren Hughes",
+    sources: [
+      { label: "traxion.gg", url: "https://traxion.gg/trak-racer-purchased-by-fanatecs-owners-corsair/" },
+    ],
+    content: [
+      { kind: "p", text: "Corsair has bought **Trak Racer**, folding the Australian cockpit and rig manufacturer into a sim racing portfolio that already includes **Fanatec**. The deal was confirmed this week, with Trak Racer becoming what Corsair calls a \"complement\" to Fanatec rather than a replacement for it." },
+      { kind: "p", text: "The two brands' territories, on paper, are simple: Fanatec keeps the electronics — wheelbases, wheels, pedals — while Trak Racer supplies the \"physical simulator\" around them: cockpits, seats, wheel stands and rigs. Founded by **Matt Sten** in 2008, Trak Racer built its name on convertible designs like the TRX cockpit, which switches between a formula-style seating position and a more upright GT layout without tools, and which counts Alpine's Formula 1 team among its official users. The company has also been pushing into flight simulation, with an Airbus-branded cockpit in development." },
+      { kind: "h2", text: "A tidy division that isn't quite tidy" },
+      { kind: "p", text: "That split looks cleaner in a press release than in a product catalogue. Fanatec has sold its own cockpits for years, and Trak Racer has an Alpine-branded F1 wheel of its own in the pipeline — a product that, under Corsair's stated logic, belongs on the electronics side of the business. Corsair's announcement does not say what happens to either range, and that is the open question this acquisition leaves unanswered: is this a genuine division of labour between two engineering teams, or two overlapping catalogues now sharing a parent company and a sales channel." },
+      { kind: "p", text: "Sten, who has joined Corsair as Chief Technology Officer for Sim Solutions, framed the deal as a distribution play rather than a product one:" },
+      { kind: "quote", text: "\"**Joining Corsair** and Fanatec gives Trak Racer the platform to reach far more sim racing enthusiasts faster than we could on our own. Corsair's global distribution and retail infrastructure, paired with Fanatec's engineering strength and product portfolio, will let us bring Trak Racer products to a much larger audience while staying true to the community that helped build this brand.\" — Matt Sten, founder of Trak Racer" },
+      { kind: "p", text: "**Thi La**, Corsair's Chief Executive Officer, made the same case from the buyer's side, describing Trak Racer as bringing \"an extensive cockpit and accessories portfolio and a passionate, loyal community\" into the Fanatec family." },
+      { kind: "h2", text: "The second acquisition in two years" },
+      { kind: "p", text: "This is not Corsair's first move into sim racing hardware. It bought Fanatec in 2024, in a deal completed only after a long and, by **Traxion**'s account, controversial process that saw founder Jackermeier cut out of the final agreement. Two acquisitions in two years point to a company building a sim racing division by buying established brands rather than developing one internally — a strategy that answers the question of scale faster than it answers the question of overlap." },
+      { kind: "p", text: "For Trak Racer's existing customers, Sten's message is one of continuity, not change:" },
+      { kind: "quote", text: "\"For existing Trak Racer customers, it's business as usual. Your products, warranties, customer support, and commitment from the Trak Racer team remain in place.\" — Matt Sten, to Traxion" },
+      { kind: "p", text: "What is worth watching next is whether that continuity extends to the product roadmap. Trak Racer's **Alpine** wheel and Airbus cockpit were both already in development before the sale; whether they ship as originally planned, or get folded into Fanatec's own release schedule, will be the first real sign of how independently Corsair intends to run the brand it just bought." },
+    ],
+  },
+  {
     slug: 'rennsport-summit-2026-munich',
     category: 'Events',
     title: 'RENNSPORT Summit 2026: The Re-Launch Heads to Munich',
