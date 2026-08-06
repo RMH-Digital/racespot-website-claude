@@ -47,6 +47,34 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "salas-wins-richmond-enascar-2026",
+    category: "Esports",
+    title: "Salas Ends His Winless Run at the Same Track Where It All Started",
+    excerpt: "Vicente Salas led 69 of 72 laps to win at Richmond Raceway, the same track where he scored his first-ever series win five years ago — and locks his spot in the 2026 eNASCAR Playoffs.",
+    date: "2026-08-06",
+    readTime: "2 min",
+    image: "/images/news/salas-wins-richmond-enascar-2026/sim-racing-results-keyvisual.webp",
+    imageAlt: "Salas Ends His Winless Run at the Same Track Where It All Started",
+    imageCredit: "Illustration: RACESPOT",
+    author: "John Carter",
+    sources: [
+      { label: "iracing.com", url: "https://www.iracing.com/vicente-salas-returns-to-enascar-coca-cola-iracing-championship-series-winners-circle-at-richmond/" },
+    ],
+    content: [
+      { kind: "p", text: "Full circle at Richmond Raceway. Five years after **Vicente Salas** scored his first-ever eNASCAR Coca-Cola **iRacing** Championship Series win there as a rookie, he went back and did it again — ending a winless 2026 season and locking himself into the Playoffs in the same move." },
+      { kind: "p", text: "Salas came into Race #8 still looking for his first victory of the year, despite making the Championship 4 in 2025. He left no doubt about it. Fastest in Final Practice, fastest in Qualifying, a Heat win for the pole, and then 69 laps led out of 72 — the sixth win of his career, in his 94th career start, and enough to tie him for 11th on the series' all-time wins list." },
+      { kind: "h2", text: "A rerun of 2021, with better company" },
+      { kind: "p", text: "Back in April 2021, Salas led every lap of an oval race at Richmond for his first win — a series first at the time. This one was closer. **Quentin Warman** (Hyak Motorsports) and two-time series champion **Steven Wilson** (Spire Motorsports) both had a shot at him in the closing laps, with the finish coming down to a single eNASCAR Overtime restart. Salas got to the line first; Warman held off Wilson for a career-best second-place finish." },
+      { kind: "p", text: "Here's the thing about Richmond's restart zone: it doesn't sit where drivers expect it to, and that alone was nearly the story." },
+      { kind: "quote", text: "\"We just had to be dialed those last restarts. This restart zone is in such a peculiar place at this track that you're kind of just in a tough situation every time, with them guessing when you're going to go, going in one consistent spot. I'm glad that we came out of it with the victory.\" — Vicente Salas" },
+      { kind: "h2", text: "Six drivers in, four spots left" },
+      { kind: "p", text: "The win locks Salas into the 2026 Playoffs alongside Wilson, **Bobby Zalenski** (ERA eSports Team), **Parker White** (**Williams F1 Team Gaming**), **Garrett Lowe** (**BS+COMPETITION**) and **Tucker Minter** (**William Byron** eSports, in on points). That leaves four Playoff spots up for grabs with one Regular Season race to go." },
+      { kind: "p", text: "**Connor Yeroschak** (Letarte eSports), **Shawn Conklin** (RFK Racing), **Wyatt Tinsley** and **Casey Kirwan** (both **Kansas City Pioneers**) currently hold those spots — but *Daytona* runs win-and-in, and 20 drivers are still mathematically alive for them. Five cautions and a race that swung from calm to chaotic and back again were the undercard; the real fireworks are still to come." },
+      { kind: "h2", text: "What's next" },
+      { kind: "p", text: "The 2026 Regular Season wraps at *Daytona International Speedway* on August 18th, setting the 10-driver Playoff field. Last year, Wilson opened the season with a Daytona win of his own — whether he, Salas, or somebody else outside the current four grabs the last tickets in is the whole story of the next two weeks." },
+    ],
+  },
+  {
     slug: 'rennsport-summit-2026-munich',
     category: 'Events',
     title: 'RENNSPORT Summit 2026: The Re-Launch Heads to Munich',
