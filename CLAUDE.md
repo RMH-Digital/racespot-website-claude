@@ -91,3 +91,9 @@ editorial record and in the Press Tool review panel, not under the article. Same
 for the AI notice, which is why you will not find one here. Do not "helpfully"
 add either to the page — see `editorial.link_sources_in_body` and
 `editorial.ai_notice_enabled` in the pipeline's project config.
+
+## Platform
+
+Dieses Projekt läuft auf Philips Coolify-Instanz. Betriebsregeln, Domain- und
+TLS-Setup, Verifikationsbefehle und bekannte Fallstricke stehen in
+[COOLIFY-BASELINE.md](COOLIFY-BASELINE.md) — vor Infrastruktur-Eingriffen lesen.
