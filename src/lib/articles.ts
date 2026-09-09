@@ -47,6 +47,33 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "moza-racing-title-sponsor-fia-f4-global-esports-2026",
+    category: "Industry",
+    title: "MOZA Racing Renews as Title Sponsor of the FIA F4 Global Esports Championship",
+    excerpt: "MOZA Racing is back as title sponsor of the FIA F4 Global Esports Championship for a second season, with a $35,000 prize pool and a three-region qualifying structure feeding an eight-round Global Championship on iRacing from October.",
+    date: "2026-08-04",
+    readTime: "1 min",
+    image: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-2.webp",
+    imageAlt: "MOZA Racing Renews as Title Sponsor of the FIA F4 Global Esports Championship",
+    imageCredit: "MOZA Racing",
+    author: "Lauren Hughes",
+    sources: [
+      { label: "MOZA Racing", url: "https://www.mozaracing.com" },
+      { label: "iracing.com", url: "https://www.iracing.com/fia-f4-esports/" },
+    ],
+    content: [
+      { kind: "p", text: "**MOZA Racing** is renewing as title sponsor of the FIA F4 Global Esports Championship for a second consecutive season, keeping its name on one of the more established pathways from a controller or wheel into single-seater racing. The 2026 edition runs on **iRacing** and carries a $35,000 prize pool — the same structure as last year, repeated rather than expanded." },
+      { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-1.webp", alt: "MOZA and iRacing key visual: a MOZA sim rig with triple screens under blue studio lighting, captioned Feel Every Detail — 360Hz FFB Signal and LFE Haptics Effect", credit: "MOZA Racing" },
+      { kind: "h2", text: "The structure hasn't changed, and that's the point" },
+      { kind: "p", text: "The format is a straightforward funnel: drivers compete in a Regional Tour across the Americas, Europe and Asia-Pacific, all on iRacing, with the top 10 from each region advancing to the Global Championship." },
+      { kind: "p", text: "The Global Championship itself starts October 31 and runs eight rounds across four doubleheader events, spaced weekly through October 31, November 7, November 14 and November 21. Races are broadcast live on iRacing's own social channels, which keeps distribution in-house rather than routed through a broadcast partner." },
+      { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "MOZA F4 FIA Esports Global Championship 2026 race schedule graphic listing four dates in October and November", credit: "MOZA Racing" },
+      { kind: "h2", text: "Last season's momentum" },
+      { kind: "p", text: "MOZA sums up last season as delivering \"unforgettable moments on track, with intense wheel-to-wheel battles and the rise of standout talents who proved themselves on the global stage.\" The renewal, the company says, continues \"this evolving chapter of esports racing, building on a partnership that helps push the boundaries of competitive sim racing.\"" },
+      { kind: "p", text: "*Based on a press release from MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+    ],
+  },
+  {
     slug: 'rennsport-summit-2026-munich',
     category: 'Events',
     title: 'RENNSPORT Summit 2026: The Re-Launch Heads to Munich',
