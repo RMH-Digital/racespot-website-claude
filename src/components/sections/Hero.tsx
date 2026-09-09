@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from '@/lib/language'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
@@ -23,10 +24,15 @@ export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
                  min-h-[480px] md:min-h-[560px] max-h-[860px]"
       style={{ height: 'calc(100svh - 98px)' }}
     >
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/images/hero-banner.jpg)' }}
+      {/* Background image — a real <Image> (not CSS background) so the browser
+          preloads it as the LCP element and the optimizer serves AVIF/WebP. */}
+      <Image
+        src="/images/hero-banner.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
       />
 
       {/* Dark overlay — mobile: heavier for readability, desktop: directional */}

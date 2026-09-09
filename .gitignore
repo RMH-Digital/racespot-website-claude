@@ -9,3 +9,7 @@ build/
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Raw source assets (photos, logos, fonts) — not part of the site build
+/content Website/
+.claude/settings.local.json

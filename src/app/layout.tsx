@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer'
 import { LanguageProvider } from '@/lib/language'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
+import { Analytics } from '@/components/seo/Analytics'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </LiveStatusProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   )

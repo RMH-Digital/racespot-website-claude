@@ -17,16 +17,20 @@ export function OrganizationJsonLd() {
     foundingDate: '2013',
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Cologne',
+      addressLocality: 'Hürth',
       addressCountry: 'DE',
     },
     sameAs: [
-      'https://www.youtube.com/@Racespot',
-      'https://twitter.com/raboracespot',
+      'https://www.youtube.com/@RaceSpotTV',
+      'https://www.twitch.tv/racespottv',
+      'https://www.instagram.com/racespottv',
+      'https://www.tiktok.com/@racespot_tv',
+      'https://www.facebook.com/RaceSpotTV',
+      'https://x.com/racespottv',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'info@racespot.tv',
+      email: 'contact@racespot.tv',
       contactType: 'customer service',
     },
     knowsAbout: [

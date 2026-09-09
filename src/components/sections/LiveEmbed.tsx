@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { useTranslation } from '@/lib/language'
+import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 interface SerializedEvent {
   series: string
@@ -18,44 +19,29 @@ interface LiveEmbedProps {
   upcomingEvents?: SerializedEvent[]
 }
 
-const POLL_INTERVAL = 60_000 // 60 seconds
-
 export function LiveEmbed({ liveStreams: initialStreams, upcomingEvents = [] }: LiveEmbedProps) {
   const t = useTranslation()
   const [liveStreams, setLiveStreams] = useState(initialStreams)
   const [activeId, setActiveId] = useState(initialStreams[0]?.id || '')
 
-  // Poll for stream updates
-  const pollStreams = useCallback(async () => {
-    try {
-      const res = await fetch('/api/live-streams')
-      if (!res.ok) return
-      const data = await res.json()
-      const streams: YouTubeLiveStream[] = data.streams || []
-
-      if (streams.length === 0) {
-        // All streams ended — full page reload to show offline state
-        window.location.reload()
-        return
-      }
-
-      setLiveStreams(streams)
-
-      // If active stream is no longer live, switch to the first available
-      setActiveId(prev => {
-        const stillLive = streams.find(s => s.id === prev)
-        if (stillLive) return prev
-        return streams[0].id
-      })
-    } catch {
-      // Silently ignore poll errors
-    }
-  }, [])
+  // Stream updates come from LiveStatusProvider, which already polls
+  // /api/live-streams every 60 s for the header and ticker — no second poll here.
+  const { liveStreams: polled, loaded } = useLiveStatus()
 
   useEffect(() => {
-    const interval = setInterval(pollStreams, POLL_INTERVAL)
-    return () => clearInterval(interval)
-  }, [pollStreams])
+    if (!loaded) return
+
+    if (polled.length === 0) {
+      // All streams ended — full page reload to show offline state
+      window.location.reload()
+      return
+    }
+
+    setLiveStreams(polled)
+
+    // If active stream is no longer live, switch to the first available
+    setActiveId(prev => (polled.some(s => s.id === prev) ? prev : polled[0].id))
+  }, [polled, loaded])
 
   // Find the active stream
   const activeStream = liveStreams.find(s => s.id === activeId) || liveStreams[0]

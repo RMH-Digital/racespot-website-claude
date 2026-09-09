@@ -50,7 +50,9 @@ function LogoRow({
           >
             {/* Use native img instead of next/image — lazy loading breaks
                 in CSS-animated carousels because the browser can't detect
-                viewport intersection on continuously moving elements */}
+                viewport intersection on continuously moving elements.
+                The PNGs are 10–60 KB each, so there is nothing to optimise. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={logo.src}
               alt={logo.alt}

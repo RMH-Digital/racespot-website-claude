@@ -7,12 +7,15 @@ interface LiveStatus {
   liveStreams: YouTubeLiveStream[]
   liveCount: number
   isLive: boolean
+  /** false until the first /api/live-streams poll has returned */
+  loaded: boolean
 }
 
 const LiveStatusContext = createContext<LiveStatus>({
   liveStreams: [],
   liveCount: 0,
   isLive: false,
+  loaded: false,
 })
 
 export function useLiveStatus() {
@@ -30,6 +33,7 @@ export function LiveStatusProvider({
 }) {
   const [liveStreams, setLiveStreams] = useState<YouTubeLiveStream[]>([])
   const [liveCount, setLiveCount] = useState(initialLiveCount)
+  const [loaded, setLoaded] = useState(false)
 
   const poll = useCallback(async () => {
     try {
@@ -39,6 +43,7 @@ export function LiveStatusProvider({
       const streams: YouTubeLiveStream[] = data.streams || []
       setLiveStreams(streams)
       setLiveCount(streams.length)
+      setLoaded(true)
     } catch {
       // Silently ignore poll errors
     }
@@ -52,7 +57,7 @@ export function LiveStatusProvider({
   }, [poll])
 
   return (
-    <LiveStatusContext.Provider value={{ liveStreams, liveCount, isLive: liveCount > 0 }}>
+    <LiveStatusContext.Provider value={{ liveStreams, liveCount, isLive: liveCount > 0, loaded }}>
       {children}
     </LiveStatusContext.Provider>
   )
