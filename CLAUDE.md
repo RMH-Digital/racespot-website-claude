@@ -10,6 +10,8 @@ push there without checking what it actually is.
 
 ## Layout
 
+Offene Arbeiten mit Begründung und Reihenfolge: [docs/TODO.md](docs/TODO.md).
+
 - `src/app/` — routes (`news`, `news/[slug]`, `broadcasts`, `calendar`, `events`,
   `services`, `live`, `api/contact`, `api/live-streams`).
 - `src/components/` — `sections/`, `layout/`, `ui/`, `seo/`.
@@ -91,6 +93,36 @@ editorial record and in the Press Tool review panel, not under the article. Same
 for the AI notice, which is why you will not find one here. Do not "helpfully"
 add either to the page — see `editorial.link_sources_in_body` and
 `editorial.ai_notice_enabled` in the pipeline's project config.
+
+## Deployment
+
+Hosting ist **Coolify** auf Philips Hetzner-Server (`178.104.72.17`), App-UUID
+`tpd5h47i4341j7qp6wemae8r`, Nixpacks, Node 20 (`engines` + `.nvmrc`). Es gibt
+keinen anderen Hoster und keine andere Deploy-Pipeline.
+
+**Push auf `origin/main` = Deploy.** Ein Webhook am GitHub-Repo
+(`Settings → Webhooks`, Ziel `https://coolify.racespot.tv/webhooks/source/github/events/manual`)
+stößt den Build an; Press-Tool-Merges laufen denselben Weg. Ein Build dauert
+~1 min (gecacht) bis ~3 min (kalt). Prüfen: `curl -sI https://racespot.tv/ | grep -i strict-transport`
+muss die Header aus `next.config.mjs` zeigen; die Deployment-Historie liest sich
+über die Coolify-API (`/api/v1/deployments/applications/<uuid>`, Token liegt lokal
+in `~/.config/presstool/coolify-token`, nie im Repo).
+
+`npm start` ist `scripts/start.mjs`: startet `next start` und wärmt danach den
+`next/image`-Cache (`scripts/warm-image-cache.mjs`) — der Cache liegt im
+Container und ist nach jedem Deploy leer. Ohne Vorwärmen zahlt der erste
+Besucher jeder Bildvariante den Encode.
+
+### Bilder
+
+- `public/images` enthält **nur** Dateien, die in `src/` referenziert sind.
+  Neue Fotos vor dem Commit durch `npm run optimize-images` schicken (≤ 1920 px,
+  JPEG q82, in place) — der Optimizer muss die Quelle sonst bei jeder Variante
+  voll dekodieren.
+- `next/image` liefert **nur WebP**. Kein AVIF: gemessen 1,6–2,9 s pro kaltem
+  Encode auf dem geteilten Server gegen 0,16 s WebP, für ~10 % kleinere Dateien.
+- `deviceSizes` in `next.config.mjs` und `WIDTHS` in `scripts/warm-image-cache.mjs`
+  müssen übereinstimmen.
 
 ## Platform
 

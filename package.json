@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "node scripts/start.mjs",
+    "lint": "next lint",
+    "optimize-images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",

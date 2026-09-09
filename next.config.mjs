@@ -13,11 +13,17 @@ const securityHeaders = [
 const nextConfig = {
   images: {
     // The optimizer is ON: we self-host on Coolify with `sharp` installed, so
-    // every <Image> is resized to the rendered width and re-encoded as
-    // AVIF/WebP on first request and cached. Source files in public/images stay
-    // full-size (1–2 MB) but never reach a browser that way any more.
-    formats: ['image/avif', 'image/webp'],
-    // Gallery/hero photos are never displayed wider than this.
+    // every <Image> is resized to the rendered width and re-encoded on first
+    // request, then cached. Source files in public/images are normalised to
+    // ≤ 1920 px by scripts/optimize-images.mjs.
+    //
+    // WebP only — deliberately no AVIF. Measured on the production server
+    // (2026-09-09): a cold AVIF encode took 1.6–2.9 s per image, WebP 0.16 s,
+    // for ~10 % smaller files. The cache is wiped on every deploy, so cold
+    // encodes are not rare; scripts/warm-image-cache.mjs pre-fills it at start.
+    formats: ['image/webp'],
+    // Photos are never displayed wider than this. Keep in sync with WIDTHS in
+    // scripts/warm-image-cache.mjs.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days — our photos never change in place
     remotePatterns: [
