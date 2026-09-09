@@ -15,20 +15,6 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', images: ['/og-events.jpg'] },
 }
 
-// Hidden until ready to announce publicly
-// const UPCOMING_EVENTS = [
-//   {
-//     slug: 'race-week-2026',
-//     name: 'RACE WEEK 2026',
-//     date: '08 – 12 July 2026',
-//     location: 'Cologne, Germany',
-//     description:
-//       "Europe's new festival of virtual motorsport. Esports competition, automotive innovation, and live entertainment for up to 1,500 visitors.",
-//     tags: ['Festival', 'Live Event', 'Esports'],
-//     highlight: true,
-//   },
-// ]
-
 const PAST_EVENTS = [
   {
     name: 'Rennsport Re-Launch 2026',

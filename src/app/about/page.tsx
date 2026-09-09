@@ -23,7 +23,6 @@ const MILESTONES: { year: string; textKey: TranslationKey }[] = [
   { year: '2021', textKey: 'about.milestone.2021' },
   { year: '2023', textKey: 'about.milestone.2023' },
   { year: '2024', textKey: 'about.milestone.2024' },
-  { year: '2026', textKey: 'about.milestone.2026' },
 ]
 
 const STATS: { value: string; labelKey: TranslationKey }[] = [
