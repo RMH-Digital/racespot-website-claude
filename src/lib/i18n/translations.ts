@@ -381,6 +381,7 @@ export const translations = {
   'imprint.email':     { en: 'Email', de: 'E-Mail', es: 'Correo electrónico', pt: 'E-mail', fr: 'E-mail', it: 'E-mail' },
   'footer.location':   { en: 'Hürth, Germany', de: 'Hürth, Deutschland', es: 'Hürth, Alemania', pt: 'Hürth, Alemanha', fr: 'Hürth, Allemagne', it: 'Hürth, Germania' },
   'contact.locationValue': { en: 'Cologne / Hürth, Germany', de: 'Köln / Hürth, Deutschland', es: 'Colonia / Hürth, Alemania', pt: 'Colônia / Hürth, Alemanha', fr: 'Cologne / Hürth, Allemagne', it: 'Colonia / Hürth, Germania' },
+  'legal.label':       { en: 'Legal', de: 'Rechtliches', es: 'Legal', pt: 'Jurídico', fr: 'Mentions légales', it: 'Note legali' },
 } as const
 
 export type TranslationKey = keyof typeof translations
