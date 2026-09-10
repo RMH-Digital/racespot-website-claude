@@ -79,9 +79,9 @@ export default function ContactPage() {
     }
   }
 
-  const TABS: { id: FormType; labelKey: TranslationKey; descKey: TranslationKey }[] = [
-    { id: 'broadcast', labelKey: 'contact.tab.broadcast', descKey: 'contact.tab.broadcastDesc' },
-    { id: 'general',   labelKey: 'contact.tab.general',   descKey: 'contact.tab.generalDesc' },
+  const TABS: { id: FormType; labelKey: TranslationKey }[] = [
+    { id: 'broadcast', labelKey: 'contact.tab.broadcast' },
+    { id: 'general',   labelKey: 'contact.tab.general' },
   ]
 
   return (
@@ -154,7 +154,7 @@ export default function ContactPage() {
                 <div
                   role="tablist"
                   aria-label={t('contact.title')}
-                  className="grid grid-cols-2 gap-2 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
+                  className="grid grid-cols-2 gap-1 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
                 >
                   {TABS.map((tab) => {
                     const active = tab.id === formType
@@ -167,17 +167,12 @@ export default function ContactPage() {
                         aria-selected={active}
                         aria-controls={`panel-${tab.id}`}
                         onClick={() => switchForm(tab.id)}
-                        className={`text-left px-4 py-3 rounded-[4px] transition-colors
+                        className={`px-4 py-2.5 rounded-[4px] font-display font-bold text-[12px] uppercase tracking-[0.08em] transition-colors
                           ${active
                             ? 'bg-rs-yellow text-rs-black'
                             : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                       >
-                        <span className="block font-display font-bold text-[12px] uppercase tracking-[0.08em]">
-                          {t(tab.labelKey)}
-                        </span>
-                        <span className={`block text-[11px] mt-0.5 leading-snug ${active ? 'text-rs-black/70' : 'text-rs-muted/70'}`}>
-                          {t(tab.descKey)}
-                        </span>
+                        {t(tab.labelKey)}
                       </button>
                     )
                   })}

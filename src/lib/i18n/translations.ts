@@ -120,10 +120,8 @@ export const translations = {
   'contact.sendAnother': { en: 'Send another message', de: 'Weitere Nachricht senden', es: 'Enviar otro mensaje', pt: 'Enviar outra mensagem', fr: 'Envoyer un autre message', it: 'Invia un altro messaggio' },
 
   // ─── Contact: form switcher ──────────────────────────────
-  'contact.tab.broadcast': { en: 'Broadcast Request', de: 'Broadcast-Anfrage', es: 'Solicitud de transmisión', pt: 'Pedido de transmissão', fr: 'Demande de diffusion', it: 'Richiesta broadcast' },
-  'contact.tab.broadcastDesc': { en: 'Get a quote for a series or event broadcast', de: 'Angebot für die Übertragung einer Serie oder eines Events', es: 'Presupuesto para transmitir una serie o evento', pt: 'Orçamento para transmitir uma série ou evento', fr: 'Devis pour la diffusion d\'une série ou d\'un événement', it: 'Preventivo per la trasmissione di una serie o un evento' },
-  'contact.tab.general':   { en: 'General Inquiry', de: 'Allgemeine Anfrage', es: 'Consulta general', pt: 'Consulta geral', fr: 'Demande générale', it: 'Richiesta generale' },
-  'contact.tab.generalDesc': { en: 'Partnerships, press, events, anything else', de: 'Partnerschaften, Presse, Events, alles andere', es: 'Asociaciones, prensa, eventos, cualquier otra cosa', pt: 'Parcerias, imprensa, eventos, qualquer outro assunto', fr: 'Partenariats, presse, événements, autres sujets', it: 'Partnership, stampa, eventi, altro' },
+  'contact.tab.broadcast': { en: 'Broadcast', de: 'Broadcast', es: 'Transmisión', pt: 'Transmissão', fr: 'Diffusion', it: 'Broadcast' },
+  'contact.tab.general':   { en: 'General', de: 'Allgemein', es: 'General', pt: 'Geral', fr: 'Général', it: 'Generale' },
   'contact.required':      { en: 'Required', de: 'Pflichtfeld', es: 'Obligatorio', pt: 'Obrigatório', fr: 'Obligatoire', it: 'Obbligatorio' },
   'contact.optional':      { en: 'Optional', de: 'Optional', es: 'Opcional', pt: 'Opcional', fr: 'Facultatif', it: 'Facoltativo' },
 
