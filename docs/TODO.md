@@ -7,6 +7,32 @@ Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ## 1. URL-basiertes i18n — der eine große Brocken
 
+**Stand 2026-09-10: umgesetzt auf Branch `i18n-routes`** (neun Commits, jeder
+baut). Alles unten Beschriebene ist drin: `/{lang}/…` für sechs Sprachen,
+Middleware (302 für `/`, 301 für alte URLs, Cookie nur bei Same-Origin-Referer),
+`<html lang>`, hreflang + `x-default`, Sitemap mit allen Varianten, Metadaten pro
+Sprache, Server-Rendering ohne Provider, `Article.translations` nach dem Vertrag,
+alle UI-Texte, Event-Texte, Alt-Texte, Rechtstexte in sechs Sprachen. Weitere
+Entscheidungen: Portugiesisch ist **pt-BR**; ein untranslatierter Artikel bekommt
+`canonical` auf `/en/…` und `<article lang="en">`; übersetzte 404-Seite.
+
+**Bevor der Branch auf `main` geht:**
+
+- [ ] **Rechtstexte freigeben.** `src/lib/i18n/legal/privacy.ts` und `terms.ts`
+  enthalten de/es/pt/fr/it als **nicht freigegebene Übersetzungen** (Kommentar
+  `REVIEW` in den Dateien). Englisch ist unverändert die Referenz. Wenn Punkt 4
+  den Inhalt ändert, muss jeder geänderte Abschnitt in allen sechs Sprachen
+  nachgezogen werden.
+- [ ] **Press Tool:** `preview.article_path` in
+  `~/Press Tool/projects/racespot/project.yaml` auf `/en/news/{slug}` setzen und
+  `translations` im selben PR liefern (Vertrag unten). Bis dahin rendern die
+  fünf anderen Sprachen den englischen Text ohne hreflang — das ist gewollt.
+- [ ] Die sechs bestehenden Artikel haben noch **keine** Übersetzungen. Entweder
+  liefert das Press Tool sie nach, oder sie bleiben englisch (sauber, nur eben
+  nur auf `/en/` indexiert).
+- [ ] Nach dem Merge in der Google Search Console die neue Sitemap einreichen;
+  die alten URLs leiten per 301 weiter.
+
 **Entschieden am 2026-09-10 (Jürgen):** sechs Sprachen (EN, DE, ES, PT, FR, IT),
 **alle vollständig indexiert**, News-Artikel werden vom Press Tool in alle sechs
 Sprachen geliefert. Arabisch/Chinesisch bewusst nicht (RTL-Umbau, eigene Fonts,
