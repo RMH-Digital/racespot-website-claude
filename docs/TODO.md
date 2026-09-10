@@ -7,8 +7,8 @@ Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ## 1. URL-basiertes i18n — der eine große Brocken
 
-**Stand 2026-09-10: umgesetzt auf Branch `i18n-routes`** (neun Commits, jeder
-baut). Alles unten Beschriebene ist drin: `/{lang}/…` für sechs Sprachen,
+**Stand 2026-09-10: umgesetzt und auf `main` gemerged** (Branch `i18n-routes`,
+16 Commits, jeder baut). Alles unten Beschriebene ist drin: `/{lang}/…` für sechs Sprachen,
 Middleware (302 für `/`, 301 für alte URLs, Cookie nur bei Same-Origin-Referer),
 `<html lang>`, hreflang + `x-default`, Sitemap mit allen Varianten, Metadaten pro
 Sprache, Server-Rendering ohne Provider, `Article.translations` nach dem Vertrag,
@@ -24,20 +24,18 @@ wurde am 2026-09-10 von Jürgen freigegeben.
 
 **Artikel:** Die fünf Artikel von vor dem Press Tool (RENNSPORT, VCO Infinity,
 ERL, Sim Racing Expo, IMSA) wurden einmalig händisch in de/es/pt/fr/it
-übersetzt. Der MOZA-Artikel bleibt englisch, bis das Press Tool ihn mit
-`translations` neu ausspielt; künftige Artikel kommen mehrsprachig aus dem Tool.
+übersetzt. Der MOZA-Artikel kam per PR #5 aus dem Press Tool in sechs Sprachen;
+ab jetzt liefert das Tool jeden Artikel sechssprachig im selben PR und
+veröffentlicht erst, wenn alle fünf Übersetzungen seine Prüfungen bestanden haben.
+`preview.article_path` steht auf `/en/news/{slug}`.
 
-**Bevor der Branch auf `main` geht:**
+**Merge auf `main`: 2026-09-10.** Danach offen:
 
-- [x] Deutsche Rechtstexte freigegeben (2026-09-10). Wenn Punkt 4 den Inhalt
-  ändert: en und de zusammen nachziehen.
-- [ ] **Press Tool:** `preview.article_path` in
-  `~/Press Tool/projects/racespot/project.yaml` auf `/en/news/{slug}` setzen und
-  `translations` im selben PR liefern (Vertrag unten). Bis dahin rendern die
-  fünf anderen Sprachen den englischen Text ohne hreflang — das ist gewollt.
-- [ ] Nach dem Deploy in der Google Search Console die Sitemap
-  `https://racespot.tv/sitemap.xml` erneut einreichen; die alten URLs leiten per
-  301 weiter.
+- [ ] In der Google Search Console die Sitemap `https://racespot.tv/sitemap.xml`
+  erneut einreichen; die alten URLs leiten per 301 weiter. Nach ein paar Tagen
+  unter „Seiten" prüfen, ob die Sprachvarianten indexiert sind.
+- [ ] Press Tool wieder auf `main` mit Auto-Merge stellen (Philips Session; sie
+  wartet auf die Nachricht, dass `i18n-routes` auf `main` ist).
 
 **Entschieden am 2026-09-10 (Jürgen):** sechs Sprachen (EN, DE, ES, PT, FR, IT),
 **alle vollständig indexiert**, News-Artikel werden vom Press Tool in alle sechs
