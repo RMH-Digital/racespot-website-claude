@@ -12,26 +12,32 @@ baut). Alles unten Beschriebene ist drin: `/{lang}/…` für sechs Sprachen,
 Middleware (302 für `/`, 301 für alte URLs, Cookie nur bei Same-Origin-Referer),
 `<html lang>`, hreflang + `x-default`, Sitemap mit allen Varianten, Metadaten pro
 Sprache, Server-Rendering ohne Provider, `Article.translations` nach dem Vertrag,
-alle UI-Texte, Event-Texte, Alt-Texte, Rechtstexte in sechs Sprachen. Weitere
+alle UI-Texte, Event-Texte, Alt-Texte; Rechtstexte in de/en (siehe unten). Weitere
 Entscheidungen: Portugiesisch ist **pt-BR**; ein untranslatierter Artikel bekommt
 `canonical` auf `/en/…` und `<article lang="en">`; übersetzte 404-Seite.
 
+**Rechtstexte** (entschieden 2026-09-10, Jürgen): Datenschutz und AGB gibt es
+nur auf **Deutsch und Englisch**. `/de/…` zeigt Deutsch, alle anderen Sprachen
+zeigen das englische Dokument mit Hinweis, Canonical auf `/en/…`, hreflang nur
+für en/de, kein Sitemap-Eintrag (`src/lib/i18n/legal/`). Die deutsche Fassung
+ist als `REVIEW` markiert und **noch nicht freigegeben**.
+
+**Artikel:** Die fünf Artikel von vor dem Press Tool (RENNSPORT, VCO Infinity,
+ERL, Sim Racing Expo, IMSA) wurden einmalig händisch in de/es/pt/fr/it
+übersetzt. Der MOZA-Artikel bleibt englisch, bis das Press Tool ihn mit
+`translations` neu ausspielt; künftige Artikel kommen mehrsprachig aus dem Tool.
+
 **Bevor der Branch auf `main` geht:**
 
-- [ ] **Rechtstexte freigeben.** `src/lib/i18n/legal/privacy.ts` und `terms.ts`
-  enthalten de/es/pt/fr/it als **nicht freigegebene Übersetzungen** (Kommentar
-  `REVIEW` in den Dateien). Englisch ist unverändert die Referenz. Wenn Punkt 4
-  den Inhalt ändert, muss jeder geänderte Abschnitt in allen sechs Sprachen
-  nachgezogen werden.
+- [ ] **Deutsche Rechtstexte freigeben** (`legal/privacy.ts`, `legal/terms.ts`).
+  Wenn Punkt 4 den Inhalt ändert: en und de zusammen nachziehen.
 - [ ] **Press Tool:** `preview.article_path` in
   `~/Press Tool/projects/racespot/project.yaml` auf `/en/news/{slug}` setzen und
   `translations` im selben PR liefern (Vertrag unten). Bis dahin rendern die
   fünf anderen Sprachen den englischen Text ohne hreflang — das ist gewollt.
-- [ ] Die sechs bestehenden Artikel haben noch **keine** Übersetzungen. Entweder
-  liefert das Press Tool sie nach, oder sie bleiben englisch (sauber, nur eben
-  nur auf `/en/` indexiert).
-- [ ] Nach dem Merge in der Google Search Console die neue Sitemap einreichen;
-  die alten URLs leiten per 301 weiter.
+- [ ] Nach dem Deploy in der Google Search Console die Sitemap
+  `https://racespot.tv/sitemap.xml` erneut einreichen; die alten URLs leiten per
+  301 weiter.
 
 **Entschieden am 2026-09-10 (Jürgen):** sechs Sprachen (EN, DE, ES, PT, FR, IT),
 **alle vollständig indexiert**, News-Artikel werden vom Press Tool in alle sechs

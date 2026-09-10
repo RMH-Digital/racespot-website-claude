@@ -56,9 +56,11 @@ item 1. The rules that are easy to break:
   no sitemap entry, `<article lang="en">` and a one-line notice.
 - **Sitemap** lists every page × language with `xhtml:link` alternates; articles
   only in the languages they exist in.
-- **Legal texts** (`legal/privacy.ts`, `legal/terms.ts`): one `LegalDoc` per
-  language, rendered by `LegalDocument`. The five translations are marked
-  `REVIEW` — not approved by a person yet.
+- **Legal texts** (`legal/privacy.ts`, `legal/terms.ts`) exist in **en and de
+  only** (decided 2026-09-10). `LegalDocument` shows German on `/de/`, English
+  everywhere else with a notice, `lang="en"`, canonical → `/en/…`, hreflang for
+  en/de, no sitemap entry — the same treatment as an untranslated article. The
+  German version is marked `REVIEW` until approved.
 
 ## Design tokens
 
