@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { staticPageMetadata } from '@/lib/i18n/seo'
+import { legalPageMetadata } from '@/lib/i18n/seo'
 import type { Lang } from '@/lib/i18n'
 import { LegalDocument } from '@/components/sections/LegalDocument'
 import { TERMS } from '@/lib/i18n/legal/terms'
 
 export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
-  return staticPageMetadata(lang, '/terms', 'terms', '/og-home.jpg')
+  return legalPageMetadata(lang, '/terms', 'terms')
 }
 
 export default function TermsPage({ params: { lang } }: { params: { lang: Lang } }) {
@@ -13,7 +13,7 @@ export default function TermsPage({ params: { lang } }: { params: { lang: Lang }
     <LegalDocument
       lang={lang}
       titleKey="meta.terms.title"
-      doc={TERMS[lang]}
+      docs={TERMS}
       related={[
         { path: '/imprint', labelKey: 'footer.imprint' },
         { path: '/privacy', labelKey: 'footer.privacyPolicy' },

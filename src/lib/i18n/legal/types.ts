@@ -1,14 +1,28 @@
+import type { Lang } from '../langs'
+
 /**
- * Legal pages (privacy policy, terms) as data, one document per language.
+ * Legal pages (privacy policy, terms) as data.
+ *
+ * Decided 2026-09-10 (Jürgen): legal texts exist in **German and English
+ * only**. A German visitor reads German, every other language reads the
+ * English text — a page in the wrong language behaves like an untranslated
+ * article: canonical on /en/, no hreflang, no sitemap entry.
  *
  * Text may carry the same three inline constructs as article bodies —
  * `**bold**`, `*italic*`, `[label](url)` — and is rendered through
  * renderInline(), never as HTML.
  *
- * REVIEW: the five non-English versions were machine-assisted translations
- * produced on 2026-09-10 and have NOT been approved by a person yet. The
- * English text is the reference. See docs/TODO.md, item 1.
+ * REVIEW: the German version is a translation produced on 2026-09-10 that has
+ * NOT been approved by a person yet. English is the reference.
  */
+export const LEGAL_LANGS = ['en', 'de'] as const
+export type LegalLang = (typeof LEGAL_LANGS)[number]
+
+/** The language a legal document is shown in for a page language. */
+export function legalLang(lang: Lang): LegalLang {
+  return lang === 'de' ? 'de' : 'en'
+}
+
 export type LegalNode =
   | { kind: 'p'; text: string }
   | { kind: 'h3'; text: string }

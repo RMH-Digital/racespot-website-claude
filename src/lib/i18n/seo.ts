@@ -3,6 +3,7 @@ import { LANGS, type Lang } from './langs'
 import { localePath } from './langs'
 import { OG_LOCALES, t } from './index'
 import type { TranslationKey } from './translations'
+import { LEGAL_LANGS, legalLang } from './legal/types'
 
 export const SITE_URL = 'https://racespot.tv'
 
@@ -72,4 +73,23 @@ export function staticPageMetadata(lang: Lang, path: string, key: string, image:
     description: t(lang, `meta.${key}.desc` as TranslationKey),
     image,
   })
+}
+
+/**
+ * Privacy and terms exist in en and de only. Other page languages show the
+ * English document, so their metadata is the English page's: English title
+ * and description, canonical on /en/, hreflang for en and de only.
+ */
+export function legalPageMetadata(lang: Lang, path: string, key: string): Metadata {
+  const docLang = legalLang(lang)
+  const meta = pageMetadata({
+    lang,
+    path,
+    title: t(docLang, `meta.${key}.title` as TranslationKey),
+    description: t(docLang, `meta.${key}.desc` as TranslationKey),
+    image: '/og-home.jpg',
+    langs: LEGAL_LANGS,
+  })
+  if (docLang !== lang && meta.alternates) meta.alternates.canonical = absoluteUrl('en', path)
+  return meta
 }

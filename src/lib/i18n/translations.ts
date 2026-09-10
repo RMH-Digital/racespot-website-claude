@@ -382,6 +382,7 @@ export const translations = {
   'footer.location':   { en: 'Hürth, Germany', de: 'Hürth, Deutschland', es: 'Hürth, Alemania', pt: 'Hürth, Alemanha', fr: 'Hürth, Allemagne', it: 'Hürth, Germania' },
   'contact.locationValue': { en: 'Cologne / Hürth, Germany', de: 'Köln / Hürth, Deutschland', es: 'Colonia / Hürth, Alemania', pt: 'Colônia / Hürth, Alemanha', fr: 'Cologne / Hürth, Allemagne', it: 'Colonia / Hürth, Germania' },
   'legal.label':       { en: 'Legal', de: 'Rechtliches', es: 'Legal', pt: 'Jurídico', fr: 'Mentions légales', it: 'Note legali' },
+  'legal.inEnglishOnly': { en: 'This document is available in English and German only.', de: 'Dieses Dokument liegt nur auf Deutsch und Englisch vor.', es: 'Este documento solo está disponible en inglés y alemán.', pt: 'Este documento está disponível apenas em inglês e alemão.', fr: "Ce document n'est disponible qu'en anglais et en allemand.", it: 'Questo documento è disponibile solo in inglese e tedesco.' },
 } as const
 
 export type TranslationKey = keyof typeof translations

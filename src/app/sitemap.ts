@@ -3,10 +3,11 @@ import { ARTICLES } from '@/lib/articles'
 import { articleLangs } from '@/lib/articleContent'
 import { LANGS, type Lang } from '@/lib/i18n'
 import { absoluteUrl } from '@/lib/i18n/seo'
+import { LEGAL_LANGS } from '@/lib/i18n/legal/types'
 
 type Freq = NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>
 
-const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number }[] = [
+const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number; langs?: readonly Lang[] }[] = [
   { path: '/',           changeFrequency: 'weekly',  priority: 1.0 },
   { path: '/broadcasts', changeFrequency: 'daily',   priority: 0.9 },
   { path: '/calendar',   changeFrequency: 'daily',   priority: 0.9 },
@@ -16,8 +17,9 @@ const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number }[] 
   { path: '/news',       changeFrequency: 'weekly',  priority: 0.8 },
   { path: '/about',      changeFrequency: 'monthly', priority: 0.7 },
   { path: '/contact',    changeFrequency: 'monthly', priority: 0.6 },
-  { path: '/privacy',    changeFrequency: 'yearly',  priority: 0.3 },
-  { path: '/terms',      changeFrequency: 'yearly',  priority: 0.3 },
+  // legal texts exist in en and de only (see src/lib/i18n/legal/types.ts)
+  { path: '/privacy',    changeFrequency: 'yearly',  priority: 0.3, langs: LEGAL_LANGS },
+  { path: '/terms',      changeFrequency: 'yearly',  priority: 0.3, langs: LEGAL_LANGS },
   { path: '/imprint',    changeFrequency: 'yearly',  priority: 0.3 },
 ]
 
@@ -39,13 +41,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = []
 
   for (const page of STATIC_PAGES) {
-    for (const lang of LANGS) {
+    const langs = page.langs ?? LANGS
+    for (const lang of langs) {
       entries.push({
         url: absoluteUrl(lang, page.path),
         lastModified: now,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
-        alternates: { languages: languages(page.path, LANGS) },
+        alternates: { languages: languages(page.path, langs) },
       })
     }
   }
