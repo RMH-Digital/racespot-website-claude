@@ -32,7 +32,7 @@ export function LiveBanners({ lang }: { lang: Lang }) {
             </p>
           </div>
           <span className="text-rs-yellow text-sm font-display font-bold uppercase tracking-wider shrink-0">
-            Watch ▶
+            {t('live.watch')} ▶
           </span>
         </Link>
       ))}

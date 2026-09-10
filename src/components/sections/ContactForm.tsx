@@ -56,7 +56,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
       const result = await res.json()
 
       if (!res.ok) {
-        throw new Error(result.error || 'Failed to send message')
+        throw new Error(result.error || t('contact.errorSend'))
       }
 
       // If SMTP is not configured, open mailto as fallback
@@ -72,7 +72,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Something went wrong. Please email us directly at contact@racespot.tv'
+          : t('contact.errorGeneric')
       )
     } finally {
       setSending(false)
@@ -121,7 +121,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
 
               <div>
                 <p className={LABEL}>{t('contact.location')}</p>
-                <p className="text-white/80 text-sm">Cologne / Hürth, Germany</p>
+                <p className="text-white/80 text-sm">{t('contact.locationValue')}</p>
               </div>
 
               <div>

@@ -3,20 +3,23 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { formatViewCount, formatDate, type YouTubeVideo } from '@/lib/youtube-utils'
+import { getT, type Lang } from '@/lib/i18n'
 
 interface VideoCardProps {
+  lang: Lang
   video: YouTubeVideo
 }
 
-export function VideoCard({ video }: VideoCardProps) {
+export function VideoCard({ lang, video }: VideoCardProps) {
+  const t = getT(lang)
   const isLive = video.liveBroadcastContent === 'live'
   const isUpcoming = video.liveBroadcastContent === 'upcoming'
 
   // Defer date formatting to avoid hydration mismatch (server UTC vs client TZ)
   const [dateStr, setDateStr] = useState('')
   useEffect(() => {
-    setDateStr(formatDate(video.publishedAt))
-  }, [video.publishedAt])
+    setDateStr(formatDate(video.publishedAt, lang))
+  }, [video.publishedAt, lang])
 
   return (
     <a
@@ -47,11 +50,11 @@ export function VideoCard({ video }: VideoCardProps) {
         {isLive && (
           <span className="absolute top-2.5 left-2.5 badge-live">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
-            Live
+            {t('video.live')}
           </span>
         )}
         {isUpcoming && (
-          <span className="absolute top-2.5 left-2.5 badge-upcoming">Upcoming</span>
+          <span className="absolute top-2.5 left-2.5 badge-upcoming">{t('video.upcoming')}</span>
         )}
       </div>
 
@@ -61,7 +64,7 @@ export function VideoCard({ video }: VideoCardProps) {
           {video.title}
         </h3>
         <p className="text-xs text-rs-muted">
-          {formatViewCount(video.viewCount)} views{dateStr ? ` · ${dateStr}` : ''}
+          {formatViewCount(video.viewCount)} {t('common.views')}{dateStr ? ` · ${dateStr}` : ''}
         </p>
       </div>
     </a>

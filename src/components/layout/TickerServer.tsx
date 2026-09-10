@@ -1,14 +1,13 @@
 import { Ticker } from './Ticker'
 import type { TickerItem } from './Ticker'
 import { getUpcomingEvents } from '@/lib/sheets'
-import type { Lang } from '@/lib/i18n'
+import { getT, type Lang } from '@/lib/i18n'
 
 /** Fallback items when no data is available */
-const FALLBACK_ITEMS: TickerItem[] = [
-  { label: 'RACESPOT.TV — Professional Simracing Broadcast Production' },
-  { label: '400+ Live Broadcasts Per Year — Cologne, Germany' },
-  { label: 'Partners: Eurosport · Sport 1 · MotorsTV' },
-]
+function fallbackItems(lang: Lang): TickerItem[] {
+  const t = getT(lang)
+  return [{ label: t('ticker.fb1') }, { label: t('ticker.fb2') }, { label: t('ticker.fb3') }]
+}
 
 export async function TickerServer({ lang }: { lang: Lang }) {
   const tickerItems: TickerItem[] = []
@@ -37,7 +36,7 @@ export async function TickerServer({ lang }: { lang: Lang }) {
   }
 
   // Use fallback if no items generated
-  const items = tickerItems.length > 0 ? tickerItems : FALLBACK_ITEMS
+  const items = tickerItems.length > 0 ? tickerItems : fallbackItems(lang)
 
   return <Ticker lang={lang} items={items} />
 }

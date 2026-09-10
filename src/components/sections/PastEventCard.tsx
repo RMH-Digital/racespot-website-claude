@@ -10,7 +10,13 @@ interface PastEvent {
   images: string[]
 }
 
-export default function PastEventCard({ event }: { event: PastEvent }) {
+interface Labels {
+  photo: string
+  prev: string
+  next: string
+}
+
+export default function PastEventCard({ event, labels }: { event: PastEvent; labels: Labels }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const hasMultiple = event.images.length > 1
 
@@ -35,7 +41,7 @@ export default function PastEventCard({ event }: { event: PastEvent }) {
         <Image
           key={src}
           src={src}
-          alt={`${event.name} – Photo ${i + 1}`}
+          alt={`${event.name} – ${labels.photo} ${i + 1}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className={`object-cover transition-all duration-700 ease-out
@@ -67,7 +73,7 @@ export default function PastEventCard({ event }: { event: PastEvent }) {
                        opacity-0 group-hover:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
                        transition-all duration-300"
-            aria-label="Previous photo"
+            aria-label={labels.prev}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -82,7 +88,7 @@ export default function PastEventCard({ event }: { event: PastEvent }) {
                        opacity-0 group-hover:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
                        transition-all duration-300"
-            aria-label="Next photo"
+            aria-label={labels.next}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

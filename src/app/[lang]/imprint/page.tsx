@@ -35,8 +35,8 @@ export default function ImprintPage({ params: { lang } }: { params: { lang: Lang
           <section>
             <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.contact')}</h2>
             <p>
-              Phone: +49 (0)163 686 7887<br />
-              Email:{' '}
+              {t('imprint.phone')}: +49 (0)163 686 7887<br />
+              {t('imprint.email')}:{' '}
               <a href="mailto:contact@racespot.tv" className="text-rs-yellow hover:underline">
                 contact@racespot.tv
               </a>

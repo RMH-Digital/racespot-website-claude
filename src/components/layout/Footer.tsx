@@ -150,7 +150,7 @@ export function Footer({ lang }: { lang: Lang }) {
         {/* Bottom bar */}
         <div className="border-t border-rs-border mt-8 pt-8 flex flex-col sm:flex-row justify-between gap-4">
           <p className="text-[13px] text-rs-muted">
-            © {new Date().getFullYear()} Racespot Media House GmbH · Hürth, Germany
+            © {new Date().getFullYear()} Racespot Media House GmbH · {t('footer.location')}
           </p>
           <p className="text-[13px] text-rs-muted flex gap-4">
             <Link href={href('/privacy')} className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>

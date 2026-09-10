@@ -21,7 +21,7 @@ export default function NewsPage({ params: { lang } }: { params: { lang: Lang } 
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
           src="/images/gallery/Coanda_LMVS_IRL_LM24-177.jpg"
-          alt="Racespot broadcast production"
+          alt={t('news.heroAlt')}
           fill
           className="object-cover object-center"
           priority

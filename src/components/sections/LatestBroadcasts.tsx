@@ -30,7 +30,7 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
         {hasData ? (
           <div className="card-grid card-grid--3">
             {videos.map((video) => (
-              <VideoCard key={video.id} video={video} />
+              <VideoCard key={video.id} lang={lang} video={video} />
             ))}
           </div>
         ) : (
@@ -45,9 +45,9 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
 function FallbackBroadcasts({ lang }: { lang: Lang }) {
   const t = getT(lang)
   const placeholders = [
-    { emoji: '🏎', title: 'Latest broadcast from RaceSpot.tv', category: 'Broadcast' },
-    { emoji: '🏁', title: 'Recent race coverage', category: 'Coverage' },
-    { emoji: '🌙', title: 'Endurance event replay', category: 'Endurance' },
+    { emoji: '🏎', title: t('broadcasts.fb1.title'), category: t('broadcasts.fb1.category') },
+    { emoji: '🏁', title: t('broadcasts.fb2.title'), category: t('broadcasts.fb2.category') },
+    { emoji: '🌙', title: t('broadcasts.fb3.title'), category: t('broadcasts.fb3.category') },
   ]
 
   return (

@@ -34,7 +34,7 @@ export default function AboutPage({ params: { lang } }: { params: { lang: Lang }
       <section className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
           src="/images/gallery/SimplyRace-8482.jpg"
-          alt="Racespot team at event"
+          alt={t('about.heroAlt')}
           fill
           className="object-cover"
           priority
@@ -109,12 +109,12 @@ export default function AboutPage({ params: { lang } }: { params: { lang: Lang }
           <h2 className="font-display font-bold text-2xl uppercase text-white mb-8">{t('about.howWeWork')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[
-              { src: '/images/setup/image (5).jpeg', alt: 'Broadcast equipment setup' },
-              { src: '/images/setup/image (4).jpeg', alt: 'Production control room' },
-              { src: '/images/setup/Image.jpeg', alt: 'Sim racing hardware' },
-              { src: '/images/setup/Image (1).jpeg', alt: 'Event preparation' },
-              { src: '/images/setup/SimplyRace-8654.jpeg', alt: 'Behind the scenes' },
-              { src: '/images/setup/WhatsApp Image 2026-03-13 at 09.41.36.jpeg', alt: 'On-site broadcast setup' },
+              { src: '/images/setup/image (5).jpeg', alt: t('about.alt1') },
+              { src: '/images/setup/image (4).jpeg', alt: t('about.alt2') },
+              { src: '/images/setup/Image.jpeg', alt: t('about.alt3') },
+              { src: '/images/setup/Image (1).jpeg', alt: t('about.alt4') },
+              { src: '/images/setup/SimplyRace-8654.jpeg', alt: t('about.alt5') },
+              { src: '/images/setup/WhatsApp Image 2026-03-13 at 09.41.36.jpeg', alt: t('about.alt6') },
             ].map((img) => (
               <div key={img.src} className="relative aspect-[4/3] rounded-rs overflow-hidden group">
                 <Image

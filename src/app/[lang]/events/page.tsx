@@ -4,16 +4,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import PastEventCard from '@/components/sections/PastEventCard'
 import { getT, type Lang } from '@/lib/i18n'
+import type { TranslationKey } from '@/lib/i18n/translations'
 
 export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
   return staticPageMetadata(lang, '/events', 'events', '/og-events.jpg')
 }
 
-const PAST_EVENTS = [
+const PAST_EVENTS: { name: string; year: string; locationKey: TranslationKey; images: string[] }[] = [
   {
     name: 'Rennsport Re-Launch 2026',
     year: '2026',
-    location: 'Germany',
+    locationKey: 'events.loc.germany',
     images: [
       '/images/events/rennsport-relaunch-2026/DSC00103.jpg',
       '/images/events/rennsport-relaunch-2026/DSC00329.jpg',
@@ -24,7 +25,7 @@ const PAST_EVENTS = [
   {
     name: 'Sim Racing Expo 2025',
     year: '2025',
-    location: 'Dortmund, Germany',
+    locationKey: 'events.loc.dortmund',
     images: [
       '/images/events/sim-racing-expo-2025/IMG_6845.jpg',
       '/images/events/sim-racing-expo-2025/IMG_6780.jpg',
@@ -36,7 +37,7 @@ const PAST_EVENTS = [
   {
     name: 'Esports World Cup 2025',
     year: '2025',
-    location: 'Riyadh, Saudi Arabia',
+    locationKey: 'events.loc.riyadh',
     images: [
       '/images/gallery/flickr_54643383044.jpg',
       '/images/gallery/54643394093_6bc878753c_o.jpeg',
@@ -47,7 +48,7 @@ const PAST_EVENTS = [
   {
     name: 'Milton Keynes Summit 2022',
     year: '2022',
-    location: 'Milton Keynes, UK',
+    locationKey: 'events.loc.miltonKeynes',
     images: [
       '/images/events/milton-keynes-2022/SimplyRace-8900.jpg',
       '/images/events/milton-keynes-2022/SimplyRace-8918.jpg',
@@ -57,7 +58,7 @@ const PAST_EVENTS = [
   {
     name: 'BMW SIM Live Munich 2019',
     year: '2019',
-    location: 'Munich, Germany',
+    locationKey: 'events.loc.munich',
     images: [
       '/images/events/bmw-sim-live-2019/2019-BMW-SIM-Live-Event-07.jpg',
       '/images/events/bmw-sim-live-2019/BMW-sim-live-2019-14.jpg',
@@ -68,7 +69,7 @@ const PAST_EVENTS = [
   {
     name: 'Porsche Simracing Summit 2018',
     year: '2018',
-    location: 'Leipzig, Germany',
+    locationKey: 'events.loc.leipzig',
     images: [
       '/images/events/porsche-summit-2018/48357825_10156928792516085_7385535851356225536_n.jpg',
       '/images/events/porsche-summit-2018/48372144_2018785294864123_1694205474028650496_n.jpg',
@@ -86,7 +87,7 @@ export default function EventsPage({ params: { lang } }: { params: { lang: Lang 
       <section className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
           src="/images/setup/WhatsApp Image 2026-03-13 at 09.42.54.jpeg"
-          alt="Racespot broadcast production setup"
+          alt={t('events.heroAlt')}
           fill
           priority
           className="object-cover object-center"
@@ -116,14 +117,14 @@ export default function EventsPage({ params: { lang } }: { params: { lang: Lang 
           <div className="relative aspect-video rounded-rs overflow-hidden border border-white/10">
             <iframe
               src="https://www.youtube-nocookie.com/embed/TFW_9FalOdY?rel=0&modestbranding=1"
-              title="Sim Racing Expo 2025 — After Movie"
+              title={t('events.afterMovieTitle')}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="absolute inset-0 w-full h-full"
             />
           </div>
           <p className="text-rs-muted text-sm mt-3">
-            Sim Racing Expo 2025 — Dortmund, Germany
+            {t('events.afterMovieCaption')}
           </p>
         </div>
 
@@ -140,7 +141,11 @@ export default function EventsPage({ params: { lang } }: { params: { lang: Lang 
           {/* Gallery grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {PAST_EVENTS.map((event) => (
-              <PastEventCard key={event.name} event={event} />
+              <PastEventCard
+                key={event.name}
+                event={{ name: event.name, year: event.year, location: t(event.locationKey), images: event.images }}
+                labels={{ photo: t('events.photo'), prev: t('events.prevPhoto'), next: t('events.nextPhoto') }}
+              />
             ))}
           </div>
         </div>

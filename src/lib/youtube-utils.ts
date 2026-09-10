@@ -1,3 +1,5 @@
+import { LOCALES, t, type Lang } from '@/lib/i18n'
+
 /**
  * Client-safe YouTube types and utility functions.
  * These can be imported in both server and client components.
@@ -51,20 +53,27 @@ export function formatViewCount(count: string): string {
 }
 
 /**
- * Format ISO date to relative/short format
+ * Format ISO date to relative/short format, in the page language:
+ * "Today", "3 days ago", "2 weeks ago", then "Aug 2026".
  */
-export function formatDate(isoDate: string): string {
+export function formatDate(isoDate: string, lang: Lang = 'en'): string {
   const date = new Date(isoDate)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffDays = Math.floor(diffMs / 86400000)
+  const locale = LOCALES[lang]
 
-  if (diffDays === 0) return 'Today'
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return `${diffDays}d ago`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`
+  if (diffDays === 0) return t(lang, 'common.today')
+  if (diffDays === 1) return t(lang, 'common.yesterday')
+  try {
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'always' })
+    if (diffDays < 7) return rtf.format(-diffDays, 'day')
+    if (diffDays < 30) return rtf.format(-Math.floor(diffDays / 7), 'week')
+  } catch {
+    // very old runtimes without RelativeTimeFormat fall through to the month
+  }
 
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' })
 }
 
 /**

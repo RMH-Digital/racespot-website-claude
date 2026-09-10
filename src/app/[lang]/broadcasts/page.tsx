@@ -112,7 +112,7 @@ export default async function BroadcastsPage({ params: { lang } }: { params: { l
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
           src="/images/setup/WhatsApp Image 2026-03-13 at 09.43.42.jpeg"
-          alt="Racespot broadcast control room with multiple monitors"
+          alt={t('broadcastsPage.heroAlt')}
           fill
           className="object-cover object-[center_35%]"
           priority
@@ -144,7 +144,7 @@ export default async function BroadcastsPage({ params: { lang } }: { params: { l
           {broadcasts.length > 0 ? (
             <div className="card-grid card-grid--3">
               {broadcasts.map((video) => (
-                <VideoCard key={video.id} video={video} />
+                <VideoCard key={video.id} lang={lang} video={video} />
               ))}
             </div>
           ) : (

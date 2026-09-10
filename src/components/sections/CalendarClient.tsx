@@ -171,13 +171,15 @@ function ListView({ lang, events, year, month, is24h, locale }: { lang: Lang; ev
     })
   }, [events, year, month])
 
+  const t = getT(lang)
+
   if (monthEvents.length === 0) return <EmptyState lang={lang} />
 
   return (
     <div>
       <div className="flex items-baseline gap-3 mb-4 pb-3 border-b border-rs-border">
         <span className="text-rs-muted text-[11px]">
-          {monthEvents.length} event{monthEvents.length !== 1 ? 's' : ''}
+          {monthEvents.length} {t(monthEvents.length === 1 ? 'calendar.eventOne' : 'calendar.eventMany')}
         </span>
       </div>
       <div>
@@ -334,6 +336,7 @@ function DayCell({
   is24h: boolean
   locale: string
 }) {
+  const t = getT(lang)
   const [activeIndex, setActiveIndex] = useState(0)
   const hasEvents = events.length > 0
   const hasMultiple = events.length > 1
@@ -401,7 +404,7 @@ function DayCell({
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(i => Math.max(0, i - 1)) }}
                   disabled={activeIndex === 0}
                   className="hidden md:flex w-5 h-5 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
-                  aria-label="Previous event"
+                  aria-label={t('calendar.prevEvent')}
                 >
                   ‹
                 </button>
@@ -426,7 +429,7 @@ function DayCell({
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(i => Math.min(events.length - 1, i + 1)) }}
                   disabled={activeIndex === events.length - 1}
                   className="hidden md:flex w-5 h-5 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
-                  aria-label="Next event"
+                  aria-label={t('calendar.nextEvent')}
                 >
                   ›
                 </button>

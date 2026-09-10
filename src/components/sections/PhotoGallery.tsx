@@ -1,12 +1,13 @@
 import Image from 'next/image'
 import { getT, type Lang } from '@/lib/i18n'
+import type { TranslationKey } from '@/lib/i18n/translations'
 
-const GALLERY = [
-  { src: '/images/gallery/Coke_Interlagos_Sprint_1_030425.jpg', alt: 'NASCAR Coke Series at Interlagos', span: 'col-span-2 row-span-2' },
-  { src: '/images/gallery/F4-R7-28.jpeg', alt: 'F4 Esports side-by-side racing', span: '' },
-  { src: '/images/gallery/IMSAEsports_R4_EMM-1.jpg', alt: 'IMSA Esports night race at Daytona', span: '' },
-  { src: '/images/gallery/GRAB_034.jpeg', alt: 'LMP prototypes on track', span: '' },
-  { src: '/images/gallery/mkexTJ35SZ2PESn.jpg', alt: 'NASCAR pack racing overhead view', span: '' },
+const GALLERY: { src: string; altKey: TranslationKey; span: string }[] = [
+  { src: '/images/gallery/Coke_Interlagos_Sprint_1_030425.jpg', altKey: 'gallery.alt1', span: 'col-span-2 row-span-2' },
+  { src: '/images/gallery/F4-R7-28.jpeg', altKey: 'gallery.alt2', span: '' },
+  { src: '/images/gallery/IMSAEsports_R4_EMM-1.jpg', altKey: 'gallery.alt3', span: '' },
+  { src: '/images/gallery/GRAB_034.jpeg', altKey: 'gallery.alt4', span: '' },
+  { src: '/images/gallery/mkexTJ35SZ2PESn.jpg', altKey: 'gallery.alt5', span: '' },
 ]
 
 export function PhotoGallery({ lang }: { lang: Lang }) {
@@ -30,7 +31,7 @@ export function PhotoGallery({ lang }: { lang: Lang }) {
             >
               <Image
                 src={img.src}
-                alt={img.alt}
+                alt={t(img.altKey)}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, 25vw"
@@ -39,7 +40,7 @@ export function PhotoGallery({ lang }: { lang: Lang }) {
               <div className="absolute inset-0 bg-rs-black/0 group-hover:bg-rs-black/30 transition-all duration-300" />
               <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                 <div className="bg-rs-black/80 backdrop-blur-sm rounded px-3 py-1.5">
-                  <p className="text-white text-xs font-medium">{img.alt}</p>
+                  <p className="text-white text-xs font-medium">{t(img.altKey)}</p>
                 </div>
               </div>
               {/* Yellow accent corner */}

@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { formatViewCount } from '@/lib/youtube-utils'
-import { localePath, type Lang } from '@/lib/i18n'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -72,6 +72,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
   const is24h = useIs24Hour()
   const [mounted, setMounted] = useState(false)
   const { liveStreams, isLive } = useLiveStatus()
+  const t = getT(lang)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -79,7 +80,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     // Prepend live stream titles from client-side polling
     const liveItems: string[] = liveStreams.map(stream => {
       const viewers = formatViewCount(stream.concurrentViewers)
-      return `${stream.title} — ${viewers} Watching`
+      return `${stream.title} — ${viewers} ${t('live.watching')}`
     })
 
     const serverItems = (!items || items.length === 0) ? [] : items.map(item => {
@@ -95,7 +96,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     })
 
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
-  }, [items, is24h, mounted, liveStreams])
+  }, [items, is24h, mounted, liveStreams, t])
 
   if (rendered.length === 0) return null
 
@@ -108,11 +109,11 @@ export function Ticker({ lang, items = [] }: TickerProps) {
       {isLive ? (
         <Link href={localePath(lang, '/live')} className="shrink-0 flex items-center gap-1.5 px-3.5 h-full bg-black/15 hover:bg-black/25 transition-colors">
           <span className="w-1.5 h-1.5 rounded-full bg-rs-live animate-pulse-live" />
-          <span className="text-[11px] font-display font-bold uppercase text-rs-black">LIVE</span>
+          <span className="text-[11px] font-display font-bold uppercase text-rs-black">{t('ticker.live')}</span>
         </Link>
       ) : (
         <Link href={localePath(lang, '/calendar')} className="shrink-0 flex items-center px-3.5 h-full bg-black/10 hover:bg-black/20 transition-colors">
-          <span className="text-[11px] font-display font-bold uppercase text-rs-black/70">UPCOMING</span>
+          <span className="text-[11px] font-display font-bold uppercase text-rs-black/70">{t('ticker.upcoming')}</span>
         </Link>
       )}
 
