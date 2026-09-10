@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import PastEventCard from '@/components/sections/PastEventCard'
-import { T } from '@/components/ui/T'
+import { getT, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'Events',
@@ -84,7 +84,8 @@ const PAST_EVENTS = [
   },
 ]
 
-export default function EventsPage() {
+export default function EventsPage({ params: { lang } }: { params: { lang: Lang } }) {
+  const t = getT(lang)
   return (
     <div>
       {/* ── Hero Banner ── */}
@@ -102,8 +103,8 @@ export default function EventsPage() {
 
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
-            <p className="section-label mb-3"><T k="events.label" /></p>
-            <h1 className="display-title"><T k="events.title" /></h1>
+            <p className="section-label mb-3">{t('events.label')}</p>
+            <h1 className="display-title">{t('events.title')}</h1>
           </div>
         </div>
       </section>
@@ -113,7 +114,7 @@ export default function EventsPage() {
         <div className="mb-20">
           <div className="flex items-center gap-4 mb-8">
             <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
-              <T k="events.afterMovie" />
+              {t('events.afterMovie')}
             </h2>
             <div className="h-[2px] flex-1 bg-gradient-to-r from-rs-yellow/60 to-transparent" />
           </div>
@@ -137,7 +138,7 @@ export default function EventsPage() {
           {/* Section heading with yellow accent */}
           <div className="flex items-center gap-4 mb-10">
             <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
-              <T k="events.eventHighlights" />
+              {t('events.eventHighlights')}
             </h2>
             <div className="h-[2px] flex-1 bg-gradient-to-r from-rs-yellow/60 to-transparent" />
           </div>

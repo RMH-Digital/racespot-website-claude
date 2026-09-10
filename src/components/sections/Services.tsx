@@ -1,8 +1,6 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 const SERVICES: { number: string; titleKey: TranslationKey; taglineKey: TranslationKey; image: string }[] = [
@@ -32,8 +30,8 @@ const SERVICES: { number: string; titleKey: TranslationKey; taglineKey: Translat
   },
 ]
 
-export function Services() {
-  const t = useTranslation()
+export function Services({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <section className="section section--alt">
@@ -43,7 +41,7 @@ export function Services() {
             <p className="section-label mb-2">{t('services.label')}</p>
             <h2 className="section-title">{t('services.title')}</h2>
           </div>
-          <Link href="/services" className="btn-ghost hidden sm:flex">
+          <Link href={localePath(lang, '/services')} className="btn-ghost hidden sm:flex">
             {t('services.viewAll')}
           </Link>
         </div>
@@ -52,7 +50,7 @@ export function Services() {
           {SERVICES.map((s) => (
             <Link
               key={s.number}
-              href="/services"
+              href={localePath(lang, '/services')}
               className="group relative aspect-[16/9] rounded-rs overflow-hidden border border-rs-border hover:border-rs-yellow/50 transition-colors"
             >
               <Image
@@ -75,7 +73,7 @@ export function Services() {
         </div>
 
         <div className="mt-6 sm:hidden">
-          <Link href="/services" className="btn-ghost">
+          <Link href={localePath(lang, '/services')} className="btn-ghost">
             {t('services.viewAll')}
           </Link>
         </div>

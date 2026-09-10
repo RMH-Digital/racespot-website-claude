@@ -5,7 +5,6 @@ import '../globals.css'
 import { Header } from '@/components/layout/Header'
 import { TickerServer } from '@/components/layout/TickerServer'
 import { Footer } from '@/components/layout/Footer'
-import { LanguageProvider } from '@/lib/language'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { Analytics } from '@/components/seo/Analytics'
@@ -89,15 +88,13 @@ export default function RootLayout({
         <WebsiteJsonLd />
       </head>
       <body className="bg-rs-black text-white" suppressHydrationWarning>
-        <LanguageProvider lang={lang}>
-          <LiveStatusProvider>
-            <Header lang={lang} />
-            <TickerServer />
-            {/* Offset for fixed header (64px) + ticker (34px) = 98px */}
-            <main className="pt-[98px]">{children}</main>
-            <Footer lang={lang} />
-          </LiveStatusProvider>
-        </LanguageProvider>
+        <LiveStatusProvider>
+          <Header lang={lang} />
+          <TickerServer lang={lang} />
+          {/* Offset for fixed header (64px) + ticker (34px) = 98px */}
+          <main className="pt-[98px]">{children}</main>
+          <Footer lang={lang} />
+        </LiveStatusProvider>
         <Analytics />
       </body>
     </html>

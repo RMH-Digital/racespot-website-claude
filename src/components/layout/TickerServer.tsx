@@ -1,6 +1,7 @@
 import { Ticker } from './Ticker'
 import type { TickerItem } from './Ticker'
 import { getUpcomingEvents } from '@/lib/sheets'
+import type { Lang } from '@/lib/i18n'
 
 /** Fallback items when no data is available */
 const FALLBACK_ITEMS: TickerItem[] = [
@@ -9,7 +10,7 @@ const FALLBACK_ITEMS: TickerItem[] = [
   { label: 'Partners: Eurosport · Sport 1 · MotorsTV' },
 ]
 
-export async function TickerServer() {
+export async function TickerServer({ lang }: { lang: Lang }) {
   const tickerItems: TickerItem[] = []
 
   try {
@@ -38,5 +39,5 @@ export async function TickerServer() {
   // Use fallback if no items generated
   const items = tickerItems.length > 0 ? tickerItems : FALLBACK_ITEMS
 
-  return <Ticker items={items} />
+  return <Ticker lang={lang} items={items} />
 }

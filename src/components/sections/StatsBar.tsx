@@ -1,6 +1,4 @@
-'use client'
-
-import { useTranslation } from '@/lib/language'
+import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 const STATS: { value: string; labelKey: TranslationKey }[] = [
@@ -10,8 +8,8 @@ const STATS: { value: string; labelKey: TranslationKey }[] = [
   { value: '8', labelKey: 'stats.languagesCovered' },
 ]
 
-export function StatsBar() {
-  const t = useTranslation()
+export function StatsBar({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <div className="bg-rs-yellow py-12 border-b border-rs-border">

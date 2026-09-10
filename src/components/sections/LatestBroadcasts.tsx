@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { getCompletedBroadcasts } from '@/lib/youtube'
 import { VideoCard } from '@/components/ui/VideoCard'
-import { T } from '@/components/ui/T'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 import { LiveBanners } from './LiveBanners'
 
-export async function LatestBroadcasts() {
+export async function LatestBroadcasts({ lang }: { lang: Lang }) {
+  const t = getT(lang)
   const videos = await getCompletedBroadcasts(3)
 
   const hasData = videos.length > 0
@@ -14,16 +15,16 @@ export async function LatestBroadcasts() {
       <div className="container-rs">
         <div className="section-header">
           <div>
-            <p className="section-label mb-2"><T k="broadcasts.recentCoverage" /></p>
-            <h2 className="section-title"><T k="broadcasts.latestBroadcasts" /></h2>
+            <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
+            <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
           </div>
-          <Link href="/broadcasts" className="btn-ghost hidden sm:flex">
-            <T k="broadcasts.viewAll" />
+          <Link href={localePath(lang, '/broadcasts')} className="btn-ghost hidden sm:flex">
+            {t('broadcasts.viewAll')}
           </Link>
         </div>
 
         {/* Live stream banners — client-side, from LiveStatusProvider */}
-        <LiveBanners />
+        <LiveBanners lang={lang} />
 
         {/* Video grid — 3 latest broadcasts */}
         {hasData ? (
@@ -33,7 +34,7 @@ export async function LatestBroadcasts() {
             ))}
           </div>
         ) : (
-          <FallbackBroadcasts />
+          <FallbackBroadcasts lang={lang} />
         )}
       </div>
     </section>
@@ -41,7 +42,8 @@ export async function LatestBroadcasts() {
 }
 
 /** Fallback when YouTube API is unavailable */
-function FallbackBroadcasts() {
+function FallbackBroadcasts({ lang }: { lang: Lang }) {
+  const t = getT(lang)
   const placeholders = [
     { emoji: '🏎', title: 'Latest broadcast from RaceSpot.tv', category: 'Broadcast' },
     { emoji: '🏁', title: 'Recent race coverage', category: 'Coverage' },
@@ -66,7 +68,7 @@ function FallbackBroadcasts() {
               {b.category}
             </p>
             <h3 className="text-[15px] font-semibold text-white leading-snug mb-2 group-hover:text-rs-yellow transition-colors">{b.title}</h3>
-            <p className="text-xs text-rs-muted"><T k="broadcasts.watchOnYT" /></p>
+            <p className="text-xs text-rs-muted">{t('broadcasts.watchOnYT')}</p>
           </div>
         </a>
       ))}

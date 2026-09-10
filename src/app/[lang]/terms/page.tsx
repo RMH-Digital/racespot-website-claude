@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { localePath, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions',
   description: 'General terms and conditions for Racespot Media House GmbH.',
 }
 
-export default function TermsPage() {
+export default function TermsPage({ params: { lang } }: { params: { lang: Lang } }) {
   return (
     <div className="pt-8">
       <div className="container-rs py-8 max-w-3xl">
@@ -316,10 +317,10 @@ export default function TermsPage() {
 
           {/* Links */}
           <div className="border-t border-rs-border pt-8 flex flex-wrap gap-6">
-            <Link href="/imprint" className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/imprint')} className="text-rs-yellow hover:underline text-sm">
               Imprint
             </Link>
-            <Link href="/privacy" className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/privacy')} className="text-rs-yellow hover:underline text-sm">
               Privacy Policy
             </Link>
           </div>

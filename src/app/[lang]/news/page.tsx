@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
+import { localePath, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'News',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', images: ['/og-news.jpg'] },
 }
 
-export default function NewsPage() {
+export default function NewsPage({ params: { lang } }: { params: { lang: Lang } }) {
   const [featured, ...rest] = ARTICLES
 
   return (
@@ -41,7 +42,7 @@ export default function NewsPage() {
       <div className="container-rs py-16">
 
         {/* Featured */}
-        <Link href={`/news/${featured.slug}`} className="group block mb-16">
+        <Link href={localePath(lang, `/news/${featured.slug}`)} className="group block mb-16">
           <div className="bg-rs-dark border border-rs-border hover:border-rs-yellow/40 transition-colors overflow-hidden">
             <div className="relative aspect-[21/9] w-full overflow-hidden isolate">
               <Image
@@ -80,7 +81,7 @@ export default function NewsPage() {
           {rest.map((article) => (
             <Link
               key={article.slug}
-              href={`/news/${article.slug}`}
+              href={localePath(lang, `/news/${article.slug}`)}
               className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 py-6 border-b border-rs-border hover:bg-rs-dark px-4 -mx-4 transition-colors"
             >
               {/* Thumbnail */}

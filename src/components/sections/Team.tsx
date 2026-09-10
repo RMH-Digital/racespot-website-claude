@@ -1,7 +1,5 @@
-'use client'
-
 import Image from 'next/image'
-import { useTranslation } from '@/lib/language'
+import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 const TEAM: { name: string; roleKey: TranslationKey; bioKey: TranslationKey; image: string; imagePos?: string }[] = [
@@ -26,8 +24,8 @@ const TEAM: { name: string; roleKey: TranslationKey; bioKey: TranslationKey; ima
   },
 ]
 
-export function Team() {
-  const t = useTranslation()
+export function Team({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <section className="section section--alt">

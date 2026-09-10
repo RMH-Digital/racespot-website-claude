@@ -3,9 +3,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
-import { useTranslation, useLanguage, type LangCode } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
-const LIVE_PAGE = '/live'
 
 // ─── Locale & time-format resolution ────────────────────────
 // Maps the site's selected language to a default locale + 24h preference.
@@ -17,7 +16,7 @@ const LANG_DEFAULTS: Record<string, { locale: string; is24h: boolean }> = {
   en: { locale: 'en-US', is24h: false },    // US English — 12h default
   fr: { locale: 'fr-FR', is24h: true },     // France — 24h
   es: { locale: 'es-ES', is24h: true },     // Spain — 24h
-  pt: { locale: 'pt-PT', is24h: true },     // Portugal — 24h
+  pt: { locale: 'pt-BR', is24h: true },     // Brazil — the site's Portuguese is pt-BR; 24h
   it: { locale: 'it-IT', is24h: true },     // Italy — 24h
 }
 
@@ -26,7 +25,7 @@ const REGIONS_12H = new Set([
   'US', 'PH', 'MY', 'AU', 'CA', 'NZ', 'IN', 'EG', 'SA', 'CO', 'PK', 'BD',
 ])
 
-function resolveLocaleAndFormat(siteLang: LangCode): { locale: string; is24h: boolean } {
+function resolveLocaleAndFormat(siteLang: Lang): { locale: string; is24h: boolean } {
   const defaults = LANG_DEFAULTS[siteLang] || LANG_DEFAULTS.en
 
   if (typeof navigator === 'undefined') return defaults
@@ -74,8 +73,7 @@ function resolveLocaleAndFormat(siteLang: LangCode): { locale: string; is24h: bo
   return { locale, is24h }
 }
 
-function useLocaleFormat() {
-  const { lang } = useLanguage()
+function useLocaleFormat(lang: Lang) {
   const [result, setResult] = useState<{ locale: string; is24h: boolean }>(() =>
     LANG_DEFAULTS[lang] || LANG_DEFAULTS.en
   )
@@ -165,7 +163,7 @@ function LiveBadge() {
 
 // ─── List View ──────────────────────────────────────────────
 
-function ListView({ events, year, month, is24h, locale }: { events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string }) {
+function ListView({ lang, events, year, month, is24h, locale }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string }) {
   const monthEvents = useMemo(() => {
     return events.filter((e) => {
       const d = localDate(e.dateISO)
@@ -173,7 +171,7 @@ function ListView({ events, year, month, is24h, locale }: { events: CalendarEven
     })
   }, [events, year, month])
 
-  if (monthEvents.length === 0) return <EmptyState />
+  if (monthEvents.length === 0) return <EmptyState lang={lang} />
 
   return (
     <div>
@@ -184,14 +182,14 @@ function ListView({ events, year, month, is24h, locale }: { events: CalendarEven
       </div>
       <div>
         {monthEvents.map(event => (
-          <EventRow key={event.id} event={event} is24h={is24h} locale={locale} />
+          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} />
         ))}
       </div>
     </div>
   )
 }
 
-function EventRow({ event, is24h, locale }: { event: CalendarEvent; is24h: boolean; locale: string }) {
+function EventRow({ lang, event, is24h, locale }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string }) {
   const d = localDate(event.dateISO)
   const day = d.getDate()
   const weekday = formatWeekday(event.dateISO, locale)
@@ -199,7 +197,7 @@ function EventRow({ event, is24h, locale }: { event: CalendarEvent; is24h: boole
 
   return (
     <a
-      href={LIVE_PAGE}
+      href={localePath(lang, '/live')}
       className="group grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
                  hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 cursor-pointer"
     >
@@ -236,12 +234,14 @@ function EventRow({ event, is24h, locale }: { event: CalendarEvent; is24h: boole
 // ─── Calendar Grid View ─────────────────────────────────────
 
 function CalendarGridView({
+  lang,
   events,
   year,
   month,
   is24h,
   locale,
 }: {
+  lang: Lang
   events: CalendarEvent[]
   year: number
   month: number
@@ -302,6 +302,7 @@ function CalendarGridView({
             return (
               <DayCell
                 key={day}
+                lang={lang}
                 day={day}
                 events={dayEvents}
                 isToday={isToday}
@@ -319,12 +320,14 @@ function CalendarGridView({
 // ─── Day Cell with Carousel ─────────────────────────────────
 
 function DayCell({
+  lang,
   day,
   events,
   isToday,
   is24h,
   locale,
 }: {
+  lang: Lang
   day: number
   events: CalendarEvent[]
   isToday: boolean
@@ -381,7 +384,7 @@ function DayCell({
                 transition={{ duration: 0.15 }}
                 className="h-full"
               >
-                <EventCard event={events[activeIndex]} is24h={is24h} locale={locale} />
+                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -441,10 +444,10 @@ function DayCell({
 
 // ─── Event Card (for calendar grid) ─────────────────────────
 
-function EventCard({ event, is24h, locale }: { event: CalendarEvent; is24h: boolean; locale: string }) {
+function EventCard({ lang, event, is24h, locale }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string }) {
   return (
     <a
-      href={LIVE_PAGE}
+      href={localePath(lang, '/live')}
       className="group flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
                  p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors cursor-pointer"
     >
@@ -480,8 +483,8 @@ function EventCard({ event, is24h, locale }: { event: CalendarEvent; is24h: bool
 
 // ─── Empty state ────────────────────────────────────────────
 
-function EmptyState() {
-  const t = useTranslation()
+function EmptyState({ lang }: { lang: Lang }) {
+  const t = getT(lang)
   return (
     <div className="text-center py-20">
       <div className="text-4xl mb-4">📅</div>
@@ -497,14 +500,14 @@ function EmptyState() {
 
 type ViewMode = 'list' | 'calendar'
 
-export function CalendarClient({ events }: { events: CalendarEvent[] }) {
+export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarEvent[] }) {
   const [viewMode, setViewMode] = useState<ViewMode>('calendar')
   const now = new Date()
   const [calYear, setCalYear] = useState(now.getFullYear())
   const [calMonth, setCalMonth] = useState(now.getMonth())
   const timezone = getUserTimezone()
-  const { locale, is24h } = useLocaleFormat()
-  const t = useTranslation()
+  const { locale, is24h } = useLocaleFormat(lang)
+  const t = getT(lang)
 
   const liveEvents = useMemo(() => events.filter(e => e.isLive), [events])
 
@@ -544,7 +547,7 @@ export function CalendarClient({ events }: { events: CalendarEvent[] }) {
           {liveEvents.map(e => (
             <a
               key={e.id}
-              href={LIVE_PAGE}
+              href={localePath(lang, '/live')}
               className="flex items-center justify-between py-1.5 hover:text-rs-yellow transition-colors"
             >
               <span className="text-rs-white text-sm font-medium">{e.series}</span>
@@ -601,9 +604,9 @@ export function CalendarClient({ events }: { events: CalendarEvent[] }) {
 
       {/* View content */}
       {viewMode === 'list' ? (
-        <ListView events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
+        <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
       ) : (
-        <CalendarGridView events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
+        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
       )}
 
       {/* Footer */}

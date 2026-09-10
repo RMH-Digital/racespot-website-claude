@@ -2,16 +2,17 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 interface HeroProps {
+  lang: Lang
   nextEventSeries?: string
   nextEventDateISO?: string
 }
 
-export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
-  const t = useTranslation()
+export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
+  const t = getT(lang)
   const { liveStreams, isLive } = useLiveStatus()
 
   const liveTitles = liveStreams.map(s => s.title)
@@ -57,7 +58,7 @@ export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
         <div className="max-w-[700px]">
           {/* Live / Upcoming badge */}
           {isLive && hasMultipleStreams ? (
-            <Link href="/live" className="flex flex-col gap-2 mb-5 md:mb-8 group">
+            <Link href={localePath(lang, '/live')} className="flex flex-col gap-2 mb-5 md:mb-8 group">
               <div className="flex items-center gap-3">
                 <span className="badge-live">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
@@ -76,7 +77,7 @@ export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
               </div>
             </Link>
           ) : isLive && singleTitle ? (
-            <Link href="/live" className="flex items-center gap-3 mb-5 md:mb-8 group">
+            <Link href={localePath(lang, '/live')} className="flex items-center gap-3 mb-5 md:mb-8 group">
               <span className="badge-live">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
                 {t('hero.liveNow')}
@@ -84,7 +85,7 @@ export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
               <span className="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-1">{singleTitle}</span>
             </Link>
           ) : nextEventSeries ? (
-            <Link href="/live" className="flex items-center gap-3 mb-5 md:mb-8 group">
+            <Link href={localePath(lang, '/live')} className="flex items-center gap-3 mb-5 md:mb-8 group">
               <span className="bg-rs-dark border border-rs-border text-white text-[11px] font-display font-bold uppercase tracking-wider px-3 py-1.5 rounded-rs flex items-center gap-1.5 shrink-0 group-hover:border-rs-yellow transition-colors">
                 <span className="w-1.5 h-1.5 rounded-full bg-rs-yellow" />
                 {t('hero.nextBroadcast')}
@@ -110,15 +111,15 @@ export function Hero({ nextEventSeries, nextEventDateISO }: HeroProps) {
           {/* CTA buttons */}
           <div className="flex flex-wrap gap-3 md:gap-4">
             {isLive ? (
-              <Link href="/live" className="btn-primary">
+              <Link href={localePath(lang, '/live')} className="btn-primary">
                 ▶ {t('hero.watchLive')}
               </Link>
             ) : (
-              <Link href="/broadcasts" className="btn-primary">
+              <Link href={localePath(lang, '/broadcasts')} className="btn-primary">
                 {t('hero.watchBroadcasts')}
               </Link>
             )}
-            <Link href="/calendar" className="btn-outline">
+            <Link href={localePath(lang, '/calendar')} className="btn-outline">
               {t('hero.viewSchedule')}
             </Link>
           </div>

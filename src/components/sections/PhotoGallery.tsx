@@ -1,7 +1,5 @@
-'use client'
-
 import Image from 'next/image'
-import { useTranslation } from '@/lib/language'
+import { getT, type Lang } from '@/lib/i18n'
 
 const GALLERY = [
   { src: '/images/gallery/Coke_Interlagos_Sprint_1_030425.jpg', alt: 'NASCAR Coke Series at Interlagos', span: 'col-span-2 row-span-2' },
@@ -11,8 +9,8 @@ const GALLERY = [
   { src: '/images/gallery/mkexTJ35SZ2PESn.jpg', alt: 'NASCAR pack racing overhead view', span: '' },
 ]
 
-export function PhotoGallery() {
-  const t = useTranslation()
+export function PhotoGallery({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <section className="section">

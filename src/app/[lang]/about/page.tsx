@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Team } from '@/components/sections/Team'
-import { T } from '@/components/ui/T'
+import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 export const metadata: Metadata = {
@@ -32,7 +32,8 @@ const STATS: { value: string; labelKey: TranslationKey }[] = [
   { value: '6.2M+', labelKey: 'about.stat.ytViews' },
 ]
 
-export default function AboutPage() {
+export default function AboutPage({ params: { lang } }: { params: { lang: Lang } }) {
+  const t = getT(lang)
   return (
     <div>
       {/* Hero Banner */}
@@ -48,8 +49,8 @@ export default function AboutPage() {
         <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
-            <p className="section-label mb-3"><T k="about.label" /></p>
-            <h1 className="display-title"><T k="about.title" /></h1>
+            <p className="section-label mb-3">{t('about.label')}</p>
+            <h1 className="display-title">{t('about.title')}</h1>
           </div>
         </div>
       </section>
@@ -59,22 +60,22 @@ export default function AboutPage() {
         <div className="grid md:grid-cols-2 gap-12 mb-20">
           <div>
             <h2 className="font-display font-bold text-2xl uppercase text-white mb-6">
-              <T k="about.heading1" />
+              {t('about.heading1')}
             </h2>
             <div className="space-y-4 text-[15px] text-rs-muted leading-relaxed">
-              <p><T k="about.p1" /></p>
-              <p><T k="about.p2" /></p>
-              <p><T k="about.p3" /></p>
+              <p>{t('about.p1')}</p>
+              <p>{t('about.p2')}</p>
+              <p>{t('about.p3')}</p>
             </div>
           </div>
 
           <div>
             <h2 className="font-display font-bold text-2xl uppercase text-white mb-6">
-              <T k="about.heading2" />
+              {t('about.heading2')}
             </h2>
             <div className="space-y-4 text-[15px] text-rs-muted leading-relaxed">
-              <p><T k="about.p4" /></p>
-              <p><T k="about.p5" /></p>
+              <p>{t('about.p4')}</p>
+              <p>{t('about.p5')}</p>
             </div>
 
             {/* Key stats */}
@@ -82,7 +83,7 @@ export default function AboutPage() {
               {STATS.map((stat) => (
                 <div key={stat.labelKey} className="bg-rs-dark border border-rs-border rounded-rs p-4">
                   <p className="font-display font-black text-rs-yellow text-2xl">{stat.value}</p>
-                  <p className="text-xs text-rs-muted uppercase tracking-wider mt-1"><T k={stat.labelKey} /></p>
+                  <p className="text-xs text-rs-muted uppercase tracking-wider mt-1">{t(stat.labelKey)}</p>
                 </div>
               ))}
             </div>
@@ -91,13 +92,13 @@ export default function AboutPage() {
 
         {/* Timeline */}
         <div className="mb-20">
-          <p className="section-label mb-2"><T k="about.journey" /></p>
-          <h2 className="font-display font-bold text-2xl uppercase text-white mb-10"><T k="about.milestones" /></h2>
+          <p className="section-label mb-2">{t('about.journey')}</p>
+          <h2 className="font-display font-bold text-2xl uppercase text-white mb-10">{t('about.milestones')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {MILESTONES.map((m) => (
               <div key={m.year} className="border-l-2 border-rs-yellow pl-4 py-2">
                 <p className="font-display font-bold text-rs-yellow text-lg">{m.year}</p>
-                <p className="text-sm text-rs-muted mt-1"><T k={m.textKey} /></p>
+                <p className="text-sm text-rs-muted mt-1">{t(m.textKey)}</p>
               </div>
             ))}
           </div>
@@ -105,13 +106,13 @@ export default function AboutPage() {
       </div>
 
       {/* Team section (reused component) */}
-      <Team />
+      <Team lang={lang} />
 
       {/* Behind the scenes images */}
       <section className="section">
         <div className="container-rs">
-          <p className="section-label mb-2"><T k="about.behindScenes" /></p>
-          <h2 className="font-display font-bold text-2xl uppercase text-white mb-8"><T k="about.howWeWork" /></h2>
+          <p className="section-label mb-2">{t('about.behindScenes')}</p>
+          <h2 className="font-display font-bold text-2xl uppercase text-white mb-8">{t('about.howWeWork')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[
               { src: '/images/setup/image (5).jpeg', alt: 'Broadcast equipment setup' },

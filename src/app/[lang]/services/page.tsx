@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { T } from '@/components/ui/T'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -92,7 +92,8 @@ const SETUP_PHOTOS = [
   '/images/setup/ERLFinals-Heat1-38.jpeg',
 ]
 
-export default function ServicesPage() {
+export default function ServicesPage({ params: { lang } }: { params: { lang: Lang } }) {
+  const t = getT(lang)
   return (
     <div>
       {/* Hero Banner */}
@@ -108,15 +109,15 @@ export default function ServicesPage() {
         <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
-            <p className="section-label mb-3"><T k="servicesPage.label" /></p>
-            <h1 className="display-title"><T k="servicesPage.title" /></h1>
+            <p className="section-label mb-3">{t('servicesPage.label')}</p>
+            <h1 className="display-title">{t('servicesPage.title')}</h1>
           </div>
         </div>
       </div>
 
       <div className="container-rs py-16">
         <p className="text-rs-muted max-w-xl mb-16">
-          <T k="servicesPage.intro" />
+          {t('servicesPage.intro')}
         </p>
 
         <div className="space-y-px">
@@ -174,8 +175,8 @@ export default function ServicesPage() {
 
         {/* Behind the Scenes - How We Work Photos */}
         <div className="mt-20">
-          <p className="section-label mb-3"><T k="servicesPage.behindScenes" /></p>
-          <h2 className="font-display font-bold text-2xl uppercase text-white mb-8"><T k="servicesPage.ourSetup" /></h2>
+          <p className="section-label mb-3">{t('servicesPage.behindScenes')}</p>
+          <h2 className="font-display font-bold text-2xl uppercase text-white mb-8">{t('servicesPage.ourSetup')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {SETUP_PHOTOS.map((src, i) => {
               // First two images span full width on mobile, larger on desktop
@@ -204,9 +205,9 @@ export default function ServicesPage() {
         </div>
 
         <div className="mt-16 text-center">
-          <p className="text-rs-muted mb-6"><T k="servicesPage.readyToTalk" /></p>
-          <Link href="/contact" className="btn-primary">
-            <T k="servicesPage.getInTouch" />
+          <p className="text-rs-muted mb-6">{t('servicesPage.readyToTalk')}</p>
+          <Link href={localePath(lang, '/contact')} className="btn-primary">
+            {t('servicesPage.getInTouch')}
           </Link>
         </div>
       </div>

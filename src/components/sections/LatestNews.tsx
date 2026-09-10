@@ -1,14 +1,12 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
 const LATEST = ARTICLES.slice(0, 3)
 
-export function LatestNews() {
-  const t = useTranslation()
+export function LatestNews({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <section className="section">
@@ -18,14 +16,14 @@ export function LatestNews() {
             <p className="section-label mb-2">{t('news.label')}</p>
             <h2 className="section-title">{t('news.title')}</h2>
           </div>
-          <Link href="/news" className="btn-ghost hidden sm:flex">
+          <Link href={localePath(lang, '/news')} className="btn-ghost hidden sm:flex">
             {t('news.viewAll')}
           </Link>
         </div>
 
         <div className="card-grid card-grid--3">
           {LATEST.map((article) => (
-            <Link key={article.slug} href={`/news/${article.slug}`} className="card-dark overflow-hidden group cursor-pointer block">
+            <Link key={article.slug} href={localePath(lang, `/news/${article.slug}`)} className="card-dark overflow-hidden group cursor-pointer block">
               {/* Thumbnail */}
               <div className="relative aspect-video overflow-hidden">
                 <Image

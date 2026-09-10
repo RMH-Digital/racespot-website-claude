@@ -1,6 +1,4 @@
-'use client'
-
-import { useTranslation } from '@/lib/language'
+import { getT, type Lang } from '@/lib/i18n'
 
 const LOGOS = [
   { src: '/images/partners/Porsche.png', alt: 'Porsche' },
@@ -70,8 +68,8 @@ function LogoRow({
   )
 }
 
-export function PartnerLogos() {
-  const t = useTranslation()
+export function PartnerLogos({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <section className="py-16 bg-rs-yellow">

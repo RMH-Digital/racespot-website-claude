@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { formatViewCount } from '@/lib/youtube-utils'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
-export function LiveBanners() {
+export function LiveBanners({ lang }: { lang: Lang }) {
   const { liveStreams } = useLiveStatus()
-  const t = useTranslation()
+  const t = getT(lang)
 
   if (liveStreams.length === 0) return null
 
@@ -16,7 +16,7 @@ export function LiveBanners() {
       {liveStreams.map((stream) => (
         <Link
           key={stream.id}
-          href="/live"
+          href={localePath(lang, '/live')}
           className="flex items-center gap-4 p-4 rounded-rs border border-rs-live/40 bg-rs-dark group hover:border-rs-live transition-colors"
         >
           <span className="badge-live shrink-0">

@@ -4,7 +4,7 @@ import { getCompletedBroadcasts, getChannelPlaylists, type YouTubePlaylist } fro
 import { getSeriesTiers } from '@/lib/sheets'
 import { VideoCard } from '@/components/ui/VideoCard'
 import { BroadcastsClient, type PlaylistWithMeta } from '@/components/sections/BroadcastsClient'
-import { T } from '@/components/ui/T'
+import { getT, type Lang } from '@/lib/i18n'
 
 /* Refresh video data every 5 minutes */
 export const revalidate = 300
@@ -66,7 +66,8 @@ function matchPlaylistTier(
   return bestTier
 }
 
-export default async function BroadcastsPage() {
+export default async function BroadcastsPage({ params: { lang } }: { params: { lang: Lang } }) {
+  const t = getT(lang)
   const [broadcasts, playlists, seriesTiers] = await Promise.all([
     getCompletedBroadcasts(6),
     getChannelPlaylists(50),
@@ -126,23 +127,23 @@ export default async function BroadcastsPage() {
         <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
-            <p className="section-label mb-3"><T k="broadcastsPage.label" /></p>
-            <h1 className="display-title"><T k="broadcastsPage.title" /></h1>
+            <p className="section-label mb-3">{t('broadcastsPage.label')}</p>
+            <h1 className="display-title">{t('broadcastsPage.title')}</h1>
           </div>
         </div>
       </div>
 
       <div className="container-rs py-16">
         <p className="text-rs-muted max-w-xl mb-16">
-          <T k="broadcastsPage.intro" />
+          {t('broadcastsPage.intro')}
         </p>
 
         {/* Latest Broadcasts section */}
         <div className="mb-20">
           <div className="section-header">
             <div>
-              <p className="section-label mb-2"><T k="broadcasts.recentCoverage" /></p>
-              <h2 className="section-title"><T k="broadcasts.latestBroadcasts" /></h2>
+              <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
+              <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
             </div>
           </div>
 
@@ -155,7 +156,7 @@ export default async function BroadcastsPage() {
           ) : (
             <div className="text-center py-16 border border-rs-border rounded-rs">
               <p className="text-rs-muted text-sm">
-                <T k="broadcasts.noBroadcasts" />
+                {t('broadcasts.noBroadcasts')}
               </p>
             </div>
           )}
@@ -165,7 +166,7 @@ export default async function BroadcastsPage() {
         {enriched.length > 0 && (
           <>
             <div className="divider mb-20" />
-            <BroadcastsClient playlists={enriched} families={families} />
+            <BroadcastsClient lang={lang} playlists={enriched} families={families} />
           </>
         )}
       </div>

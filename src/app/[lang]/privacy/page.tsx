@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { localePath, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy policy for Racespot Media House GmbH.',
 }
 
-export default function PrivacyPage() {
+export default function PrivacyPage({ params: { lang } }: { params: { lang: Lang } }) {
   return (
     <div className="pt-8">
       <div className="container-rs py-8 max-w-3xl">
@@ -347,10 +348,10 @@ export default function PrivacyPage() {
 
           {/* Links */}
           <div className="border-t border-rs-border pt-8 flex flex-wrap gap-6">
-            <Link href="/imprint" className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/imprint')} className="text-rs-yellow hover:underline text-sm">
               Imprint
             </Link>
-            <Link href="/terms" className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/terms')} className="text-rs-yellow hover:underline text-sm">
               Terms & Conditions
             </Link>
           </div>

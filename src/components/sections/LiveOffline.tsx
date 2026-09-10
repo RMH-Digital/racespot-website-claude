@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCountdown } from '@/lib/hooks/useCountdown'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -15,6 +15,7 @@ interface SerializedEvent {
 }
 
 interface LiveOfflineProps {
+  lang: Lang
   nextEvent: SerializedEvent | null
   upcomingEvents: SerializedEvent[]
   channelId: string
@@ -68,10 +69,10 @@ function formatLocalDate(iso: string): string {
 
 // ─── Component ──────────────────────────────────────────────
 
-export function LiveOffline({ nextEvent, upcomingEvents, channelId }: LiveOfflineProps) {
+export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: LiveOfflineProps) {
   const is24h = useIs24Hour()
   const countdown = useCountdown(nextEvent?.dateISO || '')
-  const t = useTranslation()
+  const t = getT(lang)
 
   const hasCountdown = nextEvent && (countdown.days > 0 || countdown.hours > 0 || countdown.mins > 0 || countdown.secs > 0)
 
@@ -176,7 +177,7 @@ export function LiveOffline({ nextEvent, upcomingEvents, channelId }: LiveOfflin
                 >
                   {t('live.subscribe')}
                 </a>
-                <Link href="/calendar" className="btn-outline">
+                <Link href={localePath(lang, '/calendar')} className="btn-outline">
                   {t('live.viewCalendar')}
                 </Link>
               </div>
@@ -208,7 +209,7 @@ export function LiveOffline({ nextEvent, upcomingEvents, channelId }: LiveOfflin
                 <p className="section-label mb-2">{t('live.comingSoon')}</p>
                 <h2 className="section-title">{t('live.upcomingSchedule')}</h2>
               </div>
-              <Link href="/calendar" className="btn-ghost hidden sm:flex">
+              <Link href={localePath(lang, '/calendar')} className="btn-ghost hidden sm:flex">
                 {t('live.fullCalendar')}
               </Link>
             </div>
@@ -220,7 +221,7 @@ export function LiveOffline({ nextEvent, upcomingEvents, channelId }: LiveOfflin
             </div>
 
             <div className="mt-6 sm:hidden">
-              <Link href="/calendar" className="btn-ghost">
+              <Link href={localePath(lang, '/calendar')} className="btn-ghost">
                 {t('live.viewFullCalendar')}
               </Link>
             </div>

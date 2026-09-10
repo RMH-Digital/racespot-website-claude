@@ -1,10 +1,8 @@
-'use client'
-
 import Link from 'next/link'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
-export function ContactCTA() {
-  const t = useTranslation()
+export function ContactCTA({ lang }: { lang: Lang }) {
+  const t = getT(lang)
 
   return (
     <div className="py-20 text-center border-t border-b border-rs-border bg-rs-black">
@@ -16,8 +14,8 @@ export function ContactCTA() {
           {t('cta.subtitle')}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/contact" className="btn-primary">{t('cta.requestQuote')}</Link>
-          <Link href="/broadcasts" className="btn-outline">{t('cta.viewWork')}</Link>
+          <Link href={localePath(lang, '/contact')} className="btn-primary">{t('cta.requestQuote')}</Link>
+          <Link href={localePath(lang, '/broadcasts')} className="btn-outline">{t('cta.viewWork')}</Link>
         </div>
       </div>
     </div>

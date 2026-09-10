@@ -1,23 +1,24 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { T } from '@/components/ui/T'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
   title: 'Imprint',
   description: 'Legal information and imprint for Racespot Media House GmbH.',
 }
 
-export default function ImprintPage() {
+export default function ImprintPage({ params: { lang } }: { params: { lang: Lang } }) {
+  const t = getT(lang)
   return (
     <div className="pt-8">
       <div className="container-rs py-8 max-w-3xl">
-        <p className="section-label mb-3"><T k="imprint.label" /></p>
-        <h1 className="display-title mb-10"><T k="imprint.title" /></h1>
+        <p className="section-label mb-3">{t('imprint.label')}</p>
+        <h1 className="display-title mb-10">{t('imprint.title')}</h1>
 
         <div className="space-y-8 text-rs-muted leading-relaxed">
           {/* Company Info */}
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.companyInfo" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.companyInfo')}</h2>
             <p>
               Racespot Media House GmbH<br />
               An der Hasenkaule 10 (21D)<br />
@@ -27,12 +28,12 @@ export default function ImprintPage() {
           </section>
 
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.managingDirector" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.managingDirector')}</h2>
             <p>Philip Stamm</p>
           </section>
 
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.contact" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.contact')}</h2>
             <p>
               Phone: +49 (0)163 686 7887<br />
               Email:{' '}
@@ -43,15 +44,15 @@ export default function ImprintPage() {
           </section>
 
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.registration" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.registration')}</h2>
             <p>
-              <T k="imprint.court" />: Amtsgericht Köln<br />
-              <T k="imprint.regNumber" />: HRB 118561
+              {t('imprint.court')}: Amtsgericht Köln<br />
+              {t('imprint.regNumber')}: HRB 118561
             </p>
           </section>
 
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.responsible" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.responsible')}</h2>
             <p>
               Racespot Media House GmbH<br />
               An der Hasenkaule 10 (21D)<br />
@@ -60,9 +61,9 @@ export default function ImprintPage() {
           </section>
 
           <section>
-            <h2 className="text-white font-semibold text-lg mb-3"><T k="imprint.dispute" /></h2>
+            <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.dispute')}</h2>
             <p>
-              <T k="imprint.odr" />{' '}
+              {t('imprint.odr')}{' '}
               <a
                 href="https://ec.europa.eu/consumers/odr/"
                 target="_blank"
@@ -73,17 +74,17 @@ export default function ImprintPage() {
               </a>
             </p>
             <p className="mt-3">
-              <T k="imprint.notWilling" />
+              {t('imprint.notWilling')}
             </p>
           </section>
 
           {/* Links to other legal pages */}
           <div className="border-t border-rs-border pt-8 flex flex-wrap gap-6">
-            <Link href="/privacy" className="text-rs-yellow hover:underline text-sm">
-              <T k="footer.privacyPolicy" />
+            <Link href={localePath(lang, '/privacy')} className="text-rs-yellow hover:underline text-sm">
+              {t('footer.privacyPolicy')}
             </Link>
-            <Link href="/terms" className="text-rs-yellow hover:underline text-sm">
-              <T k="footer.terms" />
+            <Link href={localePath(lang, '/terms')} className="text-rs-yellow hover:underline text-sm">
+              {t('footer.terms')}
             </Link>
           </div>
         </div>

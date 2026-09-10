@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { YouTubePlaylist } from '@/lib/youtube-utils'
-import { useTranslation } from '@/lib/language'
+import { getT, type Lang } from '@/lib/i18n'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -14,6 +14,7 @@ export interface PlaylistWithMeta extends YouTubePlaylist {
 }
 
 interface BroadcastsClientProps {
+  lang: Lang
   playlists: PlaylistWithMeta[]
   families: string[]
 }
@@ -24,13 +25,13 @@ const INITIAL_COUNT = 12
 
 // ─── Component ──────────────────────────────────────────────
 
-export function BroadcastsClient({ playlists, families }: BroadcastsClientProps) {
+export function BroadcastsClient({ lang, playlists, families }: BroadcastsClientProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [showAll, setShowAll] = useState(false)
   const [selectedFamilies, setSelectedFamilies] = useState<Set<string>>(new Set())
   const [filterOpen, setFilterOpen] = useState(false)
   const filterRef = useRef<HTMLDivElement>(null)
-  const t = useTranslation()
+  const t = getT(lang)
 
   // Close dropdown when clicking outside
   useEffect(() => {

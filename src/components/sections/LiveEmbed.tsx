@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 interface SerializedEvent {
@@ -15,12 +15,13 @@ interface SerializedEvent {
 }
 
 interface LiveEmbedProps {
+  lang: Lang
   liveStreams: YouTubeLiveStream[]
   upcomingEvents?: SerializedEvent[]
 }
 
-export function LiveEmbed({ liveStreams: initialStreams, upcomingEvents = [] }: LiveEmbedProps) {
-  const t = useTranslation()
+export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = [] }: LiveEmbedProps) {
+  const t = getT(lang)
   const [liveStreams, setLiveStreams] = useState(initialStreams)
   const [activeId, setActiveId] = useState(initialStreams[0]?.id || '')
 
@@ -156,7 +157,7 @@ export function LiveEmbed({ liveStreams: initialStreams, upcomingEvents = [] }: 
                 <p className="section-label mb-2">{t('live.comingSoon')}</p>
                 <h2 className="section-title">{t('live.upcomingSchedule')}</h2>
               </div>
-              <Link href="/calendar" className="btn-ghost hidden sm:flex">
+              <Link href={localePath(lang, '/calendar')} className="btn-ghost hidden sm:flex">
                 {t('live.fullCalendar')}
               </Link>
             </div>
@@ -168,7 +169,7 @@ export function LiveEmbed({ liveStreams: initialStreams, upcomingEvents = [] }: 
             </div>
 
             <div className="mt-6 sm:hidden">
-              <Link href="/calendar" className="btn-ghost">
+              <Link href={localePath(lang, '/calendar')} className="btn-ghost">
                 {t('live.viewFullCalendar')}
               </Link>
             </div>

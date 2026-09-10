@@ -5,17 +5,18 @@ import { notFound } from 'next/navigation'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
 import { renderInline, toBlocks } from '@/lib/articleContent'
 import { ArticleJsonLd } from '@/components/seo/JsonLd'
+import { localePath, type Lang } from '@/lib/i18n'
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: { lang: Lang; slug: string }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug } = params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) return {}
   return {
@@ -31,8 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function ArticlePage({ params }: Props) {
-  const { slug } = await params
+export default function ArticlePage({ params }: Props) {
+  const { lang, slug } = params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) notFound()
 
@@ -158,7 +159,7 @@ export default async function ArticlePage({ params }: Props) {
           {/* Navigation */}
           <div className="mt-16 pt-8 border-t border-rs-border flex items-center justify-between gap-4">
             {prev ? (
-              <Link href={`/news/${prev.slug}`} className="group text-left">
+              <Link href={localePath(lang, `/news/${prev.slug}`)} className="group text-left">
                 <p className="text-xs text-rs-muted mb-1">← Previous</p>
                 <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
                   {prev.title}
@@ -166,7 +167,7 @@ export default async function ArticlePage({ params }: Props) {
               </Link>
             ) : <div />}
             {next ? (
-              <Link href={`/news/${next.slug}`} className="group text-right">
+              <Link href={localePath(lang, `/news/${next.slug}`)} className="group text-right">
                 <p className="text-xs text-rs-muted mb-1">Next →</p>
                 <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
                   {next.title}
@@ -177,7 +178,7 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Back link */}
           <div className="mt-8 text-center">
-            <Link href="/news" className="btn-ghost">
+            <Link href={localePath(lang, '/news')} className="btn-ghost">
               ← All News
             </Link>
           </div>
