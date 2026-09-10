@@ -12,8 +12,8 @@ import type { Lang } from '../langs'
  * `**bold**`, `*italic*`, `[label](url)` — and is rendered through
  * renderInline(), never as HTML.
  *
- * REVIEW: the German version is a translation produced on 2026-09-10 that has
- * NOT been approved by a person yet. English is the reference.
+ * The German version was translated and approved on 2026-09-10 (Jürgen).
+ * English is the reference text.
  */
 export const LEGAL_LANGS = ['en', 'de'] as const
 export type LegalLang = (typeof LEGAL_LANGS)[number]

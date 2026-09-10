@@ -7,8 +7,8 @@ import { p, type LegalDoc, type LegalLang } from './types'
  * version follows it clause by clause; clause numbers are kept so a reference
  * like "5.3" means the same thing in both languages.
  *
- * REVIEW: de is an unapproved translation (2026-09-10). Only en and de exist
- * by decision — see ./types.ts.
+ * The German version was approved by Jürgen on 2026-09-10. Only en and de
+ * exist by decision — see ./types.ts.
  */
 
 const ODR = 'https://ec.europa.eu/consumers/odr/'

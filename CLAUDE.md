@@ -59,8 +59,8 @@ item 1. The rules that are easy to break:
 - **Legal texts** (`legal/privacy.ts`, `legal/terms.ts`) exist in **en and de
   only** (decided 2026-09-10). `LegalDocument` shows German on `/de/`, English
   everywhere else with a notice, `lang="en"`, canonical → `/en/…`, hreflang for
-  en/de, no sitemap entry — the same treatment as an untranslated article. The
-  German version is marked `REVIEW` until approved.
+  en/de, no sitemap entry — the same treatment as an untranslated article. Both
+  versions are approved; change them together.
 
 ## Design tokens
 

@@ -7,8 +7,8 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  * 20, 2024; its content is under review — docs/TODO.md item 4). The German
  * version follows it sentence by sentence.
  *
- * REVIEW: de is an unapproved translation (2026-09-10). Only en and de exist
- * by decision — see ./types.ts.
+ * The German version was approved by Jürgen on 2026-09-10. Only en and de
+ * exist by decision — see ./types.ts.
  */
 
 

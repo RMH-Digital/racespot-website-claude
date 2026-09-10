@@ -20,7 +20,7 @@ Entscheidungen: Portugiesisch ist **pt-BR**; ein untranslatierter Artikel bekomm
 nur auf **Deutsch und Englisch**. `/de/…` zeigt Deutsch, alle anderen Sprachen
 zeigen das englische Dokument mit Hinweis, Canonical auf `/en/…`, hreflang nur
 für en/de, kein Sitemap-Eintrag (`src/lib/i18n/legal/`). Die deutsche Fassung
-ist als `REVIEW` markiert und **noch nicht freigegeben**.
+wurde am 2026-09-10 von Jürgen freigegeben.
 
 **Artikel:** Die fünf Artikel von vor dem Press Tool (RENNSPORT, VCO Infinity,
 ERL, Sim Racing Expo, IMSA) wurden einmalig händisch in de/es/pt/fr/it
@@ -29,8 +29,8 @@ ERL, Sim Racing Expo, IMSA) wurden einmalig händisch in de/es/pt/fr/it
 
 **Bevor der Branch auf `main` geht:**
 
-- [ ] **Deutsche Rechtstexte freigeben** (`legal/privacy.ts`, `legal/terms.ts`).
-  Wenn Punkt 4 den Inhalt ändert: en und de zusammen nachziehen.
+- [x] Deutsche Rechtstexte freigegeben (2026-09-10). Wenn Punkt 4 den Inhalt
+  ändert: en und de zusammen nachziehen.
 - [ ] **Press Tool:** `preview.article_path` in
   `~/Press Tool/projects/racespot/project.yaml` auf `/en/news/{slug}` setzen und
   `translations` im selben PR liefern (Vertrag unten). Bis dahin rendern die
