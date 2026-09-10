@@ -70,7 +70,7 @@ export function Header({ lang }: { lang: Lang }) {
               <Link
                 key={href}
                 href={localePath(lang, href)}
-                className={`relative flex items-center gap-1.5 px-3 py-2
+                className={`relative flex items-center gap-1.5 px-3 py-2 whitespace-nowrap
                   font-display font-semibold text-[13px] tracking-[0.08em] uppercase
                   transition-colors duration-200
                   ${showLiveIndicator ? 'text-rs-live' : active ? 'text-white' : 'text-rs-muted hover:text-white'}
