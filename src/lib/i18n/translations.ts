@@ -246,6 +246,10 @@ export const translations = {
   'common.yesterday':  { en: 'Yesterday', de: 'Gestern', es: 'Ayer', pt: 'Ontem', fr: 'Hier', it: 'Ieri' },
   'common.playlists':  { en: 'playlists', de: 'Playlisten', es: 'playlists', pt: 'playlists', fr: 'playlists', it: 'playlist' },
   'common.events':     { en: 'event(s)', de: 'Event(s)', es: 'evento(s)', pt: 'evento(s)', fr: 'événement(s)', it: 'evento/i' },
+  // ─── 404 ─────────────────────────────────────────────────
+  'notFound.title':    { en: 'Page not found', de: 'Seite nicht gefunden', es: 'Página no encontrada', pt: 'Página não encontrada', fr: 'Page introuvable', it: 'Pagina non trovata' },
+  'notFound.desc':     { en: 'The page you are looking for does not exist or has moved. Try the home page or the navigation above.', de: 'Die gesuchte Seite gibt es nicht oder sie ist umgezogen. Versuche die Startseite oder die Navigation oben.', es: 'La página que buscas no existe o se ha movido. Prueba la página de inicio o la navegación de arriba.', pt: 'A página que você procura não existe ou foi movida. Tente a página inicial ou a navegação acima.', fr: "La page que vous cherchez n'existe pas ou a été déplacée. Essayez la page d'accueil ou la navigation ci-dessus.", it: 'La pagina che cerchi non esiste o è stata spostata. Prova la home page o la navigazione in alto.' },
+  'notFound.home':     { en: 'Back to home', de: 'Zur Startseite', es: 'Volver al inicio', pt: 'Voltar ao início', fr: "Retour à l'accueil", it: 'Torna alla home' },
 } as const
 
 export type TranslationKey = keyof typeof translations

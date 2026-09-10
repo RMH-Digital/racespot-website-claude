@@ -1,8 +1,6 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTranslation } from '@/lib/language'
+import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 const FOOTER_LINKS: { categoryKey: TranslationKey; links: { href: string; labelKey: TranslationKey }[] }[] = [
@@ -85,8 +83,9 @@ const SOCIAL = [
   },
 ]
 
-export function Footer() {
-  const t = useTranslation()
+export function Footer({ lang }: { lang: Lang }) {
+  const t = getT(lang)
+  const href = (path: string) => localePath(lang, path)
 
   return (
     <footer className="section--alt">
@@ -94,7 +93,7 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr] gap-10">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-4">
+            <Link href={href('/')} className="inline-block mb-4">
               <Image
                 src="/images/logos/racespot-white.png"
                 alt="Racespot"
@@ -133,10 +132,10 @@ export function Footer() {
                 {t(categoryKey)}
               </h4>
               <ul className="space-y-2.5">
-                {links.map(({ href, labelKey }) => (
-                  <li key={href}>
+                {links.map(({ href: path, labelKey }) => (
+                  <li key={path}>
                     <Link
-                      href={href}
+                      href={href(path)}
                       className="text-[13px] text-rs-muted hover:text-white transition-colors"
                     >
                       {t(labelKey)}
@@ -154,11 +153,11 @@ export function Footer() {
             © {new Date().getFullYear()} Racespot Media House GmbH · Hürth, Germany
           </p>
           <p className="text-[13px] text-rs-muted flex gap-4">
-            <Link href="/privacy" className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
+            <Link href={href('/privacy')} className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
             <span>·</span>
-            <Link href="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link>
+            <Link href={href('/terms')} className="hover:text-white transition-colors">{t('footer.terms')}</Link>
             <span>·</span>
-            <Link href="/imprint" className="hover:text-white transition-colors">{t('footer.imprint')}</Link>
+            <Link href={href('/imprint')} className="hover:text-white transition-colors">{t('footer.imprint')}</Link>
           </p>
         </div>
       </div>

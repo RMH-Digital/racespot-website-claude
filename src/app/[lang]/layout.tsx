@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Oswald } from 'next/font/google'
-import './globals.css'
+import { notFound } from 'next/navigation'
+import '../globals.css'
 import { Header } from '@/components/layout/Header'
 import { TickerServer } from '@/components/layout/TickerServer'
 import { Footer } from '@/components/layout/Footer'
@@ -8,6 +9,7 @@ import { LanguageProvider } from '@/lib/language'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { Analytics } from '@/components/seo/Analytics'
+import { LANGS, isLang } from '@/lib/i18n'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,6 +23,12 @@ const oswald = Oswald({
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 })
+
+export const dynamicParams = false
+
+export function generateStaticParams() {
+  return LANGS.map((lang) => ({ lang }))
+}
 
 export const metadata: Metadata = {
   title: {
@@ -64,21 +72,30 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://racespot.tv'),
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: { lang: string }
+}) {
+  const { lang } = params
+  if (!isLang(lang)) notFound()
+
   return (
-    <html lang="en" className={`${inter.variable} ${oswald.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${inter.variable} ${oswald.variable}`} suppressHydrationWarning>
       <head>
         <OrganizationJsonLd />
         <WebsiteJsonLd />
       </head>
       <body className="bg-rs-black text-white" suppressHydrationWarning>
-        <LanguageProvider>
+        <LanguageProvider lang={lang}>
           <LiveStatusProvider>
-            <Header />
+            <Header lang={lang} />
             <TickerServer />
             {/* Offset for fixed header (64px) + ticker (34px) = 98px */}
             <main className="pt-[98px]">{children}</main>
-            <Footer />
+            <Footer lang={lang} />
           </LiveStatusProvider>
         </LanguageProvider>
         <Analytics />

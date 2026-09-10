@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useLanguage, useTranslation, LANGUAGES } from '@/lib/language'
+import { LANGUAGES, getT, localePath, switchLangPath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
@@ -17,14 +17,13 @@ const NAV_LINKS: { href: string; labelKey: TranslationKey; isLiveLink?: boolean 
   { href: '/live',       labelKey: 'nav.live', isLiveLink: true },
 ]
 
-export function Header() {
+export function Header({ lang }: { lang: Lang }) {
   const { liveCount, isLive } = useLiveStatus()
   const [menuOpen, setMenuOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const langRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
-  const { lang, setLang } = useLanguage()
-  const t = useTranslation()
+  const t = getT(lang)
 
   const currentLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0]
 
@@ -44,11 +43,13 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  const isActive = (href: string) => pathname.startsWith(localePath(lang, href))
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black/[0.97] backdrop-blur-[10px] border-b border-rs-border">
       <div className="container-rs flex items-center justify-between h-full">
         {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href={localePath(lang, '/')} className="flex items-center shrink-0">
           <Image
             src="/images/logos/racespot-white.png"
             alt="Racespot"
@@ -62,17 +63,17 @@ export function Header() {
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
           {NAV_LINKS.map(({ href, labelKey, isLiveLink }) => {
-            const isActive = pathname.startsWith(href)
+            const active = isActive(href)
             const showLiveIndicator = isLiveLink && isLive
 
             return (
               <Link
                 key={href}
-                href={href}
+                href={localePath(lang, href)}
                 className={`relative flex items-center gap-1.5 px-3 py-2
                   font-display font-semibold text-[13px] tracking-[0.08em] uppercase
                   transition-colors duration-200
-                  ${showLiveIndicator ? 'text-rs-live' : isActive ? 'text-white' : 'text-rs-muted hover:text-white'}
+                  ${showLiveIndicator ? 'text-rs-live' : active ? 'text-white' : 'text-rs-muted hover:text-white'}
                 `}
               >
                 {showLiveIndicator && (
@@ -87,7 +88,7 @@ export function Header() {
                     {liveCount}
                   </span>
                 )}
-                {isActive && !showLiveIndicator && (
+                {active && !showLiveIndicator && (
                   <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-rs-yellow" />
                 )}
               </Link>
@@ -100,6 +101,8 @@ export function Header() {
           <div ref={langRef} className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
+              aria-haspopup="menu"
+              aria-expanded={langOpen}
               className="flex items-center gap-1.5 px-3 py-1.5 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
             >
               <span>{currentLang.flag}</span>
@@ -110,21 +113,26 @@ export function Header() {
             </button>
             {langOpen && (
               <div className="absolute top-full right-0 mt-1 bg-rs-dark border border-rs-border rounded-rs overflow-hidden shadow-xl min-w-[140px] z-50">
+                {/* Real links, not buttons: the same page in another language is
+                    another URL, and the middleware remembers the choice. */}
                 {LANGUAGES.map((l) => (
-                  <button
+                  <Link
                     key={l.code}
-                    onClick={() => { setLang(l.code); setLangOpen(false) }}
+                    href={switchLangPath(pathname, l.code)}
+                    hrefLang={l.code}
+                    lang={l.code}
+                    onClick={() => setLangOpen(false)}
                     className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] font-display uppercase tracking-wider transition-colors
                       ${l.code === lang ? 'bg-rs-yellow/10 text-rs-yellow' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                   >
                     <span>{l.flag}</span>
                     <span>{l.label}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
           </div>
-          <Link href="/contact" className="btn-primary btn-sm">
+          <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm">
             {t('nav.getQuote')}
           </Link>
         </div>
@@ -134,6 +142,7 @@ export function Header() {
           className="lg:hidden flex flex-col gap-1.5 p-2"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           <span className={`block w-5 h-px bg-white transition-transform duration-200 ${menuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
           <span className={`block w-5 h-px bg-white transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
@@ -146,17 +155,17 @@ export function Header() {
         <div className="lg:hidden bg-rs-dark border-t border-rs-border">
           <nav className="container-rs py-6 flex flex-col gap-1">
             {NAV_LINKS.map(({ href, labelKey, isLiveLink }) => {
-              const isActive = pathname.startsWith(href)
+              const active = isActive(href)
               const showLiveIndicator = isLiveLink && isLive
 
               return (
                 <Link
                   key={href}
-                  href={href}
+                  href={localePath(lang, href)}
                   onClick={() => setMenuOpen(false)}
                   className={`flex items-center gap-2 px-3 py-3 rounded-rs
                     font-display font-semibold text-[15px] tracking-[0.06em] uppercase
-                    ${showLiveIndicator ? 'text-rs-live' : isActive ? 'text-white bg-rs-gray' : 'text-rs-muted'}
+                    ${showLiveIndicator ? 'text-rs-live' : active ? 'text-white bg-rs-gray' : 'text-rs-muted'}
                   `}
                 >
                   {showLiveIndicator && <span className="w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />}
@@ -172,9 +181,12 @@ export function Header() {
             <div className="mt-4 pt-4 border-t border-rs-border space-y-3">
               <div className="flex flex-wrap gap-2">
                 {LANGUAGES.map((l) => (
-                  <button
+                  <Link
                     key={l.code}
-                    onClick={() => setLang(l.code)}
+                    href={switchLangPath(pathname, l.code)}
+                    hrefLang={l.code}
+                    lang={l.code}
+                    onClick={() => setMenuOpen(false)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider border transition-colors
                       ${l.code === lang
                         ? 'bg-rs-yellow text-rs-black border-rs-yellow'
@@ -182,10 +194,10 @@ export function Header() {
                   >
                     <span>{l.flag}</span>
                     {l.code.toUpperCase()}
-                  </button>
+                  </Link>
                 ))}
               </div>
-              <Link href="/contact" className="btn-primary btn-sm block text-center">{t('nav.getQuote')}</Link>
+              <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm block text-center">{t('nav.getQuote')}</Link>
             </div>
           </nav>
         </div>
