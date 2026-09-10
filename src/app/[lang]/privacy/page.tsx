@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Link from 'next/link'
 import { localePath, type Lang } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'Privacy policy for Racespot Media House GmbH.',
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/privacy', 'privacy', '/og-home.jpg')
 }
 
 export default function PrivacyPage({ params: { lang } }: { params: { lang: Lang } }) {

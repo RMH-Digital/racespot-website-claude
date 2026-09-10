@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import Link from 'next/link'
 import PastEventCard from '@/components/sections/PastEventCard'
 import { getT, type Lang } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Events',
-  description: 'Upcoming and past live sim racing events produced by Racespot — the leading simracing broadcast studio.',
-  openGraph: {
-    title: 'Events | Racespot.tv',
-    description: 'Upcoming and past live sim racing events produced by Racespot.',
-    images: [{ url: '/og-events.jpg', width: 1200, height: 630, alt: 'Racespot live events' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-events.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/events', 'events', '/og-events.jpg')
 }
 
 const PAST_EVENTS = [

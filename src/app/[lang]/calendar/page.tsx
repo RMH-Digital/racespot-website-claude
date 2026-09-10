@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getCalendarEvents } from '@/lib/sheets'
 import { CalendarClient } from '@/components/sections/CalendarClient'
 import { getT, type Lang } from '@/lib/i18n'
@@ -6,15 +7,8 @@ import { getT, type Lang } from '@/lib/i18n'
 /* Refresh calendar data every 5 minutes */
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: 'Calendar',
-  description: 'Upcoming sim racing broadcasts and live events — schedule and stream links.',
-  openGraph: {
-    title: 'Calendar | Racespot.tv',
-    description: 'Upcoming sim racing broadcasts and live events — schedule and stream links.',
-    images: [{ url: '/og-calendar.jpg', width: 1200, height: 630, alt: 'Racespot broadcast schedule' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-calendar.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/calendar', 'calendar', '/og-calendar.jpg')
 }
 
 export default async function CalendarPage({ params: { lang } }: { params: { lang: Lang } }) {

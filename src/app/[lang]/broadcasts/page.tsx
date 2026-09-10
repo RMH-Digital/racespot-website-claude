@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import { getCompletedBroadcasts, getChannelPlaylists, type YouTubePlaylist } from '@/lib/youtube'
 import { getSeriesTiers } from '@/lib/sheets'
@@ -9,15 +10,8 @@ import { getT, type Lang } from '@/lib/i18n'
 /* Refresh video data every 5 minutes */
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: 'Broadcasts',
-  description: 'Portfolio of 400+ live sim racing broadcasts per year across all major platforms.',
-  openGraph: {
-    title: 'Broadcasts | Racespot.tv',
-    description: 'Portfolio of 400+ live sim racing broadcasts per year across all major platforms.',
-    images: [{ url: '/og-broadcasts.jpg', width: 1200, height: 630, alt: 'Racespot broadcast production' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-broadcasts.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/broadcasts', 'broadcasts', '/og-broadcasts.jpg')
 }
 
 /** Strip year patterns, season numbers, and normalize for tier matching */

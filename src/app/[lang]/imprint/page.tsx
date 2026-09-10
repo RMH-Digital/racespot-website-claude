@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Imprint',
-  description: 'Legal information and imprint for Racespot Media House GmbH.',
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/imprint', 'imprint', '/og-home.jpg')
 }
 
 export default function ImprintPage({ params: { lang } }: { params: { lang: Lang } }) {

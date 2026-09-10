@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getLiveStreams } from '@/lib/youtube'
 import { getUpcomingEvents } from '@/lib/sheets'
 import { LiveEmbed } from '@/components/sections/LiveEmbed'
@@ -8,15 +9,8 @@ import type { Lang } from '@/lib/i18n'
 /* Always fetch fresh data — live detection must be real-time */
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Live',
-  description: 'Watch Racespot live streams — sim racing broadcasts live on YouTube.',
-  openGraph: {
-    title: 'Live | Racespot.tv',
-    description: 'Watch Racespot live streams — sim racing broadcasts live on YouTube.',
-    images: [{ url: '/og-live.jpg', width: 1200, height: 630, alt: 'Racespot live broadcast' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-live.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/live', 'live', '/og-live.jpg')
 }
 
 export default async function LivePage({ params: { lang } }: { params: { lang: Lang } }) {

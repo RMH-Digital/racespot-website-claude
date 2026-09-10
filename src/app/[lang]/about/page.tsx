@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import { Team } from '@/components/sections/Team'
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
-export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about Racespot — the world\'s leading simracing broadcast studio, based in Cologne, Germany.',
-  openGraph: {
-    title: 'About Us | Racespot.tv',
-    description: 'The world\'s leading simracing broadcast studio, based in Cologne, Germany. Since 2013.',
-    images: [{ url: '/og-about.jpg', width: 1200, height: 630, alt: 'Racespot team' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-about.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/about', 'about', '/og-about.jpg')
 }
 
 const MILESTONES: { year: string; textKey: TranslationKey }[] = [

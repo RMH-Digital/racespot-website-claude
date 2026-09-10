@@ -1,17 +1,11 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Broadcast production, live events, and studio shows — professional simracing coverage from Cologne.',
-  openGraph: {
-    title: 'Services | Racespot.tv',
-    description: 'Broadcast production, live events, studio shows and hardware support for simracing.',
-    images: [{ url: '/og-services.jpg', width: 1200, height: 630, alt: 'Racespot broadcast services' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-services.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/services', 'services', '/og-services.jpg')
 }
 
 const SERVICES = [

@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
+import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
 import { localePath, type Lang } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'News',
-  description: 'Latest news, insights, and updates from Racespot — the simracing broadcast team.',
-  openGraph: {
-    title: 'News | Racespot.tv',
-    description: 'Latest news, insights, and updates from Racespot — the simracing broadcast team.',
-    images: [{ url: '/og-news.jpg', width: 1200, height: 630, alt: 'Racespot news' }],
-  },
-  twitter: { card: 'summary_large_image', images: ['/og-news.jpg'] },
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  return staticPageMetadata(lang, '/news', 'news', '/og-news.jpg')
 }
 
 export default function NewsPage({ params: { lang } }: { params: { lang: Lang } }) {

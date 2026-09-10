@@ -7,10 +7,24 @@ import { PhotoGallery }     from '@/components/sections/PhotoGallery'
 import { LatestNews }       from '@/components/sections/LatestNews'
 import { ContactCTA }       from '@/components/sections/ContactCTA'
 import { getUpcomingEvents } from '@/lib/sheets'
-import type { Lang } from '@/lib/i18n'
+import type { Metadata } from 'next'
+import { t, type Lang } from '@/lib/i18n'
+import { pageMetadata } from '@/lib/i18n/seo'
 
 /* Re-check events every 5 minutes (ISR) */
 export const revalidate = 300
+
+export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+  const meta = pageMetadata({
+    lang,
+    path: '/',
+    title: t(lang, 'meta.site.title'),
+    description: t(lang, 'meta.site.desc'),
+    image: '/og-home.jpg',
+  })
+  // The home title is the full site title, not "… | Racespot.tv".
+  return { ...meta, title: { absolute: t(lang, 'meta.site.title') } }
+}
 
 export default async function HomePage({ params: { lang } }: { params: { lang: Lang } }) {
   const events = await getUpcomingEvents(3)

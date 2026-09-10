@@ -2,6 +2,7 @@
  * JSON-LD Structured Data for SEO
  * Renders schema.org markup in the page head
  */
+import { LOCALES, type Lang } from '@/lib/i18n'
 
 export function OrganizationJsonLd() {
   const schema = {
@@ -50,12 +51,13 @@ export function OrganizationJsonLd() {
   )
 }
 
-export function WebsiteJsonLd() {
+export function WebsiteJsonLd({ lang }: { lang: Lang }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Racespot.tv',
-    url: 'https://racespot.tv',
+    url: `https://racespot.tv/${lang}`,
+    inLanguage: LOCALES[lang],
     description:
       "World's leading simracing broadcast studio. Professional broadcast production for simracing events.",
     publisher: {
