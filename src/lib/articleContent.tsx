@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import type { Article, Block } from './articles'
+import type { Article, ArticleTranslation, Block } from './articles'
+import { LANGS, type Lang } from './i18n'
 
 /**
  * Article body helpers.
@@ -96,9 +97,61 @@ export function toBlocks(article: Article): Block[] {
 
 /** Plain text of the body — for read-time estimates and meta descriptions. */
 export function plainText(article: Article): string {
-  return toBlocks(article)
+  return blocksToPlainText(toBlocks(article))
+}
+
+export function blocksToPlainText(blocks: Block[]): string {
+  return blocks
     .map((b) => (b.kind === 'image' ? b.alt : b.text))
     .join(' ')
     .replace(/\*\*|\*/g, '')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+}
+
+/**
+ * The languages an article actually exists in: English always, plus every
+ * language the Press Tool delivered. Only these get a `hreflang` and a
+ * sitemap entry — a reader in another language sees the English text.
+ */
+export function articleLangs(article: Article): Lang[] {
+  return LANGS.filter((l) => l === 'en' || Boolean(article.translations?.[l]))
+}
+
+/** The text fields of an article, in one language. */
+export interface LocalizedArticle {
+  /** The language actually rendered — `en` when `lang` has no translation. */
+  lang: Lang
+  title: string
+  excerpt: string
+  imageAlt: string
+  readTime: string
+  blocks: Block[]
+}
+
+/**
+ * Pick the translation for `lang`, falling back to the English fields. The
+ * fallback is deliberate and visible in `lang`, so the page can decide not
+ * to advertise the language it did not get.
+ */
+export function localizeArticle(article: Article, lang: Lang): LocalizedArticle {
+  const tr: ArticleTranslation | undefined =
+    lang === 'en' ? undefined : article.translations?.[lang]
+  if (!tr) {
+    return {
+      lang: 'en',
+      title: article.title,
+      excerpt: article.excerpt,
+      imageAlt: article.imageAlt,
+      readTime: article.readTime,
+      blocks: toBlocks(article),
+    }
+  }
+  return {
+    lang,
+    title: tr.title,
+    excerpt: tr.excerpt,
+    imageAlt: tr.imageAlt,
+    readTime: tr.readTime ?? article.readTime,
+    blocks: tr.content,
+  }
 }

@@ -1,3 +1,5 @@
+import type { Lang } from './i18n'
+
 /**
  * A block of article body. Articles used to be a flat `string[]` of paragraphs,
  * which meant an editor could not set a sub-heading or pull out a quote — both
@@ -16,6 +18,24 @@ export type Block =
 export interface Source {
   label: string
   url: string
+}
+
+/**
+ * One translated version of an article. English stays in the article's own
+ * fields; the other five languages live in `Article.translations`, keyed by
+ * language. This is the contract with the Press Tool (docs/TODO.md, item 1):
+ * the slug is English and shared, everything language-neutral (`category`,
+ * `date`, `image`, `imageCredit`, `author`, `sources`, image `credit`s in
+ * blocks) is stored once on the article.
+ */
+export interface ArticleTranslation {
+  title: string
+  excerpt: string
+  imageAlt: string
+  /** Same block kinds, same inline syntax as the English `content`. */
+  content: Block[]
+  /** Omitted = the English value. */
+  readTime?: string
 }
 
 export interface Article {
@@ -43,6 +63,11 @@ export interface Article {
    * through `toBlocks()` from ./articleContent rather than directly.
    */
   content: string[] | Block[]
+  /**
+   * The other five languages. A missing language renders the English text
+   * and gets no `hreflang` — a half-translated page is never indexed.
+   */
+  translations?: Partial<Record<Exclude<Lang, 'en'>, ArticleTranslation>>
 }
 
 export const ARTICLES: Article[] = [
