@@ -7,24 +7,72 @@ Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ## 1. URL-basiertes i18n — der eine große Brocken
 
+**Entschieden am 2026-09-10 (Jürgen):** sechs Sprachen (EN, DE, ES, PT, FR, IT),
+**alle vollständig indexiert**, News-Artikel werden vom Press Tool in alle sechs
+Sprachen geliefert. Arabisch/Chinesisch bewusst nicht (RTL-Umbau, eigene Fonts,
+Muttersprachler-Review — später, wenn gewünscht). Ziel ist gute Auffindbarkeit
+außerhalb Deutschlands/Europas, Aufwand ist zweitrangig gegenüber Sauberkeit.
+
 **Problem.** Sprache wird im Browser aus `localStorage` gelesen; der Server rendert
-immer Englisch. Folgen: deutsche Besucher sehen kurz Englisch (Flash), Google
-indexiert **ausschließlich Englisch** (racespot.tv taucht in deutschen Suchen nie auf
-Deutsch auf), und 27 Komponenten müssen `'use client'` sein, nur um `t()` aufzurufen —
-mehr JavaScript als nötig.
+immer Englisch. Folgen: Besucher sehen kurz Englisch (Flash), Google indexiert
+**ausschließlich Englisch**, und 27 Komponenten müssen `'use client'` sein, nur um
+`t()` aufzurufen.
 
-**Lösung.** Sprache in die URL: `racespot.tv/de/news/…`, `/en/…`. Middleware
-erkennt `Accept-Language` beim ersten Besuch und leitet um; Server rendert pro
-Sprache; `hreflang`-Tags pro Seite; die meisten Komponenten werden wieder Server
-Components. Dateien betroffen: praktisch alle unter `src/app` und `src/components`,
-`src/lib/language.tsx`, `src/middleware.ts`, `sitemap.ts`.
+**Lösung.** Sprache in die URL, alle sechs mit Präfix: `/en/…`, `/de/…`, `/es/…`,
+`/pt/…`, `/fr/…`, `/it/…`. `/` erkennt `Accept-Language` (Cookie merkt die Wahl) und
+leitet auf die passende Sprache; `x-default` zeigt auf `/en/`. Server rendert pro
+Sprache; `hreflang` für alle sechs auf jeder Seite; `<html lang>` korrekt; Sitemap
+mit allen Sprachvarianten; OG-Metadaten pro Sprache. Die meisten Komponenten werden
+wieder Server Components; `LanguageProvider`/`localStorage` entfallen.
 
-**Randbedingungen.** Alte URLs (`/news/<slug>`) müssen per 301 auf `/en/news/<slug>`
-weiterleiten (Google, LinkedIn-Posts). Press Tool: `preview.article_path` in
-`~/Press Tool/projects/racespot/project.yaml` auf `/en/news/{slug}` (oder `/de/…`)
-umstellen — eine Zeile, aber vor dem ersten Post nach dem Umbau.
+**Alte URLs** (`/news/<slug>`, `/services`, …) → **301** auf `/en/…` (bestehende
+Google-Treffer, LinkedIn-/X-Posts des Press Tools).
 
-**Aufwand.** 2–3 Tage, eigener Branch, eigene Session.
+**Was heute schon übersetzt ist:** ~230 UI-Texte in `src/lib/i18n/translations.ts`.
+**Noch nicht:** News-Artikel, Datenschutz, AGB, Impressum, Event-Texte
+(`src/app/events/page.tsx`), Metadaten (`title`/`description` je Seite). Alles
+davon muss mit — sonst gibt es gemischtsprachige Seiten, die in keiner Sprache
+ranken. Rechtstexte: Übersetzung liefern, Freigabe durch Menschen.
+
+### Datenvertrag Website ↔ Press Tool (gilt für beide Sessions)
+
+`Article` in `src/lib/articles.ts` bleibt **ein Objekt pro Artikel** mit einem
+stabilen, englischen `slug`, der in allen Sprachen identisch ist
+(`/de/news/<slug>` = `/en/news/<slug>`). Die englische Fassung bleibt in den
+bestehenden Feldern; die anderen fünf kommen in ein neues Feld:
+
+```ts
+type Lang = 'en' | 'de' | 'es' | 'pt' | 'fr' | 'it'
+
+interface ArticleTranslation {
+  title: string
+  excerpt: string
+  imageAlt: string
+  content: Block[]          // gleiche Block-Typen, gleiche Inline-Syntax (**, *, [](url))
+  readTime?: string         // weglassen = englischer Wert
+}
+
+interface Article {
+  // … bestehende Felder unverändert (englisch) …
+  translations?: Partial<Record<Exclude<Lang, 'en'>, ArticleTranslation>>
+}
+```
+
+Regeln:
+- Fehlt eine Sprache, rendert die Website den englischen Text **und setzt für
+  diese Sprache kein `hreflang`** — niemals eine halbübersetzte Seite indexieren.
+- `category`, `date`, `image`, `imageCredit`, `author`, `sources` sind
+  sprachneutral und stehen nur einmal. Kategorienamen übersetzt die Website über
+  `translations.ts`.
+- Bild-`credit` in `Block`-Bildern bleibt sprachneutral; `alt` wird übersetzt.
+- Das Press Tool liefert alle fünf Übersetzungen **im selben PR** wie den
+  englischen Artikel. `preview.article_path` in
+  `~/Press Tool/projects/racespot/project.yaml` wird `/en/news/{slug}` (die
+  Social-Links bleiben englisch; Leser landen über `/en/` und können umschalten).
+
+**Aufwand.** 3–4 Tage Website (eigener Branch `i18n-routes`, nicht auf `main` —
+Push auf `main` deployt sofort). Press Tool parallel möglich, weil der Vertrag
+oben steht; mergen erst, wenn die Website `translations` liest.
 
 ## 2. Framework-Upgrades — nach Punkt 1
 
