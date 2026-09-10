@@ -52,6 +52,10 @@ type FormType = 'general' | 'broadcast'
 
 interface Row { label: string; value: string; multiline?: boolean }
 
+/** Field name → error code; the client maps codes to translated messages. */
+type FieldErrors = Record<string, 'required' | 'email' | 'url' | 'select' | 'window' | 'date'>
+interface Invalid { error: string; fields: FieldErrors }
+
 interface Prepared {
   /** Subject line for the internal notification */
   subject: string
@@ -65,14 +69,18 @@ interface Prepared {
   summary: string
 }
 
-function prepareGeneral(body: Record<string, unknown>): Prepared | { error: string } {
+function prepareGeneral(body: Record<string, unknown>): Prepared | Invalid {
   const name = str(body.name, 200)
   const email = str(body.email, 200)
   const subject = str(body.subject, 300)
   const message = str(body.message)
 
-  if (!name || !email || !message) return { error: 'Name, email, and message are required.' }
-  if (!EMAIL_RE.test(email)) return { error: 'Invalid email address.' }
+  const fields: FieldErrors = {}
+  if (!name) fields.name = 'required'
+  if (!email) fields.email = 'required'
+  else if (!EMAIL_RE.test(email)) fields.email = 'email'
+  if (!message) fields.message = 'required'
+  if (Object.keys(fields).length) return { error: 'Please check the highlighted fields.', fields }
 
   return {
     subject: `Website Form: ${subject || 'New Inquiry'}`,
@@ -87,40 +95,67 @@ function prepareGeneral(body: Record<string, unknown>): Prepared | { error: stri
   }
 }
 
-function prepareBroadcast(body: Record<string, unknown>): Prepared | { error: string } {
+// Must match the dropdowns in src/components/sections/ContactForm.tsx
+const RACE_COUNT_MAX = 30
+const WINDOW_HOURS_MAX = 12
+const WINDOW_MINUTE_STEPS = new Set([0, 15, 30, 45])
+
+/** Accepts "example.com" or "https://example.com"; returns a normalised https URL or null. */
+function normaliseUrl(v: string): string | null {
+  if (!v) return null
+  try {
+    const u = new URL(/^[a-z]+:\/\//i.test(v) ? v : `https://${v}`)
+    if (!/^https?:$/.test(u.protocol) || !/\.[a-z]{2,}$/i.test(u.hostname)) return null
+    return u.toString()
+  } catch {
+    return null
+  }
+}
+
+function prepareBroadcast(body: Record<string, unknown>): Prepared | Invalid {
   const name = str(body.name, 200)
   const email = str(body.email, 200)
-  const businessAddress = str(body.businessAddress, 1000)
+  const businessAddress = str(body.businessAddress, 1000)   // optional
   const seriesName = str(body.seriesName, 300)
-  const seriesWebsite = str(body.seriesWebsite, 500)
+  const websiteRaw = str(body.seriesWebsite, 500)           // optional
   const game = str(body.game, 300)
   const startDate = str(body.startDate, 50)
   const startTime = str(body.startTime, 50)
-  const raceCount = str(body.raceCount, 10)
-  const broadcastWindow = str(body.broadcastWindow, 500)
+  const raceCount = Number(str(body.raceCount, 10))
+  const windowHours = Number(str(body.windowHours, 5))
+  const windowMinutes = Number(str(body.windowMinutes, 5) || '0')
   const additionalInfo = str(body.additionalInfo)
 
-  const required: [string, string][] = [
-    ['name', name], ['email', email], ['business address', businessAddress],
-    ['series name', seriesName], ['series website', seriesWebsite], ['game', game],
-    ['start date', startDate], ['start time', startTime],
-    ['number of races', raceCount], ['broadcast window', broadcastWindow],
-  ]
-  const missing = required.filter(([, v]) => !v).map(([k]) => k)
-  if (missing.length) return { error: `Please fill in: ${missing.join(', ')}.` }
-  if (!EMAIL_RE.test(email)) return { error: 'Invalid email address.' }
-  if (!/^\d{1,3}$/.test(raceCount) || Number(raceCount) < 1) return { error: 'Number of races must be a whole number.' }
+  const fields: FieldErrors = {}
+  if (!name) fields.name = 'required'
+  if (!email) fields.email = 'required'
+  else if (!EMAIL_RE.test(email)) fields.email = 'email'
+  if (!seriesName) fields.seriesName = 'required'
+  if (!game) fields.game = 'required'
+  const website = normaliseUrl(websiteRaw)
+  if (websiteRaw && !website) fields.seriesWebsite = 'url'
+  if (!startDate) fields.startDate = 'required'
+  else if (Number.isNaN(new Date(startDate).getTime())) fields.startDate = 'date'
+  if (!startTime) fields.startTime = 'required'
+  if (!Number.isInteger(raceCount) || raceCount < 1 || raceCount > RACE_COUNT_MAX) fields.raceCount = 'select'
+  const hoursOk = Number.isInteger(windowHours) && windowHours >= 0 && windowHours <= WINDOW_HOURS_MAX
+  const minutesOk = WINDOW_MINUTE_STEPS.has(windowMinutes)
+  if (!hoursOk || !minutesOk) fields.windowHours = 'select'
+  else if (windowHours * 60 + windowMinutes < 15) fields.windowHours = 'window'
+  if (Object.keys(fields).length) return { error: 'Please check the highlighted fields.', fields }
+
+  const duration = `${windowHours} h ${String(windowMinutes).padStart(2, '0')} min`
 
   const rows: Row[] = [
     { label: 'Contact', value: name },
     { label: 'Email', value: email },
-    { label: 'Business Address', value: businessAddress, multiline: true },
+    ...(businessAddress ? [{ label: 'Business Address', value: businessAddress, multiline: true }] : []),
     { label: 'Series', value: seriesName },
-    { label: 'Website', value: seriesWebsite },
+    ...(website ? [{ label: 'Website', value: website }] : []),
     { label: 'Game', value: game },
     { label: 'Est. Start', value: `${startDate} · ${startTime} (sender local time)` },
-    { label: 'Races', value: raceCount },
-    { label: 'Broadcast Window', value: broadcastWindow },
+    { label: 'Races', value: String(raceCount) },
+    { label: 'Broadcast Window', value: `${duration} per race` },
   ]
 
   const summary =
@@ -194,7 +229,7 @@ export async function POST(request: Request) {
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown'
 
     if (isRateLimited(ip)) {
-      return NextResponse.json({ error: 'Too many submissions. Please try again later.' }, { status: 429 })
+      return NextResponse.json({ error: 'Too many submissions. Please try again later.', code: 'rate_limited' }, { status: 429 })
     }
 
     const body = (await request.json()) as Record<string, unknown>
@@ -210,7 +245,7 @@ export async function POST(request: Request) {
     if (turnstileSecret) {
       const turnstileToken = body['cf-turnstile-response']
       if (typeof turnstileToken !== 'string' || !turnstileToken) {
-        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 })
+        return NextResponse.json({ error: 'Please complete the security check.', code: 'turnstile_missing' }, { status: 400 })
       }
 
       const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -220,14 +255,14 @@ export async function POST(request: Request) {
       })
       const verifyData = await verifyRes.json()
       if (!verifyData.success) {
-        return NextResponse.json({ error: 'Security verification failed. Please try again.' }, { status: 403 })
+        return NextResponse.json({ error: 'Security verification failed. Please try again.', code: 'turnstile_failed' }, { status: 403 })
       }
     }
 
     const type: FormType = body.type === 'broadcast' ? 'broadcast' : 'general'
     const prepared = type === 'broadcast' ? prepareBroadcast(body) : prepareGeneral(body)
     if ('error' in prepared) {
-      return NextResponse.json({ error: prepared.error }, { status: 400 })
+      return NextResponse.json({ error: prepared.error, code: 'validation', fields: prepared.fields }, { status: 400 })
     }
 
     const name = str(body.name, 200)
@@ -281,7 +316,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json(
-      { error: 'Failed to send message. Please try again or email us directly at contact@racespot.tv' },
+      { error: 'Failed to send message. Please try again or email us directly at contact@racespot.tv', code: 'send_failed' },
       { status: 500 }
     )
   }

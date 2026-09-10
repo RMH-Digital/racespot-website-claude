@@ -5,46 +5,132 @@
 //   2. General Inquiry — the classic name / email / subject / message form
 // Both share the honeypot, Cloudflare Turnstile and the /api/contact endpoint,
 // which branches on `type`.
+//
+// Validation runs here first (noValidate + our own rules) so every message is
+// translated and shown under the field it belongs to; the server re-validates
+// and answers with an error *code* that is mapped back to a translated string.
 import { useState, useRef, type FormEvent, type ReactNode } from 'react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 type FormType = 'broadcast' | 'general'
+type T = (key: TranslationKey) => string
+type Errors = Record<string, TranslationKey>
 
 const INPUT =
-  'w-full bg-rs-dark border border-rs-border rounded-rs px-4 py-3 text-sm text-white ' +
+  'w-full bg-rs-dark border rounded-rs px-4 py-3 text-sm text-white ' +
   'placeholder:text-rs-muted/50 focus:border-rs-yellow focus:outline-none transition-colors ' +
   '[color-scheme:dark]'
 
 const LABEL = 'text-[11px] font-display font-bold uppercase tracking-[0.1em] text-rs-muted mb-1.5 block'
 
+// Dropdown ranges — the API enforces the same bounds.
+export const RACE_COUNT_MAX = 30
+export const WINDOW_HOURS_MAX = 12
+export const WINDOW_MINUTE_STEPS = [0, 15, 30, 45] as const
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Server error codes → translated messages (see src/app/api/contact/route.ts)
+const SERVER_ERRORS: Record<string, TranslationKey> = {
+  turnstile_missing: 'contact.err.turnstile',
+  turnstile_failed: 'contact.err.turnstileFailed',
+  rate_limited: 'contact.err.rateLimit',
+  validation: 'contact.err.summary',
+  send_failed: 'contact.err.server',
+}
+
+/** Loose URL check for the optional website field: accepts "example.com" and "https://example.com". */
+export function looksLikeUrl(v: string): boolean {
+  try {
+    const u = new URL(/^[a-z]+:\/\//i.test(v) ? v : `https://${v}`)
+    return /^https?:$/.test(u.protocol) && /\.[a-z]{2,}$/i.test(u.hostname)
+  } catch {
+    return false
+  }
+}
+
+function validate(type: FormType, data: FormData): Errors {
+  const get = (k: string) => (data.get(k) as string | null)?.trim() ?? ''
+  const errors: Errors = {}
+  const required = (k: string) => { if (!get(k)) errors[k] = 'contact.err.required' }
+
+  required('name')
+  if (!get('email')) errors.email = 'contact.err.required'
+  else if (!EMAIL_RE.test(get('email'))) errors.email = 'contact.err.email'
+
+  if (type === 'general') {
+    required('message')
+    return errors
+  }
+
+  required('seriesName')
+  required('game')
+  if (get('seriesWebsite') && !looksLikeUrl(get('seriesWebsite'))) errors.seriesWebsite = 'contact.err.url'
+  if (!get('startDate')) errors.startDate = 'contact.err.required'
+  else if (Number.isNaN(new Date(get('startDate')).getTime())) errors.startDate = 'contact.err.date'
+  required('startTime')
+  if (!get('raceCount')) errors.raceCount = 'contact.err.select'
+  const h = Number(get('windowHours') || 0), m = Number(get('windowMinutes') || 0)
+  if (get('windowHours') === '' && get('windowMinutes') === '') errors.windowHours = 'contact.err.select'
+  else if (h * 60 + m < 15) errors.windowHours = 'contact.err.window'
+  return errors
+}
+
 export function ContactForm({ lang }: { lang: Lang }) {
   const [formType, setFormType] = useState<FormType>('broadcast')
   const [submitted, setSubmitted] = useState<FormType | null>(null)
   const [sending, setSending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Errors>({})
+  const [formError, setFormError] = useState<string | null>(null)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
+  const formRef = useRef<HTMLFormElement>(null)
   const t = getT(lang)
 
   function switchForm(next: FormType) {
     if (next === formType) return
     setFormType(next)
-    setError(null)
+    setErrors({})
+    setFormError(null)
+  }
+
+  /** Clear a field's error as soon as the user edits it. */
+  function clearError(id: string) {
+    if (!errors[id]) return
+    setErrors((prev) => { const n = { ...prev }; delete n[id]; return n })
+  }
+
+  function focusFirstError(errs: Errors) {
+    const first = Object.keys(errs)[0]
+    const el = formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)
+    el?.focus()
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setSending(true)
-    setError(null)
+    setFormError(null)
 
     const form = e.currentTarget
     const data = new FormData(form)
-    const payload: Record<string, unknown> = { type: formType, 'cf-turnstile-response': turnstileToken }
-    data.forEach((value, key) => {
-      payload[key] = typeof value === 'string' ? value : ''
-    })
+
+    const clientErrors = validate(formType, data)
+    if (Object.keys(clientErrors).length) {
+      setErrors(clientErrors)
+      setFormError(t('contact.err.summary'))
+      focusFirstError(clientErrors)
+      return
+    }
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setFormError(t('contact.err.turnstile'))
+      return
+    }
+
+    setSending(true)
+    const payload: Record<string, unknown> = { type: formType, lang, 'cf-turnstile-response': turnstileToken }
+    data.forEach((value, key) => { payload[key] = typeof value === 'string' ? value : '' })
 
     try {
       const res = await fetch('/api/contact', {
@@ -52,11 +138,22 @@ export function ContactForm({ lang }: { lang: Lang }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-
-      const result = await res.json()
+      const result = await res.json().catch(() => ({}))
 
       if (!res.ok) {
-        throw new Error(result.error || t('contact.errorSend'))
+        // Field-level errors from the server (should not happen after client validation, but be honest if it does)
+        if (result.fields && typeof result.fields === 'object') {
+          const errs: Errors = {}
+          for (const [k, v] of Object.entries(result.fields as Record<string, string>)) {
+            errs[k] = (v in SERVER_ERRORS ? SERVER_ERRORS[v] : 'contact.err.required')
+          }
+          setErrors(errs)
+          focusFirstError(errs)
+        }
+        const key = SERVER_ERRORS[result.code as string] ?? 'contact.err.server'
+        setFormError(t(key))
+        if (result.code?.startsWith('turnstile')) { turnstileRef.current?.reset(); setTurnstileToken(null) }
+        return
       }
 
       // If SMTP is not configured, open mailto as fallback
@@ -66,14 +163,11 @@ export function ContactForm({ lang }: { lang: Lang }) {
       }
 
       setSubmitted(formType)
+      setErrors({})
       turnstileRef.current?.reset()
       setTurnstileToken(null)
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('contact.errorGeneric')
-      )
+    } catch {
+      setFormError(t('contact.err.server'))
     } finally {
       setSending(false)
     }
@@ -83,6 +177,8 @@ export function ContactForm({ lang }: { lang: Lang }) {
     { id: 'broadcast', labelKey: 'contact.tab.broadcast' },
     { id: 'general',   labelKey: 'contact.tab.general' },
   ]
+
+  const fieldProps = { t, errors, clearError }
 
   return (
     <div>
@@ -111,19 +207,14 @@ export function ContactForm({ lang }: { lang: Lang }) {
             <div className="space-y-6">
               <div>
                 <p className={LABEL}>{t('contact.email')}</p>
-                <a
-                  href="mailto:contact@racespot.tv"
-                  className="text-rs-yellow hover:text-white transition-colors text-sm"
-                >
+                <a href="mailto:contact@racespot.tv" className="text-rs-yellow hover:text-white transition-colors text-sm">
                   contact@racespot.tv
                 </a>
               </div>
-
               <div>
                 <p className={LABEL}>{t('contact.location')}</p>
                 <p className="text-white/80 text-sm">{t('contact.locationValue')}</p>
               </div>
-
               <div>
                 <p className={LABEL}>{t('contact.company')}</p>
                 <p className="text-white/80 text-sm">Racespot Media House GmbH</p>
@@ -168,9 +259,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
                         aria-controls={`panel-${tab.id}`}
                         onClick={() => switchForm(tab.id)}
                         className={`px-4 py-2.5 rounded-[4px] font-display font-bold text-[12px] uppercase tracking-[0.08em] transition-colors
-                          ${active
-                            ? 'bg-rs-yellow text-rs-black'
-                            : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
+                          ${active ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                       >
                         {t(tab.labelKey)}
                       </button>
@@ -180,17 +269,15 @@ export function ContactForm({ lang }: { lang: Lang }) {
 
                 <form
                   key={formType}
+                  ref={formRef}
                   id={`panel-${formType}`}
                   role="tabpanel"
                   aria-labelledby={`tab-${formType}`}
                   onSubmit={handleSubmit}
+                  noValidate
                   className="space-y-5"
                 >
-                  {formType === 'broadcast' ? (
-                    <BroadcastFields t={t} />
-                  ) : (
-                    <GeneralFields t={t} />
-                  )}
+                  {formType === 'broadcast' ? <BroadcastFields {...fieldProps} /> : <GeneralFields {...fieldProps} />}
 
                   {/* Honeypot — hidden from real users, bots fill it out */}
                   <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
@@ -203,16 +290,16 @@ export function ContactForm({ lang }: { lang: Lang }) {
                     <Turnstile
                       ref={turnstileRef}
                       siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-                      onSuccess={setTurnstileToken}
+                      onSuccess={(token) => { setTurnstileToken(token); if (formError === t('contact.err.turnstile')) setFormError(null) }}
                       onError={() => setTurnstileToken(null)}
                       onExpire={() => setTurnstileToken(null)}
-                      options={{ theme: 'dark' }}
+                      options={{ theme: 'dark', language: lang }}
                     />
                   )}
 
-                  {error && (
-                    <div role="alert" className="rounded-rs border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                      {error}
+                  {formError && (
+                    <div role="alert" aria-live="assertive" className="rounded-rs border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                      {formError}
                     </div>
                   )}
 
@@ -245,23 +332,26 @@ export function ContactForm({ lang }: { lang: Lang }) {
 
 // ─── Field helpers ───────────────────────────────────────────
 
-type T = (key: TranslationKey) => string
+interface FieldCtx { t: T; errors: Errors; clearError: (id: string) => void }
 
 function Field({
-  id,
-  label,
-  required,
-  hint,
-  t,
-  children,
+  id, label, required, hint, ctx, children,
 }: {
   id: string
   label: string
   required?: boolean
   hint?: string
-  t: T
-  children: ReactNode
+  ctx: FieldCtx
+  children: (a: { invalid: boolean; describedBy?: string; className: string; onChange: () => void }) => ReactNode
 }) {
+  const { t, errors, clearError } = ctx
+  const errKey = errors[id]
+  const invalid = Boolean(errKey)
+  const errId = `${id}-error`
+  const hintId = `${id}-hint`
+  const describedBy = [invalid ? errId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined
+  const className = `${INPUT} ${invalid ? 'border-red-500/70 focus:border-red-400' : 'border-rs-border'}`
+
   return (
     <div>
       <label htmlFor={id} className={LABEL}>
@@ -270,8 +360,50 @@ function Field({
           {required ? '*' : `(${t('contact.optional').toLowerCase()})`}
         </span>
       </label>
-      {children}
-      {hint && <p className="text-[11px] text-rs-muted/70 mt-1.5">{hint}</p>}
+      {children({ invalid, describedBy, className, onChange: () => clearError(id) })}
+      {invalid && (
+        <p id={errId} role="alert" className="text-[12px] text-red-400 mt-1.5 flex items-start gap-1.5">
+          <svg className="h-3.5 w-3.5 mt-[1px] shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-.75 3.5h1.5v4.5h-1.5V4.5Zm.75 7.25a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z" />
+          </svg>
+          {t(errKey)}
+        </p>
+      )}
+      {hint && !invalid && <p id={hintId} className="text-[11px] text-rs-muted/70 mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+/** Native <select> styled like the inputs, with our own chevron. */
+function Select({
+  id, name, className, invalid, describedBy, onChange, children, ariaLabel,
+}: {
+  id?: string
+  name: string
+  className: string
+  invalid: boolean
+  describedBy?: string
+  onChange: () => void
+  children: ReactNode
+  ariaLabel?: string
+}) {
+  return (
+    <div className="relative">
+      <select
+        id={id}
+        name={name}
+        defaultValue=""
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
+        aria-label={ariaLabel}
+        onChange={onChange}
+        className={`${className} appearance-none pr-10 cursor-pointer`}
+      >
+        {children}
+      </select>
+      <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-3 w-3 text-rs-muted" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+        <path d="M6 8.5 1.5 4h9L6 8.5Z" />
+      </svg>
     </div>
   )
 }
@@ -286,54 +418,74 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 // ─── Broadcast request ───────────────────────────────────────
 
-function BroadcastFields({ t }: { t: T }) {
+function BroadcastFields(ctx: FieldCtx) {
+  const { t } = ctx
+  const hours = Array.from({ length: WINDOW_HOURS_MAX + 1 }, (_, i) => i)
+  const races = Array.from({ length: RACE_COUNT_MAX }, (_, i) => i + 1)
+
   return (
     <>
       <SectionLabel>{t('contact.bc.contactSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
-        <Field id="name" label={t('contact.name')} required t={t}>
-          <input id="name" name="name" type="text" required autoComplete="name" className={INPUT} placeholder={t('contact.namePlaceholder')} />
+        <Field id="name" label={t('contact.name')} required ctx={ctx}>
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
         </Field>
-        <Field id="email" label={t('contact.email')} required t={t}>
-          <input id="email" name="email" type="email" required autoComplete="email" className={INPUT} placeholder={t('contact.emailPlaceholder')} />
+        <Field id="email" label={t('contact.email')} required ctx={ctx}>
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
         </Field>
       </div>
-      <Field id="businessAddress" label={t('contact.bc.businessAddress')} required t={t}>
-        <textarea id="businessAddress" name="businessAddress" rows={3} required autoComplete="street-address" className={`${INPUT} resize-none`} placeholder={t('contact.bc.businessAddressPlaceholder')} />
+      <Field id="businessAddress" label={t('contact.bc.businessAddress')} ctx={ctx}>
+        {(a) => <textarea id="businessAddress" name="businessAddress" rows={3} autoComplete="street-address" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.businessAddressPlaceholder')} />}
       </Field>
 
       <SectionLabel>{t('contact.bc.seriesSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
-        <Field id="seriesName" label={t('contact.bc.seriesName')} required t={t}>
-          <input id="seriesName" name="seriesName" type="text" required className={INPUT} placeholder={t('contact.bc.seriesNamePlaceholder')} />
+        <Field id="seriesName" label={t('contact.bc.seriesName')} required ctx={ctx}>
+          {(a) => <input id="seriesName" name="seriesName" type="text" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.seriesNamePlaceholder')} />}
         </Field>
-        <Field id="seriesWebsite" label={t('contact.bc.seriesWebsite')} required t={t}>
-          <input id="seriesWebsite" name="seriesWebsite" type="url" required inputMode="url" autoComplete="url" className={INPUT} placeholder="https://" />
+        <Field id="seriesWebsite" label={t('contact.bc.seriesWebsite')} ctx={ctx}>
+          {(a) => <input id="seriesWebsite" name="seriesWebsite" type="text" inputMode="url" autoComplete="url" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder="https://" />}
         </Field>
       </div>
-      <Field id="game" label={t('contact.bc.game')} required t={t}>
-        <input id="game" name="game" type="text" required className={INPUT} placeholder={t('contact.bc.gamePlaceholder')} />
+      <Field id="game" label={t('contact.bc.game')} required ctx={ctx}>
+        {(a) => <input id="game" name="game" type="text" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.gamePlaceholder')} />}
       </Field>
 
       <SectionLabel>{t('contact.bc.scheduleSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
-        <Field id="startDate" label={t('contact.bc.startDate')} required t={t}>
-          <input id="startDate" name="startDate" type="date" required className={INPUT} />
+        <Field id="startDate" label={t('contact.bc.startDate')} required ctx={ctx}>
+          {(a) => <input id="startDate" name="startDate" type="date" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
         </Field>
-        <Field id="startTime" label={t('contact.bc.startTime')} required hint={t('contact.bc.startTimeHint')} t={t}>
-          <input id="startTime" name="startTime" type="time" required className={INPUT} />
-        </Field>
-      </div>
-      <div className="grid sm:grid-cols-[1fr_2fr] gap-5">
-        <Field id="raceCount" label={t('contact.bc.raceCount')} required t={t}>
-          <input id="raceCount" name="raceCount" type="number" min={1} max={999} step={1} required inputMode="numeric" className={INPUT} placeholder={t('contact.bc.raceCountPlaceholder')} />
-        </Field>
-        <Field id="broadcastWindow" label={t('contact.bc.broadcastWindow')} required t={t}>
-          <input id="broadcastWindow" name="broadcastWindow" type="text" required className={INPUT} placeholder={t('contact.bc.broadcastWindowPlaceholder')} />
+        <Field id="startTime" label={t('contact.bc.startTime')} required hint={t('contact.bc.startTimeHint')} ctx={ctx}>
+          {(a) => <input id="startTime" name="startTime" type="time" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
         </Field>
       </div>
-      <Field id="additionalInfo" label={t('contact.bc.additionalInfo')} t={t}>
-        <textarea id="additionalInfo" name="additionalInfo" rows={5} className={`${INPUT} resize-none`} placeholder={t('contact.bc.additionalInfoPlaceholder')} />
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Field id="raceCount" label={t('contact.bc.raceCount')} required ctx={ctx}>
+          {(a) => (
+            <Select id="raceCount" name="raceCount" {...a}>
+              <option value="" disabled>{t('contact.selectPlaceholder')}</option>
+              {races.map((n) => <option key={n} value={n}>{n}</option>)}
+            </Select>
+          )}
+        </Field>
+        <Field id="windowHours" label={t('contact.bc.broadcastWindow')} required hint={t('contact.bc.windowHint')} ctx={ctx}>
+          {(a) => (
+            <div className="grid grid-cols-2 gap-3">
+              <Select id="windowHours" name="windowHours" ariaLabel={t('contact.bc.hours')} {...a}>
+                <option value="" disabled>{t('contact.bc.hours')}</option>
+                {hours.map((h) => <option key={h} value={h}>{h} {t('contact.bc.hoursShort')}</option>)}
+              </Select>
+              <Select name="windowMinutes" ariaLabel={t('contact.bc.minutes')} {...a}>
+                <option value="" disabled>{t('contact.bc.minutes')}</option>
+                {WINDOW_MINUTE_STEPS.map((m) => <option key={m} value={m}>{String(m).padStart(2, '0')} {t('contact.bc.minutesShort')}</option>)}
+              </Select>
+            </div>
+          )}
+        </Field>
+      </div>
+      <Field id="additionalInfo" label={t('contact.bc.additionalInfo')} ctx={ctx}>
+        {(a) => <textarea id="additionalInfo" name="additionalInfo" rows={5} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.additionalInfoPlaceholder')} />}
       </Field>
     </>
   )
@@ -341,22 +493,23 @@ function BroadcastFields({ t }: { t: T }) {
 
 // ─── General inquiry (the original form) ─────────────────────
 
-function GeneralFields({ t }: { t: T }) {
+function GeneralFields(ctx: FieldCtx) {
+  const { t } = ctx
   return (
     <>
       <div className="grid sm:grid-cols-2 gap-5">
-        <Field id="name" label={t('contact.name')} required t={t}>
-          <input id="name" name="name" type="text" required autoComplete="name" className={INPUT} placeholder={t('contact.namePlaceholder')} />
+        <Field id="name" label={t('contact.name')} required ctx={ctx}>
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
         </Field>
-        <Field id="email" label={t('contact.email')} required t={t}>
-          <input id="email" name="email" type="email" required autoComplete="email" className={INPUT} placeholder={t('contact.emailPlaceholder')} />
+        <Field id="email" label={t('contact.email')} required ctx={ctx}>
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
         </Field>
       </div>
-      <Field id="subject" label={t('contact.subject')} t={t}>
-        <input id="subject" name="subject" type="text" className={INPUT} placeholder={t('contact.subjectPlaceholder')} />
+      <Field id="subject" label={t('contact.subject')} ctx={ctx}>
+        {(a) => <input id="subject" name="subject" type="text" onChange={a.onChange} className={a.className} placeholder={t('contact.subjectPlaceholder')} />}
       </Field>
-      <Field id="message" label={t('contact.message')} required t={t}>
-        <textarea id="message" name="message" rows={6} required className={`${INPUT} resize-none`} placeholder={t('contact.messagePlaceholder')} />
+      <Field id="message" label={t('contact.message')} required ctx={ctx}>
+        {(a) => <textarea id="message" name="message" rows={6} aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.messagePlaceholder')} />}
       </Field>
     </>
   )
