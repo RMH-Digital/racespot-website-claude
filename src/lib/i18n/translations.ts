@@ -275,6 +275,22 @@ export const translations = {
   'meta.terms.desc':   { en: 'General terms and conditions for Racespot Media House GmbH.', de: 'Allgemeine Geschäftsbedingungen der Racespot Media House GmbH.', es: 'Términos y condiciones generales de Racespot Media House GmbH.', pt: 'Termos e condições gerais da Racespot Media House GmbH.', fr: 'Conditions générales de Racespot Media House GmbH.', it: 'Termini e condizioni generali di Racespot Media House GmbH.' },
   'meta.imprint.title': { en: 'Imprint', de: 'Impressum', es: 'Aviso legal', pt: 'Informações legais', fr: 'Mentions légales', it: 'Note legali' },
   'meta.imprint.desc':  { en: 'Legal information and imprint for Racespot Media House GmbH.', de: 'Impressum und rechtliche Angaben der Racespot Media House GmbH.', es: 'Información legal y aviso legal de Racespot Media House GmbH.', pt: 'Informações legais da Racespot Media House GmbH.', fr: 'Mentions légales de Racespot Media House GmbH.', it: 'Note legali di Racespot Media House GmbH.' },
+  // ─── News: labels around articles ────────────────────────
+  'news.latest':       { en: 'Latest', de: 'Aktuell', es: 'Lo último', pt: 'Últimas', fr: 'À la une', it: 'Ultime' },
+  'news.readArticle':  { en: 'Read article', de: 'Artikel lesen', es: 'Leer artículo', pt: 'Ler artigo', fr: "Lire l'article", it: "Leggi l'articolo" },
+  'news.read':         { en: 'read', de: 'Lesezeit', es: 'de lectura', pt: 'de leitura', fr: 'de lecture', it: 'di lettura' },
+  'news.previous':     { en: 'Previous', de: 'Zurück', es: 'Anterior', pt: 'Anterior', fr: 'Précédent', it: 'Precedente' },
+  'news.next':         { en: 'Next', de: 'Weiter', es: 'Siguiente', pt: 'Próximo', fr: 'Suivant', it: 'Successivo' },
+  'news.allNews':      { en: 'All News', de: 'Alle News', es: 'Todas las noticias', pt: 'Todas as notícias', fr: 'Toutes les actualités', it: 'Tutte le notizie' },
+  'news.inEnglishOnly': { en: 'This article is available in English only.', de: 'Dieser Artikel liegt nur auf Englisch vor.', es: 'Este artículo solo está disponible en inglés.', pt: 'Este artigo está disponível apenas em inglês.', fr: "Cet article n'est disponible qu'en anglais.", it: 'Questo articolo è disponibile solo in inglese.' },
+
+  // ─── News categories (keys of CATEGORY_COLORS in articles.ts) ─
+  'category.Events':     { en: 'Events', de: 'Events', es: 'Eventos', pt: 'Eventos', fr: 'Événements', it: 'Eventi' },
+  'category.Broadcast':  { en: 'Broadcast', de: 'Broadcast', es: 'Transmisión', pt: 'Transmissão', fr: 'Diffusion', it: 'Trasmissione' },
+  'category.Esports':    { en: 'Esports', de: 'Esports', es: 'Esports', pt: 'Esports', fr: 'Esport', it: 'Esports' },
+  'category.Motorsport': { en: 'Motorsport', de: 'Motorsport', es: 'Automovilismo', pt: 'Automobilismo', fr: 'Sport automobile', it: 'Motorsport' },
+  'category.Industry':   { en: 'Industry', de: 'Branche', es: 'Industria', pt: 'Indústria', fr: 'Industrie', it: 'Industria' },
+  'category.Company':    { en: 'Company', de: 'Unternehmen', es: 'Empresa', pt: 'Empresa', fr: 'Entreprise', it: 'Azienda' },
 } as const
 
 export type TranslationKey = keyof typeof translations

@@ -58,6 +58,15 @@ export function getT(lang: Lang) {
   return (key: TranslationKey) => t(lang, key)
 }
 
+/**
+ * Translated name of a news category. Categories are the keys of
+ * CATEGORY_COLORS in articles.ts; one without a `category.*` key renders as is.
+ */
+export function categoryLabel(lang: Lang, category: string): string {
+  const key = `category.${category}`
+  return key in translations ? t(lang, key as TranslationKey) : category
+}
+
 export function formatDate(lang: Lang, iso: string, opts?: Intl.DateTimeFormatOptions): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso

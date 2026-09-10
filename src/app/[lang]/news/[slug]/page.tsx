@@ -3,9 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
-import { renderInline, toBlocks } from '@/lib/articleContent'
+import { articleLangs, localizeArticle, renderInline } from '@/lib/articleContent'
 import { ArticleJsonLd } from '@/components/seo/JsonLd'
-import { localePath, type Lang } from '@/lib/i18n'
+import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
+import { absoluteUrl, pageMetadata } from '@/lib/i18n/seo'
 
 interface Props {
   params: { lang: Lang; slug: string }
@@ -15,27 +16,38 @@ export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params
+export function generateMetadata({ params }: Props): Metadata {
+  const { lang, slug } = params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) return {}
-  return {
-    title: article.title,
-    description: article.excerpt,
-    openGraph: {
-      title: `${article.title} | Racespot.tv`,
-      description: article.excerpt,
-      type: 'article',
-      images: [{ url: article.image, width: 1200, height: 630, alt: article.imageAlt }],
-    },
-    twitter: { card: 'summary_large_image', images: [article.image] },
+  const loc = localizeArticle(article, lang)
+  const path = `/news/${article.slug}`
+  const meta = pageMetadata({
+    lang,
+    path,
+    title: loc.title,
+    description: loc.excerpt,
+    image: article.image,
+    langs: articleLangs(article),
+    type: 'article',
+  })
+  // Untranslated: the page shows the English text, so it is the English
+  // page as far as the index is concerned — canonical points there and this
+  // language is not in the hreflang set (pageMetadata already left it out).
+  if (loc.lang !== lang && meta.alternates) {
+    meta.alternates.canonical = absoluteUrl('en', path)
   }
+  return meta
 }
 
 export default function ArticlePage({ params }: Props) {
   const { lang, slug } = params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) notFound()
+
+  const t = getT(lang)
+  const loc = localizeArticle(article, lang)
+  const fallback = loc.lang !== lang
 
   const idx = ARTICLES.indexOf(article)
   const prev = idx > 0 ? ARTICLES[idx - 1] : null
@@ -44,8 +56,10 @@ export default function ArticlePage({ params }: Props) {
   return (
     <div>
       <ArticleJsonLd
-        title={article.title}
-        description={article.excerpt}
+        lang={loc.lang}
+        urlLang={lang}
+        title={loc.title}
+        description={loc.excerpt}
         image={article.image}
         datePublished={article.date}
         slug={article.slug}
@@ -54,7 +68,7 @@ export default function ArticlePage({ params }: Props) {
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
           src={article.image}
-          alt={article.imageAlt}
+          alt={loc.imageAlt}
           fill
           className="object-cover"
           priority
@@ -70,16 +84,19 @@ export default function ArticlePage({ params }: Props) {
       </div>
 
       <div className="container-rs py-12">
-        <div className="max-w-3xl mx-auto">
+        {/* The article's text is in loc.lang; when that is not the page
+            language, say so on the element so assistive tech and search
+            engines read it correctly. */}
+        <article className="max-w-3xl mx-auto" lang={fallback ? loc.lang : undefined}>
           {/* Meta */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className={`text-xs font-mono ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
-              {article.category}
+              {categoryLabel(lang, article.category)}
             </span>
             <span className="text-rs-border">·</span>
-            <span className="text-rs-muted text-xs">{article.date}</span>
+            <time dateTime={article.date} className="text-rs-muted text-xs">{formatDate(lang, article.date)}</time>
             <span className="text-rs-border">·</span>
-            <span className="text-rs-muted text-xs">{article.readTime} read</span>
+            <span className="text-rs-muted text-xs">{loc.readTime} {t('news.read')}</span>
             {article.author && (
               <>
                 <span className="text-rs-border">·</span>
@@ -88,14 +105,20 @@ export default function ArticlePage({ params }: Props) {
             )}
           </div>
 
+          {fallback && (
+            <p className="mb-6 text-xs text-rs-muted border border-rs-border rounded-rs px-3 py-2 inline-block" lang={lang}>
+              {t('news.inEnglishOnly')}
+            </p>
+          )}
+
           {/* Title */}
           <h1 className="font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-8">
-            {article.title}
+            {loc.title}
           </h1>
 
           {/* Content */}
           <div className="space-y-6">
-            {toBlocks(article).map((block, i) => {
+            {loc.blocks.map((block, i) => {
               if (block.kind === 'h2') {
                 return (
                   <h2
@@ -157,32 +180,32 @@ export default function ArticlePage({ params }: Props) {
           </div>
 
           {/* Navigation */}
-          <div className="mt-16 pt-8 border-t border-rs-border flex items-center justify-between gap-4">
+          <nav className="mt-16 pt-8 border-t border-rs-border flex items-center justify-between gap-4" lang={lang}>
             {prev ? (
               <Link href={localePath(lang, `/news/${prev.slug}`)} className="group text-left">
-                <p className="text-xs text-rs-muted mb-1">← Previous</p>
+                <p className="text-xs text-rs-muted mb-1">← {t('news.previous')}</p>
                 <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
-                  {prev.title}
+                  {localizeArticle(prev, lang).title}
                 </p>
               </Link>
             ) : <div />}
             {next ? (
               <Link href={localePath(lang, `/news/${next.slug}`)} className="group text-right">
-                <p className="text-xs text-rs-muted mb-1">Next →</p>
+                <p className="text-xs text-rs-muted mb-1">{t('news.next')} →</p>
                 <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
-                  {next.title}
+                  {localizeArticle(next, lang).title}
                 </p>
               </Link>
             ) : <div />}
-          </div>
+          </nav>
 
           {/* Back link */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center" lang={lang}>
             <Link href={localePath(lang, '/news')} className="btn-ghost">
-              ← All News
+              ← {t('news.allNews')}
             </Link>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   )

@@ -75,6 +75,10 @@ export function WebsiteJsonLd({ lang }: { lang: Lang }) {
 }
 
 interface ArticleJsonLdProps {
+  /** Language of the rendered text (English when the article has no translation) */
+  lang: Lang
+  /** Language of the URL the reader is on */
+  urlLang: Lang
   title: string
   description: string
   image: string
@@ -82,7 +86,7 @@ interface ArticleJsonLdProps {
   slug: string
 }
 
-export function ArticleJsonLd({ title, description, image, datePublished, slug }: ArticleJsonLdProps) {
+export function ArticleJsonLd({ lang, urlLang, title, description, image, datePublished, slug }: ArticleJsonLdProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -91,7 +95,8 @@ export function ArticleJsonLd({ title, description, image, datePublished, slug }
     image: `https://racespot.tv${image}`,
     datePublished,
     dateModified: datePublished,
-    url: `https://racespot.tv/news/${slug}`,
+    inLanguage: LOCALES[lang],
+    url: `https://racespot.tv/${urlLang}/news/${slug}`,
     author: {
       '@type': 'Organization',
       name: 'Racespot Media House GmbH',
