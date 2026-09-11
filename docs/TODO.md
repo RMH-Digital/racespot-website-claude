@@ -1,6 +1,6 @@
 # Website — offene Punkte
 
-Stand: 2026-09-10. Was heute erledigt wurde, steht im Git-Log (`git log --since=2026-09-09`).
+Stand: 2026-09-11. Erledigtes steht im Git-Log (`git log --since=2026-09-09`).
 Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ---
@@ -104,12 +104,20 @@ Regeln:
 Push auf `main` deployt sofort). Press Tool parallel möglich, weil der Vertrag
 oben steht; mergen erst, wenn die Website `translations` liest.
 
-## 2. Framework-Upgrades — nach Punkt 1
+## 2. Framework-Upgrades — jetzt dringend (Stand 2026-09-11)
 
-Next 14.2 → 16, React 18 → 19, Tailwind 3 → 4, framer-motion 11 → 13, ESLint 8 → 9
-(Flat Config). Jeweils echte Migrationen mit Breaking Changes. Erst i18n, sonst
-migriert man Code, der gleich danach umgebaut wird. Next 14.2.35 ist sicherheitsseitig
-aktuell; kein Zeitdruck.
+**2a — Next 14.2 → 15.5 + React 19 (sicherheitsrelevant, als Nächstes).**
+`npm audit` zeigt für 14.x Advisories, deren Fix nur in **15.5.x** existiert; die
+14er-Linie bekommt sie nicht mehr: *critical* RCE in der Image-Optimization-API bei
+AVIF-Eingaben (Fix ≥ 15.5.24), *high* SSRF in Server Actions/Rewrites, mehrere DoS
+über Server Components, Middleware-Bypass. Exposition begrenzt (kein AVIF-Output,
+`/_next/image` nur lokale Pfade + YouTube-Thumbnails, keine Rewrites, Linux) — aber
+kein Dauerzustand. Nicht direkt auf 16 (Turbopack-Default, `middleware`→`proxy`,
+mehr Breaking Changes); 15.5 ist die Linie mit Fixes. Eigener Branch `next-15`,
+alle sechs Sprachen + beide Kontakt-Tabs prüfen, dann mergen. ½–1 Tag.
+
+**2b — später:** Next 16, Tailwind 3 → 4, framer-motion 11 → 13, ESLint 8 → 9
+(Flat Config). Echte Migrationen, kein Zeitdruck.
 
 ## 3. Umami-Analytics einschalten
 
@@ -137,8 +145,9 @@ Turnstile-Cookies von Cloudflare und `localStorage` für die Sprache.
 
 ## 5. Kontaktformular in Produktion einmal echt durchtesten
 
-Beide Formulare sind live. Ungeprüft: ob `SMTP_USER`/`SMTP_PASS` in Coolify gesetzt
-sind. Ohne sie fällt das Formular auf `mailto:` zurück (öffnet das Mailprogramm des
+Formulare am 2026-09-11 überarbeitet (Website/Adresse optional, Dropdowns für
+Rennen 1–30 und Dauer h/min, übersetzte Feld-Fehlermeldungen, Fehlercodes vom
+Server). Ungeprüft bleibt: ob `SMTP_USER`/`SMTP_PASS` in Coolify gesetzt sind. Ohne sie fällt das Formular auf `mailto:` zurück (öffnet das Mailprogramm des
 Besuchers) — funktioniert, ist aber nicht das Gewollte. Einmal eine Broadcast-Anfrage
 absenden und prüfen, ob sie bei `contact@racespot.tv` **und** als Kopie beim Absender
 ankommt. Falls nicht: Env-Vars in Coolify setzen (Namen in `.env.example`).
@@ -155,9 +164,9 @@ ankommt. Falls nicht: Env-Vars in Coolify setzen (Namen in `.env.example`).
 
 ## 7. Coolify-Hausmeisterei
 
-- **Tote zweite Website-App löschen**: UUID `i11m6pnwhz85y8oqyfrkuipm`
-  (Status *exited*, sslip.io-Domain, alte Repo-URL, seit 16.03. unberührt). Danger Zone
-  → Delete. Nicht `tpd5h47i…` — das ist die echte.
+- ~~Tote zweite Website-App löschen~~ — erledigt 2026-09-09.
+- Lokaler Branch `analytics-page-views` (04.08., 1 Commit, weit hinter `main`; der
+  alte Zähl-Endpunkt-Versuch, ersetzt durch Umami) kann gelöscht werden.
 - Optional: persistentes Volume für `/app/.next/cache/images`. Der Cache wird beim
   Start ohnehin vorgewärmt (~30–60 s nach Deploy); ein Volume spart nur diese Minute.
 - Philips `~/Press Tool/projects/racespot/NOTES.md` sagt noch „a merge does not build" —
