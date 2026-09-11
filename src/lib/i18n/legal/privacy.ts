@@ -13,7 +13,7 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
 
 
 const en: LegalDoc = {
-  updated: 'Last updated: April 20, 2024',
+  updated: 'Last updated: September 11, 2026',
   sections: [
     {
       heading: '1. Data Controller',
@@ -113,7 +113,7 @@ const en: LegalDoc = {
           '**Google Analytics** (Google Ireland Limited, Dublin) — Usage analysis with pseudonymous user identification and IP masking. Transfer basis: Data Privacy Framework, standard contractual clauses. Opt-out: [tools.google.com/dlpage/gaoptout](https://tools.google.com/dlpage/gaoptout?hl=de)',
           '**Google Tag Manager** (Google Ireland Limited) — Website tag management. Privacy: [policies.google.com/privacy](https://policies.google.com/privacy)',
           '**etracker GmbH** — Reach measurement. Privacy: [etracker.com/datenschutz](https://www.etracker.com/datenschutz/)',
-          '**Matomo** — Privacy-focused analytics (with or without cookies). Cookie retention: max. 13 months. Website: [matomo.org](https://matomo.org/)',
+          '**Umami** (self-hosted on our own server in Germany) — Cookieless reach measurement. No personal data is stored: IP addresses are not retained, visitors are counted via a daily-rotating anonymous hash, and there is no cross-site tracking. Legal basis: legitimate interest (Art. 6(1)(f) GDPR). Website: [umami.is](https://umami.is/)',
         ),
         h3('Online Marketing & Advertising'),
         ul(
@@ -149,7 +149,7 @@ const en: LegalDoc = {
           'Newsletter unsubscribes: up to 3 years (legitimate interest in defence)',
           'Server log files: retained for security and stability purposes',
           'Cookies: generally up to 2 years unless specified otherwise',
-          'Matomo cookies: maximum 13 months',
+          'Umami analytics: no cookies, aggregated statistics only',
         ),
       ],
     },
@@ -205,7 +205,7 @@ const en: LegalDoc = {
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 20. April 2024',
+  updated: 'Stand: 11. September 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
@@ -305,7 +305,7 @@ const de: LegalDoc = {
           '**Google Analytics** (Google Ireland Limited, Dublin) — Nutzungsanalyse mit pseudonymer Nutzererkennung und IP-Maskierung. Übermittlungsgrundlage: Data Privacy Framework, Standardvertragsklauseln. Opt-out: [tools.google.com/dlpage/gaoptout](https://tools.google.com/dlpage/gaoptout?hl=de)',
           '**Google Tag Manager** (Google Ireland Limited) — Verwaltung von Website-Tags. Datenschutz: [policies.google.com/privacy](https://policies.google.com/privacy)',
           '**etracker GmbH** — Reichweitenmessung. Datenschutz: [etracker.com/datenschutz](https://www.etracker.com/datenschutz/)',
-          '**Matomo** — Datenschutzfreundliche Analyse (mit oder ohne Cookies). Cookie-Speicherdauer: max. 13 Monate. Website: [matomo.org](https://matomo.org/)',
+          '**Umami** (selbst gehostet auf unserem eigenen Server in Deutschland) — Cookielose Reichweitenmessung. Es werden keine personenbezogenen Daten gespeichert: IP-Adressen werden nicht aufbewahrt, Besucher werden über einen täglich wechselnden anonymen Hash gezählt, ein seitenübergreifendes Tracking findet nicht statt. Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO). Website: [umami.is](https://umami.is/)',
         ),
         h3('Onlinemarketing & Werbung'),
         ul(
@@ -341,7 +341,7 @@ const de: LegalDoc = {
           'Newsletter-Abmeldungen: bis zu 3 Jahre (berechtigtes Interesse an der Verteidigung)',
           'Server-Logdateien: Aufbewahrung aus Sicherheits- und Stabilitätsgründen',
           'Cookies: in der Regel bis zu 2 Jahre, sofern nicht anders angegeben',
-          'Matomo-Cookies: maximal 13 Monate',
+          'Umami-Analyse: keine Cookies, ausschließlich aggregierte Statistiken',
         ),
       ],
     },

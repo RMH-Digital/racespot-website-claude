@@ -119,20 +119,17 @@ alle sechs Sprachen + beide Kontakt-Tabs prüfen, dann mergen. ½–1 Tag.
 **2b — später:** Next 16, Tailwind 3 → 4, framer-motion 11 → 13, ESLint 8 → 9
 (Flat Config). Echte Migrationen, kein Zeitdruck.
 
-## 3. Umami-Analytics einschalten
+## 3. Umami-Analytics — eingeschaltet 2026-09-11
 
-**Server (Philip / Coolify).** `stats.racespot.tv` zeigt korrekt auf den Server, aber
-Traefik liefert sein Default-Zertifikat und **503** — der Umami-Container ist nicht
-erreichbar. Prüfen: läuft er, ist er healthy, Domain in Coolify **mit `https://`**
-eingetragen (sonst kein Let's Encrypt).
+Instanz: `https://stats.apps.racespot.tv` (Let's Encrypt, healthy). Website
+`racespot.tv`, ID `0e77e402-57dd-4a86-ad05-334961f02de7`. Script-URL und ID stehen
+als Defaults in `src/components/seo/Analytics.tsx` (öffentliche Werte); nur
+Production-Builds rendern das Tag, `data-domains` ignoriert fremde Hostnames.
+Abschalten: `NEXT_PUBLIC_UMAMI_DISABLED=1` in Coolify. UTM-Tags des Press Tools
+erscheinen in Umami als Quelle.
 
-**Website.** In Umami Website `racespot.tv` anlegen, ID kopieren, in Coolify beim
-Website-Projekt `NEXT_PUBLIC_UMAMI_SRC=https://stats.racespot.tv/script.js` und
-`NEXT_PUBLIC_UMAMI_WEBSITE_ID=<ID>` setzen, redeployen. Die Komponente
-`src/components/seo/Analytics.tsx` rendert das Script dann automatisch (vorher: nichts).
-UTM-Tags aus dem Press Tool erscheinen in Umami direkt als Quelle.
-
-**Datenschutzerklärung** (`src/app/privacy/page.tsx`) im selben Zug bereinigen — siehe 4.
+Rest: Der alte DNS-Eintrag `stats.racespot.tv → 178.104.72.17` zeigt ins Leere
+(503) und kann bei All-Inkl gelöscht werden.
 
 ## 4. Datenschutzerklärung und Impressum inhaltlich prüfen
 
