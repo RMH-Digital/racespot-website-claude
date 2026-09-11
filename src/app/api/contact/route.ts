@@ -24,6 +24,27 @@ function isRateLimited(ip: string): boolean {
   return recent.length >= RATE_LIMIT
 }
 
+// Identical payload from the same IP within this window is answered with the
+// first result instead of sending the mails again (double click, browser retry
+// on a slow connection, back-button resubmit).
+const recentHashes = new Map<string, number>()
+const DEDUPE_WINDOW = 10 * 60 * 1000
+
+async function payloadHash(ip: string, body: Record<string, unknown>): Promise<string> {
+  const { 'cf-turnstile-response': _token, ...rest } = body
+  const data = new TextEncoder().encode(ip + '\n' + JSON.stringify(rest, Object.keys(rest).sort()))
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+function isDuplicate(hash: string): boolean {
+  const now = Date.now()
+  recentHashes.forEach((t, h) => { if (now - t > DEDUPE_WINDOW) recentHashes.delete(h) })
+  if (recentHashes.has(hash)) return true
+  recentHashes.set(hash, now)
+  return false
+}
+
 function recordSubmission(ip: string) {
   const timestamps = submissions.get(ip) || []
   timestamps.push(Date.now())
@@ -268,6 +289,11 @@ export async function POST(request: Request) {
     const name = str(body.name, 200)
     const email = str(body.email, 200)
 
+    // Same form, same IP, same content within 10 minutes → do not send twice.
+    if (isDuplicate(await payloadHash(ip, body))) {
+      return NextResponse.json({ success: true, method: 'smtp', deduplicated: true })
+    }
+
     // Try SMTP if configured
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
       const nodemailer = await import('nodemailer')
@@ -289,8 +315,11 @@ export async function POST(request: Request) {
         html: renderInternalHtml(prepared),
       })
 
-      // Confirmation copy to the sender
-      await transporter.sendMail({
+      // Confirmation copy to the sender — unless the sender is our own inbox
+      // (tests from contact@ would otherwise produce two mails there).
+      const internal = [process.env.CONTACT_EMAIL || 'contact@racespot.tv', process.env.SMTP_USER || '']
+        .map((a) => a.toLowerCase())
+      if (!internal.includes(email.toLowerCase())) await transporter.sendMail({
         from: `"Racespot.tv" <${process.env.SMTP_USER}>`,
         to: email,
         subject: `Copy of your ${type === 'broadcast' ? 'broadcast request' : 'message'} to Racespot.tv`,
