@@ -9,13 +9,20 @@
  * it is a plain HTTP client that logs and moves on.
  */
 import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const nextBin = join(here, '..', 'node_modules', 'next', 'dist', 'bin', 'next')
+const root = join(here, '..')
 
-const server = spawn(process.execPath, [nextBin, 'start', ...process.argv.slice(2)], { stdio: 'inherit' })
+// Inside the Docker image Next's standalone output provides server.js; in a
+// plain checkout (Nixpacks, local `npm start`) we run `next start` as before.
+const standalone = join(root, 'server.js')
+const nextBin = join(root, 'node_modules', 'next', 'dist', 'bin', 'next')
+const args = existsSync(standalone) ? [standalone] : [nextBin, 'start', ...process.argv.slice(2)]
+
+const server = spawn(process.execPath, args, { stdio: 'inherit', cwd: root })
 
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => server.kill(sig))
 server.on('exit', (code, signal) => process.exit(code ?? (signal ? 1 : 0)))

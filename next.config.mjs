@@ -11,6 +11,8 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  // Standalone output for the Docker image (see Dockerfile); harmless for `next start`.
+  output: 'standalone',
   images: {
     // The optimizer is ON: we self-host on Coolify with `sharp` installed, so
     // every <Image> is resized to the rendered width and re-encoded on first

@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.vercel
+.claude
+content Website
+docs
+*.md
+.env*
+!.env.example
+*.tsbuildinfo
+.DS_Store

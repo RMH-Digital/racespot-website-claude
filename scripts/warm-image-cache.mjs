@@ -17,7 +17,11 @@
 import { readdir } from 'node:fs/promises'
 import { join, extname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
+import { createRequire } from 'node:module'
+
+// CJS entry on purpose: Next's standalone output traces only sharp's CommonJS
+// files, so `import sharp from 'sharp'` fails inside the Docker image.
+const sharp = createRequire(import.meta.url)('sharp')
 
 const BASE = process.env.BASE || `http://127.0.0.1:${process.env.PORT || 3000}`
 const PUBLIC = fileURLToPath(new URL('../public/', import.meta.url))
