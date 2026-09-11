@@ -67,6 +67,30 @@ function str(v: unknown, max = 5000): string {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+/**
+ * Recipients of the internal notification, from CONTACT_EMAIL.
+ *
+ * Nodemailer happily accepts "a@x.tv, b@x.tv" and then delivers one copy per
+ * address — which is how the same message can arrive twice in one mailbox when
+ * the second address is an alias of the first. We therefore split the variable,
+ * trim it and drop case-insensitive duplicates. Genuinely different addresses
+ * are still honoured; only the same address written twice collapses.
+ */
+function internalRecipients(): string[] {
+  const raw = process.env.CONTACT_EMAIL || 'contact@racespot.tv'
+  const seen = new Set<string>()
+  const list: string[] = []
+  for (const part of raw.split(/[,;]/)) {
+    const address = part.trim()
+    if (!address || !EMAIL_RE.test(address)) continue
+    const key = address.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    list.push(address)
+  }
+  return list.length ? list : ['contact@racespot.tv']
+}
+
 // ─── Form definitions ────────────────────────────────────────
 
 type FormType = 'general' | 'broadcast'
@@ -306,9 +330,13 @@ export async function POST(request: Request) {
       })
 
       // Internal notification
+      const recipients = internalRecipients()
+      if (recipients.length > 1) {
+        console.warn(`[contact] CONTACT_EMAIL lists ${recipients.length} recipients: ${recipients.join(', ')}`)
+      }
       await transporter.sendMail({
         from: `"Racespot.tv Website" <${process.env.SMTP_USER}>`,
-        to: process.env.CONTACT_EMAIL || 'contact@racespot.tv',
+        to: recipients.join(', '),
         replyTo: `"${name.replace(/["\r\n]/g, '')}" <${email}>`,
         subject: prepared.subject.replace(/[\r\n]/g, ' '),
         text: `${prepared.heading}\n\n${prepared.summary}`,
@@ -317,8 +345,7 @@ export async function POST(request: Request) {
 
       // Confirmation copy to the sender — unless the sender is our own inbox
       // (tests from contact@ would otherwise produce two mails there).
-      const internal = [process.env.CONTACT_EMAIL || 'contact@racespot.tv', process.env.SMTP_USER || '']
-        .map((a) => a.toLowerCase())
+      const internal = [...recipients, process.env.SMTP_USER || ''].map((a) => a.toLowerCase())
       if (!internal.includes(email.toLowerCase())) await transporter.sendMail({
         from: `"Racespot.tv" <${process.env.SMTP_USER}>`,
         to: email,
