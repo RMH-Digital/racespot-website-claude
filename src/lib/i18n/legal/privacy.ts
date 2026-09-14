@@ -1,396 +1,309 @@
 import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
 
 /**
- * Privacy policy, one document per language.
+ * Privacy policy, one document per language (en + de — see ./types.ts).
  *
- * The English text is the one that was on the site before i18n (dated April
- * 20, 2024; its content is under review — docs/TODO.md item 4). The German
- * version follows it sentence by sentence.
+ * Rewritten 2026-09-14 to describe what the site actually does. The previous
+ * text was a generic webshop template naming PayPal, Stripe, Mailchimp,
+ * CleverReach, Help Scout, Google Analytics, Google Tag Manager, Google Ads,
+ * etracker, Matomo, Facebook Pixel, a newsletter with double opt-in, customer
+ * accounts, credit assessment and a cookie consent banner. None of that exists
+ * here, and two services that do exist — Cloudflare Turnstile and the YouTube
+ * embeds — were missing entirely.
  *
- * The German version was approved by Jürgen on 2026-09-10. Only en and de
- * exist by decision — see ./types.ts.
+ * What the site really does (verified in the code on 2026-09-14):
+ *   - Hetzner Cloud, Nuremberg → server log files
+ *   - Umami, self-hosted on the same server → cookieless analytics
+ *   - Cloudflare Turnstile on the contact form → cookie + IP to Cloudflare (US)
+ *   - YouTube embeds: /live uses youtube.com, /events uses youtube-nocookie.com
+ *   - Contact form → email via Microsoft 365
+ *   - First-party `racespot-lang` cookie, one year, functional only
+ *   - Fonts are self-hosted by next/font; no request reaches Google
+ *   - Footer social icons are plain links, no embeds, no pixels
+ *
+ * KEEP THIS IN SYNC WITH THE CODE. Adding any third-party script, embed or
+ * tracker means editing this file in the same commit.
  */
 
-
 const en: LegalDoc = {
-  updated: 'Last updated: September 11, 2026',
+  updated: 'Last updated: September 14, 2026',
   sections: [
     {
       heading: '1. Data Controller',
       body: [
-        p('Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth, Deutschland'),
+        p('Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth, Germany'),
+        p('Managing Director: Philip Stamm · Commercial register: Amtsgericht Köln, HRB 118561'),
         p('Email: [contact@racespot.tv](mailto:contact@racespot.tv) · Phone: +49 (0)163 686 7887'),
       ],
     },
     {
-      heading: '2. Categories of Data Collected',
+      heading: '2. Summary',
       body: [
-        p('We may collect and process the following categories of personal data:'),
+        p('This website is an information site. There is no shop, no customer account, no newsletter and no advertising network. We do not profile you, we do not track you across websites, and we do not sell or pass on your data for marketing purposes.'),
+        p('Three things happen automatically when you visit: our server writes a log entry, our own analytics counts the page view without cookies, and — only on pages where you play a video — YouTube is contacted. Everything else happens only if you write to us.'),
+      ],
+    },
+    {
+      heading: '3. Hosting and Server Log Files',
+      body: [
+        p('The site is hosted on a server of **Hetzner Online GmbH**, Industriestr. 25, 91710 Gunzenhausen, Germany, located in Nuremberg. A data processing agreement under Art. 28 GDPR is in place. Privacy: [hetzner.com/legal/privacy-policy](https://www.hetzner.com/legal/privacy-policy/)'),
+        p('Each request is written to a log file containing the IP address, the date and time, the page requested, the referring page, the browser and operating system version. These entries are used to operate the site securely and to investigate faults and attacks. Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in a secure, functioning website). They are not combined with other data and are deleted after seven days unless a specific incident requires them for longer.'),
+      ],
+    },
+    {
+      heading: '4. Cookies and Local Storage',
+      body: [
+        p('This website sets **no advertising or tracking cookies**, which is why you are not asked for cookie consent. Only two entries can appear on your device:'),
         ul(
-          'Inventory data (names, addresses)',
-          'Contact data (email addresses, telephone numbers)',
-          'Content data (entries in online forms)',
-          'Usage data (websites visited, content interests, access times)',
-          'Meta/communication data (device information, IP addresses)',
-          'Location data (geographical position of the device)',
-          'Contract data (contract subject, terms, customer classification)',
-          'Payment data (bank details, invoices, payment history)',
+          '**`racespot-lang`** — remembers the language you selected, for one year. Set by us, read only by us. Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in showing you the site in your language). It is only written when you switch language within the site.',
+          '**Cloudflare Turnstile** — sets a short-lived entry while the contact form checks that you are not a bot (see section 6).',
         ),
-        h3('Data Subject Categories'),
+        p('You can delete both at any time in your browser settings; the site remains fully usable.'),
+      ],
+    },
+    {
+      heading: '5. Web Analytics (Umami)',
+      body: [
+        p('To find out how many people read our pages, we use **Umami**, an open-source analytics tool that we host ourselves on the same German server as this website. No data leaves our infrastructure and no third party is involved.'),
+        p('Umami works **without cookies** and stores **no personal data**. Your IP address is not retained; visitors are counted using an anonymous hash that is regenerated daily and cannot be traced back to a person or linked across days. What we see is aggregated: page views, referring sites, country, browser and device type.'),
+        p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in understanding how our site is used). Because no personal data is processed, there is nothing to object to and nothing to erase. More about the tool: [umami.is](https://umami.is/)'),
+      ],
+    },
+    {
+      heading: '6. Contact Form and Email',
+      body: [
+        p('When you use one of our contact forms, we process the data you enter — your name, email address and the content of your message, plus the details of your enquiry in the broadcast request form — in order to answer you. Legal basis: **Art. 6(1)(b) GDPR** where the enquiry concerns a contract or its preparation, otherwise **Art. 6(1)(f) GDPR** (legitimate interest in responding to enquiries).'),
+        p('Providing this data is voluntary; without an email address we cannot reply. Enquiries are deleted once they are settled and no retention obligation applies — as a rule after two years at the latest.'),
+        h3('Spam protection (Cloudflare Turnstile)'),
+        p('The forms are protected by **Turnstile**, a service of **Cloudflare, Inc.**, 101 Townsend St., San Francisco, CA 94107, USA. It checks whether the form is being filled in by a person rather than a bot. To do so, your IP address and information about your browser are transmitted to Cloudflare and a short-lived entry is stored on your device. Turnstile works without tracking cookies and is not used for advertising.'),
+        p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in protecting our forms from automated abuse). Cloudflare is certified under the EU-US Data Privacy Framework and we have concluded standard contractual clauses. Privacy: [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/)'),
+        h3('Email delivery'),
+        p('Messages sent through the forms and replies from us are handled by **Microsoft 365** (Microsoft Ireland Operations Ltd., Dublin). A data processing agreement is in place. Privacy: [privacy.microsoft.com](https://privacy.microsoft.com/privacystatement)'),
+      ],
+    },
+    {
+      heading: '7. Embedded Videos (YouTube)',
+      body: [
+        p('Our broadcasts run on YouTube, operated by **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Ireland.'),
         ul(
-          'Business and contractual partners',
-          'Interested parties',
-          'Communication partners',
-          'Customers',
-          'Website users and online service users',
+          'On our **Live** page the stream is embedded directly. When you open that page, a connection to YouTube is established, your IP address is transmitted, and Google may set cookies and read existing ones. If you are signed in to a Google account, the visit can be assigned to it.',
+          'On our **Events** page we use the extended data protection mode (`youtube-nocookie.com`): no cookies are set until you start the video.',
+        ),
+        p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in presenting our broadcasts on the site). Google also processes data in the USA on the basis of the EU-US Data Privacy Framework and standard contractual clauses. What Google does with the data is beyond our control; see [policies.google.com/privacy](https://policies.google.com/privacy).'),
+        p('If you would rather avoid this, do not open the Live page, or use a browser that blocks third-party content.'),
+      ],
+    },
+    {
+      heading: '8. Social Media',
+      body: [
+        p('The icons in our footer are **plain links** to our profiles on YouTube, Twitch, Instagram, TikTok, Facebook and X. They contain no plug-ins, pixels or embedded content, so no data is transmitted until you click one. From that point on, the privacy policy of the network you visit applies.'),
+        p('We also maintain profiles on those platforms. There, the operators process your data on their own responsibility; on Facebook and Instagram pages this is a joint responsibility under Art. 26 GDPR, limited to the page statistics we receive.'),
+      ],
+    },
+    {
+      heading: '9. Fonts and Other Assets',
+      body: [
+        p('All fonts, images and scripts are delivered from our own server. The Inter and Oswald typefaces are downloaded at build time and self-hosted, so **no request reaches Google when you visit the site**. We use no content delivery network for the site itself.'),
+      ],
+    },
+    {
+      heading: '10. Legal Bases at a Glance',
+      body: [
+        ul(
+          '**Art. 6(1)(b) GDPR** — enquiries relating to a contract or its preparation',
+          '**Art. 6(1)(c) GDPR** — statutory retention obligations',
+          '**Art. 6(1)(f) GDPR** — secure operation of the site, server logs, cookieless analytics, spam protection, video embeds, language preference',
+        ),
+        p('We do not rely on consent (Art. 6(1)(a) GDPR) anywhere on this website, because nothing here requires it.'),
+      ],
+    },
+    {
+      heading: '11. Data Retention',
+      body: [
+        ul(
+          'Server log files: seven days, longer only if a specific incident requires it',
+          'Analytics: aggregated statistics without personal reference, no deletion period applicable',
+          'Enquiries via the contact forms: until settled, as a rule no longer than two years',
+          'Business correspondence subject to commercial or tax law: six or ten years (§ 257 HGB, § 147 AO)',
+          'Language cookie: one year, deletable by you at any time',
         ),
       ],
     },
     {
-      heading: '3. Purposes of Processing',
+      heading: '12. International Data Transfers',
       body: [
-        ul(
-          'Provision and improvement of our online services and user experience',
-          'Credit assessment and creditworthiness evaluation',
-          'Contractual service delivery and customer support',
-          'Contact management and communication',
-          'Administrative and organisational procedures',
-          'Interest-based and behavioural marketing',
-          'Direct marketing (email, postal)',
-          'Conversion measurement and range measurement',
-          'Remarketing and target audience determination',
-          'Cross-device tracking for marketing purposes',
-          'User profiling',
-          'Visit action evaluation',
-          'Security measures',
-        ),
-      ],
-    },
-    {
-      heading: '4. Legal Basis for Processing',
-      body: [
-        p('We process personal data based on the following legal grounds under the GDPR:'),
-        ul(
-          '**Art. 6(1)(a) GDPR** — User consent for specific purposes',
-          '**Art. 6(1)(b) GDPR** — Processing necessary for contract performance or pre-contractual requests',
-          '**Art. 6(1)(c) GDPR** — Compliance with legal obligations',
-          '**Art. 6(1)(f) GDPR** — Legitimate interests of our organisation',
-        ),
-      ],
-    },
-    {
-      heading: '5. Cookies',
-      body: [
-        p('Our website uses cookies — small text files stored on your device. We distinguish between:'),
-        ul(
-          '**Session cookies** — deleted when you close your browser',
-          '**Persistent cookies** — stored for up to 2 years for functionality and marketing',
-        ),
-        p('Consent is obtained prior to use except where legally unnecessary. Our cookie consent procedure stores your opt-in status for up to 2 years. IP masking and pseudonymisation are employed where applicable.'),
-        p('You can manage cookie preferences in your browser settings or via the following opt-out pages:'),
-        ul(
-          '[youronlinechoices.com](https://www.youronlinechoices.com/)',
-          '[optout.aboutads.info](https://optout.aboutads.info/)',
-        ),
-      ],
-    },
-    {
-      heading: '6. Third-Party Services',
-      body: [
-        h3('Payment Processing'),
-        ul(
-          '**PayPal (Europe) S.à r.l.** — Payment solutions. Privacy: [paypal.com/privacy](https://www.paypal.com/de/webapps/mpp/ua/privacy-full)',
-          '**Stripe Payments Europe, Limited** — Payment services. Privacy: [stripe.com/privacy](https://www.stripe.com/privacy)',
-        ),
-        h3('Email & Newsletter'),
-        ul(
-          '**CleverReach GmbH & Co. KG** — Email marketing platform. Privacy: [cleverreach.com/datenschutz](https://www.cleverreach.com/de/datenschutz/)',
-          '**Mailchimp (Rocket Science Group, LLC)** — Email dispatch. Privacy: [mailchimp.com/legal](https://mailchimp.com/legal/). Transfer basis: Data Privacy Framework, standard contractual clauses.',
-          '**Help Scout Inc.** — Contact management. Privacy: [helpscout.net/privacy](https://www.helpscout.net/company/legal/privacy/)',
-        ),
-        h3('Web Analytics'),
-        ul(
-          '**Google Analytics** (Google Ireland Limited, Dublin) — Usage analysis with pseudonymous user identification and IP masking. Transfer basis: Data Privacy Framework, standard contractual clauses. Opt-out: [tools.google.com/dlpage/gaoptout](https://tools.google.com/dlpage/gaoptout?hl=de)',
-          '**Google Tag Manager** (Google Ireland Limited) — Website tag management. Privacy: [policies.google.com/privacy](https://policies.google.com/privacy)',
-          '**etracker GmbH** — Reach measurement. Privacy: [etracker.com/datenschutz](https://www.etracker.com/datenschutz/)',
-          '**Umami** (self-hosted on our own server in Germany) — Cookieless reach measurement. No personal data is stored: IP addresses are not retained, visitors are counted via a daily-rotating anonymous hash, and there is no cross-site tracking. Legal basis: legitimate interest (Art. 6(1)(f) GDPR). Website: [umami.is](https://umami.is/)',
-        ),
-        h3('Online Marketing & Advertising'),
-        ul(
-          '**Facebook Pixel / Custom Audiences** (Meta Platforms Ireland Limited) — Used to determine visitors as a target group for ads displayed only to users showing interest. Transfer basis: Data Privacy Framework, standard contractual clauses. Privacy: [facebook.com/about/privacy](https://www.facebook.com/about/privacy)',
-          '**Google Ad Manager** (Google Ireland Limited). Privacy: [policies.google.com/privacy](https://policies.google.com/privacy)',
-          '**Google Ads & Conversion Measurement** (Google Ireland Limited). Transfer basis: Data Privacy Framework, standard contractual clauses.',
-        ),
-        h3('Social Media Presence'),
-        ul(
-          '**Instagram** (Meta Platforms Ireland Limited). Privacy: [instagram.com/legal/privacy](https://instagram.com/about/legal/privacy)',
-          '**Facebook Pages** (Meta Platforms Ireland Limited) — Joint responsibility agreement applies. Details: [Page Controller Addendum](https://www.facebook.com/legal/terms/page_controller_addendum)',
-        ),
-      ],
-    },
-    {
-      heading: '7. Newsletter',
-      body: [
-        p('Newsletter subscriptions require double opt-in confirmation. We log the IP address and confirmation time for proof of consent. We use web beacons to track open rates and link clicks for performance analysis based on legitimate interests. Every newsletter contains an unsubscribe link.'),
-      ],
-    },
-    {
-      heading: '8. Customer Accounts',
-      body: [
-        p('IP addresses and access times are logged at registration for proof of consent. Users are responsible for data backup upon account termination. Customer accounts are not indexed by search engines.'),
-      ],
-    },
-    {
-      heading: '9. Data Retention',
-      body: [
-        ul(
-          'Customer accounts: retained per legal archiving requirements (typically 10 years for tax)',
-          'General commercial data: 4 years after contract expiration',
-          'Newsletter unsubscribes: up to 3 years (legitimate interest in defence)',
-          'Server log files: retained for security and stability purposes',
-          'Cookies: generally up to 2 years unless specified otherwise',
-          'Umami analytics: no cookies, aggregated statistics only',
-        ),
-      ],
-    },
-    {
-      heading: '10. Your Rights',
-      body: [
-        p('Under the GDPR (Articles 15–22), you have the right to:'),
-        ul(
-          'Access your personal data',
-          'Correct inaccurate data',
-          'Request deletion of your data ("right to be forgotten")',
-          'Restrict processing',
-          'Data portability',
-          'Object to processing',
-          'Rights related to automated decision-making',
-          'Withdraw consent at any time',
-        ),
-        p('To exercise these rights, contact us at [contact@racespot.tv](mailto:contact@racespot.tv).'),
-      ],
-    },
-    {
-      heading: '11. International Data Transfers',
-      body: [
-        p('Where data is transferred outside the EU/EEA, we ensure appropriate safeguards in accordance with GDPR Articles 44–49 through:'),
-        ul(
-          'Standard contractual clauses (SCCs)',
-          'Data Privacy Framework (DPF) certification for US companies',
-          'EU Commission adequacy decisions',
-          'Explicit user consent where required',
-        ),
+        p('Our own infrastructure is located exclusively in Germany. Data reaches the USA in two cases only: **Cloudflare** (spam protection on the forms) and **Google/YouTube** (video embeds). Both providers are certified under the **EU-US Data Privacy Framework**, and standard contractual clauses under Art. 46 GDPR apply in addition.'),
         p('More information: [dataprivacyframework.gov](https://www.dataprivacyframework.gov/)'),
       ],
     },
     {
-      heading: '12. Security Measures',
+      heading: '13. Your Rights',
       body: [
+        p('Under the GDPR you have the right to:'),
         ul(
-          'SSL/HTTPS encryption for data transmission',
-          'Physical and electronic access controls',
-          'Confidentiality, integrity, and availability safeguards',
-          'Data protection by design and default principles',
-          'Procedures for breach response and user rights exercise',
+          'access the personal data we hold about you (Art. 15)',
+          'have inaccurate data corrected (Art. 16)',
+          'have your data erased (Art. 17)',
+          'have processing restricted (Art. 18)',
+          'receive your data in a portable format (Art. 20)',
+          '**object to processing based on legitimate interests (Art. 21)** — including the processing described in sections 3, 6 and 7',
         ),
+        p('To exercise these rights, an email to [contact@racespot.tv](mailto:contact@racespot.tv) is enough.'),
+        p('You also have the right to lodge a complaint with a supervisory authority (Art. 77 GDPR). The authority responsible for us is the **State Commissioner for Data Protection and Freedom of Information North Rhine-Westphalia**, Kavalleriestr. 2–4, 40213 Düsseldorf — [ldi.nrw.de](https://www.ldi.nrw.de/)'),
       ],
     },
     {
-      heading: '13. Changes to This Policy',
+      heading: '14. Security',
       body: [
-        p('We may update this privacy policy from time to time. Material changes will be communicated to affected users.'),
+        p('The entire site is delivered over HTTPS with a valid certificate; HSTS, content-type, frame and referrer policies are set. Access to the server is limited to a small group of administrators and secured with key-based authentication and two-factor authentication. Backups are created daily.'),
+      ],
+    },
+    {
+      heading: '15. Changes to This Policy',
+      body: [
+        p('We update this policy when the site changes. The date at the top shows the current version.'),
       ],
     },
   ],
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 11. September 2026',
+  updated: 'Stand: 14. September 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
       body: [
         p('Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth, Deutschland'),
+        p('Geschäftsführer: Philip Stamm · Handelsregister: Amtsgericht Köln, HRB 118561'),
         p('E-Mail: [contact@racespot.tv](mailto:contact@racespot.tv) · Telefon: +49 (0)163 686 7887'),
       ],
     },
     {
-      heading: '2. Kategorien verarbeiteter Daten',
+      heading: '2. Das Wichtigste vorweg',
       body: [
-        p('Wir können folgende Kategorien personenbezogener Daten erheben und verarbeiten:'),
+        p('Diese Website ist eine Informationsseite. Es gibt keinen Shop, kein Kundenkonto, keinen Newsletter und kein Werbenetzwerk. Wir erstellen keine Profile, verfolgen Sie nicht über andere Websites hinweg und geben Ihre Daten nicht zu Werbezwecken weiter oder verkaufen sie.'),
+        p('Drei Dinge geschehen beim Besuch automatisch: Unser Server schreibt einen Logeintrag, unsere eigene Statistik zählt den Seitenaufruf ohne Cookies, und — nur auf Seiten mit Video — wird YouTube kontaktiert. Alles Weitere passiert erst, wenn Sie uns schreiben.'),
+      ],
+    },
+    {
+      heading: '3. Hosting und Server-Logfiles',
+      body: [
+        p('Die Website läuft auf einem Server der **Hetzner Online GmbH**, Industriestr. 25, 91710 Gunzenhausen, Standort Nürnberg. Ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO besteht. Datenschutz: [hetzner.com/de/rechtliches/datenschutz](https://www.hetzner.com/de/rechtliches/datenschutz/)'),
+        p('Jeder Aufruf wird in einer Logdatei festgehalten: IP-Adresse, Datum und Uhrzeit, aufgerufene Seite, verweisende Seite, Browser- und Betriebssystemversion. Diese Einträge dienen dem sicheren Betrieb sowie der Aufklärung von Störungen und Angriffen. Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse an einer sicheren, funktionierenden Website). Sie werden nicht mit anderen Daten zusammengeführt und nach sieben Tagen gelöscht, sofern kein konkreter Vorfall eine längere Aufbewahrung erfordert.'),
+      ],
+    },
+    {
+      heading: '4. Cookies und lokale Speicherung',
+      body: [
+        p('Diese Website setzt **keine Werbe- oder Tracking-Cookies**. Deshalb werden Sie auch nicht nach einer Cookie-Einwilligung gefragt. Nur zwei Einträge können auf Ihrem Gerät entstehen:'),
         ul(
-          'Bestandsdaten (Namen, Adressen)',
-          'Kontaktdaten (E-Mail-Adressen, Telefonnummern)',
-          'Inhaltsdaten (Eingaben in Onlineformularen)',
-          'Nutzungsdaten (besuchte Webseiten, Interesse an Inhalten, Zugriffszeiten)',
-          'Meta-/Kommunikationsdaten (Geräteinformationen, IP-Adressen)',
-          'Standortdaten (geografische Position des Geräts)',
-          'Vertragsdaten (Vertragsgegenstand, Laufzeit, Kundenkategorie)',
-          'Zahlungsdaten (Bankverbindungen, Rechnungen, Zahlungshistorie)',
+          '**`racespot-lang`** — merkt sich die von Ihnen gewählte Sprache, ein Jahr lang. Von uns gesetzt, nur von uns gelesen. Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, Ihnen die Seite in Ihrer Sprache zu zeigen). Der Eintrag entsteht nur, wenn Sie innerhalb der Seite die Sprache wechseln.',
+          '**Cloudflare Turnstile** — legt beim Absenden des Kontaktformulars kurzzeitig einen Eintrag an, um zu prüfen, dass Sie kein Bot sind (siehe Abschnitt 6).',
         ),
-        h3('Kategorien betroffener Personen'),
+        p('Beides können Sie jederzeit in den Browsereinstellungen löschen; die Seite bleibt vollständig nutzbar.'),
+      ],
+    },
+    {
+      heading: '5. Reichweitenmessung (Umami)',
+      body: [
+        p('Um zu erfahren, wie viele Menschen unsere Seiten lesen, nutzen wir **Umami**, ein quelloffenes Statistikwerkzeug, das wir selbst auf demselben deutschen Server betreiben wie diese Website. Es verlässt kein Datum unsere Infrastruktur, ein Dritter ist nicht beteiligt.'),
+        p('Umami arbeitet **ohne Cookies** und speichert **keine personenbezogenen Daten**. Ihre IP-Adresse wird nicht aufbewahrt; Besucher werden über einen anonymen Hash gezählt, der täglich neu gebildet wird und sich weder einer Person zuordnen noch über Tage hinweg verknüpfen lässt. Wir sehen aggregierte Werte: Seitenaufrufe, verweisende Seiten, Land, Browser- und Gerätetyp.'),
+        p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, die Nutzung unserer Seite zu verstehen). Da keine personenbezogenen Daten verarbeitet werden, gibt es dem nichts zu widersprechen und nichts zu löschen. Mehr zum Werkzeug: [umami.is](https://umami.is/)'),
+      ],
+    },
+    {
+      heading: '6. Kontaktformular und E-Mail',
+      body: [
+        p('Wenn Sie eines unserer Kontaktformulare nutzen, verarbeiten wir die von Ihnen eingegebenen Daten — Name, E-Mail-Adresse und Inhalt Ihrer Nachricht, bei der Broadcast-Anfrage zusätzlich die Angaben zu Ihrem Vorhaben — um Ihnen zu antworten. Rechtsgrundlage: **Art. 6 Abs. 1 lit. b DSGVO**, soweit die Anfrage einen Vertrag oder dessen Anbahnung betrifft, sonst **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse an der Beantwortung von Anfragen).'),
+        p('Die Angabe ist freiwillig; ohne E-Mail-Adresse können wir nicht antworten. Anfragen löschen wir, sobald sie erledigt sind und keine Aufbewahrungspflicht entgegensteht — in der Regel spätestens nach zwei Jahren.'),
+        h3('Spam-Schutz (Cloudflare Turnstile)'),
+        p('Die Formulare sind durch **Turnstile** geschützt, einen Dienst der **Cloudflare, Inc.**, 101 Townsend St., San Francisco, CA 94107, USA. Er prüft, ob das Formular von einem Menschen und nicht von einem Bot ausgefüllt wird. Dabei werden Ihre IP-Adresse und Angaben zu Ihrem Browser an Cloudflare übermittelt und kurzzeitig ein Eintrag auf Ihrem Gerät gespeichert. Turnstile kommt ohne Tracking-Cookies aus und wird nicht für Werbung verwendet.'),
+        p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse am Schutz unserer Formulare vor automatisiertem Missbrauch). Cloudflare ist nach dem EU-US Data Privacy Framework zertifiziert; ergänzend bestehen Standardvertragsklauseln. Datenschutz: [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/)'),
+        h3('E-Mail-Versand'),
+        p('Nachrichten aus den Formularen und unsere Antworten laufen über **Microsoft 365** (Microsoft Ireland Operations Ltd., Dublin). Ein Auftragsverarbeitungsvertrag besteht. Datenschutz: [privacy.microsoft.com](https://privacy.microsoft.com/de-de/privacystatement)'),
+      ],
+    },
+    {
+      heading: '7. Eingebundene Videos (YouTube)',
+      body: [
+        p('Unsere Übertragungen laufen über YouTube, betrieben von **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Irland.'),
         ul(
-          'Geschäfts- und Vertragspartner',
-          'Interessenten',
-          'Kommunikationspartner',
-          'Kunden',
-          'Nutzer der Website und der Onlinedienste',
+          'Auf unserer **Live**-Seite ist der Stream unmittelbar eingebunden. Beim Öffnen dieser Seite wird eine Verbindung zu YouTube aufgebaut, Ihre IP-Adresse übermittelt, und Google kann Cookies setzen und vorhandene auslesen. Sind Sie bei einem Google-Konto angemeldet, kann der Besuch diesem zugeordnet werden.',
+          'Auf unserer **Events**-Seite nutzen wir den erweiterten Datenschutzmodus (`youtube-nocookie.com`): Cookies werden erst gesetzt, wenn Sie das Video starten.',
+        ),
+        p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, unsere Produktionen auf der Seite zu zeigen). Google verarbeitet Daten auch in den USA auf Grundlage des EU-US Data Privacy Framework und von Standardvertragsklauseln. Was Google mit den Daten tut, entzieht sich unserem Einfluss; siehe [policies.google.com/privacy](https://policies.google.com/privacy).'),
+        p('Wenn Sie das vermeiden möchten, rufen Sie die Live-Seite nicht auf oder nutzen Sie einen Browser, der Inhalte Dritter blockiert.'),
+      ],
+    },
+    {
+      heading: '8. Soziale Netzwerke',
+      body: [
+        p('Die Symbole in unserer Fußzeile sind **einfache Links** zu unseren Profilen bei YouTube, Twitch, Instagram, TikTok, Facebook und X. Sie enthalten keine Plug-ins, Zählpixel oder eingebetteten Inhalte; es werden also erst Daten übertragen, wenn Sie darauf klicken. Ab dann gilt die Datenschutzerklärung des jeweiligen Netzwerks.'),
+        p('Wir unterhalten dort auch Profile. Die Betreiber verarbeiten Ihre Daten in eigener Verantwortung; bei Facebook- und Instagram-Seiten besteht insoweit eine gemeinsame Verantwortlichkeit nach Art. 26 DSGVO, beschränkt auf die Seitenstatistiken, die wir erhalten.'),
+      ],
+    },
+    {
+      heading: '9. Schriften und weitere Dateien',
+      body: [
+        p('Sämtliche Schriften, Bilder und Skripte werden von unserem eigenen Server ausgeliefert. Die Schriftarten Inter und Oswald werden beim Erstellen der Seite heruntergeladen und selbst gehostet — **beim Besuch geht also keine Anfrage an Google**. Ein Content Delivery Network setzen wir für die Seite selbst nicht ein.'),
+      ],
+    },
+    {
+      heading: '10. Rechtsgrundlagen im Überblick',
+      body: [
+        ul(
+          '**Art. 6 Abs. 1 lit. b DSGVO** — Anfragen, die einen Vertrag oder dessen Anbahnung betreffen',
+          '**Art. 6 Abs. 1 lit. c DSGVO** — gesetzliche Aufbewahrungspflichten',
+          '**Art. 6 Abs. 1 lit. f DSGVO** — sicherer Betrieb der Seite, Server-Logs, cookielose Statistik, Spam-Schutz, Video-Einbindung, Sprachauswahl',
+        ),
+        p('Auf eine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) stützen wir uns auf dieser Website an keiner Stelle, weil hier nichts einwilligungsbedürftig ist.'),
+      ],
+    },
+    {
+      heading: '11. Speicherdauer',
+      body: [
+        ul(
+          'Server-Logfiles: sieben Tage, länger nur bei einem konkreten Vorfall',
+          'Statistik: aggregierte Werte ohne Personenbezug, eine Löschfrist entfällt',
+          'Anfragen über die Kontaktformulare: bis zur Erledigung, in der Regel nicht länger als zwei Jahre',
+          'Handels- und steuerrechtlich relevante Korrespondenz: sechs bzw. zehn Jahre (§ 257 HGB, § 147 AO)',
+          'Sprach-Cookie: ein Jahr, jederzeit von Ihnen löschbar',
         ),
       ],
     },
     {
-      heading: '3. Zwecke der Verarbeitung',
+      heading: '12. Internationale Datenübermittlung',
       body: [
-        ul(
-          'Bereitstellung und Verbesserung unserer Onlinedienste und der Nutzererfahrung',
-          'Bonitätsprüfung und Bewertung der Kreditwürdigkeit',
-          'Erbringung vertraglicher Leistungen und Kundenservice',
-          'Kontaktverwaltung und Kommunikation',
-          'Verwaltungs- und Organisationsverfahren',
-          'Interessenbasiertes und verhaltensbezogenes Marketing',
-          'Direktmarketing (E-Mail, Post)',
-          'Konversionsmessung und Reichweitenmessung',
-          'Remarketing und Zielgruppenbildung',
-          'Geräteübergreifendes Tracking zu Marketingzwecken',
-          'Profilbildung',
-          'Auswertung von Besuchsaktionen',
-          'Sicherheitsmaßnahmen',
-        ),
-      ],
-    },
-    {
-      heading: '4. Rechtsgrundlagen der Verarbeitung',
-      body: [
-        p('Wir verarbeiten personenbezogene Daten auf folgenden Rechtsgrundlagen der DSGVO:'),
-        ul(
-          '**Art. 6 Abs. 1 lit. a DSGVO** — Einwilligung der Nutzer für bestimmte Zwecke',
-          '**Art. 6 Abs. 1 lit. b DSGVO** — Verarbeitung zur Vertragserfüllung oder für vorvertragliche Anfragen',
-          '**Art. 6 Abs. 1 lit. c DSGVO** — Erfüllung rechtlicher Verpflichtungen',
-          '**Art. 6 Abs. 1 lit. f DSGVO** — Berechtigte Interessen unseres Unternehmens',
-        ),
-      ],
-    },
-    {
-      heading: '5. Cookies',
-      body: [
-        p('Unsere Website verwendet Cookies — kleine Textdateien, die auf Ihrem Gerät gespeichert werden. Wir unterscheiden:'),
-        ul(
-          '**Sitzungs-Cookies** — werden gelöscht, wenn Sie den Browser schließen',
-          '**Dauerhafte Cookies** — werden bis zu 2 Jahre für Funktions- und Marketingzwecke gespeichert',
-        ),
-        p('Eine Einwilligung wird vor der Verwendung eingeholt, soweit sie rechtlich erforderlich ist. Unser Einwilligungsverfahren speichert Ihren Opt-in-Status bis zu 2 Jahre. IP-Maskierung und Pseudonymisierung werden eingesetzt, wo anwendbar.'),
-        p('Sie können Cookie-Einstellungen in Ihrem Browser verwalten oder über folgende Opt-out-Seiten:'),
-        ul(
-          '[youronlinechoices.com](https://www.youronlinechoices.com/)',
-          '[optout.aboutads.info](https://optout.aboutads.info/)',
-        ),
-      ],
-    },
-    {
-      heading: '6. Dienste Dritter',
-      body: [
-        h3('Zahlungsabwicklung'),
-        ul(
-          '**PayPal (Europe) S.à r.l.** — Zahlungslösungen. Datenschutz: [paypal.com/privacy](https://www.paypal.com/de/webapps/mpp/ua/privacy-full)',
-          '**Stripe Payments Europe, Limited** — Zahlungsdienste. Datenschutz: [stripe.com/privacy](https://www.stripe.com/privacy)',
-        ),
-        h3('E-Mail & Newsletter'),
-        ul(
-          '**CleverReach GmbH & Co. KG** — E-Mail-Marketing-Plattform. Datenschutz: [cleverreach.com/datenschutz](https://www.cleverreach.com/de/datenschutz/)',
-          '**Mailchimp (Rocket Science Group, LLC)** — E-Mail-Versand. Datenschutz: [mailchimp.com/legal](https://mailchimp.com/legal/). Übermittlungsgrundlage: Data Privacy Framework, Standardvertragsklauseln.',
-          '**Help Scout Inc.** — Kontaktverwaltung. Datenschutz: [helpscout.net/privacy](https://www.helpscout.net/company/legal/privacy/)',
-        ),
-        h3('Webanalyse'),
-        ul(
-          '**Google Analytics** (Google Ireland Limited, Dublin) — Nutzungsanalyse mit pseudonymer Nutzererkennung und IP-Maskierung. Übermittlungsgrundlage: Data Privacy Framework, Standardvertragsklauseln. Opt-out: [tools.google.com/dlpage/gaoptout](https://tools.google.com/dlpage/gaoptout?hl=de)',
-          '**Google Tag Manager** (Google Ireland Limited) — Verwaltung von Website-Tags. Datenschutz: [policies.google.com/privacy](https://policies.google.com/privacy)',
-          '**etracker GmbH** — Reichweitenmessung. Datenschutz: [etracker.com/datenschutz](https://www.etracker.com/datenschutz/)',
-          '**Umami** (selbst gehostet auf unserem eigenen Server in Deutschland) — Cookielose Reichweitenmessung. Es werden keine personenbezogenen Daten gespeichert: IP-Adressen werden nicht aufbewahrt, Besucher werden über einen täglich wechselnden anonymen Hash gezählt, ein seitenübergreifendes Tracking findet nicht statt. Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO). Website: [umami.is](https://umami.is/)',
-        ),
-        h3('Onlinemarketing & Werbung'),
-        ul(
-          '**Facebook Pixel / Custom Audiences** (Meta Platforms Ireland Limited) — Dient dazu, Besucher als Zielgruppe für Anzeigen zu bestimmen, die nur interessierten Nutzern angezeigt werden. Übermittlungsgrundlage: Data Privacy Framework, Standardvertragsklauseln. Datenschutz: [facebook.com/about/privacy](https://www.facebook.com/about/privacy)',
-          '**Google Ad Manager** (Google Ireland Limited). Datenschutz: [policies.google.com/privacy](https://policies.google.com/privacy)',
-          '**Google Ads & Conversion-Messung** (Google Ireland Limited). Übermittlungsgrundlage: Data Privacy Framework, Standardvertragsklauseln.',
-        ),
-        h3('Präsenz in sozialen Medien'),
-        ul(
-          '**Instagram** (Meta Platforms Ireland Limited). Datenschutz: [instagram.com/legal/privacy](https://instagram.com/about/legal/privacy)',
-          '**Facebook-Seiten** (Meta Platforms Ireland Limited) — Es gilt die Vereinbarung über gemeinsame Verantwortlichkeit. Details: [Page Controller Addendum](https://www.facebook.com/legal/terms/page_controller_addendum)',
-        ),
-      ],
-    },
-    {
-      heading: '7. Newsletter',
-      body: [
-        p('Newsletter-Anmeldungen erfordern eine Bestätigung im Double-Opt-in-Verfahren. Wir protokollieren IP-Adresse und Bestätigungszeitpunkt als Nachweis der Einwilligung. Wir verwenden Web-Beacons, um Öffnungsraten und Link-Klicks zur Erfolgsmessung auf Grundlage berechtigter Interessen zu erfassen. Jeder Newsletter enthält einen Abmeldelink.'),
-      ],
-    },
-    {
-      heading: '8. Kundenkonten',
-      body: [
-        p('Bei der Registrierung werden IP-Adresse und Zugriffszeit als Nachweis der Einwilligung protokolliert. Nutzer sind bei Kündigung des Kontos für die Sicherung ihrer Daten selbst verantwortlich. Kundenkonten werden nicht von Suchmaschinen indexiert.'),
-      ],
-    },
-    {
-      heading: '9. Speicherdauer',
-      body: [
-        ul(
-          'Kundenkonten: Aufbewahrung gemäß gesetzlichen Archivierungspflichten (steuerrechtlich in der Regel 10 Jahre)',
-          'Allgemeine Geschäftsdaten: 4 Jahre nach Vertragsende',
-          'Newsletter-Abmeldungen: bis zu 3 Jahre (berechtigtes Interesse an der Verteidigung)',
-          'Server-Logdateien: Aufbewahrung aus Sicherheits- und Stabilitätsgründen',
-          'Cookies: in der Regel bis zu 2 Jahre, sofern nicht anders angegeben',
-          'Umami-Analyse: keine Cookies, ausschließlich aggregierte Statistiken',
-        ),
-      ],
-    },
-    {
-      heading: '10. Ihre Rechte',
-      body: [
-        p('Nach der DSGVO (Art. 15–22) haben Sie das Recht auf:'),
-        ul(
-          'Auskunft über Ihre personenbezogenen Daten',
-          'Berichtigung unrichtiger Daten',
-          'Löschung Ihrer Daten („Recht auf Vergessenwerden")',
-          'Einschränkung der Verarbeitung',
-          'Datenübertragbarkeit',
-          'Widerspruch gegen die Verarbeitung',
-          'Rechte im Zusammenhang mit automatisierten Entscheidungen',
-          'Widerruf einer Einwilligung jederzeit',
-        ),
-        p('Zur Ausübung dieser Rechte wenden Sie sich an [contact@racespot.tv](mailto:contact@racespot.tv).'),
-      ],
-    },
-    {
-      heading: '11. Internationale Datenübermittlung',
-      body: [
-        p('Werden Daten außerhalb der EU/des EWR übermittelt, stellen wir geeignete Garantien gemäß Art. 44–49 DSGVO sicher durch:'),
-        ul(
-          'Standardvertragsklauseln (SCCs)',
-          'Zertifizierung nach dem Data Privacy Framework (DPF) für US-Unternehmen',
-          'Angemessenheitsbeschlüsse der EU-Kommission',
-          'Ausdrückliche Einwilligung der Nutzer, wo erforderlich',
-        ),
+        p('Unsere eigene Infrastruktur steht ausschließlich in Deutschland. In die USA gelangen Daten nur in zwei Fällen: **Cloudflare** (Spam-Schutz der Formulare) und **Google/YouTube** (Video-Einbindung). Beide Anbieter sind nach dem **EU-US Data Privacy Framework** zertifiziert; ergänzend gelten Standardvertragsklauseln nach Art. 46 DSGVO.'),
         p('Weitere Informationen: [dataprivacyframework.gov](https://www.dataprivacyframework.gov/)'),
       ],
     },
     {
-      heading: '12. Sicherheitsmaßnahmen',
+      heading: '13. Ihre Rechte',
       body: [
+        p('Nach der DSGVO haben Sie das Recht,'),
         ul(
-          'SSL/HTTPS-Verschlüsselung der Datenübertragung',
-          'Physische und elektronische Zugangskontrollen',
-          'Schutz von Vertraulichkeit, Integrität und Verfügbarkeit',
-          'Datenschutz durch Technikgestaltung und datenschutzfreundliche Voreinstellungen',
-          'Verfahren zur Reaktion auf Datenpannen und zur Wahrnehmung von Betroffenenrechten',
+          'Auskunft über die zu Ihnen gespeicherten Daten zu verlangen (Art. 15)',
+          'unrichtige Daten berichtigen zu lassen (Art. 16)',
+          'Ihre Daten löschen zu lassen (Art. 17)',
+          'die Verarbeitung einschränken zu lassen (Art. 18)',
+          'Ihre Daten in einem übertragbaren Format zu erhalten (Art. 20)',
+          '**der Verarbeitung auf Grundlage berechtigter Interessen zu widersprechen (Art. 21)** — das betrifft die in den Abschnitten 3, 6 und 7 beschriebenen Vorgänge',
         ),
+        p('Für die Ausübung genügt eine E-Mail an [contact@racespot.tv](mailto:contact@racespot.tv).'),
+        p('Außerdem steht Ihnen ein Beschwerderecht bei einer Aufsichtsbehörde zu (Art. 77 DSGVO). Für uns zuständig ist die **Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen**, Kavalleriestr. 2–4, 40213 Düsseldorf — [ldi.nrw.de](https://www.ldi.nrw.de/)'),
       ],
     },
     {
-      heading: '13. Änderungen dieser Erklärung',
+      heading: '14. Sicherheit',
       body: [
-        p('Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Wesentliche Änderungen werden den betroffenen Nutzern mitgeteilt.'),
+        p('Die gesamte Seite wird über HTTPS mit gültigem Zertifikat ausgeliefert; HSTS sowie Content-Type-, Frame- und Referrer-Richtlinien sind gesetzt. Der Zugriff auf den Server ist auf einen kleinen Kreis von Administratoren beschränkt und über Schlüsselauthentifizierung sowie Zwei-Faktor-Authentifizierung abgesichert. Sicherungen werden täglich erstellt.'),
+      ],
+    },
+    {
+      heading: '15. Änderungen dieser Erklärung',
+      body: [
+        p('Wir passen diese Erklärung an, wenn sich die Seite ändert. Das Datum oben zeigt den aktuellen Stand.'),
       ],
     },
   ],

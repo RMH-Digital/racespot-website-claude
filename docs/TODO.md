@@ -1,6 +1,6 @@
 # Website — offene Punkte
 
-Stand: 2026-09-11. Erledigtes steht im Git-Log (`git log --since=2026-09-09`).
+Stand: 2026-09-14. Erledigtes steht im Git-Log (`git log --since=2026-09-09`).
 Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ---
@@ -131,14 +131,45 @@ erscheinen in Umami als Quelle.
 Rest: Der alte DNS-Eintrag `stats.racespot.tv → 178.104.72.17` zeigt ins Leere
 (503) und kann bei All-Inkl gelöscht werden.
 
-## 4. Datenschutzerklärung und Impressum inhaltlich prüfen
+## 4. Datenschutzerklärung — neu geschrieben 2026-09-14
 
-`privacy/page.tsx` ist datiert „April 20, 2024" und nennt **Google Analytics, Google
-Tag Manager, etracker, Matomo, Facebook Pixel**, Newsletter mit Web-Beacons und
-Kundenkonten — nichts davon existiert auf der Seite. Das ist eine Vorlage, kein
-Abbild der Realität. Braucht eine inhaltliche Entscheidung (was nutzt ihr wirklich?),
-dann Text anpassen, Datum setzen. Cookies: die Seite setzt aktuell **keine** außer
-Turnstile-Cookies von Cloudflare und `localStorage` für die Sprache.
+Der alte Text war eine Webshop-Vorlage: Er nannte PayPal, Stripe, Mailchimp,
+CleverReach, Help Scout, Google Analytics, Tag Manager, Google Ads, etracker,
+Matomo, Facebook Pixel, einen Newsletter mit Double-Opt-in, Kundenkonten,
+Bonitätsprüfung, Profiling, Cross-Device-Tracking und ein Cookie-Banner —
+nichts davon existiert. Gleichzeitig fehlten **Cloudflare Turnstile** und die
+**YouTube-Einbindungen** komplett, also genau die zwei Dienste, bei denen
+tatsächlich Daten an Dritte fließen.
+
+Neu beschrieben ist, was die Seite wirklich tut: Hetzner-Logfiles, Umami
+(cookielos, selbst gehostet), Turnstile am Formular (IP → Cloudflare, USA),
+YouTube (`/live` regulär, `/events` im No-Cookie-Modus), E-Mail über
+Microsoft 365, Sprach-Cookie, selbst gehostete Schriften, Social-Icons als
+reine Links. Dazu Rechtsgrundlagen, Speicherfristen, Widerspruchsrecht und die
+zuständige Aufsichtsbehörde (LDI NRW). Deutsch und Englisch parallel.
+
+**Regel ab jetzt:** Ein neues Skript, Embed oder Tracker heißt, diese Datei im
+selben Commit zu ändern (steht als Kommentar in `legal/privacy.ts`).
+
+**Impressum** (`src/app/[lang]/imprint/page.tsx`): geprüft, inhaltlich korrekt
+(Anschrift, Geschäftsführer, AG Köln HRB 118561, Kontakt). Keine Änderung nötig.
+Die USt-IdNr. fehlt — falls vorhanden, gehört sie nach § 5 Abs. 1 Nr. 6 TMG dazu.
+
+## 4b. AGB passen nicht zur Seite — Entscheidung nötig
+
+`src/lib/i18n/legal/terms.ts` ist die AGB eines **Onlineshops**: Bestellvorgang,
+Versandkosten, Lieferung und Verfügbarkeit, Zahlungsbedingungen,
+Eigentumsvorbehalt, Kundenkonto, Gewährleistung auf Produkte. Auf racespot.tv
+gibt es weder Shop noch Warenkorb noch Kundenkonto — die AGB beschreiben ein
+Geschäft, das hier nicht stattfindet.
+
+Das ist keine Formulierungsfrage, sondern eine geschäftliche: Broadcast- und
+Eventproduktion wird über individuelle Verträge abgewickelt, nicht über die
+Website. Denkbare Wege: (a) AGB entfernen und den Link aus der Fußzeile nehmen,
+(b) durch Nutzungsbedingungen für die Website ersetzen (Urheberrecht an Inhalten,
+Haftung für Links, keine Vertragsangebote), (c) von einer Anwältin oder einem
+Anwalt passende B2B-Dienstleistungs-AGB erstellen lassen. **Nicht von mir
+entschieden** — Vertragstexte gehören nicht in eine Coding-Session.
 
 ## 5. Kontaktformular in Produktion einmal echt durchtesten
 
