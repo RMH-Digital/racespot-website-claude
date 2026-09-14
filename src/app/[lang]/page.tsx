@@ -44,9 +44,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
       <StatsBar lang={lang} />
       <LatestBroadcasts lang={lang} />
       <Services lang={lang} />
+      {/* News sits right above Partners & Networks: the Press Tool publishes
+          several articles a week, so this is the part that changes most. */}
+      <LatestNews lang={lang} />
       <PartnerLogos lang={lang} />
       <PhotoGallery lang={lang} />
-      <LatestNews lang={lang} />
       <ContactCTA lang={lang} />
     </>
   )
