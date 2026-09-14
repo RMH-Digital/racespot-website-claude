@@ -36,6 +36,10 @@ export function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl
+
+  // Files that exist at the root and have no language variant.
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') return NextResponse.next()
+
   const { lang } = splitPath(pathname)
 
   if (lang) {
@@ -83,5 +87,7 @@ function cameFromThisSite(request: NextRequest, host: string): boolean {
 // Every route except API, Next internals, the sitemap/robots and anything
 // with a file extension (images, fonts, icons, manifest).
 export const config = {
-  matcher: ['/((?!api/|_next/|sitemap\\.xml|robots\\.txt|.*\\..*).*)'],
+  // sitemap.xml and robots.txt stay in the matcher so the www → apex redirect
+  // applies to them too; the language rewriting below skips them explicitly.
+  matcher: ['/((?!api/|_next/|.*\\.(?!xml$|txt$)[^.]*$).*)'],
 }

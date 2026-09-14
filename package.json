@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "eslint . && next build",
     "start": "node scripts/start.mjs",
     "lint": "eslint .",
     "optimize-images": "node scripts/optimize-images.mjs"

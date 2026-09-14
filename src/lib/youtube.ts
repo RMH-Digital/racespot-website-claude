@@ -265,7 +265,15 @@ export async function getLiveStreams(): Promise<YouTubeLiveStream[]> {
     let scrapeFoundLive = false
     try {
       const scrapeRes = await fetch(channelUrl, {
-        cache: 'no-store',
+        // Was `cache: 'no-store'`, which meant every single request to /live
+        // downloaded YouTube's whole channel page — about a second of TTFB on
+        // the common case, when nothing is live. One minute of cache matches
+        // CACHE_LIVE elsewhere and costs nothing in practice: the client polls
+        // /api/live-streams every 60s, so a stream going live still surfaces
+        // within a minute either way.
+        next: { revalidate: CACHE_LIVE },
+        // And never let a slow YouTube hold the page hostage.
+        signal: AbortSignal.timeout(4000),
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         },
