@@ -5,7 +5,8 @@ import { Team } from '@/components/sections/Team'
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/about', 'about', '/og-about.jpg')
 }
 
@@ -26,7 +27,8 @@ const STATS: { value: string; labelKey: TranslationKey }[] = [
   { value: '6.2M+', labelKey: 'about.stat.ytViews' },
 ]
 
-export default function AboutPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function AboutPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   return (
     <div>

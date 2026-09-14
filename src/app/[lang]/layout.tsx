@@ -30,7 +30,8 @@ export function generateStaticParams() {
   return LANGS.map((lang) => ({ lang }))
 }
 
-export function generateMetadata({ params: { lang } }: { params: { lang: string } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
   const l: Lang = isLang(lang) ? lang : DEFAULT_LANG
   const siteTitle = t(l, 'meta.site.title')
   return {
@@ -68,14 +69,14 @@ export function generateMetadata({ params: { lang } }: { params: { lang: string 
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: {
   children: React.ReactNode
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 }) {
-  const { lang } = params
+  const { lang } = await params
   if (!isLang(lang)) notFound()
 
   return (

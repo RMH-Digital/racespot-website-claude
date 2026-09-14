@@ -7,11 +7,13 @@ import { getT, type Lang } from '@/lib/i18n'
 /* Refresh calendar data every 5 minutes */
 export const revalidate = 300
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/calendar', 'calendar', '/og-calendar.jpg')
 }
 
-export default async function CalendarPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function CalendarPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   const events = await getCalendarEvents()
 

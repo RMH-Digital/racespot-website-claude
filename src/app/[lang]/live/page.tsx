@@ -9,11 +9,13 @@ import type { Lang } from '@/lib/i18n'
 /* Always fetch fresh data — live detection must be real-time */
 export const dynamic = 'force-dynamic'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/live', 'live', '/og-live.jpg')
 }
 
-export default async function LivePage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function LivePage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const channelId = process.env.YOUTUBE_CHANNEL_ID || ''
 
   const [liveStreams, events] = await Promise.all([

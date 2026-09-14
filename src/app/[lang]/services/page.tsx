@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/services', 'services', '/og-services.jpg')
 }
 
@@ -40,7 +41,8 @@ const SETUP_PHOTOS = [
   '/images/setup/ERLFinals-Heat1-38.jpeg',
 ]
 
-export default function ServicesPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function ServicesPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   return (
     <div>

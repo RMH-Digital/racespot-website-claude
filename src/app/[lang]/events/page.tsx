@@ -6,7 +6,8 @@ import PastEventCard from '@/components/sections/PastEventCard'
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/events', 'events', '/og-events.jpg')
 }
 
@@ -79,7 +80,8 @@ const PAST_EVENTS: { name: string; year: string; locationKey: TranslationKey; im
   },
 ]
 
-export default function EventsPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function EventsPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   return (
     <div>

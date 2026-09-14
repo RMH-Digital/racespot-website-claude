@@ -6,11 +6,13 @@ import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
 import { localizeArticle } from '@/lib/articleContent'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/news', 'news', '/og-news.jpg')
 }
 
-export default function NewsPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function NewsPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   const [featured, ...rest] = ARTICLES
   const loc = localizeArticle(featured, lang)

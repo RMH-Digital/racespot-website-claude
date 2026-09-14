@@ -4,11 +4,13 @@ import type { Lang } from '@/lib/i18n'
 import { LegalDocument } from '@/components/sections/LegalDocument'
 import { PRIVACY } from '@/lib/i18n/legal/privacy'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return legalPageMetadata(lang, '/privacy', 'privacy')
 }
 
-export default function PrivacyPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function PrivacyPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   return (
     <LegalDocument
       lang={lang}

@@ -1,3 +1,6 @@
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+
 /** @type {import('next').NextConfig} */
 
 // Security headers — Traefik in front of us adds none of these (verified with
@@ -11,6 +14,9 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  // A stray package-lock.json in the home directory makes Next infer the wrong
+  // workspace root and trace files from there. Pin it to this project.
+  outputFileTracingRoot: dirname(fileURLToPath(import.meta.url)),
   images: {
     // The optimizer is ON: we self-host on Coolify with `sharp` installed, so
     // every <Image> is resized to the rendered width and re-encoded on first
