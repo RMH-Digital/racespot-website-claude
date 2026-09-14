@@ -31,9 +31,11 @@ veröffentlicht erst, wenn alle fünf Übersetzungen seine Prüfungen bestanden 
 
 **Merge auf `main`: 2026-09-10.** Danach offen:
 
-- [ ] In der Google Search Console die Sitemap `https://racespot.tv/sitemap.xml`
-  erneut einreichen; die alten URLs leiten per 301 weiter. Nach ein paar Tagen
-  unter „Seiten" prüfen, ob die Sprachvarianten indexiert sind.
+- [x] Sitemap in der Google Search Console eingereicht (2026-09-14): Status
+  **Success**, 106 erkannte Seiten — genau die Zahl, die die Datei enthält.
+  In ein bis zwei Wochen unter „Seiten" und „Leistung" nachsehen, ob die
+  Sprachvarianten indexiert werden und nicht-englische Suchbegriffe auftauchen.
+  Google Business Profile ist angelegt, Verifizierung steht noch aus.
 - [ ] Press Tool wieder auf `main` mit Auto-Merge stellen (Philips Session; sie
   wartet auf die Nachricht, dass `i18n-routes` auf `main` ist).
 
