@@ -3,6 +3,8 @@ import { StatsBar }         from '@/components/sections/StatsBar'
 import { LatestBroadcasts } from '@/components/sections/LatestBroadcasts'
 import { Services }         from '@/components/sections/Services'
 import { PartnerLogos }     from '@/components/sections/PartnerLogos'
+import { Positioning }      from '@/components/sections/Positioning'
+import { Process }          from '@/components/sections/Process'
 import { PhotoGallery }     from '@/components/sections/PhotoGallery'
 import { LatestNews }       from '@/components/sections/LatestNews'
 import { ContactCTA }       from '@/components/sections/ContactCTA'
@@ -42,13 +44,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
         nextEventDateISO={nextEvent?.date.toISOString()}
       />
       <StatsBar lang={lang} />
+      {/* Written in our own voice — the one breather before the card grids start. */}
+      <Positioning lang={lang} />
       <LatestBroadcasts lang={lang} />
       <Services lang={lang} />
-      {/* News sits right above Partners & Networks: the Press Tool publishes
-          several articles a week, so this is the part that changes most. */}
+      {/* Client-facing breather between two card sections. */}
+      <Process lang={lang} />
       <LatestNews lang={lang} />
-      <PartnerLogos lang={lang} />
       <PhotoGallery lang={lang} />
+      {/* Partner logos moved down: proof sits close to the ask, not in the middle. */}
+      <PartnerLogos lang={lang} />
       <ContactCTA lang={lang} />
     </>
   )
