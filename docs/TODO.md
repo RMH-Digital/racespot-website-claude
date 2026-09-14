@@ -226,6 +226,33 @@ Ohne Filter unverändertes Layout, mit Filter kein Feature-Artikel.
 - Philips `~/Press Tool/projects/racespot/NOTES.md` sagt noch „a merge does not build" —
   stimmt nicht mehr, Deploy läuft über den Repo-Webhook (siehe `CLAUDE.md`, Deployment).
 
+## 7b. Hydration-Mismatches bei lokaler Zeit (offen)
+
+React 19 meldet, was React 18 stillschweigend reparierte: Wer Datum oder
+Uhrzeit schon beim ersten Rendern in der Zeitzone des Besuchers formatiert,
+erzeugt einen Unterschied zwischen Server-HTML (UTC) und Browser. React wirft
+dann `#418` in die Konsole und rendert den Teilbaum neu — sichtbar kaputt ist
+nichts, aber sauber ist es auch nicht.
+
+**Erledigt 2026-09-14:** `Hero.tsx` (Startseite). Die Uhrzeit erscheint jetzt
+erst nach dem Mount, und die Locale kommt aus der Route statt aus
+`navigator.language` — auf `/de` steht damit „Di 19:00" statt „Tue 07:00 PM".
+
+**Noch offen** — gleiches Muster, größerer Umfang:
+
+- `CalendarClient.tsx` (619 Zeilen, viele Formatierungsstellen). Die Sprache
+  löst `useLocaleFormat` bereits deterministisch auf; es fehlt nur die
+  Absicherung der Uhrzeiten gegen die Zeitzone.
+- `LiveOffline.tsx` und `LiveEmbed.tsx` (`/live`). Dort zusätzlich
+  `navigator.language` statt der Route-Sprache.
+
+Empfehlung: einen gemeinsamen `useMounted()`-Hook oder einen kleinen
+`<LocalTime>`-Baustein einführen und alle drei darauf umstellen, statt jede
+Aufrufstelle einzeln anzufassen. Bewusst nicht im Vorbeigehen gemacht — die
+Komponenten haben viele Zustände (live/offline, Monatswechsel), die einzeln
+geprüft werden wollen. Prüfen lässt sich das lokal mit
+`TZ=UTC npx next start`, geladen in einem Browser mit anderer Zeitzone.
+
 ## 8. Kleinere technische Punkte
 
 - `/live` hat `force-dynamic` und braucht beim ersten Aufruf ~1,3 s (YouTube-Live-Check

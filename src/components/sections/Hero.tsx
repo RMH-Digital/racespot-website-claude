@@ -1,8 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getT, localePath, type Lang } from '@/lib/i18n'
+import { getT, localePath, LOCALES, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 interface HeroProps {
@@ -90,7 +91,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-rs-yellow" />
                 {t('hero.nextBroadcast')}
               </span>
-              <NextEventLabel series={nextEventSeries} dateISO={nextEventDateISO} />
+              <NextEventLabel series={nextEventSeries} dateISO={nextEventDateISO} lang={lang} />
             </Link>
           ) : null}
 
@@ -130,30 +131,43 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
 }
 
 /** Client-rendered next event label with local time */
-function NextEventLabel({ series, dateISO }: { series: string; dateISO?: string }) {
+function NextEventLabel({ series, dateISO, lang }: { series: string; dateISO?: string; lang: Lang }) {
   if (!dateISO) return <span className="text-white/60 text-sm line-clamp-1">{series}</span>
 
   return (
     <span className="text-white/60 text-sm line-clamp-1">
       {series}
-      <LocalTime dateISO={dateISO} />
+      <LocalTime dateISO={dateISO} lang={lang} />
     </span>
   )
 }
 
-/** Renders localised time (client-side only) */
-function LocalTime({ dateISO }: { dateISO: string }) {
-  const d = new Date(dateISO)
+/**
+ * Weekday and time of the next broadcast, in the visitor's own timezone.
+ *
+ * Deliberately renders nothing until after mount. The home page is
+ * prerendered, so the server formats in UTC while the browser formats in the
+ * visitor's zone — rendering that on the first pass is a hydration mismatch
+ * (React 19 reports it as error #418). The Ticker solves it the same way.
+ *
+ * The locale comes from the route, not from `navigator`, so only the timezone
+ * is left to the client.
+ */
+function LocalTime({ dateISO, lang }: { dateISO: string; lang: Lang }) {
+  const [timeStr, setTimeStr] = useState('')
 
-  let timeStr = ''
-  try {
-    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
-    const weekday = d.toLocaleDateString(locale, { weekday: 'short' })
-    const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-    timeStr = ` · ${weekday} ${time}`
-  } catch {
-    timeStr = ''
-  }
+  useEffect(() => {
+    const d = new Date(dateISO)
+    if (Number.isNaN(d.getTime())) return
+    try {
+      const locale = LOCALES[lang]
+      const weekday = d.toLocaleDateString(locale, { weekday: 'short' })
+      const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+      setTimeStr(` · ${weekday} ${time}`)
+    } catch {
+      /* leave it empty rather than guess */
+    }
+  }, [dateISO, lang])
 
   return <>{timeStr}</>
 }
