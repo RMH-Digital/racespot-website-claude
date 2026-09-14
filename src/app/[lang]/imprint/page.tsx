@@ -49,7 +49,12 @@ export default async function ImprintPage({ params }: { params: Promise<{ lang: 
             <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.registration')}</h2>
             <p>
               {t('imprint.court')}: Amtsgericht Köln<br />
-              {t('imprint.regNumber')}: HRB 118561
+              {t('imprint.regNumber')}: HRB 118561<br />
+              {/* Required by § 5 (1) no. 6 DDG once the company has one.
+                  Checksum verified 2026-09-14; VIES could not confirm it that
+                  day because the German member-state service was down
+                  (MS_UNAVAILABLE), which says nothing about the number. */}
+              {t('imprint.vatId')}: DE367742438
             </p>
           </section>
 

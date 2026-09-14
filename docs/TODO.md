@@ -184,7 +184,12 @@ wurde — toter Link und falsche Aussage. Entfernt; die Erklärung nach § 36 VS
   von Jürgen freigegeben; diese hier ist neu und ungelesen. Für Haftungs- und
   Urheberrechtsklauseln ist eine anwaltliche Durchsicht ratsam — sie stehen
   bewusst konservativ, aber ich bin keine Rechtsberatung.
-- [ ] USt-IdNr. im Impressum ergänzen, falls vorhanden (§ 5 Abs. 1 Nr. 6 DDG).
+- [x] USt-IdNr. im Impressum ergänzt (2026-09-14): **DE367742438**, geliefert von
+  Jürgen. Offizielle Prüfziffer stimmt; VIES konnte sie an dem Tag nicht
+  bestätigen, weil der deutsche Mitgliedsstaaten-Dienst ausgefallen war
+  (`MS_UNAVAILABLE` — eine bekannt gültige Kontrollnummer scheiterte ebenso).
+  Bei Gelegenheit gegenprüfen:
+  `curl -s "https://ec.europa.eu/taxation_customs/vies/rest-api/ms/DE/vat/367742438"`
 
 ## 5. Kontaktformular in Produktion einmal echt durchtesten
 
