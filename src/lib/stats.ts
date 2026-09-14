@@ -33,6 +33,8 @@ export interface SiteStats {
   series: number
   /** Lifetime views on the YouTube channel */
   youtubeViews: number
+  /** Followers across all social platforms combined */
+  followers: number
   /** Languages we broadcast in — not measurable, stated by the team */
   languages: number
   /** False when at least one source failed and a fallback is being shown */
@@ -49,9 +51,32 @@ const FALLBACK: SiteStats = {
   hours: 1_000,      // measured 1,071
   series: 100,       // measured 104
   youtubeViews: 6_100_000, // measured 6,184,897
+  followers: 57_000, // measured 57,559
   languages: 8,
   live: false,
 }
+
+/**
+ * Followers on the platforms that have no public API we can read.
+ *
+ * Supplied by the team from each platform's own analytics on **2026-09-14**.
+ * YouTube is not in here — that one comes live from the Data API below, and it
+ * matched the team's figure exactly (34,200) when this was set up, which is a
+ * good sign for the rest.
+ *
+ * Re-check these a couple of times a year; the date above is what the site
+ * implicitly claims.
+ */
+const SOCIAL_FOLLOWERS: Record<string, number> = {
+  x: 9_728,
+  facebook: 7_692,
+  instagram: 3_072,
+  twitch: 2_467,
+  tiktok: 400,
+}
+
+/** Fallback for the YouTube share when the API is unreachable (measured 34,200). */
+const YOUTUBE_SUBSCRIBERS_FALLBACK = 34_000
 
 const EXCEL_EPOCH = Date.UTC(1899, 11, 30)
 
@@ -91,29 +116,39 @@ async function scheduleStats(): Promise<Pick<SiteStats, 'broadcasts' | 'hours' |
   }
 }
 
-async function youtubeViews(): Promise<number | null> {
+async function youtubeChannel(): Promise<{ views: number; subscribers: number } | null> {
   if (!YT_KEY || !YT_CHANNEL) return null
   try {
     const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${YT_CHANNEL}&key=${YT_KEY}`
     const res = await fetch(url, { next: { revalidate: REVALIDATE } })
     if (!res.ok) return null
-    const views = Number((await res.json())?.items?.[0]?.statistics?.viewCount)
-    return Number.isFinite(views) && views > 0 ? views : null
+    const stats = (await res.json())?.items?.[0]?.statistics
+    const views = Number(stats?.viewCount)
+    const subscribers = Number(stats?.subscriberCount)
+    if (!Number.isFinite(views) || views <= 0) return null
+    return {
+      views,
+      subscribers: Number.isFinite(subscribers) && subscribers > 0 ? subscribers : YOUTUBE_SUBSCRIBERS_FALLBACK,
+    }
   } catch {
     return null
   }
 }
 
 export async function getSiteStats(): Promise<SiteStats> {
-  const [schedule, views] = await Promise.all([scheduleStats(), youtubeViews()])
+  const [schedule, youtube] = await Promise.all([scheduleStats(), youtubeChannel()])
+
+  const otherPlatforms = Object.values(SOCIAL_FOLLOWERS).reduce((a, b) => a + b, 0)
+  const followers = otherPlatforms + (youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK)
 
   return {
     broadcasts: schedule?.broadcasts ?? FALLBACK.broadcasts,
     hours: schedule?.hours ?? FALLBACK.hours,
     series: schedule?.series ?? FALLBACK.series,
-    youtubeViews: views ?? FALLBACK.youtubeViews,
+    youtubeViews: youtube?.views ?? FALLBACK.youtubeViews,
+    followers,
     languages: FALLBACK.languages,
-    live: schedule !== null && views !== null,
+    live: schedule !== null && youtube !== null,
   }
 }
 

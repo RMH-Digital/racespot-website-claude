@@ -17,8 +17,8 @@ export async function StatsBar({ lang }: { lang: Lang }) {
 
   const tiles: { value: string; labelKey: TranslationKey }[] = [
     { value: roundedDown(stats.broadcasts, locale), labelKey: 'stats.broadcastsPerYear' },
-    { value: roundedDown(stats.hours, locale), labelKey: 'stats.broadcastHours' },
     { value: roundedDown(stats.youtubeViews, locale), labelKey: 'stats.youtubeViews' },
+    { value: roundedDown(stats.followers, locale), labelKey: 'stats.followers' },
     { value: String(stats.languages), labelKey: 'stats.languagesCovered' },
   ]
 

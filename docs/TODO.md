@@ -219,6 +219,17 @@ müssen. Code: `src/lib/stats.ts`.
 Messung vom 2026-09-14: 410 öffentliche Broadcasts, 1.071 Sendestunden,
 104 Serien, 6.184.897 YouTube-Aufrufe, 34.200 Abonnenten, 4.581 Videos.
 
+Seit 2026-09-14 zeigt die Leiste **Broadcasts · YouTube-Aufrufe · Follower ·
+Sprachen**. Sendestunden (1.071) und Serien (104) werden weiter berechnet und
+stehen in `SiteStats` bereit, falls eine Kachel getauscht werden soll.
+
+**Follower gesamt: 57.559** — YouTube (34.200) kommt live aus der API, die
+übrigen Plattformen stehen als `SOCIAL_FOLLOWERS` in `stats.ts`, geliefert vom
+Team am 2026-09-14: X 9.728, Facebook 7.692, Instagram 3.072, Twitch 2.467,
+TikTok 400. Die YouTube-Angabe des Teams deckte sich exakt mit der API, was für
+die Qualität der übrigen spricht. **Ein- bis zweimal im Jahr nachziehen** — die
+Zeile unter der Leiste nennt „September 2026" als Stand.
+
 **„100M+ Impressionen pro Jahr" ist entfallen.** Für die Zahl gab es keine
 Quelle — weder im Repo, noch in den Social-Reports (die messen einzelne
 Kundenkampagnen wie VCO Infinity und Porsche Carrera Cup GB, nicht die
