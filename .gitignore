@@ -12,3 +12,6 @@ next-env.d.ts
 # Raw source assets (photos, logos, fonts) — not part of the site build
 /content Website/
 .claude/settings.local.json
+
+# Transport-Pakete (z. B. Bilder-Exporte) gehören nicht ins Repo
+*.zip
