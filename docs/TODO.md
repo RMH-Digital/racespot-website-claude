@@ -247,32 +247,33 @@ produzierte Videos (4.581), abgedeckte Serien (104).
 - Philips `~/Press Tool/projects/racespot/NOTES.md` sagt noch „a merge does not build" —
   stimmt nicht mehr, Deploy läuft über den Repo-Webhook (siehe `CLAUDE.md`, Deployment).
 
-## 7b. Hydration-Mismatches bei lokaler Zeit (offen)
+## 7b. Hydration-Mismatches bei lokaler Zeit
 
-React 19 meldet, was React 18 stillschweigend reparierte: Wer Datum oder
-Uhrzeit schon beim ersten Rendern in der Zeitzone des Besuchers formatiert,
-erzeugt einen Unterschied zwischen Server-HTML (UTC) und Browser. React wirft
-dann `#418` in die Konsole und rendert den Teilbaum neu — sichtbar kaputt ist
-nichts, aber sauber ist es auch nicht.
+React 19 meldet, was React 18 stillschweigend reparierte: Wer Datum oder Uhrzeit
+schon beim ersten Rendern in der Zeitzone des Besuchers formatiert, erzeugt
+einen Unterschied zwischen Server-HTML (UTC) und Browser. React wirft `#418`
+und baut den Teilbaum neu — sichtbar kaputt ist nichts, sauber ist es nicht.
 
-**Erledigt 2026-09-14:** `Hero.tsx` (Startseite). Die Uhrzeit erscheint jetzt
-erst nach dem Mount, und die Locale kommt aus der Route statt aus
-`navigator.language` — auf `/de` steht damit „Di 19:00" statt „Tue 07:00 PM".
+**Das Muster** steht jetzt in `src/lib/hooks/useLocalTime.ts`: `useLocalFormat(lang)`
+liefert `locale` aus der Route (nie aus `navigator`) und `timeZone: 'UTC'` bis
+zum Mount, danach `undefined` (= Zone des Besuchers). Server und erster
+Client-Durchgang erzeugen damit denselben String; nach dem Mount springt die
+Zeit einmal auf lokal. Bewusst so und nicht „bis zum Mount leer lassen", damit
+die Inhalte im Server-HTML bleiben und indexiert werden.
 
-**Noch offen** — gleiches Muster, größerer Umfang:
+**Erledigt:**
+- `Hero.tsx` (2026-09-14)
+- `LiveOffline.tsx` und `LiveEmbed.tsx` (2026-09-14) — gegengeprüft mit
+  `TZ=UTC npx next start` aus einem Europe/Berlin-Browser: Server-HTML 17:00,
+  nach Hydration 07:00 PM, Konsole sauber.
 
-- `CalendarClient.tsx` (619 Zeilen, viele Formatierungsstellen). Die Sprache
-  löst `useLocaleFormat` bereits deterministisch auf; es fehlt nur die
-  Absicherung der Uhrzeiten gegen die Zeitzone.
-- `LiveOffline.tsx` und `LiveEmbed.tsx` (`/live`). Dort zusätzlich
-  `navigator.language` statt der Route-Sprache.
-
-Empfehlung: einen gemeinsamen `useMounted()`-Hook oder einen kleinen
-`<LocalTime>`-Baustein einführen und alle drei darauf umstellen, statt jede
-Aufrufstelle einzeln anzufassen. Bewusst nicht im Vorbeigehen gemacht — die
-Komponenten haben viele Zustände (live/offline, Monatswechsel), die einzeln
-geprüft werden wollen. Prüfen lässt sich das lokal mit
-`TZ=UTC npx next start`, geladen in einem Browser mit anderer Zeitzone.
+**Noch offen: `CalendarClient.tsx`** (619 Zeilen). Dort reicht das Muster allein
+nicht, weil nicht nur die Formatierung zeitzonenabhängig ist, sondern auch die
+Einordnung: `getMonthKey()` nutzt `getFullYear()/getMonth()` (lokal), und die
+„ist heute"-Markierung vergleicht gegen `new Date()`. Ein Event um 00:30 UTC
+fällt je nach Zone in einen anderen Tag und Monat. Der Umbau muss deshalb auch
+die Gruppierung deterministisch machen — eigener Durchgang, mit Test über
+Monatswechsel und beide Ansichten (Kalender/Liste).
 
 ## 8. Kleinere technische Punkte
 

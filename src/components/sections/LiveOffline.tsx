@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { useCountdown } from '@/lib/hooks/useCountdown'
+import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 
 // ─── Types ──────────────────────────────────────────────────
@@ -22,55 +23,41 @@ interface LiveOfflineProps {
 }
 
 // ─── Locale helpers ─────────────────────────────────────────
+// Locale comes from the route and the timezone is pinned to UTC until mount,
+// so server and first client render agree. See lib/hooks/useLocalTime.ts.
 
-function useIs24Hour(): boolean {
-  const [is24h, setIs24h] = useState(true)
+interface Fmt { locale: string; timeZone: string | undefined; is24h: boolean }
 
-  useEffect(() => {
-    try {
-      const locale = navigator.language || 'en'
-      if (locale.startsWith('de')) { setIs24h(true); return }
-      const resolved = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions()
-      setIs24h(!resolved.hour12)
-    } catch {
-      setIs24h(false)
-    }
-  }, [])
-
-  return is24h
-}
-
-function formatLocalTime(iso: string, is24h: boolean): string {
+function formatLocalTime(iso: string, { locale, timeZone, is24h }: Fmt): string {
   const d = new Date(iso)
   try {
-    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
     return d.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
       hour12: !is24h,
+      timeZone,
     })
   } catch {
-    const h = d.getHours()
-    const m = String(d.getMinutes()).padStart(2, '0')
-    if (is24h) return `${String(h).padStart(2, '0')}:${m}`
-    const ampm = h >= 12 ? 'PM' : 'AM'
-    return `${h % 12 || 12}:${m} ${ampm}`
+    return ''
   }
 }
 
-function formatLocalDate(iso: string): string {
+function formatLocalDate(iso: string, { locale, timeZone }: Fmt): string {
   const d = new Date(iso)
-  const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
-  const weekday = d.toLocaleDateString(locale, { weekday: 'short' })
-  const day = d.getDate()
-  const month = d.toLocaleDateString(locale, { month: 'short' })
-  return `${weekday} ${day} ${month}`
+  try {
+    const weekday = d.toLocaleDateString(locale, { weekday: 'short', timeZone })
+    const day = d.toLocaleDateString(locale, { day: 'numeric', timeZone })
+    const month = d.toLocaleDateString(locale, { month: 'short', timeZone })
+    return `${weekday} ${day} ${month}`
+  } catch {
+    return ''
+  }
 }
 
 // ─── Component ──────────────────────────────────────────────
 
 export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: LiveOfflineProps) {
-  const is24h = useIs24Hour()
+  const fmt = useLocalFormat(lang)
   const countdown = useCountdown(nextEvent?.dateISO || '')
   const t = getT(lang)
 
@@ -140,7 +127,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
                 </p>
               )}
               <p className="text-rs-muted text-sm mb-8">
-                {formatLocalDate(nextEvent.dateISO)} · {formatLocalTime(nextEvent.dateISO, is24h)}
+                {formatLocalDate(nextEvent.dateISO, fmt)} · {formatLocalTime(nextEvent.dateISO, fmt)}
               </p>
 
               {/* Countdown */}
@@ -216,7 +203,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
 
             <div className="space-y-3">
               {upcomingEvents.map((event, i) => (
-                <UpcomingEventRow key={i} event={event} is24h={is24h} />
+                <UpcomingEventRow key={event.dateISO + event.series} event={event} fmt={fmt} />
               ))}
             </div>
 
@@ -234,25 +221,19 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
 
 // ─── Sub-components ─────────────────────────────────────────
 
-function UpcomingEventRow({ event, is24h }: { event: SerializedEvent; is24h: boolean }) {
+function UpcomingEventRow({ event, fmt }: { event: SerializedEvent; fmt: Fmt }) {
   return (
     <div className="flex items-center gap-4 p-4 rounded-rs border border-rs-border bg-rs-dark hover:border-rs-yellow/40 transition-colors">
       {/* Date */}
       <div className="shrink-0 text-center min-w-[60px]">
         <p className="text-[11px] uppercase text-rs-muted">
-          {new Date(event.dateISO).toLocaleDateString(
-            typeof navigator !== 'undefined' ? navigator.language : 'en',
-            { weekday: 'short' },
-          )}
+          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { weekday: 'short', timeZone: fmt.timeZone })}
         </p>
         <p className="text-xl font-display font-bold text-white">
-          {new Date(event.dateISO).getDate()}
+          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { day: 'numeric', timeZone: fmt.timeZone })}
         </p>
         <p className="text-[11px] uppercase text-rs-muted">
-          {new Date(event.dateISO).toLocaleDateString(
-            typeof navigator !== 'undefined' ? navigator.language : 'en',
-            { month: 'short' },
-          )}
+          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { month: 'short', timeZone: fmt.timeZone })}
         </p>
       </div>
 
@@ -271,7 +252,7 @@ function UpcomingEventRow({ event, is24h }: { event: SerializedEvent; is24h: boo
 
       {/* Time */}
       <p className="text-rs-yellow text-sm font-display font-bold shrink-0">
-        {formatLocalTime(event.dateISO, is24h)}
+        {formatLocalTime(event.dateISO, fmt)}
       </p>
     </div>
   )

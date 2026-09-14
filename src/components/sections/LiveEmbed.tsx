@@ -6,6 +6,7 @@ import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
+import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 
 interface SerializedEvent {
   series: string
@@ -164,7 +165,7 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
             <div className="space-y-3">
               {upcomingEvents.map((event, i) => (
-                <UpcomingEventRow key={i} event={event} />
+                <UpcomingEventRow key={event.dateISO + event.series} event={event} lang={lang} />
               ))}
             </div>
 
@@ -182,30 +183,18 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
 // ─── Sub-components ─────────────────────────────────────────
 
-function UpcomingEventRow({ event }: { event: SerializedEvent }) {
-  const [is24h, setIs24h] = useState(true)
-
-  useEffect(() => {
-    try {
-      const locale = navigator.language || 'en'
-      if (locale.startsWith('de')) { setIs24h(true); return }
-      const resolved = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions()
-      setIs24h(!resolved.hour12)
-    } catch {
-      setIs24h(false)
-    }
-  }, [])
-
+function UpcomingEventRow({ event, lang }: { event: SerializedEvent; lang: Lang }) {
+  // Locale from the route, timezone pinned to UTC until mount — otherwise the
+  // server (UTC) and the browser disagree and React reports a hydration
+  // mismatch. See lib/hooks/useLocalTime.ts.
+  const { locale, timeZone, is24h } = useLocalFormat(lang)
   const d = new Date(event.dateISO)
-  const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
 
   const time = (() => {
     try {
-      return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: !is24h })
+      return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: !is24h, timeZone })
     } catch {
-      const h = d.getHours()
-      const m = String(d.getMinutes()).padStart(2, '0')
-      return is24h ? `${String(h).padStart(2, '0')}:${m}` : `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`
+      return ''
     }
   })()
 
@@ -213,11 +202,13 @@ function UpcomingEventRow({ event }: { event: SerializedEvent }) {
     <div className="flex items-center gap-4 p-4 rounded-rs border border-rs-border bg-rs-dark hover:border-rs-yellow/40 transition-colors">
       <div className="shrink-0 text-center min-w-[60px]">
         <p className="text-[11px] uppercase text-rs-muted">
-          {d.toLocaleDateString(locale, { weekday: 'short' })}
+          {d.toLocaleDateString(locale, { weekday: 'short', timeZone })}
         </p>
-        <p className="text-xl font-display font-bold text-white">{d.getDate()}</p>
+        <p className="text-xl font-display font-bold text-white">
+          {d.toLocaleDateString(locale, { day: 'numeric', timeZone })}
+        </p>
         <p className="text-[11px] uppercase text-rs-muted">
-          {d.toLocaleDateString(locale, { month: 'short' })}
+          {d.toLocaleDateString(locale, { month: 'short', timeZone })}
         </p>
       </div>
       <div className="w-px h-10 bg-rs-border shrink-0" />
