@@ -41,8 +41,8 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: La
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
             <p className="section-label mb-3">{t('about.label')}</p>
@@ -118,7 +118,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: La
               { src: '/images/setup/SimplyRace-8654.jpeg', alt: t('about.alt5') },
               { src: '/images/setup/WhatsApp Image 2026-03-13 at 09.41.36.jpeg', alt: t('about.alt6') },
             ].map((img) => (
-              <div key={img.src} className="relative aspect-[4/3] rounded-rs overflow-hidden group">
+              <div key={img.src} className="relative aspect-4/3 rounded-rs overflow-hidden group">
                 <Image
                   src={img.src}
                   alt={img.alt}
@@ -126,7 +126,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: La
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-rs-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-t from-rs-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             ))}
           </div>

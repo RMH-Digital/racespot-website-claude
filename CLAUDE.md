@@ -15,7 +15,8 @@ Offene Arbeiten mit Begründung und Reihenfolge: [docs/TODO.md](docs/TODO.md).
 - `src/app/[lang]/` — every page (`news`, `news/[slug]`, `broadcasts`, `calendar`,
   `events`, `services`, `live`, `about`, `contact`, `privacy`, `terms`, `imprint`);
   its `layout.tsx` is the root layout. `src/app/api/` and `sitemap.ts` stay outside.
-- `src/middleware.ts` — language resolution and redirects (see i18n below).
+- `src/proxy.ts` — language resolution and redirects (see i18n below). Called
+  `middleware.ts` until Next 16 renamed the convention.
 - `src/components/` — `sections/`, `layout/`, `ui/`, `seo/`.
 - `src/lib/articles.ts` — **all news articles live here, hardcoded** (see below).
 - `src/lib/i18n/` — `translations.ts` (UI strings), `index.ts` (`t()`, locales,
@@ -35,13 +36,14 @@ item 1. The rules that are easy to break:
   (Header, Ticker, CalendarClient, BroadcastsClient, ContactForm, LiveEmbed,
   LiveOffline, VideoCard, LiveBanners, Hero) get `lang` handed in too.
 - **Internal links go through `localePath(lang, '/news')`.** A bare
-  `href="/news"` still works (the middleware 301s it to `/en/news`) but lands
+  `href="/news"` still works (the proxy 301s it to `/en/news`) but lands
   the reader in the wrong language — grep for `href="/` before committing.
-- **Middleware** (`src/middleware.ts`): `/` → 302 to cookie / Accept-Language /
+- **Proxy** (`src/proxy.ts`, the file convention Next 16 renamed from
+  `middleware`): `/` → 302 to cookie / Accept-Language /
   `en` (with `Vary`); old URLs → 301 to `/en/…`; the `racespot-lang` cookie is
   set only when the visitor navigated within the site (same-origin Referer), so
   an external deep link never overwrites a choice. `langs.ts` exists so the
-  middleware does not bundle the dictionary.
+  proxy does not bundle the dictionary.
 - **Metadata**: every page has `generateMetadata` built with
   `staticPageMetadata()` / `pageMetadata()` from `seo.ts`, which emits title,
   description, canonical, one `hreflang` per language plus `x-default` (→ `/en/`),

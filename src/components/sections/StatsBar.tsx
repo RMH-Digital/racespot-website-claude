@@ -31,7 +31,7 @@ export async function StatsBar({ lang }: { lang: Lang }) {
               <p className="font-display font-black text-rs-black" style={{ fontSize: 'clamp(36px, 5vw, 56px)' }}>
                 {tile.value}
               </p>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-rs-black/70 mt-1">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-rs-black/70 mt-1">
                 {t(tile.labelKey)}
               </p>
             </div>

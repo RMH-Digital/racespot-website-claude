@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useSyncExternalStore } from 'react'
 import { LOCALES, type Lang } from '@/lib/i18n'
 
 /**
@@ -24,11 +24,17 @@ import { LOCALES, type Lang } from '@/lib/i18n'
  * "the runtime's own zone" to Intl, which is exactly what we want.
  */
 
-/** True once the component has mounted in the browser. */
+/**
+ * True once the component has mounted in the browser.
+ *
+ * `useSyncExternalStore` rather than state-in-an-effect: the server snapshot is
+ * `false`, the client snapshot `true`, so React resolves it during hydration
+ * without a second render — and without tripping the react-hooks rule against
+ * calling setState synchronously in an effect.
+ */
+const neverChanges = () => () => {}
 export function useMounted(): boolean {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  return mounted
+  return useSyncExternalStore(neverChanges, () => true, () => false)
 }
 
 /** Languages whose audience reads 24-hour time by default. English does not. */

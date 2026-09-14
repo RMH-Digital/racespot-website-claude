@@ -119,8 +119,8 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
           className="object-cover object-[center_35%]"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
             <p className="section-label mb-3">{t('broadcastsPage.label')}</p>

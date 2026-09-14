@@ -1,6 +1,6 @@
 /**
  * Language constants without any dependency on the dictionary, so the
- * middleware (an edge bundle) can import them without pulling in ~230
+ * proxy (an edge bundle) can import them without pulling in ~230
  * translated strings. Everything else lives in ./index.ts.
  */
 
@@ -10,7 +10,7 @@ export const DEFAULT_LANG: Lang = 'en'
 
 /** Cookie that remembers a language the visitor chose on the site. */
 export const LANG_COOKIE = 'racespot-lang'
-/** Request header the middleware sets so server code outside a route (404 page) knows the language. */
+/** Request header the proxy sets so server code outside a route (404 page) knows the language. */
 export const LANG_HEADER = 'x-racespot-lang'
 
 export function isLang(x: string | undefined | null): x is Lang {

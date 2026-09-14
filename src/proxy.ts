@@ -25,7 +25,7 @@ import {
  *                      to `/en/news/x` must not overwrite a German visitor's
  *                      choice — decided 2026-09-10.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get('host') || ''
 
   if (host.startsWith('www.')) {
@@ -36,6 +36,10 @@ export function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl
+
+  // Files that exist at the root and have no language variant.
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') return NextResponse.next()
+
   const { lang } = splitPath(pathname)
 
   if (lang) {
@@ -74,7 +78,7 @@ function cameFromThisSite(request: NextRequest, host: string): boolean {
   if (!referer) return false
   try {
     const refHost = new URL(referer).host.replace(/^www\./, '')
-    return refHost === host.replace(/^www\./, '')
+    return refHost === host.replace(/^www\./, '');
   } catch {
     return false
   }
@@ -83,5 +87,7 @@ function cameFromThisSite(request: NextRequest, host: string): boolean {
 // Every route except API, Next internals, the sitemap/robots and anything
 // with a file extension (images, fonts, icons, manifest).
 export const config = {
-  matcher: ['/((?!api/|_next/|sitemap\\.xml|robots\\.txt|.*\\..*).*)'],
+  // sitemap.xml and robots.txt stay in the matcher so the www → apex redirect
+  // applies to them too; the language rewriting below skips them explicitly.
+  matcher: ['/((?!api/|_next/|.*\\.(?!xml$|txt$)[^.]*$).*)'],
 }

@@ -52,7 +52,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
       />
 
       {/* Subtle yellow accent line at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
 
       {/* Content — vertically centred on all viewports */}
       <div className="container-rs relative z-10 h-full flex items-center">

@@ -109,21 +109,30 @@ Regeln:
 Push auf `main` deployt sofort). Press Tool parallel möglich, weil der Vertrag
 oben steht; mergen erst, wenn die Website `translations` liest.
 
-## 2. Framework-Upgrades
+## 2. Framework-Upgrades — abgeschlossen
 
-**2a — Next 15.5 + React 19: erledigt 2026-09-14.** Next 14.2 bekam die Fixes
-nicht mehr; `npm audit` ging von 13 Funden (1 kritisch: RCE in der
-Image-Optimization-API, dazu SSRF und mehrere DoS) auf **2**, und Next steht
-nicht mehr darunter. Migration: `params` ist ein Promise (15 Seiten + Layout),
-`headers()` ebenfalls, framer-motion auf 13. Nebenbei `target: ES2017` in der
-tsconfig und `outputFileTracingRoot` gepinnt — eine verirrte `package-lock.json`
-im Home-Verzeichnis ließ Next die falsche Projektwurzel raten. Build-Zeit von
-~20 s auf 3,5 s.
+**2a — Next 15.5 + React 19 (2026-09-14).** Schloss die Advisories, die 14.x
+nicht mehr bekam; `npm audit` von 13 Funden (1 kritisch) auf 2.
 
-**2b — offen, kein Zeitdruck:** Next 16 (Turbopack als Standard,
-`middleware` → `proxy`), Tailwind 3 → 4, ESLint 8 → 9 (Flat Config). Die zwei
-verbliebenen Audit-Funde (moderate + high in postcss, beide über Next
-transitiv) verschwinden erst mit Next 16.
+**2b — Next 16, Tailwind 4, ESLint 9 (2026-09-15).**
+
+- **Next 16**: baut standardmäßig mit Turbopack. Die Dateikonvention
+  `middleware` heißt jetzt `proxy` — per offiziellem Codemod umgestellt,
+  `src/proxy.ts` exportiert `proxy()`.
+- **ESLint 9**: `next lint` gibt es nicht mehr, ESLint läuft direkt über
+  `eslint.config.mjs` (Flat Config, von `eslint-config-next` direkt importiert).
+  Zwei Regeln aus dem React-Compiler-Satz stehen bewusst auf *warn* — die
+  Begründung steht in der Konfiguration: `set-state-in-effect` trifft elf
+  Stellen, an denen das Muster korrekt und tragend ist, darunter die Fixes
+  gegen die Hydration-Mismatches. Wo ein besseres Muster existiert, wird es
+  genutzt (`useMounted()` ist ein `useSyncExternalStore`).
+- **Tailwind 4**: Konfiguration wandert aus `tailwind.config.ts` (gelöscht) in
+  einen `@theme`-Block in `globals.css`, PostCSS auf `@tailwindcss/postcss`,
+  autoprefixer entfällt. 23 Dateien mit umbenannten Klassen. Gegen die
+  Design-Tokens geprüft statt nach Augenmaß — alle Farben, Radien und Schriften
+  lösen unverändert auf.
+
+Damit sind auch die letzten beiden Audit-Funde weg.
 
 ## 3. Umami-Analytics — eingeschaltet 2026-09-11
 
@@ -304,10 +313,23 @@ sauber. **Damit ist die Klasse von Fehlern auf der ganzen Seite erledigt.**
 
 ## 8. Kleinere technische Punkte
 
-- `/live` hat `force-dynamic` und braucht beim ersten Aufruf ~1,3 s (YouTube-Live-Check
-  serverseitig). Akzeptabel; wenn es stört: Live-Erkennung komplett in den Client
-  (der pollt ohnehin alle 60 s) und die Seite statisch machen.
-- `CalendarClient.tsx` (619 Zeilen, framer-motion) ist die größte Client-Komponente
-  (41 kB). Kandidat für Aufteilen, wenn man sowieso beim i18n-Umbau drin ist.
-- ESLint läuft jetzt (`npm run lint`), war vorher nie konfiguriert. Bei Gelegenheit als
-  Pre-Commit-Hook oder im Coolify-Build (`npm run lint && next build`) verankern.
+**Erledigt 2026-09-15:**
+
+- **`/live` war beim Erstaufruf langsam** (~1,3 s). Ursache: Die
+  Live-Erkennung lud bei *jedem* Request ungecacht die komplette
+  YouTube-Kanalseite (`cache: 'no-store'`), und im Normalfall — nichts ist
+  live — passiert das immer. Jetzt 60 s Cache (wie `CACHE_LIVE` anderswo) plus
+  4-Sekunden-Timeout. Gemessen: erster Aufruf 0,90 s, zweiter **0,07 s**. Ein
+  startender Stream erscheint weiterhin binnen einer Minute, weil der Client
+  ohnehin alle 60 s pollt.
+- **Lint hängt im Build**: `npm run build` ist jetzt `eslint . && next build`.
+- **`www.racespot.tv/sitemap.xml` und `/robots.txt`** wurden direkt ausgeliefert,
+  statt wie alles andere auf die Hauptdomain umzuleiten. Der Proxy-Matcher
+  schloss sie aus; jetzt greift die 301 auch dort, die Sprachlogik überspringt
+  sie weiterhin.
+
+**Bewusst offen: `CalendarClient.tsx` aufteilen** (619 Zeilen). Die Datei ist
+klar gegliedert und wurde am 2026-09-14 umfassend umgebaut (Zeitzonen). Sie
+direkt danach ohne fachlichen Anlass zu zerlegen, bringt Regressionsrisiko ohne
+sichtbaren Nutzen. Beim nächsten inhaltlichen Eingriff mitnehmen.
+

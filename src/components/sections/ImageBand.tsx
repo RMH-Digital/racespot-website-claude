@@ -36,7 +36,7 @@ export function ImageBand({ lang }: { lang: Lang }) {
       />
 
       {/* Same yellow hairline the hero uses, so the band belongs to the page */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
 
       <div className="container-rs relative h-full flex items-end md:items-center pb-10 md:pb-0">
         <p className="font-display font-bold uppercase text-white leading-[1.15] text-[22px] md:text-[30px] lg:text-[36px] max-w-[18ch] md:max-w-[22ch]">

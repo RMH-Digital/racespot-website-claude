@@ -182,7 +182,7 @@ function getFirstDayOfWeek(year: number, month: number): number {
 
 function LiveBadge() {
   return (
-    <span className="inline-flex items-center gap-1 bg-rs-live text-white text-[10px] font-bold uppercase px-1.5 py-0.5 rounded">
+    <span className="inline-flex items-center gap-1 bg-rs-live text-white text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-sm">
       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
       LIVE
     </span>
@@ -400,7 +400,7 @@ function DayCell({
             <span className="text-sm font-medium text-rs-muted leading-6">{day}</span>
           )}
           {hasMultiple && (
-            <span className="text-[10px] text-rs-yellow bg-rs-yellow/10 px-1.5 py-0.5 rounded font-bold">
+            <span className="text-[10px] text-rs-yellow bg-rs-yellow/10 px-1.5 py-0.5 rounded-sm font-bold">
               {events.length}
             </span>
           )}

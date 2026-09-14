@@ -128,7 +128,7 @@ export function Footer({ lang }: { lang: Lang }) {
           {/* Link columns */}
           {FOOTER_LINKS.map(({ categoryKey, links }) => (
             <div key={categoryKey}>
-              <h4 className="font-display font-bold text-xs uppercase tracking-[0.1em] text-white mb-4">
+              <h4 className="font-display font-bold text-xs uppercase tracking-widest text-white mb-4">
                 {t(categoryKey)}
               </h4>
               <ul className="space-y-2.5">

@@ -1,34 +1,253 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-/* Eurostile Extended Bold — Racespot brand font.
+@theme {
+  --color-rs-yellow: #f5c000;
+  --color-rs-yellow-dark: #d4a800;
+  --color-rs-black: #0a0a0a;
+  --color-rs-dark: #111111;
+  --color-rs-gray: #1a1a1a;
+  --color-rs-s3: #242424;
+  --color-rs-muted: #777777;
+  --color-rs-border: #2a2a2a;
+  --color-rs-white: #ffffff;
+  --color-rs-live: #e53e3e;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display:
+    var(--font-eurostile), var(--font-oswald), Arial Black, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  --text-display: clamp(2.25rem, 5.5vw, 3.75rem);
+  --text-display--line-height: 0.95;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 900;
+  --text-headline: clamp(1.5rem, 4vw, 2.25rem);
+  --text-headline--line-height: 1.1;
+  --text-headline--letter-spacing: -0.02em;
+  --text-headline--font-weight: 700;
+
+  --radius-rs: 6px;
+
+  --animate-fade-up: fadeUp 0.6s ease forwards;
+  --animate-line-grow: lineGrow 0.8s ease forwards;
+  --animate-pulse-live: pulseLive 2s ease-in-out infinite;
+  --animate-ticker: ticker 35s linear infinite;
+  --animate-scroll-left: scrollLeft 50s linear infinite;
+  --animate-scroll-right: scrollRight 50s linear infinite;
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes lineGrow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes pulseLive {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.2);
+    }
+  }
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes scrollLeft {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes scrollRight {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility container-rs {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@utility container-rs-wide {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@utility btn-primary {
+  /* Buttons */
+  @apply inline-flex items-center justify-center gap-2
+           bg-rs-yellow text-rs-black
+           font-display font-bold text-[13px] tracking-[0.08em] uppercase
+           px-7 py-3.5 rounded-rs
+           hover:bg-rs-yellow-dark hover:-translate-y-px
+           transition-all duration-200;
+}
+
+@utility btn-outline {
+  @apply inline-flex items-center justify-center gap-2
+           border border-rs-yellow text-rs-yellow
+           font-display font-bold text-[13px] tracking-[0.08em] uppercase
+           px-7 py-3.5 rounded-rs
+           hover:bg-rs-yellow/8
+           transition-all duration-200;
+}
+
+@utility btn-ghost {
+  @apply inline-flex items-center gap-1
+           text-rs-yellow font-display font-bold text-[13px] tracking-[0.08em] uppercase
+           hover:underline transition-all duration-200;
+}
+
+@utility btn-sm {
+  @apply px-5 py-2.5 text-xs;
+}
+
+@utility section-label {
+  /* Typography */
+  @apply text-rs-yellow text-[11px] font-semibold tracking-widest uppercase;
+}
+
+@utility section-title {
+  @apply font-display font-bold text-headline uppercase text-white;
+}
+
+@utility display-title {
+  @apply font-display font-black text-display uppercase text-white;
+}
+
+@utility section {
+  /* Section patterns */
+  @apply py-20;
+}
+
+@utility section--alt {
+  @apply bg-rs-dark border-t border-b border-rs-border;
+}
+
+@utility section-header {
+  @apply flex items-end justify-between mb-9;
+}
+
+@utility divider {
+  /* Divider */
+  @apply border-t border-rs-border;
+}
+
+@utility card-dark {
+  /* Cards */
+  @apply bg-rs-dark border border-rs-border rounded-rs
+           hover:border-rs-yellow hover:translate-y-[-3px]
+           transition-all duration-200;
+}
+
+@utility badge-live {
+  /* Badge */
+  @apply inline-flex items-center gap-1.5
+           bg-rs-live text-white
+           text-[11px] font-bold uppercase
+           px-2.5 py-1 rounded-sm;
+}
+
+@utility badge-upcoming {
+  @apply inline-flex items-center
+           border border-rs-yellow text-rs-yellow
+           text-[11px] font-bold uppercase
+           px-2.5 py-1 rounded-sm;
+}
+
+@utility card-grid {
+  /* Card grid helpers */
+  @apply grid gap-5;
+}
+
+@utility card-grid--3 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+@utility card-grid--4 {
+  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+@layer utilities {
+  /* Eurostile Extended Bold — Racespot brand font.
    The original .ttf files are 1990-era Macintosh TrueType and are REJECTED by
    browsers ("Invalid font data"), so headlines silently fell back to Oswald.
    The .woff2 files are the same typefaces rebuilt for the web — keep them first.
    See docs/FONTS.md before touching this block. */
-@font-face {
-  font-family: 'Eurostile';
-  src: url('/fonts/eurostile-2-extended-bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+  @font-face {
+    font-family: 'Eurostile';
+    src: url('/fonts/eurostile-2-extended-bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
 
-@font-face {
-  font-family: 'Eurostile';
-  src: url('/fonts/eurostile-2-extended.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+  @font-face {
+    font-family: 'Eurostile';
+    src: url('/fonts/eurostile-2-extended.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
 
-@font-face {
-  font-family: 'Eurostile';
-  src: url('/fonts/eurostile-becker-bold.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
+  @font-face {
+    font-family: 'Eurostile';
+    src: url('/fonts/eurostile-becker-bold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
 }
 
 @layer base {
@@ -75,119 +294,6 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #F5C000;
-  }
-}
-
-@layer components {
-  .container-rs {
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
-  .container-rs-wide {
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2
-           bg-rs-yellow text-rs-black
-           font-display font-bold text-[13px] tracking-[0.08em] uppercase
-           px-7 py-3.5 rounded-rs
-           hover:bg-rs-yellow-dark hover:-translate-y-px
-           transition-all duration-200;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center justify-center gap-2
-           border border-rs-yellow text-rs-yellow
-           font-display font-bold text-[13px] tracking-[0.08em] uppercase
-           px-7 py-3.5 rounded-rs
-           hover:bg-rs-yellow/[0.08]
-           transition-all duration-200;
-  }
-
-  .btn-ghost {
-    @apply inline-flex items-center gap-1
-           text-rs-yellow font-display font-bold text-[13px] tracking-[0.08em] uppercase
-           hover:underline transition-all duration-200;
-  }
-
-  .btn-sm {
-    @apply px-5 py-2.5 text-xs;
-  }
-
-  /* Typography */
-  .section-label {
-    @apply text-rs-yellow text-[11px] font-semibold tracking-[0.1em] uppercase;
-  }
-
-  .section-title {
-    @apply font-display font-bold text-headline uppercase text-white;
-  }
-
-  .display-title {
-    @apply font-display font-black text-display uppercase text-white;
-  }
-
-  /* Section patterns */
-  .section {
-    @apply py-20;
-  }
-
-  .section--alt {
-    @apply bg-rs-dark border-t border-b border-rs-border;
-  }
-
-  .section-header {
-    @apply flex items-end justify-between mb-9;
-  }
-
-  /* Divider */
-  .divider {
-    @apply border-t border-rs-border;
-  }
-
-  /* Cards */
-  .card-dark {
-    @apply bg-rs-dark border border-rs-border rounded-rs
-           hover:border-rs-yellow hover:-translate-y-[3px]
-           transition-all duration-200;
-  }
-
-  /* Badge */
-  .badge-live {
-    @apply inline-flex items-center gap-1.5
-           bg-rs-live text-white
-           text-[11px] font-bold uppercase
-           px-2.5 py-1 rounded;
-  }
-
-  .badge-upcoming {
-    @apply inline-flex items-center
-           border border-rs-yellow text-rs-yellow
-           text-[11px] font-bold uppercase
-           px-2.5 py-1 rounded;
-  }
-
-  /* Card grid helpers */
-  .card-grid {
-    @apply grid gap-5;
-  }
-
-  .card-grid--3 {
-    @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
-  }
-
-  .card-grid--4 {
-    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
   }
 }
 

@@ -39,7 +39,7 @@ export function PhotoGallery({ lang }: { lang: Lang }) {
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-rs-black/0 group-hover:bg-rs-black/30 transition-all duration-300" />
               <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                <div className="bg-rs-black/80 backdrop-blur-sm rounded px-3 py-1.5">
+                <div className="bg-rs-black/80 backdrop-blur-xs rounded-sm px-3 py-1.5">
                   <p className="text-white text-xs font-medium">{t(img.altKey)}</p>
                 </div>
               </div>

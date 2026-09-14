@@ -32,7 +32,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
 
   return (
     <div
-      className="group relative aspect-[4/3] overflow-hidden rounded-rs
+      className="group relative aspect-4/3 overflow-hidden rounded-rs
                  border-2 border-transparent hover:border-rs-yellow
                  transition-all duration-300 ease-out cursor-pointer"
     >
@@ -68,7 +68,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
             onClick={goLeft}
             className="absolute left-2 top-1/2 -translate-y-1/2 z-20
                        w-8 h-8 flex items-center justify-center
-                       bg-rs-black/60 backdrop-blur-sm rounded-full
+                       bg-rs-black/60 backdrop-blur-xs rounded-full
                        border border-white/20 text-white/80
                        opacity-0 group-hover:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
@@ -83,7 +83,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
             onClick={goRight}
             className="absolute right-2 top-1/2 -translate-y-1/2 z-20
                        w-8 h-8 flex items-center justify-center
-                       bg-rs-black/60 backdrop-blur-sm rounded-full
+                       bg-rs-black/60 backdrop-blur-xs rounded-full
                        border border-white/20 text-white/80
                        opacity-0 group-hover:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
@@ -100,8 +100,8 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
       {/* Year badge */}
       <div className="absolute top-3 right-3 z-10">
         <span
-          className="inline-block bg-rs-black/70 backdrop-blur-sm text-rs-yellow
-                     text-[11px] font-display font-bold tracking-[0.1em] uppercase
+          className="inline-block bg-rs-black/70 backdrop-blur-xs text-rs-yellow
+                     text-[11px] font-display font-bold tracking-widest uppercase
                      px-3 py-1.5 rounded-rs border border-rs-yellow/30
                      group-hover:bg-rs-yellow group-hover:text-rs-black
                      transition-all duration-300"

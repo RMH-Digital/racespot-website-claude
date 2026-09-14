@@ -160,7 +160,7 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
                         type="checkbox"
                         checked={selectedFamilies.has(family)}
                         onChange={() => toggleFamily(family)}
-                        className="w-3.5 h-3.5 rounded border-rs-border bg-rs-gray accent-rs-yellow shrink-0"
+                        className="w-3.5 h-3.5 rounded-sm border-rs-border bg-rs-gray accent-rs-yellow shrink-0"
                       />
                       <span className="text-sm text-white truncate">{family}</span>
                     </label>
@@ -195,7 +195,7 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
               placeholder={t('broadcastsPage.searchPlaylists')}
               className="w-full bg-rs-dark border border-rs-border rounded-rs pl-10 pr-4 py-2.5
                          text-sm text-white placeholder:text-rs-muted
-                         focus:outline-none focus:border-rs-yellow transition-colors"
+                         focus:outline-hidden focus:border-rs-yellow transition-colors"
             />
           </div>
         </div>
@@ -300,10 +300,10 @@ function PlaylistCard({ playlist }: { playlist: PlaylistWithMeta }) {
             <span className="text-3xl text-rs-muted">🎬</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
 
         {/* Video count badge */}
-        <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[11px] font-semibold px-2 py-0.5 rounded">
+        <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[11px] font-semibold px-2 py-0.5 rounded-sm">
           {playlist.itemCount} video{playlist.itemCount !== 1 ? 's' : ''}
         </span>
 
