@@ -288,13 +288,19 @@ die Inhalte im Server-HTML bleiben und indexiert werden.
   `TZ=UTC npx next start` aus einem Europe/Berlin-Browser: Server-HTML 17:00,
   nach Hydration 07:00 PM, Konsole sauber.
 
-**Noch offen: `CalendarClient.tsx`** (619 Zeilen). Dort reicht das Muster allein
+**Erledigt: `CalendarClient.tsx`** (2026-09-14). Dort reichte das Muster allein
 nicht, weil nicht nur die Formatierung zeitzonenabhängig ist, sondern auch die
-Einordnung: `getMonthKey()` nutzt `getFullYear()/getMonth()` (lokal), und die
-„ist heute"-Markierung vergleicht gegen `new Date()`. Ein Event um 00:30 UTC
-fällt je nach Zone in einen anderen Tag und Monat. Der Umbau muss deshalb auch
-die Gruppierung deterministisch machen — eigener Durchgang, mit Test über
-Monatswechsel und beide Ansichten (Kalender/Liste).
+Einordnung: In welchen Tag und Monat ein Rennen fällt, unterscheidet sich
+zwischen UTC und Europe/Berlin. Gelöst über `zonedParts(date, timeZone)` —
+Kalenderteile eines Zeitpunkts in einer gegebenen Zone, via `Intl` — das jetzt
+Gruppierung, „ist heute"-Markierung und den Startmonat speist. `timeZone` ist
+bis zum Mount `'UTC'` und wird durch alle Unterkomponenten gereicht
+(ListView, EventRow, CalendarGridView, DayCell, EventCard).
+
+Gegengeprüft mit `TZ=UTC npx next start` aus einem Europe/Berlin-Browser:
+Server-HTML 17:00, nach Hydration 19:00, Startmonat korrekt September,
+Listenansicht 21 Einträge mit Ortszeit, Monatswechsel funktioniert, Konsole
+sauber. **Damit ist die Klasse von Fehlern auf der ganzen Seite erledigt.**
 
 ## 8. Kleinere technische Punkte
 

@@ -73,16 +73,43 @@ function resolveLocaleAndFormat(siteLang: Lang): { locale: string; is24h: boolea
   return { locale, is24h }
 }
 
+/**
+ * Locale, 12/24-hour preference and timezone for the calendar.
+ *
+ * Both the format *and* the grouping depend on the timezone here: which day a
+ * 00:30 UTC race belongs to differs between UTC and Europe/Berlin, so it is not
+ * enough to gate the formatting. Until the component has mounted, everything
+ * resolves in **UTC** — deterministic on server and client alike — and only
+ * afterwards switches to the visitor's own zone. Without that, server HTML and
+ * first client render disagree and React reports a hydration mismatch (#418).
+ */
 function useLocaleFormat(lang: Lang) {
   const [result, setResult] = useState<{ locale: string; is24h: boolean }>(() =>
     LANG_DEFAULTS[lang] || LANG_DEFAULTS.en
   )
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setResult(resolveLocaleAndFormat(lang))
+    setMounted(true)
   }, [lang])
 
-  return result
+  // undefined means "the runtime's own zone" to Intl and to our helpers.
+  return { ...result, timeZone: mounted ? undefined : 'UTC', mounted }
+}
+
+/**
+ * Calendar parts (year / month / day) of an instant **in a given zone**.
+ * en-CA formats as YYYY-MM-DD, which parses without ambiguity.
+ */
+function zonedParts(d: Date, timeZone: string | undefined): { year: number; month: number; day: number } {
+  const [y, m, day] = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d).split('-').map(Number)
+  return { year: y, month: m - 1, day }
 }
 
 // ─── Helpers ────────────────────────────────────────────────
@@ -91,13 +118,14 @@ function localDate(iso: string) {
   return new Date(iso)
 }
 
-function formatTime(iso: string, is24h: boolean, locale: string): string {
+function formatTime(iso: string, is24h: boolean, locale: string, timeZone?: string): string {
   const d = localDate(iso)
   try {
     return d.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
       hour12: !is24h,
+      timeZone,
     })
   } catch {
     const h = d.getHours()
@@ -108,8 +136,8 @@ function formatTime(iso: string, is24h: boolean, locale: string): string {
   }
 }
 
-function formatWeekday(iso: string, locale: string): string {
-  return localDate(iso).toLocaleDateString(locale, { weekday: 'short' })
+function formatWeekday(iso: string, locale: string, timeZone?: string): string {
+  return localDate(iso).toLocaleDateString(locale, { weekday: 'short', timeZone })
 }
 
 function getWeekdayNames(locale: string): string[] {
@@ -123,9 +151,9 @@ function getWeekdayNames(locale: string): string[] {
   return names
 }
 
-function getMonthKey(iso: string): string {
-  const d = localDate(iso)
-  return `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`
+function getMonthKey(iso: string, timeZone?: string): string {
+  const { year, month } = zonedParts(localDate(iso), timeZone)
+  return `${year}-${String(month).padStart(2, '0')}`
 }
 
 function getMonthLabel(key: string, locale: string): string {
@@ -163,13 +191,13 @@ function LiveBadge() {
 
 // ─── List View ──────────────────────────────────────────────
 
-function ListView({ lang, events, year, month, is24h, locale }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string }) {
+function ListView({ lang, events, year, month, is24h, locale, timeZone }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string }) {
   const monthEvents = useMemo(() => {
     return events.filter((e) => {
-      const d = localDate(e.dateISO)
-      return d.getFullYear() === year && d.getMonth() === month
+      const p = zonedParts(localDate(e.dateISO), timeZone)
+      return p.year === year && p.month === month
     })
-  }, [events, year, month])
+  }, [events, year, month, timeZone])
 
   const t = getT(lang)
 
@@ -184,18 +212,18 @@ function ListView({ lang, events, year, month, is24h, locale }: { lang: Lang; ev
       </div>
       <div>
         {monthEvents.map(event => (
-          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} />
+          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />
         ))}
       </div>
     </div>
   )
 }
 
-function EventRow({ lang, event, is24h, locale }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string }) {
+function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
   const d = localDate(event.dateISO)
   const day = d.getDate()
-  const weekday = formatWeekday(event.dateISO, locale)
-  const monthStr = d.toLocaleDateString(locale, { month: 'short' })
+  const weekday = formatWeekday(event.dateISO, locale, timeZone)
+  const monthStr = d.toLocaleDateString(locale, { month: 'short', timeZone })
 
   return (
     <a
@@ -219,9 +247,9 @@ function EventRow({ lang, event, is24h, locale }: { lang: Lang; event: CalendarE
           <p className="text-rs-muted text-xs mt-0.5 truncate">{event.description}</p>
         )}
         <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-[11px] text-rs-yellow font-bold">{formatTime(event.dateISO, is24h, locale)}</span>
+          <span className="text-[11px] text-rs-yellow font-bold">{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
           <span className="text-[10px] text-rs-muted/50">–</span>
-          <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale)}</span>
+          <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
         </div>
       </div>
       <div className="flex items-center">
@@ -242,6 +270,7 @@ function CalendarGridView({
   month,
   is24h,
   locale,
+  timeZone,
 }: {
   lang: Lang
   events: CalendarEvent[]
@@ -249,15 +278,17 @@ function CalendarGridView({
   month: number
   is24h: boolean
   locale: string
+  timeZone?: string
 }) {
   const eventsByDay = useMemo(() => {
     const map = new Map<number, CalendarEvent[]>()
     for (const e of events) {
-      const d = localDate(e.dateISO)
-      if (d.getFullYear() === year && d.getMonth() === month) {
-        const day = d.getDate()
-        if (!map.has(day)) map.set(day, [])
-        map.get(day)!.push(e)
+      // Which day a race belongs to is itself timezone-dependent — a 00:30 UTC
+      // start falls on the previous day in New York.
+      const p = zonedParts(localDate(e.dateISO), timeZone)
+      if (p.year === year && p.month === month) {
+        if (!map.has(p.day)) map.set(p.day, [])
+        map.get(p.day)!.push(e)
       }
     }
     // Sort each day's events by tier (1 = highest priority, shown first)
@@ -265,13 +296,13 @@ function CalendarGridView({
       dayEvents.sort((a, b) => a.tier - b.tier)
     })
     return map
-  }, [events, year, month])
+  }, [events, year, month, timeZone])
 
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfWeek(year, month)
-  const today = new Date()
-  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month
-  const todayDate = today.getDate()
+  const today = zonedParts(new Date(), timeZone)
+  const isCurrentMonth = today.year === year && today.month === month
+  const todayDate = today.day
 
   const WEEKDAYS = useMemo(() => getWeekdayNames(locale), [locale])
 
@@ -310,6 +341,7 @@ function CalendarGridView({
                 isToday={isToday}
                 is24h={is24h}
                 locale={locale}
+                timeZone={timeZone}
               />
             )
           })}
@@ -328,6 +360,7 @@ function DayCell({
   isToday,
   is24h,
   locale,
+  timeZone,
 }: {
   lang: Lang
   day: number
@@ -335,6 +368,7 @@ function DayCell({
   isToday: boolean
   is24h: boolean
   locale: string
+  timeZone?: string
 }) {
   const t = getT(lang)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -387,7 +421,7 @@ function DayCell({
                 transition={{ duration: 0.15 }}
                 className="h-full"
               >
-                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} />
+                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} timeZone={timeZone} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -447,7 +481,7 @@ function DayCell({
 
 // ─── Event Card (for calendar grid) ─────────────────────────
 
-function EventCard({ lang, event, is24h, locale }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string }) {
+function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
   return (
     <a
       href={localePath(lang, '/live')}
@@ -477,7 +511,7 @@ function EventCard({ lang, event, is24h, locale }: { lang: Lang; event: Calendar
       {/* Start time */}
       <div className="mt-auto pt-1">
         <span className="text-[10px] md:text-[11px] text-rs-yellow font-bold whitespace-nowrap">
-          {formatTime(event.dateISO, is24h, locale)}
+          {formatTime(event.dateISO, is24h, locale, timeZone)}
         </span>
       </div>
     </a>
@@ -505,11 +539,27 @@ type ViewMode = 'list' | 'calendar'
 
 export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarEvent[] }) {
   const [viewMode, setViewMode] = useState<ViewMode>('calendar')
-  const now = new Date()
-  const [calYear, setCalYear] = useState(now.getFullYear())
-  const [calMonth, setCalMonth] = useState(now.getMonth())
-  const timezone = getUserTimezone()
-  const { locale, is24h } = useLocaleFormat(lang)
+  const { locale, is24h, timeZone, mounted } = useLocaleFormat(lang)
+
+  // The month to open on is itself timezone-dependent: at 23:30 UTC on the last
+  // of a month it is already the next month in Berlin. Start from UTC so server
+  // and first client render agree, then correct once mounted.
+  const utcNow = zonedParts(new Date(), 'UTC')
+  const [calYear, setCalYear] = useState(utcNow.year)
+  const [calMonth, setCalMonth] = useState(utcNow.month)
+
+  useEffect(() => {
+    const local = zonedParts(new Date(), undefined)
+    if (local.year !== utcNow.year || local.month !== utcNow.month) {
+      setCalYear(local.year)
+      setCalMonth(local.month)
+    }
+    // Only on mount — afterwards the visitor drives the month with the arrows.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Shown as a label; must stay stable until mount for the same reason.
+  const timezone = mounted ? getUserTimezone() : 'UTC'
   const t = getT(lang)
 
   const liveEvents = useMemo(() => events.filter(e => e.isLive), [events])
@@ -607,9 +657,9 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
 
       {/* View content */}
       {viewMode === 'list' ? (
-        <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
+        <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} />
       ) : (
-        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} />
+        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} />
       )}
 
       {/* Footer */}
