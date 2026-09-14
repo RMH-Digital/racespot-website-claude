@@ -155,21 +155,35 @@ selben Commit zu ändern (steht als Kommentar in `legal/privacy.ts`).
 (Anschrift, Geschäftsführer, AG Köln HRB 118561, Kontakt). Keine Änderung nötig.
 Die USt-IdNr. fehlt — falls vorhanden, gehört sie nach § 5 Abs. 1 Nr. 6 TMG dazu.
 
-## 4b. AGB passen nicht zur Seite — Entscheidung nötig
+## 4b. AGB → Nutzungsbedingungen, ersetzt 2026-09-14
 
-`src/lib/i18n/legal/terms.ts` ist die AGB eines **Onlineshops**: Bestellvorgang,
-Versandkosten, Lieferung und Verfügbarkeit, Zahlungsbedingungen,
-Eigentumsvorbehalt, Kundenkonto, Gewährleistung auf Produkte. Auf racespot.tv
-gibt es weder Shop noch Warenkorb noch Kundenkonto — die AGB beschreiben ein
-Geschäft, das hier nicht stattfindet.
+**Entscheidung Jürgen (Variante b):** Die Webshop-AGB sind raus, an ihrer Stelle
+stehen Nutzungsbedingungen für die Website. Die alten Klauseln beschrieben
+Bestellvorgang, Versandkosten, Lieferung, Zahlung, Eigentumsvorbehalt,
+Kundenkonto und Produktgewährleistung — nichts davon findet auf racespot.tv
+statt. Produktionsaufträge laufen weiter über Einzelverträge, die der neue Text
+ausdrücklich unberührt lässt.
 
-Das ist keine Formulierungsfrage, sondern eine geschäftliche: Broadcast- und
-Eventproduktion wird über individuelle Verträge abgewickelt, nicht über die
-Website. Denkbare Wege: (a) AGB entfernen und den Link aus der Fußzeile nehmen,
-(b) durch Nutzungsbedingungen für die Website ersetzen (Urheberrecht an Inhalten,
-Haftung für Links, keine Vertragsangebote), (c) von einer Anwältin oder einem
-Anwalt passende B2B-Dienstleistungs-AGB erstellen lassen. **Nicht von mir
-entschieden** — Vertragstexte gehören nicht in eine Coding-Session.
+Neuer Inhalt: Geltungsbereich, „nichts hier ist ein verbindliches Angebot",
+Urheberrecht an Texten/Fotos/Videos (inkl. Verbot des systematischen Auslesens
+zum KI-Training), Marken Dritter, redaktionelle Inhalte ohne Richtigkeitsgewähr,
+Inhalte Dritter und Links (§§ 7–10 DDG), Verfügbarkeit, gestufte Haftung,
+Verweis auf den Datenschutz, Änderungen, Recht und Gerichtsstand Köln,
+salvatorische Klausel. Deutsch und Englisch.
+
+Umbenannt: `footer.terms` und `meta.terms.*` heißen in allen sechs Sprachen
+jetzt „Nutzungsbedingungen" / „Terms of Use" statt „AGB".
+
+**Nebenbefund, mit erledigt:** Das Impressum verlinkte die
+EU-Online-Streitbeilegungsplattform, die **am 20. Juli 2025 abgeschaltet**
+wurde — toter Link und falsche Aussage. Entfernt; die Erklärung nach § 36 VSBG
+(keine Teilnahme an Verbraucherschlichtung) bleibt.
+
+- [ ] **Beide Texte lesen und freigeben.** Die frühere deutsche AGB-Fassung war
+  von Jürgen freigegeben; diese hier ist neu und ungelesen. Für Haftungs- und
+  Urheberrechtsklauseln ist eine anwaltliche Durchsicht ratsam — sie stehen
+  bewusst konservativ, aber ich bin keine Rechtsberatung.
+- [ ] USt-IdNr. im Impressum ergänzen, falls vorhanden (§ 5 Abs. 1 Nr. 6 DDG).
 
 ## 5. Kontaktformular in Produktion einmal echt durchtesten
 

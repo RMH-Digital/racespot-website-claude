@@ -62,20 +62,10 @@ export default function ImprintPage({ params: { lang } }: { params: { lang: Lang
 
           <section>
             <h2 className="text-white font-semibold text-lg mb-3">{t('imprint.dispute')}</h2>
-            <p>
-              {t('imprint.odr')}{' '}
-              <a
-                href="https://ec.europa.eu/consumers/odr/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-rs-yellow hover:underline"
-              >
-                https://ec.europa.eu/consumers/odr/
-              </a>
-            </p>
-            <p className="mt-3">
-              {t('imprint.notWilling')}
-            </p>
+            {/* The EU's ODR platform was shut down on 20 July 2025; linking it
+                would be a dead link and a false statement. What remains is the
+                declaration required by § 36 VSBG. */}
+            <p>{t('imprint.notWilling')}</p>
           </section>
 
           {/* Links to other legal pages */}

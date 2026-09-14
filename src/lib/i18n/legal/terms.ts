@@ -1,235 +1,224 @@
-import { p, type LegalDoc, type LegalLang } from './types'
+import { p, ul, type LegalDoc, type LegalLang } from './types'
 
 /**
- * General terms and conditions, one document per language.
+ * Terms of use for the website — NOT general terms of business.
  *
- * The English text is the one that was on the site before i18n. The German
- * version follows it clause by clause; clause numbers are kept so a reference
- * like "5.3" means the same thing in both languages.
+ * Replaced 2026-09-14 (decision by Jürgen, docs/TODO.md item 4b). The previous
+ * document was an online shop's AGB: order process, delivery costs, product
+ * availability, payment terms, retention of title, customer account, product
+ * warranty. racespot.tv has no shop, no cart and no customer account, so those
+ * clauses described a business that does not happen here.
  *
- * The German version was approved by Jürgen on 2026-09-10. Only en and de
- * exist by decision — see ./types.ts.
+ * What this document does instead: govern the use of the website itself —
+ * copyright in the content, third-party embeds and links, availability,
+ * liability, and the fact that nothing on the site is a binding offer.
+ * Production work is agreed in individual contracts, which these terms do not
+ * touch.
+ *
+ * ⚠ NOT YET APPROVED by Jürgen (the previous German version was, on
+ * 2026-09-10). Both languages were written together on 2026-09-14 and need a
+ * read-through; a lawyer's review is advisable before relying on the liability
+ * and copyright clauses.
+ *
+ * Statutory references are to the DDG (Digitale-Dienste-Gesetz), which replaced
+ * the TMG in May 2024.
  */
 
-const ODR = 'https://ec.europa.eu/consumers/odr/'
-
 const en: LegalDoc = {
+  updated: 'Last updated: September 14, 2026',
   sections: [
     {
-      heading: '1. Applicability',
+      heading: '1. Scope',
       body: [
-        p('1.1. The business relationship between Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth ("the vendor") and the customer is exclusively governed by the following General Terms and Conditions in the version valid at the time of the order.'),
-        p('1.2. A consumer is any natural person who enters into a legal transaction for a purpose that can predominantly be attributed neither to his commercial nor to his independent professional activity. An entrepreneur means any natural person or legal person or partnership with legal capacity who, when concluding a legal transaction, acts in the exercise of his commercial or independent professional activity.'),
-        p('1.3. The vendor does not recognise deviating customer terms unless expressly agreed upon in writing.'),
+        p('1.1. These terms govern the use of the website racespot.tv, operated by Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth, Germany ("Racespot", "we").'),
+        p('1.2. They apply to the website only. Broadcast production, event support and any other service we provide are agreed individually in writing; the contract concluded there takes precedence and is not affected by these terms.'),
+        p('1.3. By using the website you accept these terms in the version current at the time of your visit.'),
       ],
     },
     {
-      heading: '2. Offers and Service Descriptions',
+      heading: '2. What the Website Is',
       body: [
-        p('2.1. Product and service displays on our website constitute invitations to order, not binding offers. Service descriptions in catalogues or on the website do not represent guarantees or promises.'),
-        p('2.2. All offers are valid as long as stocks last, unless otherwise stated in product descriptions. Errors excepted.'),
+        p('2.1. racespot.tv is an information service. It presents our work, our broadcast schedule, news from the sim racing world and ways of getting in touch.'),
+        p('2.2. **Nothing on this website is a binding offer.** Descriptions of services, prices mentioned in editorial content and schedule entries are information, not an offer capable of acceptance. A contract with us comes about only through a written agreement signed by both sides.'),
+        p('2.3. Sending an enquiry through one of our contact forms does not create a contract and does not oblige either side to enter into one.'),
       ],
     },
     {
-      heading: '3. Order Process and Contract Conclusion',
+      heading: '3. Copyright and Use of Content',
       body: [
-        p('3.1. Customers select products and place them in a cart using the "Add to Cart" button, then proceed to checkout.'),
-        p('3.2. The "Place Binding Order" button creates a binding purchase request. Customers can modify order data or cancel before completion. Required fields are marked with asterisks (*).'),
-        p('3.3. The vendor sends an automatic receipt confirmation. A binding purchase contract is only deemed to be concluded when the vendor dispatches or confirms the dispatch of the product ordered within 2 days by sending the customer an email, order confirmation, or invoice.'),
-        p('3.4. For business customers, the dispatch/confirmation timeframe extends to seven days.'),
-        p('3.5. For advance payment: the contract concludes when customers provide bank details and fulfil payment. If payment is not received within 10 calendar days of order confirmation despite reminders, the vendor may withdraw from the contract, freeing them from supply obligations.'),
+        p('3.1. All content on this website — texts, photographs, video, graphics, layout, logos and source code — is protected by copyright and belongs to Racespot Media House GmbH or to the respective rights holders named beside the material.'),
+        p('3.2. You may view the website, follow links to it and print or store individual pages for your own private or internal business use.'),
+        p('3.3. Any other use requires our prior written consent. This applies in particular to:'),
+        ul(
+          'reproduction, distribution or public communication of our photographs and video material',
+          'republication of our news articles in whole or in substantial part',
+          'use of our logos, brand names or design elements',
+          'systematic automated retrieval of the site or its content, including for the training of machine learning systems',
+        ),
+        p('3.4. Short quotations with a clear source reference and a link to the page quoted are permitted within the limits of § 51 UrhG. Press enquiries about image material: [contact@racespot.tv](mailto:contact@racespot.tv)'),
       ],
     },
     {
-      heading: '4. Prices and Delivery Costs',
+      heading: '4. Trademarks',
       body: [
-        p("4.1. All prices indicated on the vendor's website are inclusive of statutory value-added tax (VAT) at the valid rate."),
-        p('4.2. Delivery costs are charged separately and clearly communicated on a separate webpage and during the checkout process.'),
+        p('Names, brands and logos of third parties shown on this website — series, teams, manufacturers, partners and platforms — belong to their respective owners. They appear for the purpose of describing the events we cover and imply no endorsement or partnership beyond what is expressly stated.'),
       ],
     },
     {
-      heading: '5. Delivery and Product Availability',
+      heading: '5. Editorial Content',
       body: [
-        p('5.1. Where advance payment is selected, delivery occurs after receipt of payment.'),
-        p('5.2. The vendor may withdraw from the contract if delivery fails after three attempts due to customer fault. Previous payments are refunded promptly.'),
-        p('5.3. The vendor may withdraw if the ordered product becomes unavailable through no vendor fault. Customers are notified immediately. The vendor may offer comparable products; if none are available or unwanted, payments are refunded promptly.'),
-        p('5.4. Delivery periods and restrictions are noted on a separate page or in the respective product description.'),
-        p('5.5. For business customers, the risk of accidental loss and accidental deterioration of the goods shall pass to the buyer as soon as the seller has delivered the item to the forwarding agent. Delivery dates are not binding for entrepreneurs.'),
-        p('5.6. The vendor is not responsible for delays caused by force majeure or unforeseeable events. The vendor may postpone delivery by the duration of the impediment plus a reasonable start-up period. If the delay becomes unreasonable, business customers may withdraw after setting a reasonable deadline.'),
+        p('5.1. Our news articles are compiled with care from publicly available sources. We do not guarantee that they are complete, accurate or up to date, and reporting on a third party does not make us responsible for that party\'s statements or conduct.'),
+        p('5.2. Articles reflect the state of knowledge at the time of publication. We are under no obligation to update them, and we may correct, amend or withdraw content at any time.'),
+        p('5.3. If you believe an article contains an error, please write to [contact@racespot.tv](mailto:contact@racespot.tv) — we will look into it.'),
       ],
     },
     {
-      heading: '6. Terms of Payment',
+      heading: '6. Third-Party Content and Links',
       body: [
-        p('6.1. Customers select a payment method during checkout. Available payment methods are displayed on a separate webpage.'),
-        p('6.2. Where payment on account is available, payment must be made within 30 days of receipt of the goods and the corresponding invoice. All other payment types require advance payment.'),
-        p("6.3. Third-party payment processors' terms apply where applicable (e.g. PayPal)."),
-        p('6.4. Where a calendar date defines the payment due date, customers will be deemed to be in arrears as soon as they fail to comply with that due date. Interest on arrears does not preclude the vendor from enforcing other delay-related damage claims.'),
-        p('6.5. Customers may set off only valid or vendor-acknowledged counterclaims. Retention rights apply only to claims arising from the same contractual relationship.'),
+        p('6.1. Our Live and Events pages embed videos hosted by YouTube. That content is transmitted by Google, not by us; how it behaves and what data it collects is described in our [privacy policy](/en/privacy).'),
+        p('6.2. This website contains links to external sites. Those sites are outside our control. At the time of linking we found no unlawful content; we do not monitor linked sites on an ongoing basis, and responsibility for their content lies with their respective operators (§§ 7–10 DDG).'),
+        p('6.3. If you become aware of unlawful content behind one of our links, please tell us and we will remove the link without delay.'),
       ],
     },
     {
-      heading: '7. Retention of Title',
+      heading: '7. Availability',
       body: [
-        p('The vendor retains title of the goods supplied until full payment has been received. For business customers: the vendor retains title until all outstanding claims arising from the ongoing business relationship are settled. Customers must treat purchased items with care, insure them adequately at replacement value against theft, fire, and water damage, and perform timely maintenance at their own expense. Third-party access to vendor-owned goods must be reported immediately. Customers may resell reserved goods in the ordinary course of business, with all resale claims automatically assigned to the vendor for security. The vendor authorises the customer to collect assigned claims but may revoke this if payment obligations are not met. The vendor releases securities when their total value exceeds outstanding claims by 10% (or 50% if liquidation risk exists). Upon settlement of all vendor claims, ownership and assigned claims pass to the buyer.'),
+        p('We aim to keep the website available, but we do not owe you a particular level of availability. Maintenance, technical faults and circumstances outside our control — including failures at our hosting provider or at YouTube — may interrupt access. Schedule and live status information is drawn from external sources and may be incomplete or delayed.'),
       ],
     },
     {
-      heading: '8. Customer Account',
+      heading: '8. Liability',
       body: [
-        p('8.1. The vendor provides customer accounts displaying order information and stored customer data. Account information is not publicly accessible. Customers may order as guests without creating an account.'),
-        p('8.2. Customers must provide truthful information and update it when circumstances change. Customers bear responsibility for disadvantages arising from inaccurate information.'),
-        p('8.3. Accounts must be used in accordance with applicable legal provisions, particularly those protecting third-party rights. External software such as bots or crawlers is prohibited.'),
-        p('8.4. Customers bear responsibility for content posted in accounts. The vendor reserves the right to delete content, request explanations, issue warnings, or impose account bans based on infringement risk.'),
-        p('8.5. Customers may terminate their account at any time. The vendor may terminate accounts with reasonable notice (typically two weeks). The vendor reserves the right to extraordinary termination. Upon termination, account access and stored information become unavailable. Customers must back up their data before termination.'),
+        p('8.1. We are liable without limitation for damage caused intentionally or by gross negligence, for injury to life, body or health, and where liability is mandatory under the Product Liability Act.'),
+        p('8.2. In the case of slight negligence we are liable only for breach of an essential contractual obligation — an obligation whose fulfilment makes the proper use of the website possible in the first place and on whose observance you may reasonably rely — and in that case only for foreseeable damage typical of this kind of use.'),
+        p('8.3. Any further liability is excluded. This does not affect the allocation of the burden of proof to your disadvantage.'),
+        p('8.4. The limitations in 8.2 and 8.3 also apply in favour of our employees, representatives and agents.'),
       ],
     },
     {
-      heading: '9. Product Warranty and Guarantee',
+      heading: '9. Data Protection',
       body: [
-        p('9.1. Warranty (liability for defects) shall be determined in accordance with statutory provisions, subject to the following terms.'),
-        p('9.2. Guarantees apply only when customers have received express notice before ordering.'),
-        p('9.3. Business customers must inspect goods promptly and notify the vendor in writing of visible defects within two weeks after delivery and non-visible defects within two weeks after discovery. Trade-customary deviations do not constitute defects.'),
-        p('9.4. For business customers, the vendor chooses between rectification or replacement for defective goods. Material defects become statute-barred one year after risk transfer (longer periods apply per law). Warranty is excluded for used goods sold to entrepreneurs.'),
-        p('9.5. If a business customer has installed a defective item, the vendor shall not be obliged to reimburse the customer for the necessary expenses of removal and reinstallation under subsequent performance or recourse within supply chains.'),
+        p('How we handle personal data is set out in our [privacy policy](/en/privacy), which forms part of the information we provide but is not a contractual term.'),
       ],
     },
     {
-      heading: '10. Liability',
+      heading: '10. Changes to These Terms',
       body: [
-        p('10.1. These liability exclusions apply regardless of other statutory eligibility criteria.'),
-        p('10.2. The vendor bears unrestricted liability for damage caused by wilful intent or gross negligence.'),
-        p('10.3. For minor negligence violating fundamental obligations essential to the contractual purpose, liability is restricted to foreseeable, contract-typical damage. Minor negligence violating other obligations excludes liability.'),
-        p('10.4. These restrictions do not apply to damage to life, limb, or health, defects identified after guarantee acceptance regarding product nature, or defects kept secret with wilful deceit. Liability under the German Product Liability Act remains unaffected.'),
-        p("10.5. The vendor's liability exclusions and restrictions also apply to the personal liability of employees, representatives, and agents."),
+        p('We may amend these terms when the website changes or the legal situation requires it. The version current at the time of your visit applies; the date at the top shows which that is.'),
       ],
     },
     {
-      heading: '11. Storage of the Contract',
+      heading: '11. Applicable Law and Place of Jurisdiction',
       body: [
-        p('11.1. Customers may print contracts using browser print functions during the final order step.'),
-        p('11.2. The vendor sends the customer an order confirmation containing all order data to the email address provided. Copies of general terms, cancellation policy, shipping costs, and payment terms accompany the confirmation or delivery.'),
-        p('11.3. Registered customers can view their orders in their account profiles. Contracts are stored but are not accessible via the internet. Business customers may receive contract documents via email, mail, or online references.'),
+        p('11.1. German law applies, excluding the UN Convention on Contracts for the International Sale of Goods. If you are a consumer resident in the EU, the mandatory consumer protection provisions of your country of residence remain unaffected.'),
+        p('11.2. If you are a merchant, a legal person under public law or a special fund under public law, the place of jurisdiction for all disputes arising from the use of this website is Cologne, Germany.'),
+        p('11.3. We are neither willing nor obliged to take part in dispute resolution proceedings before a consumer arbitration board.'),
       ],
     },
     {
-      heading: '12. Closing Remarks',
+      heading: '12. Severability',
       body: [
-        p("12.1. For entrepreneurs, the place of performance and jurisdiction is the vendor's seat, provided the customer is a merchant, a public-law entity, or has no general jurisdiction domicile in Germany. The vendor reserves the right to choose alternative admissible jurisdictions."),
-        p('12.2. German law applies to contracts with entrepreneurs, excluding the UN Convention on Contracts for the International Sale of Goods (CISG), unless mandatory statutory provisions dictate otherwise.'),
-        p('12.3. The contract language is German.'),
-        p(`12.4. The European Commission provides a platform for Online Dispute Resolution (ODR): [${ODR}](${ODR}). The vendor is neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board.`),
+        p('Should any provision of these terms be or become invalid, the validity of the remaining provisions is unaffected.'),
       ],
     },
   ],
 }
 
 const de: LegalDoc = {
+  updated: 'Stand: 14. September 2026',
   sections: [
     {
       heading: '1. Geltungsbereich',
       body: [
-        p('1.1. Für die Geschäftsbeziehung zwischen der Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth („der Anbieter") und dem Kunden gelten ausschließlich die folgenden Allgemeinen Geschäftsbedingungen in ihrer zum Zeitpunkt der Bestellung gültigen Fassung.'),
-        p('1.2. Verbraucher ist jede natürliche Person, die ein Rechtsgeschäft zu Zwecken abschließt, die überwiegend weder ihrer gewerblichen noch ihrer selbständigen beruflichen Tätigkeit zugerechnet werden können. Unternehmer ist eine natürliche oder juristische Person oder eine rechtsfähige Personengesellschaft, die bei Abschluss eines Rechtsgeschäfts in Ausübung ihrer gewerblichen oder selbständigen beruflichen Tätigkeit handelt.'),
-        p('1.3. Abweichende Bedingungen des Kunden erkennt der Anbieter nicht an, es sei denn, ihrer Geltung wurde ausdrücklich schriftlich zugestimmt.'),
+        p('1.1. Diese Bedingungen regeln die Nutzung der Website racespot.tv, betrieben von der Racespot Media House GmbH, An der Hasenkaule 10 (21D), 50354 Hürth („Racespot", „wir").'),
+        p('1.2. Sie gelten ausschließlich für die Website. Broadcast-Produktionen, Event-Unterstützung und sonstige Leistungen vereinbaren wir individuell und schriftlich; der dort geschlossene Vertrag geht vor und bleibt von diesen Bedingungen unberührt.'),
+        p('1.3. Mit der Nutzung der Website erkennen Sie diese Bedingungen in der zum Zeitpunkt Ihres Besuchs geltenden Fassung an.'),
       ],
     },
     {
-      heading: '2. Angebote und Leistungsbeschreibungen',
+      heading: '2. Was diese Website ist',
       body: [
-        p('2.1. Die Darstellung der Produkte und Leistungen auf unserer Website stellt kein rechtlich bindendes Angebot, sondern eine Aufforderung zur Bestellung dar. Leistungsbeschreibungen in Katalogen oder auf der Website haben nicht den Charakter einer Zusicherung oder Garantie.'),
-        p('2.2. Alle Angebote gelten, solange der Vorrat reicht, wenn nicht in den Produktbeschreibungen etwas anderes vermerkt ist. Irrtümer vorbehalten.'),
+        p('2.1. racespot.tv ist ein Informationsangebot. Sie stellt unsere Arbeit, unseren Sendeplan, Nachrichten aus dem Simracing und Wege der Kontaktaufnahme dar.'),
+        p('2.2. **Nichts auf dieser Website ist ein verbindliches Angebot.** Leistungsbeschreibungen, in redaktionellen Inhalten genannte Preise und Einträge im Sendeplan sind Informationen, kein annahmefähiges Angebot. Ein Vertrag mit uns kommt erst durch eine beiderseits unterzeichnete schriftliche Vereinbarung zustande.'),
+        p('2.3. Das Absenden einer Anfrage über unsere Kontaktformulare begründet keinen Vertrag und verpflichtet keine Seite zum Vertragsschluss.'),
       ],
     },
     {
-      heading: '3. Bestellvorgang und Vertragsschluss',
+      heading: '3. Urheberrecht und Nutzung der Inhalte',
       body: [
-        p('3.1. Der Kunde wählt Produkte aus und legt sie über den Button „In den Warenkorb" in einen Warenkorb, anschließend geht er zur Kasse.'),
-        p('3.2. Mit dem Button „Zahlungspflichtig bestellen" gibt der Kunde ein verbindliches Angebot ab. Vor dem Absenden kann der Kunde die Bestelldaten ändern oder die Bestellung abbrechen. Pflichtangaben sind mit einem Sternchen (*) gekennzeichnet.'),
-        p('3.3. Der Anbieter schickt eine automatische Empfangsbestätigung. Ein verbindlicher Kaufvertrag kommt erst zustande, wenn der Anbieter das bestellte Produkt innerhalb von 2 Tagen versendet oder den Versand per E-Mail, Auftragsbestätigung oder Rechnung bestätigt.'),
-        p('3.4. Für Geschäftskunden verlängert sich die Frist für Versand bzw. Bestätigung auf sieben Tage.'),
-        p('3.5. Bei Vorkasse kommt der Vertrag zustande, wenn der Kunde die Bankdaten erhält und die Zahlung leistet. Geht die Zahlung trotz Mahnung nicht innerhalb von 10 Kalendertagen nach Auftragsbestätigung ein, kann der Anbieter vom Vertrag zurücktreten und ist von der Lieferpflicht befreit.'),
+        p('3.1. Sämtliche Inhalte dieser Website — Texte, Fotografien, Videomaterial, Grafiken, Gestaltung, Logos und Quellcode — sind urheberrechtlich geschützt und stehen der Racespot Media House GmbH oder den jeweils beim Material genannten Rechteinhabern zu.'),
+        p('3.2. Sie dürfen die Website ansehen, auf sie verlinken und einzelne Seiten für Ihren privaten oder innerbetrieblichen Gebrauch ausdrucken oder speichern.'),
+        p('3.3. Jede weitergehende Nutzung bedarf unserer vorherigen schriftlichen Zustimmung. Das gilt insbesondere für:'),
+        ul(
+          'Vervielfältigung, Verbreitung oder öffentliche Wiedergabe unserer Fotos und Videos',
+          'die Weiterveröffentlichung unserer Nachrichtenartikel im Ganzen oder in wesentlichen Teilen',
+          'die Verwendung unserer Logos, Marken oder Gestaltungselemente',
+          'das systematische automatisierte Auslesen der Seite oder ihrer Inhalte, auch zum Training maschineller Lernverfahren',
+        ),
+        p('3.4. Kurze Zitate mit deutlicher Quellenangabe und Link auf die zitierte Seite sind im Rahmen von § 51 UrhG zulässig. Presseanfragen zu Bildmaterial: [contact@racespot.tv](mailto:contact@racespot.tv)'),
       ],
     },
     {
-      heading: '4. Preise und Versandkosten',
+      heading: '4. Marken Dritter',
       body: [
-        p('4.1. Alle auf der Website des Anbieters angegebenen Preise verstehen sich einschließlich der jeweils gültigen gesetzlichen Umsatzsteuer.'),
-        p('4.2. Versandkosten werden gesondert berechnet und auf einer separaten Seite sowie im Bestellvorgang deutlich mitgeteilt.'),
+        p('Auf dieser Website gezeigte Namen, Marken und Logos Dritter — Serien, Teams, Hersteller, Partner und Plattformen — stehen den jeweiligen Inhabern zu. Sie dienen der Beschreibung der von uns begleiteten Veranstaltungen und begründen keine Empfehlung oder Partnerschaft über das ausdrücklich Genannte hinaus.'),
       ],
     },
     {
-      heading: '5. Lieferung und Verfügbarkeit',
+      heading: '5. Redaktionelle Inhalte',
       body: [
-        p('5.1. Bei Vorkasse erfolgt die Lieferung nach Zahlungseingang.'),
-        p('5.2. Scheitert die Zustellung dreimal aus Gründen, die der Kunde zu verantworten hat, kann der Anbieter vom Vertrag zurücktreten. Geleistete Zahlungen werden unverzüglich erstattet.'),
-        p('5.3. Ist das bestellte Produkt ohne Verschulden des Anbieters nicht verfügbar, kann der Anbieter zurücktreten. Der Kunde wird unverzüglich informiert. Der Anbieter kann vergleichbare Produkte anbieten; sind keine verfügbar oder nicht gewünscht, werden Zahlungen unverzüglich erstattet.'),
-        p('5.4. Lieferfristen und -beschränkungen sind auf einer separaten Seite oder in der jeweiligen Produktbeschreibung angegeben.'),
-        p('5.5. Bei Geschäftskunden geht die Gefahr des zufälligen Untergangs und der zufälligen Verschlechterung der Ware auf den Käufer über, sobald der Verkäufer die Sache dem Spediteur übergeben hat. Liefertermine sind für Unternehmer unverbindlich.'),
-        p('5.6. Der Anbieter haftet nicht für Verzögerungen durch höhere Gewalt oder unvorhersehbare Ereignisse. Er kann die Lieferung um die Dauer der Behinderung zuzüglich einer angemessenen Anlaufzeit verschieben. Wird die Verzögerung unzumutbar, können Geschäftskunden nach Setzen einer angemessenen Frist zurücktreten.'),
+        p('5.1. Unsere Nachrichtenartikel werden sorgfältig aus öffentlich zugänglichen Quellen zusammengestellt. Eine Gewähr für Vollständigkeit, Richtigkeit und Aktualität übernehmen wir nicht; die Berichterstattung über Dritte macht uns nicht für deren Aussagen oder Verhalten verantwortlich.'),
+        p('5.2. Artikel geben den Kenntnisstand zum Zeitpunkt der Veröffentlichung wieder. Eine Pflicht zur Aktualisierung besteht nicht; wir können Inhalte jederzeit berichtigen, ergänzen oder zurückziehen.'),
+        p('5.3. Wenn Sie in einem Artikel einen Fehler vermuten, schreiben Sie uns an [contact@racespot.tv](mailto:contact@racespot.tv) — wir gehen dem nach.'),
       ],
     },
     {
-      heading: '6. Zahlungsbedingungen',
+      heading: '6. Inhalte Dritter und Verlinkungen',
       body: [
-        p('6.1. Der Kunde wählt im Bestellvorgang eine Zahlungsart. Die verfügbaren Zahlungsarten sind auf einer separaten Seite dargestellt.'),
-        p('6.2. Ist Kauf auf Rechnung möglich, ist die Zahlung innerhalb von 30 Tagen nach Erhalt der Ware und der Rechnung fällig. Alle anderen Zahlungsarten setzen Vorkasse voraus.'),
-        p('6.3. Soweit einschlägig, gelten die Bedingungen der jeweiligen Zahlungsdienstleister (z. B. PayPal).'),
-        p('6.4. Ist die Fälligkeit nach dem Kalender bestimmt, kommt der Kunde bereits mit Versäumen des Termins in Verzug. Verzugszinsen schließen weitergehende Verzugsschadensansprüche des Anbieters nicht aus.'),
-        p('6.5. Der Kunde kann nur mit rechtskräftig festgestellten oder vom Anbieter anerkannten Gegenforderungen aufrechnen. Ein Zurückbehaltungsrecht besteht nur für Ansprüche aus demselben Vertragsverhältnis.'),
+        p('6.1. Auf unseren Seiten Live und Events sind Videos eingebunden, die bei YouTube liegen. Diese Inhalte werden von Google ausgeliefert, nicht von uns; wie sie sich verhalten und welche Daten dabei anfallen, steht in unserer [Datenschutzerklärung](/de/privacy).'),
+        p('6.2. Diese Website enthält Links auf externe Seiten. Auf deren Inhalte haben wir keinen Einfluss. Zum Zeitpunkt der Verlinkung waren keine rechtswidrigen Inhalte erkennbar; eine laufende Überprüfung verlinkter Seiten findet nicht statt, und für deren Inhalte ist der jeweilige Betreiber verantwortlich (§§ 7–10 DDG).'),
+        p('6.3. Wird Ihnen hinter einem unserer Links ein rechtswidriger Inhalt bekannt, teilen Sie es uns bitte mit — wir entfernen den Link umgehend.'),
       ],
     },
     {
-      heading: '7. Eigentumsvorbehalt',
+      heading: '7. Verfügbarkeit',
       body: [
-        p('Der Anbieter behält sich das Eigentum an der gelieferten Ware bis zur vollständigen Bezahlung vor. Gegenüber Geschäftskunden behält er sich das Eigentum bis zur Erfüllung aller Forderungen aus der laufenden Geschäftsbeziehung vor. Der Kunde hat die Kaufsache pfleglich zu behandeln, auf eigene Kosten zum Neuwert gegen Diebstahl, Feuer- und Wasserschäden zu versichern und rechtzeitig zu warten. Zugriffe Dritter auf Vorbehaltsware sind unverzüglich anzuzeigen. Der Kunde darf Vorbehaltsware im ordentlichen Geschäftsgang weiterverkaufen; die Forderungen aus dem Weiterverkauf gelten zur Sicherheit als an den Anbieter abgetreten. Der Anbieter ermächtigt den Kunden zum Einzug der abgetretenen Forderungen, kann dies aber widerrufen, wenn der Kunde seine Zahlungspflichten nicht erfüllt. Der Anbieter gibt Sicherheiten frei, wenn ihr Wert die Forderungen um 10 % (bei Verwertungsrisiko um 50 %) übersteigt. Mit Erfüllung aller Forderungen gehen Eigentum und abgetretene Forderungen auf den Käufer über.'),
+        p('Wir bemühen uns um einen durchgehenden Betrieb, schulden aber keine bestimmte Verfügbarkeit. Wartungsarbeiten, technische Störungen und Umstände außerhalb unseres Einflussbereichs — darunter Ausfälle bei unserem Hoster oder bei YouTube — können den Zugriff unterbrechen. Angaben zu Sendeplan und Live-Status stammen aus externen Quellen und können unvollständig oder verzögert sein.'),
       ],
     },
     {
-      heading: '8. Kundenkonto',
+      heading: '8. Haftung',
       body: [
-        p('8.1. Der Anbieter stellt Kundenkonten bereit, in denen Bestellinformationen und gespeicherte Kundendaten angezeigt werden. Kontodaten sind nicht öffentlich zugänglich. Kunden können auch als Gast ohne Konto bestellen.'),
-        p('8.2. Kunden müssen wahrheitsgemäße Angaben machen und diese bei Änderungen aktualisieren. Nachteile aus unrichtigen Angaben trägt der Kunde.'),
-        p('8.3. Das Konto ist im Einklang mit den geltenden gesetzlichen Bestimmungen zu nutzen, insbesondere zum Schutz der Rechte Dritter. Der Einsatz externer Software wie Bots oder Crawler ist untersagt.'),
-        p('8.4. Für Inhalte, die im Konto veröffentlicht werden, ist der Kunde verantwortlich. Der Anbieter behält sich vor, Inhalte zu löschen, Erklärungen zu verlangen, Verwarnungen auszusprechen oder Konten je nach Verstoßrisiko zu sperren.'),
-        p('8.5. Kunden können ihr Konto jederzeit kündigen. Der Anbieter kann Konten mit angemessener Frist (in der Regel zwei Wochen) kündigen; das Recht zur außerordentlichen Kündigung bleibt vorbehalten. Mit der Kündigung sind Kontozugang und gespeicherte Informationen nicht mehr verfügbar. Kunden müssen ihre Daten vor der Kündigung sichern.'),
+        p('8.1. Wir haften unbeschränkt für Schäden aus Vorsatz und grober Fahrlässigkeit, für die Verletzung von Leben, Körper oder Gesundheit sowie nach dem Produkthaftungsgesetz.'),
+        p('8.2. Bei leichter Fahrlässigkeit haften wir nur bei Verletzung einer wesentlichen Vertragspflicht — einer Pflicht, deren Erfüllung die ordnungsgemäße Nutzung der Website überhaupt erst ermöglicht und auf deren Einhaltung Sie regelmäßig vertrauen dürfen — und dann begrenzt auf den vorhersehbaren, für diese Art der Nutzung typischen Schaden.'),
+        p('8.3. Eine weitergehende Haftung ist ausgeschlossen. Eine Änderung der Beweislast zu Ihrem Nachteil ist damit nicht verbunden.'),
+        p('8.4. Die Beschränkungen aus 8.2 und 8.3 gelten auch zugunsten unserer Mitarbeiter, Vertreter und Erfüllungsgehilfen.'),
       ],
     },
     {
-      heading: '9. Gewährleistung und Garantie',
+      heading: '9. Datenschutz',
       body: [
-        p('9.1. Die Gewährleistung (Mängelhaftung) richtet sich nach den gesetzlichen Vorschriften, soweit nachfolgend nichts anderes bestimmt ist.'),
-        p('9.2. Garantien gelten nur, wenn der Kunde vor der Bestellung ausdrücklich darauf hingewiesen wurde.'),
-        p('9.3. Geschäftskunden müssen die Ware unverzüglich prüfen und offensichtliche Mängel innerhalb von zwei Wochen nach Lieferung, verdeckte Mängel innerhalb von zwei Wochen nach Entdeckung schriftlich anzeigen. Handelsübliche Abweichungen stellen keinen Mangel dar.'),
-        p('9.4. Gegenüber Geschäftskunden wählt der Anbieter zwischen Nachbesserung und Ersatzlieferung. Sachmängelansprüche verjähren ein Jahr nach Gefahrübergang (gesetzlich längere Fristen bleiben unberührt). Bei gebrauchten Waren ist die Gewährleistung gegenüber Unternehmern ausgeschlossen.'),
-        p('9.5. Hat ein Geschäftskunde eine mangelhafte Sache eingebaut, ist der Anbieter im Rahmen der Nacherfüllung oder des Lieferantenregresses nicht zum Ersatz der erforderlichen Aus- und Einbaukosten verpflichtet.'),
+        p('Wie wir mit personenbezogenen Daten umgehen, steht in unserer [Datenschutzerklärung](/de/privacy). Sie ist Teil unserer Informationen, aber keine Vertragsbedingung.'),
       ],
     },
     {
-      heading: '10. Haftung',
+      heading: '10. Änderungen dieser Bedingungen',
       body: [
-        p('10.1. Die folgenden Haftungsausschlüsse gelten unabhängig von sonstigen gesetzlichen Anspruchsvoraussetzungen.'),
-        p('10.2. Der Anbieter haftet unbeschränkt für Schäden, die auf Vorsatz oder grober Fahrlässigkeit beruhen.'),
-        p('10.3. Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten ist die Haftung auf den vorhersehbaren, vertragstypischen Schaden begrenzt. Bei leicht fahrlässiger Verletzung sonstiger Pflichten ist die Haftung ausgeschlossen.'),
-        p('10.4. Diese Beschränkungen gelten nicht für Schäden an Leben, Körper oder Gesundheit, für Mängel nach Übernahme einer Beschaffenheitsgarantie oder für arglistig verschwiegene Mängel. Die Haftung nach dem Produkthaftungsgesetz bleibt unberührt.'),
-        p('10.5. Die Haftungsausschlüsse und -beschränkungen gelten auch für die persönliche Haftung von Mitarbeitern, Vertretern und Erfüllungsgehilfen des Anbieters.'),
+        p('Wir passen diese Bedingungen an, wenn sich die Website ändert oder die Rechtslage es erfordert. Es gilt die zum Zeitpunkt Ihres Besuchs abrufbare Fassung; das Datum oben zeigt, welche das ist.'),
       ],
     },
     {
-      heading: '11. Speicherung des Vertragstextes',
+      heading: '11. Anwendbares Recht und Gerichtsstand',
       body: [
-        p('11.1. Der Kunde kann den Vertragstext im letzten Bestellschritt über die Druckfunktion des Browsers ausdrucken.'),
-        p('11.2. Der Anbieter sendet dem Kunden eine Auftragsbestätigung mit allen Bestelldaten an die angegebene E-Mail-Adresse. Die AGB, die Widerrufsbelehrung, Versandkosten und Zahlungsbedingungen werden mit der Bestätigung oder der Lieferung übermittelt.'),
-        p('11.3. Registrierte Kunden können ihre Bestellungen im Kundenkonto einsehen. Der Vertragstext wird gespeichert, ist aber nicht über das Internet abrufbar. Geschäftskunden können Vertragsunterlagen per E-Mail, Post oder Online-Verweis erhalten.'),
+        p('11.1. Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Sind Sie Verbraucher mit Wohnsitz in der EU, bleiben die zwingenden Verbraucherschutzvorschriften Ihres Wohnsitzstaates unberührt.'),
+        p('11.2. Sind Sie Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus der Nutzung dieser Website Köln.'),
+        p('11.3. Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.'),
       ],
     },
     {
-      heading: '12. Schlussbestimmungen',
+      heading: '12. Salvatorische Klausel',
       body: [
-        p('12.1. Für Unternehmer ist Erfüllungsort und Gerichtsstand der Sitz des Anbieters, sofern der Kunde Kaufmann, juristische Person des öffentlichen Rechts ist oder keinen allgemeinen Gerichtsstand in Deutschland hat. Der Anbieter behält sich vor, auch andere zulässige Gerichtsstände zu wählen.'),
-        p('12.2. Für Verträge mit Unternehmern gilt deutsches Recht unter Ausschluss des UN-Kaufrechts (CISG), soweit zwingende gesetzliche Vorschriften nichts anderes bestimmen.'),
-        p('12.3. Vertragssprache ist Deutsch.'),
-        p(`12.4. Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: [${ODR}](${ODR}). Der Anbieter ist weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.`),
+        p('Sollte eine Bestimmung dieser Bedingungen unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen davon unberührt.'),
       ],
     },
   ],
