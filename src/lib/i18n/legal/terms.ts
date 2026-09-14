@@ -15,10 +15,9 @@ import { p, ul, type LegalDoc, type LegalLang } from './types'
  * Production work is agreed in individual contracts, which these terms do not
  * touch.
  *
- * ⚠ NOT YET APPROVED by Jürgen (the previous German version was, on
- * 2026-09-10). Both languages were written together on 2026-09-14 and need a
- * read-through; a lawyer's review is advisable before relying on the liability
- * and copyright clauses.
+ * Read and approved by Jürgen on 2026-09-14, both languages. A lawyer's
+ * review of the liability and copyright clauses remains advisable — they are
+ * deliberately conservative, but they are not legal advice.
  *
  * Statutory references are to the DDG (Digitale-Dienste-Gesetz), which replaced
  * the TMG in May 2024.

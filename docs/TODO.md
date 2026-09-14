@@ -36,8 +36,11 @@ veröffentlicht erst, wenn alle fünf Übersetzungen seine Prüfungen bestanden 
   In ein bis zwei Wochen unter „Seiten" und „Leistung" nachsehen, ob die
   Sprachvarianten indexiert werden und nicht-englische Suchbegriffe auftauchen.
   Google Business Profile ist angelegt, Verifizierung steht noch aus.
-- [ ] Press Tool wieder auf `main` mit Auto-Merge stellen (Philips Session; sie
-  wartet auf die Nachricht, dass `i18n-routes` auf `main` ist).
+- [x] Press Tool: **war nie offen**. Am 2026-09-14 in der echten Konfiguration
+  gegengeprüft — `base_branch: main`, `article_path: /en/news/{slug}`,
+  `auto_merge` auf Default (an). Der Eintrag stammte aus der Zeit, als die
+  Pipeline kurzzeitig auf `i18n-routes` zeigte, und war danach längst
+  zurückgestellt. Der Artikel vom 10.09. belegt, dass sie läuft.
 
 **Entschieden am 2026-09-10 (Jürgen):** sechs Sprachen (EN, DE, ES, PT, FR, IT),
 **alle vollständig indexiert**, News-Artikel werden vom Press Tool in alle sechs
@@ -182,10 +185,10 @@ EU-Online-Streitbeilegungsplattform, die **am 20. Juli 2025 abgeschaltet**
 wurde — toter Link und falsche Aussage. Entfernt; die Erklärung nach § 36 VSBG
 (keine Teilnahme an Verbraucherschlichtung) bleibt.
 
-- [ ] **Beide Texte lesen und freigeben.** Die frühere deutsche AGB-Fassung war
-  von Jürgen freigegeben; diese hier ist neu und ungelesen. Für Haftungs- und
-  Urheberrechtsklauseln ist eine anwaltliche Durchsicht ratsam — sie stehen
-  bewusst konservativ, aber ich bin keine Rechtsberatung.
+- [x] **Von Jürgen gelesen und freigegeben (2026-09-14)** — Datenschutz und
+  Nutzungsbedingungen. Eine anwaltliche Durchsicht der Haftungs- und
+  Urheberrechtsklauseln bleibt empfehlenswert; sie sind bewusst konservativ
+  formuliert, ersetzen aber keine Rechtsberatung.
 - [x] USt-IdNr. im Impressum ergänzt (2026-09-14): **DE367742438**, geliefert von
   Jürgen. Offizielle Prüfziffer stimmt; VIES konnte sie an dem Tag nicht
   bestätigen, weil der deutsche Mitgliedsstaaten-Dienst ausgefallen war
