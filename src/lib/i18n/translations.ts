@@ -22,9 +22,10 @@ export const translations = {
 
   // ─── Stats ───────────────────────────────────────────────
   'stats.broadcastsPerYear': { en: 'Broadcasts Per Year', de: 'Broadcasts Pro Jahr', es: 'Emisiones Por Año', pt: 'Transmissões Por Ano', fr: 'Diffusions Par An', it: 'Trasmissioni All\'Anno' },
-  'stats.impressionsPerYear': { en: 'Impressions Per Year', de: 'Impressionen Pro Jahr', es: 'Impresiones Por Año', pt: 'Impressões Por Ano', fr: 'Impressions Par An', it: 'Impressioni All\'Anno' },
+  'stats.broadcastHours': { en: 'Hours On Air', de: 'Sendestunden', es: 'Horas en antena', pt: 'Horas no ar', fr: 'Heures d\'antenne', it: 'Ore in onda' },
   'stats.youtubeViews': { en: 'YouTube Views', de: 'YouTube Aufrufe', es: 'Vistas en YouTube', pt: 'Visualizações no YouTube', fr: 'Vues YouTube', it: 'Visualizzazioni YouTube' },
   'stats.languagesCovered': { en: 'Languages Covered', de: 'Abgedeckte Sprachen', es: 'Idiomas Cubiertos', pt: 'Idiomas Cobertos', fr: 'Langues Couvertes', it: 'Lingue Coperte' },
+  'stats.period': { en: 'Broadcasts and hours: last 12 months · YouTube: channel total', de: 'Broadcasts und Stunden: letzte 12 Monate · YouTube: Kanal gesamt', es: 'Retransmisiones y horas: últimos 12 meses · YouTube: total del canal', pt: 'Transmissões e horas: últimos 12 meses · YouTube: total do canal', fr: 'Diffusions et heures : 12 derniers mois · YouTube : total de la chaîne', it: 'Trasmissioni e ore: ultimi 12 mesi · YouTube: totale del canale' },
 
   // ─── Latest Broadcasts ───────────────────────────────────
   'broadcasts.recentCoverage': { en: 'Recent Coverage', de: 'Aktuelle Broadcasts', es: 'Cobertura Reciente', pt: 'Cobertura Recente', fr: 'Couverture Récente', it: 'Copertura Recente' },

@@ -206,15 +206,36 @@ Client-Komponente dort). Der Server übersetzt und übergibt eine schlanke Form
 **ohne Artikeltexte** — sonst landeten alle Artikelinhalte im Client-Payload.
 Ohne Filter unverändertes Layout, mit Filter kein Feature-Artikel.
 
-## 6. Inhalte, die jährlich veralten
+## 6. Kennzahlen — dynamisch seit 2026-09-14
 
-- `StatsBar` / About: „400+ Broadcasts", „100M+ Impressions", „6.2M+ YouTube Views" —
-  hartcodiert in `src/components/sections/StatsBar.tsx` und `src/app/about/page.tsx`.
-  Einmal im Jahr prüfen.
-- `src/app/events/page.tsx`: Past Events hartcodiert; neue Events kommen nur per Code.
-  Reicht, solange es 1–2 pro Jahr sind.
-- `Team.tsx`: drei Personen, Bios in `translations.ts`.
-- JSON-LD `foundingDate: '2013'`, Adresse Hürth — ok, nur bei Umzug/Umfirmierung ändern.
+Die gelbe Leiste zieht ihre Zahlen jetzt selbst: Broadcasts und Sendestunden
+aus dem Master Schedule (letzte 365 Tage, nur `public = yes`), YouTube-Aufrufe
+aus der Data API, Sprachen weiterhin gesetzt. Cache 12 h, Fallback auf
+gemessene Werte, wenn eine Quelle ausfällt — die Leiste zeigt nie eine Null
+(mit kaputten Keys gegengeprüft). Gerundet wird **immer ab**, damit die
+angezeigte Zahl eine ist, die wir schlagen, nicht eine, die wir verteidigen
+müssen. Code: `src/lib/stats.ts`.
+
+Messung vom 2026-09-14: 410 öffentliche Broadcasts, 1.071 Sendestunden,
+104 Serien, 6.184.897 YouTube-Aufrufe, 34.200 Abonnenten, 4.581 Videos.
+
+**„100M+ Impressionen pro Jahr" ist entfallen.** Für die Zahl gab es keine
+Quelle — weder im Repo, noch in den Social-Reports (die messen einzelne
+Kundenkampagnen wie VCO Infinity und Porsche Carrera Cup GB, nicht die
+Gesamtreichweite von Racespot). An ihrer Stelle stehen Sendestunden, weil die
+zählbar sind. Eine unbelegte Werbeaussage ist nach § 5 UWG angreifbar und
+beschädigt die drei Zahlen daneben, die stimmen.
+
+**Wenn eine echte Reichweitenzahl gewünscht ist:** Werte aus den TikTok-,
+Instagram- und X-Analytics mit Zeitraum liefern, dann baue ich die Kachel
+zurück. Verfügbar wären außerdem jederzeit live: Abonnenten (34.200),
+produzierte Videos (4.581), abgedeckte Serien (104).
+
+### Weiterhin von Hand gepflegt
+
+- `src/app/[lang]/events/page.tsx`: Past Events hartkodiert; neue Events nur per Code.
+- `Team.tsx`: drei Personen, Biografien in `translations.ts`.
+- JSON-LD `foundingDate: '2013'`, Adresse Hürth — nur bei Umzug/Umfirmierung ändern.
 
 ## 7. Coolify-Hausmeisterei
 
