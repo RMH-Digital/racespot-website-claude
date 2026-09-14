@@ -114,7 +114,7 @@ export function Header({ lang }: { lang: Lang }) {
             {langOpen && (
               <div className="absolute top-full right-0 mt-1 bg-rs-dark border border-rs-border rounded-rs overflow-hidden shadow-xl min-w-[140px] z-50">
                 {/* Real links, not buttons: the same page in another language is
-                    another URL, and the middleware remembers the choice. */}
+                    another URL, and the proxy remembers the choice. */}
                 {LANGUAGES.map((l) => (
                   <Link
                     key={l.code}

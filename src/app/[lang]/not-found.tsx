@@ -4,7 +4,7 @@ import { DEFAULT_LANG, LANG_HEADER, isLang, localePath, t } from '@/lib/i18n'
 
 /**
  * not-found.tsx gets no route params, so the language comes from the header
- * the middleware sets on every /{lang}/ request.
+ * the proxy sets on every /{lang}/ request.
  */
 export default async function NotFound() {
   const fromHeader = (await headers()).get(LANG_HEADER)

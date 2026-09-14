@@ -25,7 +25,7 @@ import {
  *                      to `/en/news/x` must not overwrite a German visitor's
  *                      choice — decided 2026-09-10.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get('host') || ''
 
   if (host.startsWith('www.')) {
@@ -74,7 +74,7 @@ function cameFromThisSite(request: NextRequest, host: string): boolean {
   if (!referer) return false
   try {
     const refHost = new URL(referer).host.replace(/^www\./, '')
-    return refHost === host.replace(/^www\./, '')
+    return refHost === host.replace(/^www\./, '');
   } catch {
     return false
   }

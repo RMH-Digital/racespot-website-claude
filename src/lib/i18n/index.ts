@@ -3,7 +3,7 @@ import { translations, type TranslationKey } from './translations'
 /**
  * Language handling for the URL-based i18n (`/en/…`, `/de/…`, …).
  *
- * The language is a route parameter, resolved by the middleware and passed
+ * The language is a route parameter, resolved by the proxy and passed
  * down as a plain prop. There is no context and nothing in localStorage: the
  * server renders each page in its language, and a client component that
  * needs a label gets `lang` handed to it.
