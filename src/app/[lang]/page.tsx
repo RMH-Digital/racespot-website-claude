@@ -45,21 +45,20 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
         nextEventSeries={nextEvent?.series}
         nextEventDateISO={nextEvent?.date.toISOString()}
       />
-      {/* Viewers and clients get their own door before anything else. */}
-      <AudienceFork lang={lang} />
       <StatsBar lang={lang} />
-      {/* Written in our own voice — the one breather before the card grids start. */}
-      <Positioning lang={lang} />
+      {/* Viewers and clients get their own door, right after the numbers. */}
+      <AudienceFork lang={lang} />
       <LatestBroadcasts lang={lang} />
-      {/* Full-bleed breather so two card grids don't run into each other. */}
+      {/* Full-bleed breather so the two card grids don't run into each other. */}
       <ImageBand lang={lang} />
       <Services lang={lang} />
-      {/* Client-facing breather between two card sections. */}
       <Process lang={lang} />
       <LatestNews lang={lang} />
-      <PhotoGallery lang={lang} />
-      {/* Partner logos moved down: proof sits close to the ask, not in the middle. */}
+      {/* Who we are, immediately before the logos: first what we stand for,
+          then who trusts us with it. */}
+      <Positioning lang={lang} />
       <PartnerLogos lang={lang} />
+      <PhotoGallery lang={lang} />
       <ContactCTA lang={lang} />
     </>
   )
