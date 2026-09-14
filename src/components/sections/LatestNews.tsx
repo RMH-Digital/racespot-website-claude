@@ -45,12 +45,12 @@ export function LatestNews({ lang }: { lang: Lang }) {
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-rs-black/60 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-rs-dark/80" />
+              <div className="absolute inset-0 bg-linear-to-t from-rs-black/60 via-transparent to-transparent lg:bg-linear-to-r lg:from-transparent lg:to-rs-dark/80" />
             </div>
 
             <div className="p-6 md:p-8 lg:p-9 flex flex-col justify-center">
               <div className="flex items-center gap-2 mb-3">
-                <span className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${CATEGORY_COLORS[FEATURED.category] ?? 'text-rs-muted'}`}>
+                <span className={`text-[11px] font-semibold uppercase tracking-widest ${CATEGORY_COLORS[FEATURED.category] ?? 'text-rs-muted'}`}>
                   {categoryLabel(lang, FEATURED.category)}
                 </span>
                 <span className="text-rs-border text-xs">·</span>
@@ -92,12 +92,12 @@ export function LatestNews({ lang }: { lang: Lang }) {
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-rs-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-linear-to-t from-rs-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
+                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
                       {categoryLabel(lang, article.category)}
                     </span>
                     <span className="text-rs-border text-xs">·</span>

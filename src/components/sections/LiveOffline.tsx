@@ -106,7 +106,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
           {/* Offline indicator */}
           <div className="flex items-center justify-center gap-2 mb-6">
             <span className="w-2 h-2 rounded-full bg-rs-muted" />
-            <span className="text-[11px] font-display font-bold uppercase tracking-[0.1em] text-rs-muted">
+            <span className="text-[11px] font-display font-bold uppercase tracking-widest text-rs-muted">
               {t('live.offline')}
             </span>
           </div>
@@ -146,7 +146,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
                       <p className="font-display font-black text-rs-yellow text-2xl sm:text-4xl leading-none">
                         {unit.value}
                       </p>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-rs-muted mt-1">
+                      <p className="text-[10px] uppercase tracking-widest text-rs-muted mt-1">
                         {unit.label}
                       </p>
                     </div>

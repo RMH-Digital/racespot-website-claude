@@ -74,13 +74,13 @@ export default async function ArticlePage({ params }: Props) {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-rs-black via-rs-black/50 to-rs-black/10" />
+        <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/50 to-rs-black/10" />
         {article.imageCredit && (
           <p className="absolute bottom-2.5 right-4 font-mono text-[10px] tracking-wide text-rs-white/45">
             {article.imageCredit}
           </p>
         )}
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
       </div>
 
       <div className="container-rs py-12">
@@ -124,7 +124,7 @@ export default async function ArticlePage({ params }: Props) {
                   <h2
                     key={i}
                     className="font-display font-bold text-xl md:text-2xl text-white leading-tight pt-6
-                      before:block before:w-8 before:h-[3px] before:rounded-sm before:bg-rs-yellow before:mb-3.5"
+                      before:block before:w-8 before:h-[3px] before:rounded-xs before:bg-rs-yellow before:mb-3.5"
                   >
                     {renderInline(block.text)}
                   </h2>
@@ -135,7 +135,7 @@ export default async function ArticlePage({ params }: Props) {
                   <blockquote
                     key={i}
                     className="relative border-l-[3px] border-rs-yellow rounded-r-lg py-5 pl-6 pr-6
-                      bg-gradient-to-r from-rs-yellow/[0.07] to-transparent
+                      bg-linear-to-r from-rs-yellow/[0.07] to-transparent
                       text-[17px] leading-relaxed text-rs-white/80"
                   >
                     <p>{renderInline(block.text)}</p>

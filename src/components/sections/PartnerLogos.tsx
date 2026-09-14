@@ -33,8 +33,8 @@ function LogoRow({
   return (
     <div className="relative overflow-hidden">
       {/* Fade masks on left/right edges — yellow to match background */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-rs-yellow to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-rs-yellow to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-linear-to-r from-rs-yellow to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-linear-to-l from-rs-yellow to-transparent" />
 
       <div
         className={`flex items-center gap-16 w-max ${
@@ -44,7 +44,7 @@ function LogoRow({
         {items.map((logo, i) => (
           <div
             key={`${logo.alt}-${i}`}
-            className="flex-shrink-0 flex items-center justify-center px-4"
+            className="shrink-0 flex items-center justify-center px-4"
           >
             {/* Use native img instead of next/image — lazy loading breaks
                 in CSS-animated carousels because the browser can't detect

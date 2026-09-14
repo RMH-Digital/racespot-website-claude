@@ -20,10 +20,10 @@ type Errors = Record<string, TranslationKey>
 
 const INPUT =
   'w-full bg-rs-dark border rounded-rs px-4 py-3 text-sm text-white ' +
-  'placeholder:text-rs-muted/50 focus:border-rs-yellow focus:outline-none transition-colors ' +
-  '[color-scheme:dark]'
+  'placeholder:text-rs-muted/50 focus:border-rs-yellow focus:outline-hidden transition-colors ' +
+  'scheme-dark'
 
-const LABEL = 'text-[11px] font-display font-bold uppercase tracking-[0.1em] text-rs-muted mb-1.5 block'
+const LABEL = 'text-[11px] font-display font-bold uppercase tracking-widest text-rs-muted mb-1.5 block'
 
 // Dropdown ranges — the API enforces the same bounds.
 export const RACE_COUNT_MAX = 30
@@ -183,8 +183,8 @@ export function ContactForm({ lang }: { lang: Lang }) {
   return (
     <div>
       {/* Hero */}
-      <div className="relative h-[200px] md:h-[260px] overflow-hidden bg-gradient-to-b from-rs-dark to-rs-black">
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+      <div className="relative h-[200px] md:h-[260px] overflow-hidden bg-linear-to-b from-rs-dark to-rs-black">
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
             <p className="section-label mb-3">{t('contact.label')}</p>
@@ -363,7 +363,7 @@ function Field({
       {children({ invalid, describedBy, className, onChange: () => clearError(id) })}
       {invalid && (
         <p id={errId} role="alert" className="text-[12px] text-red-400 mt-1.5 flex items-start gap-1.5">
-          <svg className="h-3.5 w-3.5 mt-[1px] shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <svg className="h-3.5 w-3.5 mt-px shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-.75 3.5h1.5v4.5h-1.5V4.5Zm.75 7.25a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z" />
           </svg>
           {t(errKey)}

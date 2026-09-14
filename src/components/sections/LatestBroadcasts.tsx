@@ -64,7 +64,7 @@ function FallbackBroadcasts({ lang }: { lang: Lang }) {
             <span className="text-4xl">{b.emoji}</span>
           </div>
           <div className="p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-rs-yellow mb-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-rs-yellow mb-1.5">
               {b.category}
             </p>
             <h3 className="text-[15px] font-semibold text-white leading-snug mb-2 group-hover:text-rs-yellow transition-colors">{b.title}</h3>

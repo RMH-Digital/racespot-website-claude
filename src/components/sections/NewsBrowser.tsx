@@ -99,7 +99,7 @@ export function NewsBrowser({ items, labels }: Props) {
       {feature && (
         <Link href={feature.href} className="group block mb-16">
           <div className="bg-rs-dark border border-rs-border hover:border-rs-yellow/40 transition-colors overflow-hidden">
-            <div className="relative aspect-[21/9] w-full overflow-hidden isolate">
+            <div className="relative aspect-21/9 w-full overflow-hidden isolate">
               <Image
                 src={feature.image}
                 alt={feature.imageAlt}
@@ -108,7 +108,7 @@ export function NewsBrowser({ items, labels }: Props) {
                 priority
                 sizes="(max-width: 768px) 100vw, 1200px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-rs-black/80 via-rs-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-rs-black/80 via-rs-black/20 to-transparent" />
             </div>
             <div className="p-8 md:p-12">
               <div className="flex items-center gap-3 mb-4">
@@ -139,7 +139,7 @@ export function NewsBrowser({ items, labels }: Props) {
               href={a.href}
               className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 py-6 border-b border-rs-border hover:bg-rs-dark px-4 -mx-4 transition-colors"
             >
-              <div className="relative w-full md:w-48 aspect-video md:aspect-[16/10] shrink-0 rounded-rs overflow-hidden isolate">
+              <div className="relative w-full md:w-48 aspect-video md:aspect-16/10 shrink-0 rounded-rs overflow-hidden isolate">
                 <Image
                   src={a.image}
                   alt={a.imageAlt}

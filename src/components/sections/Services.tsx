@@ -51,7 +51,7 @@ export function Services({ lang }: { lang: Lang }) {
             <Link
               key={s.number}
               href={localePath(lang, '/services')}
-              className="group relative aspect-[16/9] rounded-rs overflow-hidden border border-rs-border hover:border-rs-yellow/50 transition-colors"
+              className="group relative aspect-video rounded-rs overflow-hidden border border-rs-border hover:border-rs-yellow/50 transition-colors"
             >
               <Image
                 src={s.image}
@@ -60,7 +60,7 @@ export function Services({ lang }: { lang: Lang }) {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-rs-black via-rs-black/50 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/50 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                 <span className="text-rs-yellow/40 font-mono text-xs">{s.number}</span>
                 <h3 className="font-display font-bold text-xl md:text-2xl uppercase text-white group-hover:text-rs-yellow transition-colors">

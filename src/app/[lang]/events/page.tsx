@@ -94,9 +94,9 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
           priority
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
+        <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
         {/* Yellow accent line at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
 
         <div className="container-rs relative h-full flex items-end pb-10">
           <div>
@@ -113,7 +113,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
             <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
               {t('events.afterMovie')}
             </h2>
-            <div className="h-[2px] flex-1 bg-gradient-to-r from-rs-yellow/60 to-transparent" />
+            <div className="h-[2px] flex-1 bg-linear-to-r from-rs-yellow/60 to-transparent" />
           </div>
 
           <div className="relative aspect-video rounded-rs overflow-hidden border border-white/10">
@@ -137,7 +137,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
             <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
               {t('events.eventHighlights')}
             </h2>
-            <div className="h-[2px] flex-1 bg-gradient-to-r from-rs-yellow/60 to-transparent" />
+            <div className="h-[2px] flex-1 bg-linear-to-r from-rs-yellow/60 to-transparent" />
           </div>
 
           {/* Gallery grid */}

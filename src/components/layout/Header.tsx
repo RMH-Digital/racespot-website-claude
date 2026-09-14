@@ -46,7 +46,7 @@ export function Header({ lang }: { lang: Lang }) {
   const isActive = (href: string) => pathname.startsWith(localePath(lang, href))
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black/[0.97] backdrop-blur-[10px] border-b border-rs-border">
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black/97 backdrop-blur-[10px] border-b border-rs-border">
       <div className="container-rs flex items-center justify-between h-full">
         {/* Logo */}
         <Link href={localePath(lang, '/')} className="flex items-center shrink-0">
@@ -146,7 +146,7 @@ export function Header({ lang }: { lang: Lang }) {
         >
           <span className={`block w-5 h-px bg-white transition-transform duration-200 ${menuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
           <span className={`block w-5 h-px bg-white transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
-          <span className={`block w-5 h-px bg-white transition-transform duration-200 ${menuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+          <span className={`block w-5 h-px bg-white transition-transform duration-200 ${menuOpen ? '-rotate-45 translate-y-[-7px]' : ''}`} />
         </button>
       </div>
 
