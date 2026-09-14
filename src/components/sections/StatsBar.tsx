@@ -3,12 +3,16 @@ import type { TranslationKey } from '@/lib/i18n/translations'
 import { getSiteStats, roundedDown } from '@/lib/stats'
 
 /**
- * The yellow band of numbers. Every figure is measured — broadcasts and hours
- * from the Master Schedule over the last 365 days, views from the YouTube API,
- * languages stated by the team. See src/lib/stats.ts for the sourcing and the
- * reason the old "100M+ impressions" tile is gone.
+ * The yellow band of numbers. Every figure is measured — broadcasts from the
+ * Master Schedule over the last 365 days, views and subscribers from the
+ * YouTube API, the other platforms from the team's own analytics, languages
+ * stated by the team. See src/lib/stats.ts for the sourcing and the reason the
+ * old "100M+ impressions" tile is gone.
  *
- * Figures are rounded *down*, so what we show is always a number we beat.
+ * Figures are rounded *down*, so what we show is always a number we beat — but
+ * in small steps (10 broadcasts, 100 followers) rather than to the nearest
+ * round hundred or thousand, so the band visibly moves as the numbers grow
+ * instead of sitting on "400+" for a year.
  */
 export async function StatsBar({ lang }: { lang: Lang }) {
   const t = getT(lang)
@@ -16,9 +20,9 @@ export async function StatsBar({ lang }: { lang: Lang }) {
   const locale = LOCALES[lang]
 
   const tiles: { value: string; labelKey: TranslationKey }[] = [
-    { value: roundedDown(stats.broadcasts, locale), labelKey: 'stats.broadcastsPerYear' },
+    { value: roundedDown(stats.broadcasts, locale, 10), labelKey: 'stats.broadcastsLast12Months' },
     { value: roundedDown(stats.youtubeViews, locale), labelKey: 'stats.youtubeViews' },
-    { value: roundedDown(stats.followers, locale), labelKey: 'stats.followers' },
+    { value: roundedDown(stats.followers, locale, 100), labelKey: 'stats.followers' },
     { value: String(stats.languages), labelKey: 'stats.languagesCovered' },
   ]
 
@@ -37,11 +41,6 @@ export async function StatsBar({ lang }: { lang: Lang }) {
             </div>
           ))}
         </div>
-
-        {/* States what the numbers cover, so the claim is precise rather than vague */}
-        <p className="text-[10px] text-rs-black/50 text-center mt-8 tracking-wide">
-          {t('stats.period')}
-        </p>
       </div>
     </div>
   )

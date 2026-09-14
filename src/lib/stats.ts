@@ -21,8 +21,16 @@ const SHEET_KEY = process.env.GOOGLE_SHEETS_API_KEY
 const YT_KEY = process.env.YOUTUBE_API_KEY
 const YT_CHANNEL = process.env.YOUTUBE_CHANNEL_ID
 
-/** Twelve hours: these move slowly, and the APIs have quotas worth protecting. */
+/** Twelve hours: the schedule moves slowly, and the API has a quota worth protecting. */
 const REVALIDATE = 60 * 60 * 12
+
+/**
+ * Six hours for YouTube. Subscribers are the one number in the band that moves
+ * on its own, and the display rounds to hundreds, so checking four times a day
+ * is enough to show growth the day it happens — at four requests, well inside
+ * the quota.
+ */
+const YT_REVALIDATE = 60 * 60 * 6
 
 export interface SiteStats {
   /** Public broadcasts in the last 365 days */
@@ -59,13 +67,16 @@ const FALLBACK: SiteStats = {
 /**
  * Followers on the platforms that have no public API we can read.
  *
- * Supplied by the team from each platform's own analytics on **2026-09-14**.
- * YouTube is not in here — that one comes live from the Data API below, and it
- * matched the team's figure exactly (34,200) when this was set up, which is a
- * good sign for the rest.
+ * Supplied by the team from each platform's own analytics on **2026-09-14**,
+ * and treated as a floor: these are the last counts we know to be true, and a
+ * platform that has grown since only makes the total we show more conservative.
+ * Jürgen sends updated figures now and then — raise them here, never lower
+ * them on a guess.
  *
- * Re-check these a couple of times a year; the date above is what the site
- * implicitly claims.
+ * YouTube is deliberately not in this list: that one comes live from the Data
+ * API below, so the band moves on its own between those updates. It matched the
+ * team's figure exactly (34,200) when this was set up, which is a good sign for
+ * the rest.
  */
 const SOCIAL_FOLLOWERS: Record<string, number> = {
   x: 9_728,
@@ -120,7 +131,7 @@ async function youtubeChannel(): Promise<{ views: number; subscribers: number } 
   if (!YT_KEY || !YT_CHANNEL) return null
   try {
     const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${YT_CHANNEL}&key=${YT_KEY}`
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } })
+    const res = await fetch(url, { next: { revalidate: YT_REVALIDATE } })
     if (!res.ok) return null
     const stats = (await res.json())?.items?.[0]?.statistics
     const views = Number(stats?.viewCount)
@@ -153,12 +164,21 @@ export async function getSiteStats(): Promise<SiteStats> {
 }
 
 /**
- * Round *down* to a "400+" style figure, so the number shown is always one we
- * can beat, never one we have to defend. 416 → "400+", 6,184,897 → "6.1M+".
+ * Round *down*, so the number shown is always one we can beat, never one we
+ * have to defend.
+ *
+ * `step` pins the granularity. Without it the step scales with the magnitude,
+ * which is right for a lifetime view count (6,184,897 → "6.1M+") but wrong for
+ * a figure we want to watch grow: rounding 410 broadcasts to "400+" hides the
+ * next ten of them, and the band would sit unchanged for a year. Pass the step
+ * the caller cares about — 10 for broadcasts, 100 for followers — and growth
+ * shows up as soon as it crosses the step.
  */
-export function roundedDown(n: number, locale: string): string {
+export function roundedDown(n: number, locale: string, step?: number): string {
   const fmt = (v: number, digits = 0) =>
     v.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
+
+  if (step) return `${fmt(Math.floor(n / step) * step)}+`
 
   // Millions keep one decimal: 6,184,897 → "6.1M+" (and "6,1M+" in German)
   if (n >= 1_000_000) return `${fmt(Math.floor((n / 1_000_000) * 10) / 10, 1)}M+`
