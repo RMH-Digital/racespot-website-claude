@@ -296,6 +296,12 @@ export const translations = {
   // ─── News: labels around articles ────────────────────────
   'news.latest':       { en: 'Latest', de: 'Aktuell', es: 'Lo último', pt: 'Últimas', fr: 'À la une', it: 'Ultime' },
   'news.readArticle':  { en: 'Read article', de: 'Artikel lesen', es: 'Leer artículo', pt: 'Ler artigo', fr: "Lire l'article", it: "Leggi l'articolo" },
+  'news.filterAll':    { en: 'All', de: 'Alle', es: 'Todas', pt: 'Todas', fr: 'Toutes', it: 'Tutte' },
+  'news.filterLabel':  { en: 'Filter by category', de: 'Nach Kategorie filtern', es: 'Filtrar por categoría', pt: 'Filtrar por categoria', fr: 'Filtrer par catégorie', it: 'Filtra per categoria' },
+  'news.noResults':    { en: 'No articles in this category yet.', de: 'In dieser Kategorie gibt es noch keine Artikel.', es: 'Todavía no hay artículos en esta categoría.', pt: 'Ainda não há artigos nesta categoria.', fr: 'Aucun article dans cette catégorie pour le moment.', it: 'Non ci sono ancora articoli in questa categoria.' },
+  'news.showAll':      { en: 'Show all articles', de: 'Alle Artikel anzeigen', es: 'Mostrar todos los artículos', pt: 'Mostrar todos os artigos', fr: 'Afficher tous les articles', it: 'Mostra tutti gli articoli' },
+  'news.countOne':     { en: '1 article', de: '1 Artikel', es: '1 artículo', pt: '1 artigo', fr: '1 article', it: '1 articolo' },
+  'news.countMany':    { en: '{n} articles', de: '{n} Artikel', es: '{n} artículos', pt: '{n} artigos', fr: '{n} articles', it: '{n} articoli' },
   'news.read':         { en: 'read', de: 'Lesezeit', es: 'de lectura', pt: 'de leitura', fr: 'de lecture', it: 'di lettura' },
   'news.previous':     { en: 'Previous', de: 'Zurück', es: 'Anterior', pt: 'Anterior', fr: 'Précédent', it: 'Precedente' },
   'news.next':         { en: 'Next', de: 'Weiter', es: 'Siguiente', pt: 'Próximo', fr: 'Suivant', it: 'Successivo' },

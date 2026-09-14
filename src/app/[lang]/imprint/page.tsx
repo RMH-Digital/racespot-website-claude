@@ -3,11 +3,13 @@ import { staticPageMetadata } from '@/lib/i18n/seo'
 import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/imprint', 'imprint', '/og-home.jpg')
 }
 
-export default function ImprintPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function ImprintPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   return (
     <div className="pt-8">

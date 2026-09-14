@@ -14,7 +14,8 @@ import { pageMetadata } from '@/lib/i18n/seo'
 /* Re-check events every 5 minutes (ISR) */
 export const revalidate = 300
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   const meta = pageMetadata({
     lang,
     path: '/',
@@ -26,7 +27,8 @@ export function generateMetadata({ params: { lang } }: { params: { lang: Lang } 
   return { ...meta, title: { absolute: t(lang, 'meta.site.title') } }
 }
 
-export default async function HomePage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function HomePage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const events = await getUpcomingEvents(3)
 
   // Next upcoming event for hero (when not live)
@@ -42,9 +44,11 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
       <StatsBar lang={lang} />
       <LatestBroadcasts lang={lang} />
       <Services lang={lang} />
+      {/* News sits right above Partners & Networks: the Press Tool publishes
+          several articles a week, so this is the part that changes most. */}
+      <LatestNews lang={lang} />
       <PartnerLogos lang={lang} />
       <PhotoGallery lang={lang} />
-      <LatestNews lang={lang} />
       <ContactCTA lang={lang} />
     </>
   )

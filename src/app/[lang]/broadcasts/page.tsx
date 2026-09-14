@@ -10,7 +10,8 @@ import { getT, type Lang } from '@/lib/i18n'
 /* Refresh video data every 5 minutes */
 export const revalidate = 300
 
-export function generateMetadata({ params: { lang } }: { params: { lang: Lang } }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params
   return staticPageMetadata(lang, '/broadcasts', 'broadcasts', '/og-broadcasts.jpg')
 }
 
@@ -60,7 +61,8 @@ function matchPlaylistTier(
   return bestTier
 }
 
-export default async function BroadcastsPage({ params: { lang } }: { params: { lang: Lang } }) {
+export default async function BroadcastsPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params
   const t = getT(lang)
   const [broadcasts, playlists, seriesTiers] = await Promise.all([
     getCompletedBroadcasts(6),

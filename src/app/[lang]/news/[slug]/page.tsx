@@ -9,15 +9,15 @@ import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i1
 import { absoluteUrl, pageMetadata } from '@/lib/i18n/seo'
 
 interface Props {
-  params: { lang: Lang; slug: string }
+  params: Promise<{ lang: Lang; slug: string }>
 }
 
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }))
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const { lang, slug } = params
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang, slug } = await params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) return {}
   const loc = localizeArticle(article, lang)
@@ -40,8 +40,8 @@ export function generateMetadata({ params }: Props): Metadata {
   return meta
 }
 
-export default function ArticlePage({ params }: Props) {
-  const { lang, slug } = params
+export default async function ArticlePage({ params }: Props) {
+  const { lang, slug } = await params
   const article = ARTICLES.find((a) => a.slug === slug)
   if (!article) notFound()
 
