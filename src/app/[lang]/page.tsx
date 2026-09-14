@@ -4,6 +4,8 @@ import { LatestBroadcasts } from '@/components/sections/LatestBroadcasts'
 import { Services }         from '@/components/sections/Services'
 import { PartnerLogos }     from '@/components/sections/PartnerLogos'
 import { Positioning }      from '@/components/sections/Positioning'
+import { AudienceFork }     from '@/components/sections/AudienceFork'
+import { ImageBand }        from '@/components/sections/ImageBand'
 import { Process }          from '@/components/sections/Process'
 import { PhotoGallery }     from '@/components/sections/PhotoGallery'
 import { LatestNews }       from '@/components/sections/LatestNews'
@@ -43,10 +45,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
         nextEventSeries={nextEvent?.series}
         nextEventDateISO={nextEvent?.date.toISOString()}
       />
+      {/* Viewers and clients get their own door before anything else. */}
+      <AudienceFork lang={lang} />
       <StatsBar lang={lang} />
       {/* Written in our own voice — the one breather before the card grids start. */}
       <Positioning lang={lang} />
       <LatestBroadcasts lang={lang} />
+      {/* Full-bleed breather so two card grids don't run into each other. */}
+      <ImageBand lang={lang} />
       <Services lang={lang} />
       {/* Client-facing breather between two card sections. */}
       <Process lang={lang} />
