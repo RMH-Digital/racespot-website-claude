@@ -1,6 +1,6 @@
 # Website — offene Punkte
 
-Stand: 2026-09-14. Erledigtes steht im Git-Log (`git log --since=2026-09-09`).
+Stand: 2026-09-14 (Upgrade und News-Umbau live). Erledigtes steht im Git-Log (`git log --since=2026-09-09`).
 Reihenfolge ist Empfehlung: erst Struktur, dann Frameworks, dann Kür.
 
 ---
@@ -104,20 +104,21 @@ Regeln:
 Push auf `main` deployt sofort). Press Tool parallel möglich, weil der Vertrag
 oben steht; mergen erst, wenn die Website `translations` liest.
 
-## 2. Framework-Upgrades — jetzt dringend (Stand 2026-09-11)
+## 2. Framework-Upgrades
 
-**2a — Next 14.2 → 15.5 + React 19 (sicherheitsrelevant, als Nächstes).**
-`npm audit` zeigt für 14.x Advisories, deren Fix nur in **15.5.x** existiert; die
-14er-Linie bekommt sie nicht mehr: *critical* RCE in der Image-Optimization-API bei
-AVIF-Eingaben (Fix ≥ 15.5.24), *high* SSRF in Server Actions/Rewrites, mehrere DoS
-über Server Components, Middleware-Bypass. Exposition begrenzt (kein AVIF-Output,
-`/_next/image` nur lokale Pfade + YouTube-Thumbnails, keine Rewrites, Linux) — aber
-kein Dauerzustand. Nicht direkt auf 16 (Turbopack-Default, `middleware`→`proxy`,
-mehr Breaking Changes); 15.5 ist die Linie mit Fixes. Eigener Branch `next-15`,
-alle sechs Sprachen + beide Kontakt-Tabs prüfen, dann mergen. ½–1 Tag.
+**2a — Next 15.5 + React 19: erledigt 2026-09-14.** Next 14.2 bekam die Fixes
+nicht mehr; `npm audit` ging von 13 Funden (1 kritisch: RCE in der
+Image-Optimization-API, dazu SSRF und mehrere DoS) auf **2**, und Next steht
+nicht mehr darunter. Migration: `params` ist ein Promise (15 Seiten + Layout),
+`headers()` ebenfalls, framer-motion auf 13. Nebenbei `target: ES2017` in der
+tsconfig und `outputFileTracingRoot` gepinnt — eine verirrte `package-lock.json`
+im Home-Verzeichnis ließ Next die falsche Projektwurzel raten. Build-Zeit von
+~20 s auf 3,5 s.
 
-**2b — später:** Next 16, Tailwind 3 → 4, framer-motion 11 → 13, ESLint 8 → 9
-(Flat Config). Echte Migrationen, kein Zeitdruck.
+**2b — offen, kein Zeitdruck:** Next 16 (Turbopack als Standard,
+`middleware` → `proxy`), Tailwind 3 → 4, ESLint 8 → 9 (Flat Config). Die zwei
+verbliebenen Audit-Funde (moderate + high in postcss, beide über Next
+transitiv) verschwinden erst mit Next 16.
 
 ## 3. Umami-Analytics — eingeschaltet 2026-09-11
 
@@ -193,6 +194,17 @@ Server). Ungeprüft bleibt: ob `SMTP_USER`/`SMTP_PASS` in Coolify gesetzt sind. 
 Besuchers) — funktioniert, ist aber nicht das Gewollte. Einmal eine Broadcast-Anfrage
 absenden und prüfen, ob sie bei `contact@racespot.tv` **und** als Kopie beim Absender
 ankommt. Falls nicht: Env-Vars in Coolify setzen (Namen in `.env.example`).
+
+## 5b. News-Darstellung — erledigt 2026-09-14
+
+Startseite: Der News-Abschnitt sitzt jetzt direkt über „Partner & Netzwerke"
+und führt mit dem neuesten Artikel als breiter Karte, darunter die nächsten
+drei im bisherigen Kartenstil. Zweispaltig erst ab 1024 px.
+
+News-Seite: Kategoriefilter über der Liste (`NewsBrowser.tsx`, die einzige
+Client-Komponente dort). Der Server übersetzt und übergibt eine schlanke Form
+**ohne Artikeltexte** — sonst landeten alle Artikelinhalte im Client-Payload.
+Ohne Filter unverändertes Layout, mit Filter kein Feature-Artikel.
 
 ## 6. Inhalte, die jährlich veralten
 
