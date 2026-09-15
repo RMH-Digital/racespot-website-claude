@@ -764,8 +764,10 @@ letzten Fehlern der Warteschlange.
   Ein zweiter Task holt dieses Postfach per IMAP ab, liest die Fehlermeldungen
   (RFC 3464), ordnet sie über die ID zu und deaktiviert nach einem harten oder
   drei weichen Bounces.
-- **Absender `news@racespot.tv`**, nicht `contact@` — schützt das
-  Kontaktpostfach, falls der Ruf einmal leidet. SPF ist da, **DKIM im KAS
+- **Eigener Absender**, nicht `contact@` — schützt das Kontaktpostfach,
+  falls der Ruf einmal leidet. `news@racespot.tv` oder `press@racespot.tv`
+  (Jürgen, 2026-09-15: eines von beiden); **eine** Adresse für beide Themen,
+  damit sich der Ruf nicht auf zwei Adressen verteilt. SPF ist da, **DKIM im KAS
   aktivieren, DMARC-Eintrag setzen** — DNS macht Philip. Danach Google
   Postmaster Tools eintragen, um Beschwerden und Ruf zu sehen.
 
@@ -795,9 +797,9 @@ Datenschutzerklärung freigegeben ist.
 - Newsletter **wöchentlich** als Zusammenfassung. Sofortversand einzelner
   Pressemitteilungen wäre derselbe Mechanismus mit anderem Auslöser (Kategorie
   `Company`), ein halber Tag mehr.
-- Serien **einzeln wählbar**, Standard „alle". Ohne Serienwahl spart man ein
-  Feld und eine Tabelle, verliert aber die Möglichkeit, jemandem nur seine
-  Serie zu schicken.
+- Serien **einzeln wählbar plus „alle"** als eigene Option — entschieden
+  (Jürgen, 2026-09-15). „Alle" ist ein Flag, keine Liste aller Serien, damit
+  eine neue Serie im Master Schedule automatisch mit erinnert wird.
 - Erinnerung **eine Stunde** vorher. Ein zweiter Zeitpunkt (Vortag) wäre ein
   zweites Fenster im selben Task.
 
