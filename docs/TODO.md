@@ -476,6 +476,42 @@ Press Tool) oder dem `Article`-Typ ein optionales `seoTitle` geben, das die
 Pipeline füllt. Betroffen ist vor allem `moza-racing-title-sponsor-…`
 (77–86 Zeichen je nach Sprache).
 
+## 7e. Favicons — repariert 2026-09-15
+
+Hinweis kam aus einer Press-Tool-Session: die Icon-Dateien auf racespot.tv sind
+kaputt. Nachgemessen, stimmt alles:
+
+| Datei | war | deklariert |
+|---|---|---|
+| `favicon-32.png` | **1×1** | 32×32 |
+| `favicon-48.png` | **2×2** | 48×48 |
+| `icon-192.png` | **37×37** | 192×192 |
+| `icon-512.png` | **262×262** | 512×512 |
+| `apple-touch-icon.png` | **32×32** | 180×180 |
+| `favicon-16.png` | 16×16 ✓ | 16×16 |
+| `favicon.ico` | **fehlte** (404) | — |
+
+Alle stammen aus einem einzigen Commit vom März 2026 und waren von Anfang an
+falsch. Browser skalieren stillschweigend, was sie bekommen, deshalb sah man
+nur einen unscharfen Fleck im Tab statt eines Fehlers.
+
+Reparatur: `scripts/generate-icons.mjs` (`npm run generate-icons`) erzeugt den
+ganzen Satz aus `assets/icon-master.png` — der größten sauberen Kopie, 262 px,
+aus der alten `icon-512.png` gerettet. Weil die Marke zweifarbig ist, wird sie
+einmal auf 2048 hochgerechnet und hart geschwellt, bevor irgendeine Zielgröße
+entsteht: gleiche Geometrie überall, Kantenglättung aus genau einem sauberen
+Verkleinern. Neu dabei: `favicon.ico` (16+32+48 in einer Datei) und ein
+`icon-maskable-512.png`, dessen R innerhalb der Android-Safe-Zone liegt —
+adaptive Icons beschneiden zum Kreis, ein randfüllendes R verlöre die Ecken.
+
+**Die Grafik ist bewusst unverändert.** Und dabei ist etwas aufgefallen, das
+Jürgen entscheiden sollte: das R ist **`#DAA520`** auf **`#000000`** — das ist
+CSS-„goldenrod" auf Reinschwarz, nicht das Marken-Gelb `#F5C000` auf `#0A0A0A`.
+Sieht nach dem Standardwert eines Generators aus, nicht nach einer Entscheidung.
+Umstellen ist eine Zeile in `generate-icons.mjs` plus ein Lauf — aber das
+Favicon ist die Identität der Seite in jedem Tab und Lesezeichen, das ändere
+ich nicht ungefragt.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

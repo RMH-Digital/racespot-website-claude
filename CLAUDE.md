@@ -184,6 +184,16 @@ Besucher jeder Bildvariante den Encode.
 - `deviceSizes` in `next.config.mjs` und `WIDTHS` in `scripts/warm-image-cache.mjs`
   müssen übereinstimmen.
 
+### Icons
+
+Das gelbe R in `public/` wird aus **einer** Quelle erzeugt:
+`assets/icon-master.png`. Nie einzeln von Hand ersetzen — `npm run generate-icons`
+rechnet den kompletten Satz neu (16/32/48/180/192/512, maskable 512, favicon.ico)
+und hält Dateigröße und deklarierte Größe deckungsgleich. Der Satz vom März 2026
+war genau daran kaputt: `favicon-32.png` war 1×1 Pixel, `icon-192.png` 37×37,
+`icon-512.png` 262×262. Browser skalieren stillschweigend, deshalb fiel es
+monatelang nicht auf.
+
 ## Platform
 
 Dieses Projekt läuft auf Philips Coolify-Instanz. Betriebsregeln, Domain- und

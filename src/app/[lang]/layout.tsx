@@ -44,6 +44,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     keywords: ['simracing', 'esports', 'broadcast', 'live events', 'iRacing', 'motorsport'],
     icons: {
       icon: [
+        // /favicon.ico first: it is what a browser asks for when it ignores
+        // the markup, and what Google reads for the result-list favicon.
+        { url: '/favicon.ico', sizes: '16x16 32x32 48x48', type: 'image/x-icon' },
         { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
         { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
         { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
