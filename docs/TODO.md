@@ -565,6 +565,76 @@ Entscheidungen und Fallen:
   weder Vorhang noch Scroll-Sperre hängen bleiben. Für Screenreader eine
   Statusmeldung statt einer sich sechzigmal pro Sekunde ändernden Zahl.
 
+## 7g. Broadcast-Erinnerungen, Stufe 1: Kalender — fertig 2026-09-15
+
+Die billige, ehrliche Hälfte der Reminder-Idee. **Der Alarm steckt in der
+Datei** und wird vom Kalender des Lesers ausgelöst — wir speichern nichts,
+fragen nichts ab, es gibt keine Einwilligung und nichts zu löschen.
+
+Zwei Wege, beide aus denselben Daten (`getCalendarEvents()`):
+
+| | |
+|---|---|
+| Einzeltermin | `/api/calendar/<id>?lang=de` → `.ics` zum Download, Dateiname aus dem Seriennamen |
+| Abo-Feed | `webcal://racespot.tv/schedule.ics` → kompletter Zeitplan, hält sich selbst aktuell |
+
+Beide mit `VALARM`, Erinnerung 15 Minuten vor Beginn. Knöpfe: pro Event im
+Kalender (Liste 44 px, Monatsraster 24 px — mehr passt in eine 97-px-Zelle
+nicht) und ein Abo-Block über dem Kalender mit `webcal:`-Knopf, „Link
+kopieren" und der ausgeschriebenen Adresse für alle, bei denen beides nicht
+greift.
+
+**Dabei einen echten Fehler gefunden und behoben:** `sheets.ts` vergab
+`id: String(row[17] || Math.random())`. Für einen React-Key, der eine
+Renderphase lebt, egal — für einen Kalender-Feed tödlich: die UID ist das
+Erkennungsmerkmal, an dem ein abonnierter Kalender einen bereits bekannten
+Termin wiedererkennt. Mit Zufalls-IDs hätte jede Aktualisierung wie ein
+komplett neuer Satz Broadcasts ausgesehen und erneut benachrichtigt. Jetzt
+FNV-1a über Serienname + Startzeit, geprüft: über zwei Abrufe identisch,
+alle 101 eindeutig.
+
+`src/lib/ics.ts` hält sich an RFC 5545: CRLF, Faltung bei 75 **Oktetten**
+(nicht Zeichen — ein Umlaut ist länger, als er aussieht, und darf nicht
+mitten durchgeschnitten werden), Escaping von `\ ; ,` und Zeilenumbrüchen.
+Geprüft: 101 VEVENT mit 101 VALARM, längste Zeile exakt 75 Oktette, keine
+nackten LF, Blöcke ausbalanciert.
+
+Einschränkung, die man kennen sollte: Apple und Google aktualisieren
+Abo-Feeds in ihrem eigenen Takt, meist alle paar Stunden. Kurzfristige
+Änderungen kommen verzögert an. `REFRESH-INTERVAL` und `X-PUBLISHED-TTL`
+stehen auf 6 h, sind aber nur Wünsche.
+
+### Stufe 2, geplant, nicht gebaut: E-Mail-Erinnerung und Newsletter
+
+Aufwand ca. **3–5 Tage plus laufender Betrieb**, und der Betrieb ist der
+eigentliche Punkt. Was fehlt:
+
+- **Eine Datenbank.** Die Website ist zustandslos; es gibt keinen Ort für eine
+  Adresse. Postgres müsste in Coolify daneben.
+- **Ein Scheduler**, der stündlich fällige Erinnerungen versendet (Coolify
+  kann geplante Aufgaben).
+- **Ein Versandweg für Masse** — das SMTP über All-Inkl ist für
+  Kontaktformulare gedacht, nicht für 500 Mails in fünf Minuten.
+- **Double Opt-in** (§ 7 UWG), **Einwilligungsnachweis** (Zeitpunkt, IP,
+  angezeigter Text), **Ein-Klick-Abmeldung** (Art. 7 Abs. 3 DSGVO),
+  Löschkonzept, neuer Abschnitt in der Datenschutzerklärung.
+- **Bounce- und Beschwerdebehandlung** — sonst leidet die Zustellbarkeit von
+  `contact@racespot.tv` mit.
+- Stiller Kostentreiber: **sechs Sprachen** für jede Mail, jede
+  Bestätigungsseite, jede Fehlermeldung.
+
+**Empfehlung:** nicht selbst bauen. Ein EU-Anbieter (Brevo, CleverReach,
+Mailjet, jeweils mit AV-Vertrag) bringt Double Opt-in, Abmeldung,
+Einwilligungsnachweis, Bounces und Zustellbarkeit mit; die Website
+schrumpft dann auf ein Formular, einen API-Aufruf und sechs
+Bestätigungsseiten — **ein bis zwei Tage**. Die Event-Erinnerung ließe sich
+oft über deren Automationen fahren, dann entfällt der eigene Scheduler.
+
+**Und der ehrliche Einwand:** Bei einem angesetzten YouTube-Livestream gibt es
+die Erinnerungsglocke schon, kostenlos, und das Publikum ist dort ohnehin. Ein
+eigener E-Mail-Reminder lohnt vor allem, wenn ihr die **Adressen** wollt. Das
+ist eine Geschäftsentscheidung, keine technische.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

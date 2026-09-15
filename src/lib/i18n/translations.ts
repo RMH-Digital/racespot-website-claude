@@ -427,6 +427,12 @@ export const translations = {
   // ─── Calendar: counts and controls ───────────────────────
   'calendar.eventOne': { en: 'event', de: 'Event', es: 'evento', pt: 'evento', fr: 'événement', it: 'evento' },
   'calendar.eventMany': { en: 'events', de: 'Events', es: 'eventos', pt: 'eventos', fr: 'événements', it: 'eventi' },
+  'calendar.addToCalendar': { en: 'Add to calendar', de: 'In den Kalender', es: 'Añadir al calendario', pt: 'Adicionar ao calendário', fr: 'Ajouter au calendrier', it: 'Aggiungi al calendario' },
+  'calendar.subscribe':     { en: 'Subscribe to schedule', de: 'Zeitplan abonnieren', es: 'Suscribirse al calendario', pt: 'Subscrever o calendário', fr: 'S\'abonner au calendrier', it: 'Iscriviti al calendario' },
+  'calendar.subscribeHint': { en: 'Every broadcast lands in your own calendar with a reminder 15 minutes before it starts, and stays up to date on its own.', de: 'Jede Übertragung landet in Ihrem eigenen Kalender, mit Erinnerung 15 Minuten vor Beginn — und bleibt von selbst aktuell.', es: 'Cada retransmisión aparece en tu propio calendario, con un recordatorio 15 minutos antes, y se mantiene actualizada sola.', pt: 'Cada transmissão aparece no seu próprio calendário, com um lembrete 15 minutos antes, e mantém-se atualizada sozinha.', fr: 'Chaque diffusion arrive dans votre propre agenda, avec un rappel 15 minutes avant, et reste à jour toute seule.', it: 'Ogni trasmissione arriva nel tuo calendario, con un promemoria 15 minuti prima, e resta aggiornata da sola.' },
+  'calendar.reminderNote':  { en: 'Reminder 15 minutes before the start', de: 'Erinnerung 15 Minuten vor Beginn', es: 'Recordatorio 15 minutos antes', pt: 'Lembrete 15 minutos antes', fr: 'Rappel 15 minutes avant', it: 'Promemoria 15 minuti prima' },
+  'calendar.copyLink':      { en: 'Copy link', de: 'Link kopieren', es: 'Copiar enlace', pt: 'Copiar ligação', fr: 'Copier le lien', it: 'Copia il link' },
+  'calendar.copied':        { en: 'Copied', de: 'Kopiert', es: 'Copiado', pt: 'Copiado', fr: 'Copié', it: 'Copiato' },
   'calendar.prevMonth': { en: 'Previous month', de: 'Vorheriger Monat', es: 'Mes anterior', pt: 'Mês anterior', fr: 'Mois précédent', it: 'Mese precedente' },
   'calendar.nextMonth': { en: 'Next month', de: 'Nächster Monat', es: 'Mes siguiente', pt: 'Próximo mês', fr: 'Mois suivant', it: 'Mese successivo' },
   'calendar.prevEvent': { en: 'Previous event', de: 'Vorheriges Event', es: 'Evento anterior', pt: 'Evento anterior', fr: 'Événement précédent', it: 'Evento precedente' },

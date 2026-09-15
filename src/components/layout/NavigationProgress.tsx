@@ -75,6 +75,17 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
 
   const frame = useRef<number | undefined>(undefined)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  /**
+   * The exit animation, kept so it can be cancelled.
+   *
+   * Without this the curtain breaks on the second navigation in a row: the
+   * animation finishes with `fill: 'forwards'`, which leaves the element held
+   * at translateY(100%), and React reuses that same DOM node for the next
+   * curtain — so the next one mounts already pushed off the bottom of the
+   * screen and is never seen. Clicking through three pages quickly showed a
+   * curtain, then nothing, then nothing.
+   */
+  const exit = useRef<Animation | null>(null)
   /** The path we left; arrival is when `pathname` differs from it. */
   const from = useRef<string | null>(null)
   /** Was the curtain ever actually on screen? If not, leave without a show. */
@@ -93,6 +104,8 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
     timers.current = []
     if (frame.current !== undefined) cancelAnimationFrame(frame.current)
     frame.current = undefined
+    exit.current?.cancel()
+    exit.current = null
   }, [])
 
   const reset = useCallback(() => {
@@ -107,6 +120,7 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
 
   const start = useCallback(() => {
     clearTimers()
+    rootEl.current?.getAnimations().forEach((a) => a.cancel())
     from.current = window.location.pathname
     wasShown.current = false
     setPhase('running')
@@ -194,8 +208,10 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
         // animation for prefers-reduced-motion, but element.animate() is
         // script and sails straight past it — so the check happens here.
         const calmly = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        if (!calmly) {
-          rootEl.current?.animate(
+        if (!calmly && rootEl.current) {
+          // Clear anything left on the node first — see the `exit` ref above.
+          rootEl.current.getAnimations().forEach((a) => a.cancel())
+          exit.current = rootEl.current.animate(
             [{ transform: 'translateY(0)' }, { transform: 'translateY(100%)' }],
             { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
           )

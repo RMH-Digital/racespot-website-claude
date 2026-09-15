@@ -5,6 +5,7 @@ import { useMediaQuery } from '@/lib/hooks/useLocalTime'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
+import type { TranslationKey } from '@/lib/i18n/translations'
 
 
 // ─── Locale & time-format resolution ────────────────────────
@@ -220,18 +221,76 @@ function ListView({ lang, events, year, month, is24h, locale, timeZone }: { lang
   )
 }
 
+/**
+ * Download one broadcast as a calendar entry.
+ *
+ * The file carries an alarm, so the reminder is raised by the reader's own
+ * calendar — we store nothing and ask for nothing. `download` keeps the
+ * browser from trying to display the file, and `stopPropagation` keeps the
+ * click off the row link underneath it.
+ */
+function AddToCalendar({
+  lang,
+  event,
+  t,
+  compact = false,
+}: {
+  lang: Lang
+  event: CalendarEvent
+  t: (k: TranslationKey) => string
+  compact?: boolean
+}) {
+  return (
+    <a
+      href={`/api/calendar/${encodeURIComponent(event.id)}?lang=${lang}`}
+      download
+      onClick={(e) => e.stopPropagation()}
+      title={`${t('calendar.addToCalendar')} — ${t('calendar.reminderNote')}`}
+      aria-label={`${t('calendar.addToCalendar')}: ${event.series}`}
+      className={`relative z-10 flex shrink-0 items-center justify-center rounded-rs transition-colors
+        ${compact
+          ? // 24px: the month grid's cells are ~97px wide, so the 44px target
+            // used everywhere else simply does not fit. 24 is the floor WCAG
+            // 2.2 sets, and the same size the event dots settled on.
+            'h-6 w-6 text-rs-muted hover:text-rs-yellow'
+          : 'h-11 w-11 border border-rs-border text-rs-muted hover:border-rs-yellow hover:text-rs-yellow'}`}
+    >
+      <svg
+        width={compact ? 13 : 16}
+        height={compact ? 13 : 16}
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden="true"
+      >
+        <rect x="2" y="3" width="12" height="11" rx="1.5" />
+        <path d="M2 6.5h12M5.5 1.5V4M10.5 1.5V4" strokeLinecap="round" />
+        <path d="M8 8.5v3.5M6.25 10.25 8 12l1.75-1.75" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
+  )
+}
+
 function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
   const d = localDate(event.dateISO)
   const day = d.getDate()
   const weekday = formatWeekday(event.dateISO, locale, timeZone)
   const monthStr = d.toLocaleDateString(locale, { month: 'short', timeZone })
 
+  const t = getT(lang)
+
   return (
-    <a
-      href={localePath(lang, '/live')}
-      className="group grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
-                 hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 cursor-pointer"
+    // A div, not an anchor: the row used to be one link, which left nowhere to
+    // put the calendar button — an anchor cannot contain another. The watch
+    // link is stretched across the row instead, and the button sits above it.
+    <div
+      className="group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
+                 hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30"
     >
+      <a href={localePath(lang, '/live')} className="absolute inset-0" aria-label={event.series}>
+        <span className="sr-only">{event.series}</span>
+      </a>
       <div className="flex flex-col items-center justify-center text-center">
         <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
         <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
@@ -253,12 +312,13 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
           <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
         </div>
       </div>
-      <div className="flex items-center">
-        <span className="text-xs text-rs-yellow font-display font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-3">
+        <span className="hidden sm:inline text-xs text-rs-yellow font-display font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
           Watch →
         </span>
+        <AddToCalendar lang={lang} event={event} t={t} />
       </div>
-    </a>
+    </div>
   )
 }
 
@@ -488,12 +548,16 @@ function DayCell({
 // ─── Event Card (for calendar grid) ─────────────────────────
 
 function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
+  const t = getT(lang)
+
   return (
-    <a
-      href={localePath(lang, '/live')}
-      className="group flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
-                 p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors cursor-pointer"
+    <div
+      className="group relative flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
+                 p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors"
     >
+      <a href={localePath(lang, '/live')} className="absolute inset-0 rounded-rs" aria-label={event.series}>
+        <span className="sr-only">{event.series}</span>
+      </a>
       {/* Live badge */}
       {event.isLive && (
         <div className="mb-1">
@@ -514,13 +578,14 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
         </p>
       )}
 
-      {/* Start time */}
-      <div className="mt-auto pt-1">
+      {/* Start time, and the calendar download beside it */}
+      <div className="mt-auto pt-1 flex items-center justify-between gap-1">
         <span className="text-[10px] md:text-[11px] text-rs-yellow font-bold whitespace-nowrap">
           {formatTime(event.dateISO, is24h, locale, timeZone)}
         </span>
+        <AddToCalendar lang={lang} event={event} t={t} compact />
       </div>
-    </a>
+    </div>
   )
 }
 

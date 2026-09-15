@@ -56,6 +56,29 @@ export interface CalendarEvent {
 }
 
 /**
+ * An id that is the same every time we read the same row.
+ *
+ * Column R carries one when the sheet has it. When it does not, this derives
+ * one from the broadcast itself — it used to be `Math.random()`, which gave
+ * the same broadcast a different identity on every fetch. Harmless for a
+ * React key that lives for one render; fatal for the calendar feed, where the
+ * UID is how a subscriber's calendar recognises an event it already has. With
+ * a random one, every refresh would have looked like a fresh set of
+ * broadcasts and notified all over again.
+ *
+ * FNV-1a: short, stable, and no dependency.
+ */
+function stableId(series: string, start: Date): string {
+  const input = `${series}|${start.toISOString()}`
+  let hash = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(36)
+}
+
+/**
  * Convert Excel serial date number to JavaScript Date
  * Excel epoch = Dec 30, 1899 (due to the Lotus 123 leap year bug)
  */
@@ -108,7 +131,7 @@ function parseRow(row: (string | number)[]): ScheduleEvent | null {
   const isPast = now > liveBuffer
 
   return {
-    id: String(row[17] || Math.random()),
+    id: String(row[17] || '').trim() || stableId(series, eventDate),
     tier: Number(row[0]) || 4,
     date: eventDate,
     dateString: eventDate.toISOString().split('T')[0],
