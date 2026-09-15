@@ -406,19 +406,21 @@ Elemente darauf angewiesen waren.
 
 **Bewusst offen:**
 
-- Der Partner-Marquee hat keine sichtbare Pause-Schaltfläche. Er pausiert bei
-  Hover und steht bei `prefers-reduced-motion` still, aber es liegt kein
-  fokussierbares Element darin, über das ein Tastaturnutzer ihn anhalten
-  könnte. Eine Schaltfläche wäre der saubere WCAG-2.2.2-Weg — das ist eine
-  Design-Entscheidung, die Jürgen treffen sollte, kein stiller Einbau.
+- Der Partner-Marquee bekommt **keine** sichtbare Pause-Schaltfläche
+  (Entscheidung Jürgen, 2026-09-15). Er pausiert bei Hover und steht bei
+  `prefers-reduced-motion` still; ein Tastaturnutzer kann ihn nicht anhalten,
+  weil kein fokussierbares Element darin liegt. Das ist die bewusst in Kauf
+  genommene Lücke zu WCAG 2.2.2 — bei einem rein dekorativen Logoband, dessen
+  Inhalt sich wiederholt, vertretbar.
 - Restliche Trefferflächen zwischen 24 und 44 px: Ticker-Label (34 px hoch, das
   ist die Bandhöhe), Hero-„Next Broadcast"-Zeile (32), Footer-Rechtslinks (29).
   Alle über dem WCAG-Minimum von 24 px und breit genug; 44 px hätte hier
   Layouts verschoben.
-- Die Flaggen im Sprachwähler stehen weiterhin sichtbar da. Sie sind jetzt für
-  Screenreader unsichtbar, aber unter Windows rendern sie als Buchstaben und
-  Flaggen stehen für Länder, nicht für Sprachen (pt ist pt-BR). Entfernen wäre
-  ein Einzeiler — das ist Jürgens Entscheidung.
+- ~~Flaggen im Sprachwähler~~ — **am 2026-09-15 entfernt.** Der Knopf zeigt nur
+  noch das Kürzel, das Ausklappmenü Kürzel plus Sprachnamen (`DE Deutsch`). Das
+  `flag`-Feld ist mitsamt seinem letzten Aufrufer aus `LANGUAGES` verschwunden.
+  Nebeneffekt: Der Header wurde schmaler, was der Enge zwischen 1280 und
+  1440 px zugutekommt.
 
 ## 7d. SEO-Audit — umgesetzt 2026-09-15
 
@@ -761,6 +763,20 @@ von 20.x.
 - `public/images/events/rennsport-relaunch-2026/DSC00315.jpg` — das einzige
   Foto in `public/`, das in `src/` nirgends vorkommt. CLAUDE.md verlangt genau
   das. In der Historie, falls es doch gebraucht wird.
+
+**Gefunden, bewusst liegengelassen: ein paar tote Übersetzungsschlüssel.**
+Nachweislich nirgends benutzt sind `stats.broadcastHours` (die Kachel wurde am
+2026-09-14 ersetzt), `live.selectStream`, `events.upcoming`, `events.details`,
+`events.pastEvents`, `contact.required`, `contact.errorSend` und
+`contact.errorGeneric` — letztere beide stammen aus der Zeit vor den
+Fehlercodes, heute führt `send_failed` auf `contact.err.server`.
+
+Nicht entfernt: Das sind ein paar hundert Byte in einer Datendatei, und ein
+naiver Scan täuscht hier leicht — 54 der 62 zunächst „unbenutzten" Schlüssel
+werden in Wahrheit dynamisch zusammengesetzt (`meta.${key}.title`,
+`category.${name}`, `servicesPage.${key}.d${i}`) und ein Grep findet sie nicht.
+Beim nächsten inhaltlichen Eingriff in `translations.ts` mitnehmen, dann mit
+laufendem Build gegengeprüft.
 
 **Bewusst behalten**, obwohl unreferenziert:
 
