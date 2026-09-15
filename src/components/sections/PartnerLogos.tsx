@@ -31,7 +31,7 @@ function LogoRow({
   const items = [...logos, ...logos, ...logos, ...logos]
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="pause-on-hover relative overflow-hidden">
       {/* Fade masks on left/right edges — yellow to match background */}
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-linear-to-r from-rs-yellow to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-linear-to-l from-rs-yellow to-transparent" />

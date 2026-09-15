@@ -319,6 +319,85 @@ Server-HTML 17:00, nach Hydration 19:00, Startmonat korrekt September,
 Listenansicht 21 Einträge mit Ortszeit, Monatswechsel funktioniert, Konsole
 sauber. **Damit ist die Klasse von Fehlern auf der ganzen Seite erledigt.**
 
+## 7c. UI/UX-Audit — umgesetzt 2026-09-15
+
+Vollständiger Durchgang durch alle 12 Seiten × 6 Sprachen, gemessen im Browser
+(Kontrast, Trefferflächen, Überlauf, Überschriftenfolge, Fokus, Bewegung).
+Ergebnis danach: **72 Seiten, 0 Kontrastfehler, 0 Text unter 11 px, genau ein
+`h1` pro Seite, keine übersprungene Überschriftenebene.**
+
+**Kritisch, behoben:**
+
+1. **Header-CTA war zwischen 1024 und ~1300 px abgeschnitten.** Gemessen auf
+   `/de` bei 1024 px: „Angebot anfragen" endete 126 px hinter dem rechten Rand,
+   22 von 148 px sichtbar, und weil der Header `fixed` ist, gibt es keine
+   Scrollleiste, über die man ihn erreicht hätte. Englisch 87 px.
+   Zwei Ursachen, beide behoben: die Desktop-Leiste schaltete bei `lg` (1024)
+   ein, obwohl sie erst ab 1280 passt (jetzt `xl`), und der CTA-Text war in den
+   romanischen Sprachen ein ganzer Satz. Dafür gibt es jetzt
+   `nav.getQuoteShort` (Devis, Orçamento, Presupuesto, Preventivo, Anfragen) —
+   nur in der Kopfzeile, die Langform bleibt auf den Seiten-CTAs.
+   Nachgemessen bei 1280 px: alle sechs Sprachen passen, nichts ragt heraus.
+2. **`--color-rs-muted` war #777777** = 4,42:1 auf #0A0A0A und 4,22:1 auf
+   Karten, beides unter AA. Jetzt **#8A8A8A** (5,7 bzw. 5,5:1). Betraf fast
+   jeden Fließtext. Ebenfalls hochgezogen: Platzhalter im Formular (waren 50 %
+   Deckkraft), Hinweistexte (70 %), die `·`-Trenner und die Service-Nummern
+   (standen auf `text-rs-border`, 1,3:1 — praktisch unsichtbar).
+3. **Keine `prefers-reduced-motion`-Behandlung.** Jetzt ein Block, der
+   Animationen und Übergänge kappt und das weiche Scrollen abschaltet. Dazu
+   `.pause-on-hover` auf Ticker und Partner-Marquee: Hover oder Tastaturfokus
+   halten das Band an (WCAG 2.2.2).
+
+**Wichtig, behoben:** Skip-Link mit `id="content"` auf `<main>` · ein
+einheitlicher gelber `:focus-visible`-Ring (vorher gab es *keine* Fokusregel im
+Projekt; `focus:outline-hidden` an den Feldern ist raus) · Trefferflächen:
+Burger 36×31 → 44×44, Social-Icons 36 → 44, `btn-sm` → `min-h-11`, `btn-ghost`
+21 → 41 px (über `py-2.5 -my-2.5`, damit das Layout stehen bleibt),
+Footer-Links 16 → 33 px, Kalender-Monatspfeile 32 → 44, **Kalender-Event-Punkte
+6–8 px → 24×24** (Punkt bleibt optisch gleich, der Button ist jetzt eine
+24er-Box) · `aria-required` auf allen Pflichtfeldern (das Formular ist
+`noValidate`, die Pflicht stand nur als Sternchen da) · Tab-Leiste im Formular
+mit Roving-Tabindex und Pfeiltasten.
+
+**Feinschliff, behoben:** zwei `h1` auf `/live` · Footer-`h4` → `h2` plus
+`<nav>`-Landmark · Artikelspalte 48rem → 44rem (≈78 → ≈71 Zeichen je Zeile) ·
+Sprach-Dropdown schließt mit Escape und gibt den Fokus zurück, das falsche
+`aria-haspopup="menu"` ist weg, Flaggen-Emoji sind `aria-hidden` · mobiles Menü
+mit Escape, Scroll-Sperre und Fokusrückgabe · Live-Abfrage pausiert in
+Hintergrund-Tabs (`visibilitychange`) · Kalender startet unter 768 px in der
+Listenansicht (das Monatsraster ist 700 px breit; eine ausdrückliche Wahl des
+Nutzers gewinnt immer) · Uhr-Emoji durch SVG ersetzt · 10-px-Labels auf 11 px ·
+Tailwind-3-Rahmen-Shim entfernt, nachdem über alle 13 Seitentypen **null**
+Elemente darauf angewiesen waren.
+
+**Zwei Befunde haben sich beim Nachprüfen als falsch erwiesen:**
+
+- Das Minuten-Auswahlfeld hat *doch* einen Namen — `ariaLabel` kommt über die
+  `Select`-Komponente, mein erster Test hat nur nach `<label for>` gesucht.
+- `prefetch={false}` im Footer **halbiert die Prefetch-Last nicht**, wie
+  ursprünglich behauptet. Gemessen: 15 RSC-Prefetches beim Laden, danach
+  unverändert 15 — die kommen aus den Links oberhalb der Falz (Hero,
+  AudienceFork, Sektions-Links). Was die Änderung wirklich bringt: die drei nur
+  im Footer verlinkten Routen (`privacy`, `terms`, `imprint`) werden nicht mehr
+  vorgeladen, also ~6 Server-Renders weniger, sobald jemand nach unten scrollt.
+  Der Rest ist Next-Standardverhalten und der Preis für sofortige Navigation.
+
+**Bewusst offen:**
+
+- Der Partner-Marquee hat keine sichtbare Pause-Schaltfläche. Er pausiert bei
+  Hover und steht bei `prefers-reduced-motion` still, aber es liegt kein
+  fokussierbares Element darin, über das ein Tastaturnutzer ihn anhalten
+  könnte. Eine Schaltfläche wäre der saubere WCAG-2.2.2-Weg — das ist eine
+  Design-Entscheidung, die Jürgen treffen sollte, kein stiller Einbau.
+- Restliche Trefferflächen zwischen 24 und 44 px: Ticker-Label (34 px hoch, das
+  ist die Bandhöhe), Hero-„Next Broadcast"-Zeile (32), Footer-Rechtslinks (29).
+  Alle über dem WCAG-Minimum von 24 px und breit genug; 44 px hätte hier
+  Layouts verschoben.
+- Die Flaggen im Sprachwähler stehen weiterhin sichtbar da. Sie sind jetzt für
+  Screenreader unsichtbar, aber unter Windows rendern sie als Buchstaben und
+  Flaggen stehen für Länder, nicht für Sprachen (pt ist pt-BR). Entfernen wäre
+  ein Einzeiler — das ist Jürgens Entscheidung.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

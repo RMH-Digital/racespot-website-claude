@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useSyncExternalStore } from 'react'
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { LOCALES, type Lang } from '@/lib/i18n'
 
 /**
@@ -76,4 +76,30 @@ export function useLocalFormat(lang: Lang): LocalFormat {
     is24h,
     mounted,
   }
+}
+
+/**
+ * A CSS media query, read without a hydration mismatch.
+ *
+ * Same trick as `useMounted`: the server snapshot is always `false`, so the
+ * HTML is rendered as if the query did not match, and React swaps in the real
+ * answer during hydration. Use it to pick a *starting* state for something the
+ * viewport should decide — not to hide content, which would keep it out of the
+ * HTML that search engines read.
+ */
+export function useMediaQuery(query: string): boolean {
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const mql = window.matchMedia(query)
+      mql.addEventListener('change', onChange)
+      return () => mql.removeEventListener('change', onChange)
+    },
+    [query],
+  )
+
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => false,
+  )
 }

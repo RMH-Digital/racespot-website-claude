@@ -113,9 +113,9 @@ export function NewsBrowser({ items, labels }: Props) {
             <div className="p-8 md:p-12">
               <div className="flex items-center gap-3 mb-4">
                 <span className={`text-xs font-mono ${feature.categoryColor}`}>{feature.categoryLabel}</span>
-                <span className="text-rs-border">·</span>
+                <span className="text-rs-muted" aria-hidden="true">·</span>
                 <time dateTime={feature.date} className="text-rs-muted text-xs">{feature.dateLabel}</time>
-                <span className="text-rs-border">·</span>
+                <span className="text-rs-muted" aria-hidden="true">·</span>
                 <span className="text-rs-muted text-xs">{feature.readTime} {labels.read}</span>
               </div>
               <h2 className="text-rs-white text-2xl md:text-3xl font-bold mb-4 group-hover:text-rs-yellow transition-colors leading-snug">
@@ -151,7 +151,7 @@ export function NewsBrowser({ items, labels }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1.5">
                   <span className={`text-xs font-mono ${a.categoryColor}`}>{a.categoryLabel}</span>
-                  <span className="text-rs-border">·</span>
+                  <span className="text-rs-muted" aria-hidden="true">·</span>
                   <time dateTime={a.date} className="text-rs-muted text-xs">{a.dateLabel}</time>
                 </div>
                 <h3 className="text-rs-white font-semibold group-hover:text-rs-yellow transition-colors mb-1">

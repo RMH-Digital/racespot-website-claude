@@ -52,8 +52,36 @@ export function LiveStatusProvider({
   useEffect(() => {
     // Initial fetch
     poll()
-    const interval = setInterval(poll, POLL_INTERVAL)
-    return () => clearInterval(interval)
+
+    // Only poll while the tab is actually being looked at. A forgotten tab was
+    // asking the server sixty times an hour for a status nobody could see; now
+    // it goes quiet when hidden and catches up the moment it comes back.
+    let interval: ReturnType<typeof setInterval> | undefined
+
+    function start() {
+      if (interval) return
+      interval = setInterval(poll, POLL_INTERVAL)
+    }
+    function stop() {
+      if (!interval) return
+      clearInterval(interval)
+      interval = undefined
+    }
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        poll()
+        start()
+      } else {
+        stop()
+      }
+    }
+
+    if (document.visibilityState === 'visible') start()
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [poll])
 
   return (

@@ -87,19 +87,21 @@ export default async function ArticlePage({ params }: Props) {
         {/* The article's text is in loc.lang; when that is not the page
             language, say so on the element so assistive tech and search
             engines read it correctly. */}
-        <article className="max-w-3xl mx-auto" lang={fallback ? loc.lang : undefined}>
+        {/* 44rem ≈ 71 characters a line. max-w-3xl (48rem) wrapped at ~78, past the
+            point where the eye starts losing the start of the next line. */}
+        <article className="max-w-[44rem] mx-auto" lang={fallback ? loc.lang : undefined}>
           {/* Meta */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className={`text-xs font-mono ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
               {categoryLabel(lang, article.category)}
             </span>
-            <span className="text-rs-border">·</span>
+            <span className="text-rs-muted" aria-hidden="true">·</span>
             <time dateTime={article.date} className="text-rs-muted text-xs">{formatDate(lang, article.date)}</time>
-            <span className="text-rs-border">·</span>
+            <span className="text-rs-muted" aria-hidden="true">·</span>
             <span className="text-rs-muted text-xs">{loc.readTime} {t('news.read')}</span>
             {article.author && (
               <>
-                <span className="text-rs-border">·</span>
+                <span className="text-rs-muted" aria-hidden="true">·</span>
                 <span className="text-rs-white text-xs">{article.author}</span>
               </>
             )}

@@ -7,7 +7,7 @@
   --color-rs-dark: #111111;
   --color-rs-gray: #1a1a1a;
   --color-rs-s3: #242424;
-  --color-rs-muted: #777777;
+  --color-rs-muted: #8a8a8a;
   --color-rs-border: #2a2a2a;
   --color-rs-white: #ffffff;
   --color-rs-live: #e53e3e;
@@ -90,24 +90,6 @@
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
 @utility container-rs {
   max-width: 1280px;
   margin-left: auto;
@@ -144,13 +126,18 @@
 }
 
 @utility btn-ghost {
-  @apply inline-flex items-center gap-1
+  /* py-2.5 with -my-2.5: the clickable box grows from 21px to ~41px while the
+     layout box stays exactly where it was, so the section headers this sits in
+     do not move. */
+  @apply inline-flex items-center gap-1 py-2.5 -my-2.5
            text-rs-yellow font-display font-bold text-[13px] tracking-[0.08em] uppercase
            hover:underline transition-all duration-200;
 }
 
 @utility btn-sm {
-  @apply px-5 py-2.5 text-xs;
+  /* min-h-11 = 44px: the small button still reads as small, but it is a real
+     touch target on a phone. */
+  @apply px-5 py-2.5 text-xs min-h-11;
 }
 
 @utility section-label {
@@ -295,6 +282,80 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #F5C000;
   }
+}
+
+@layer base {
+  /*
+    One visible focus ring for the whole site.
+
+    Nothing defined a focus style before, so keyboard users were left with
+    whatever the browser drew — a thin double ring that all but disappears on
+    #0A0A0A. `:focus-visible` (not `:focus`) means a mouse click never shows it,
+    so the page looks unchanged to everyone else.
+  */
+  :focus-visible {
+    outline: 2px solid var(--color-rs-yellow);
+    outline-offset: 2px;
+  }
+
+  /*
+    Skip link: the header is fixed and holds the logo, six nav links, the
+    language switcher and the CTA, so tabbing to the content meant ten stops on
+    every page. Off-screen until focused, then parked below the header + ticker.
+  */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: 1rem;
+    top: calc(64px + 34px + 0.5rem);
+    background-color: var(--color-rs-yellow);
+    color: var(--color-rs-black);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-rs);
+  }
+}
+
+/*
+  Motion.
+
+  The ticker and the two partner marquees run forever, which WCAG 2.2.2 only
+  permits if there is a way to stop them — hovering or tabbing into either strip
+  pauses it (see `.pause-on-hover` below). This block covers the other half:
+  anyone whose system asks for reduced motion gets every animation and
+  transition cut short, the infinite ones included, plus plain jump scrolling.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+  Pause an endless marquee while it is hovered or holds keyboard focus. Applied
+  to the wrapper; the animated child is the target, so the whole strip stops as
+  one. Keyboard users reach it because the ticker's items are links.
+*/
+.pause-on-hover:hover [class*='animate-'],
+.pause-on-hover:focus-within [class*='animate-'] {
+  animation-play-state: paused;
 }
 
 /* Responsive container scaling for wider screens */

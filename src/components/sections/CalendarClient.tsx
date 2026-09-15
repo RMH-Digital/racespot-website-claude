@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { useMediaQuery } from '@/lib/hooks/useLocalTime'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
@@ -182,7 +183,7 @@ function getFirstDayOfWeek(year: number, month: number): number {
 
 function LiveBadge() {
   return (
-    <span className="inline-flex items-center gap-1 bg-rs-live text-white text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-sm">
+    <span className="inline-flex items-center gap-1 bg-rs-live text-white text-[11px] font-bold uppercase px-1.5 py-0.5 rounded-sm">
       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
       LIVE
     </span>
@@ -232,9 +233,9 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
                  hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 cursor-pointer"
     >
       <div className="flex flex-col items-center justify-center text-center">
-        <span className="text-[10px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
+        <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
         <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
-        <span className="text-[10px] uppercase text-rs-muted leading-none">{monthStr}</span>
+        <span className="text-[11px] uppercase text-rs-muted leading-none">{monthStr}</span>
       </div>
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2 flex-wrap">
@@ -248,7 +249,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
         )}
         <div className="flex items-center gap-1.5 mt-1">
           <span className="text-[11px] text-rs-yellow font-bold">{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
-          <span className="text-[10px] text-rs-muted/50">–</span>
+          <span className="text-[11px] text-rs-muted" aria-hidden="true">–</span>
           <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
         </div>
       </div>
@@ -400,7 +401,7 @@ function DayCell({
             <span className="text-sm font-medium text-rs-muted leading-6">{day}</span>
           )}
           {hasMultiple && (
-            <span className="text-[10px] text-rs-yellow bg-rs-yellow/10 px-1.5 py-0.5 rounded-sm font-bold">
+            <span className="text-[11px] text-rs-yellow bg-rs-yellow/10 px-1.5 py-0.5 rounded-sm font-bold">
               {events.length}
             </span>
           )}
@@ -444,17 +445,22 @@ function DayCell({
                 </button>
 
                 {/* Dots */}
-                <div className="flex items-center gap-1.5 mx-auto md:mx-0">
+                <div className="flex flex-wrap items-center justify-center gap-0.5 mx-auto md:mx-0">
                   {events.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(idx) }}
-                      className={`rounded-full transition-colors p-0.5
-                        ${idx === activeIndex
-                          ? 'bg-rs-yellow w-2 h-2'
-                          : 'bg-rs-muted/30 hover:bg-rs-muted/60 w-1.5 h-1.5'}`}
+                      className="group/dot flex h-6 w-6 items-center justify-center rounded-full"
                       aria-label={`Event ${idx + 1} of ${events.length}`}
-                    />
+                      aria-current={idx === activeIndex || undefined}
+                    >
+                      <span
+                        className={`rounded-full transition-colors
+                          ${idx === activeIndex
+                            ? 'bg-rs-yellow w-2 h-2'
+                            : 'bg-rs-muted/70 group-hover/dot:bg-rs-muted w-1.5 h-1.5'}`}
+                      />
+                    </button>
                   ))}
                 </div>
 
@@ -538,7 +544,10 @@ function EmptyState({ lang }: { lang: Lang }) {
 type ViewMode = 'list' | 'calendar'
 
 export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarEvent[] }) {
-  const [viewMode, setViewMode] = useState<ViewMode>('calendar')
+  const isNarrow = useMediaQuery('(max-width: 767px)')
+  const [chosenView, setChosenView] = useState<ViewMode | null>(null)
+  const viewMode: ViewMode = chosenView ?? (isNarrow ? 'list' : 'calendar')
+  const setViewMode = setChosenView
   const { locale, is24h, timeZone, mounted } = useLocaleFormat(lang)
 
   // The month to open on is itself timezone-dependent: at 23:30 UTC on the last
@@ -616,14 +625,14 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
         <div className="flex items-center bg-rs-dark border border-rs-border rounded-rs overflow-hidden">
           <button
             onClick={() => setViewMode('calendar')}
-            className={`px-4 py-2 text-xs font-display font-bold uppercase tracking-wider transition-colors
+            className={`min-h-11 px-4 py-2 text-xs font-display font-bold uppercase tracking-wider transition-colors
               ${viewMode === 'calendar' ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white'}`}
           >
             {t('calendar.calendarView')}
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`px-4 py-2 text-xs font-display font-bold uppercase tracking-wider transition-colors
+            className={`min-h-11 px-4 py-2 text-xs font-display font-bold uppercase tracking-wider transition-colors
               ${viewMode === 'list' ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white'}`}
           >
             {t('calendar.listView')}
@@ -634,24 +643,30 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
         <div className="flex items-center gap-3">
           <button
             onClick={prevMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
+            aria-label={t('calendar.prevMonth')}
+            className="w-11 h-11 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           <span className="text-sm font-display font-bold text-white min-w-[140px] text-center">
             {calMonthLabel}
           </span>
           <button
             onClick={nextMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
+            aria-label={t('calendar.nextMonth')}
+            className="w-11 h-11 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
           >
-            →
+            <span aria-hidden="true">→</span>
           </button>
         </div>
 
         {/* Timezone indicator */}
-        <div className="text-[11px] text-rs-muted">
-          🕐 {timezone.replace(/_/g, ' ')}
+        <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
+          <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" />
+            <path d="M8 4.5V8l2.25 1.5" strokeLinecap="round" />
+          </svg>
+          {timezone.replace(/_/g, ' ')}
         </div>
       </div>
 

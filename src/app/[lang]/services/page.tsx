@@ -80,7 +80,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ lang:
               >
                 <summary className="flex items-center justify-between gap-4 p-8 cursor-pointer list-none">
                   <div className="flex items-center gap-6">
-                    <span className="text-rs-border font-mono text-sm group-open:text-rs-yellow/50 transition-colors">
+                    <span className="text-rs-muted font-mono text-sm group-open:text-rs-yellow transition-colors">
                       {s.number}
                     </span>
                     <div>

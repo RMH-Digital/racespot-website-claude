@@ -22,6 +22,8 @@ export function Header({ lang }: { lang: Lang }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const langRef = useRef<HTMLDivElement>(null)
+  const langBtnRef = useRef<HTMLButtonElement>(null)
+  const menuBtnRef = useRef<HTMLButtonElement>(null)
   const pathname = usePathname()
   const t = getT(lang)
 
@@ -43,13 +45,44 @@ export function Header({ lang }: { lang: Lang }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  // Escape closes whichever overlay is open and returns focus to its trigger —
+  // without that, a keyboard user who dismisses the menu lands back at the top
+  // of the document.
+  useEffect(() => {
+    if (!langOpen && !menuOpen) return
+    function handleKey(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      if (langOpen) {
+        setLangOpen(false)
+        langBtnRef.current?.focus()
+      }
+      if (menuOpen) {
+        setMenuOpen(false)
+        menuBtnRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [langOpen, menuOpen])
+
+  // The open mobile menu is the page as far as the reader is concerned; let it
+  // scroll on its own instead of dragging the content behind it along.
+  useEffect(() => {
+    if (!menuOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [menuOpen])
+
   const isActive = (href: string) => pathname.startsWith(localePath(lang, href))
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black/97 backdrop-blur-[10px] border-b border-rs-border">
       <div className="container-rs flex items-center justify-between h-full">
         {/* Logo */}
-        <Link href={localePath(lang, '/')} className="flex items-center shrink-0">
+        <Link href={localePath(lang, '/')} className="flex items-center shrink-0 h-11 -ml-1 px-1">
           <Image
             src="/images/logos/racespot-white.png"
             alt="Racespot"
@@ -61,7 +94,7 @@ export function Header({ lang }: { lang: Lang }) {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-1">
           {NAV_LINKS.map(({ href, labelKey, isLiveLink }) => {
             const active = isActive(href)
             const showLiveIndicator = isLiveLink && isLive
@@ -70,7 +103,7 @@ export function Header({ lang }: { lang: Lang }) {
               <Link
                 key={href}
                 href={localePath(lang, href)}
-                className={`relative flex items-center gap-1.5 px-3 py-2 whitespace-nowrap
+                className={`relative flex items-center gap-1.5 px-2 2xl:px-3 py-2 whitespace-nowrap
                   font-display font-semibold text-[13px] tracking-[0.08em] uppercase
                   transition-colors duration-200
                   ${showLiveIndicator ? 'text-rs-live' : active ? 'text-white' : 'text-rs-muted hover:text-white'}
@@ -89,7 +122,7 @@ export function Header({ lang }: { lang: Lang }) {
                   </span>
                 )}
                 {active && !showLiveIndicator && (
-                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-rs-yellow" />
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-rs-yellow" />
                 )}
               </Link>
             )
@@ -97,15 +130,16 @@ export function Header({ lang }: { lang: Lang }) {
         </nav>
 
         {/* Right side: lang dropdown + CTA */}
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden xl:flex items-center gap-3 2xl:gap-4">
           <div ref={langRef} className="relative">
             <button
+              ref={langBtnRef}
               onClick={() => setLangOpen(!langOpen)}
-              aria-haspopup="menu"
+              aria-label={t('a11y.chooseLanguage')}
               aria-expanded={langOpen}
               className="flex items-center gap-1.5 px-3 py-1.5 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
             >
-              <span>{currentLang.flag}</span>
+              <span aria-hidden="true">{currentLang.flag}</span>
               <span>{currentLang.code.toUpperCase()}</span>
               <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" className={`ml-0.5 transition-transform ${langOpen ? 'rotate-180' : ''}`}>
                 <path d="M4 5L0 0h8L4 5z" />
@@ -125,24 +159,26 @@ export function Header({ lang }: { lang: Lang }) {
                     className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] font-display uppercase tracking-wider transition-colors
                       ${l.code === lang ? 'bg-rs-yellow/10 text-rs-yellow' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                   >
-                    <span>{l.flag}</span>
+                    <span aria-hidden="true">{l.flag}</span>
                     <span>{l.label}</span>
                   </Link>
                 ))}
               </div>
             )}
           </div>
-          <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm">
-            {t('nav.getQuote')}
+          <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm whitespace-nowrap">
+            {t('nav.getQuoteShort')}
           </Link>
         </div>
 
         {/* Mobile hamburger */}
         <button
-          className="lg:hidden flex flex-col gap-1.5 p-2"
+          className="xl:hidden flex flex-col items-center justify-center gap-1.5 w-11 h-11 -mr-2"
+          ref={menuBtnRef}
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? t('a11y.closeMenu') : t('a11y.openMenu')}
           aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
         >
           <span className={`block w-5 h-px bg-white transition-transform duration-200 ${menuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
           <span className={`block w-5 h-px bg-white transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
@@ -152,7 +188,7 @@ export function Header({ lang }: { lang: Lang }) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="lg:hidden bg-rs-dark border-t border-rs-border">
+        <div id="mobile-menu" className="xl:hidden bg-rs-dark border-t border-rs-border max-h-[calc(100dvh-98px)] overflow-y-auto">
           <nav className="container-rs py-6 flex flex-col gap-1">
             {NAV_LINKS.map(({ href, labelKey, isLiveLink }) => {
               const active = isActive(href)
@@ -192,7 +228,7 @@ export function Header({ lang }: { lang: Lang }) {
                         ? 'bg-rs-yellow text-rs-black border-rs-yellow'
                         : 'text-rs-muted border-rs-border hover:text-white'}`}
                   >
-                    <span>{l.flag}</span>
+                    <span aria-hidden="true">{l.flag}</span>
                     {l.code.toUpperCase()}
                   </Link>
                 ))}

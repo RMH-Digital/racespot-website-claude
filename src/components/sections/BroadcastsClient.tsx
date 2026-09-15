@@ -195,7 +195,7 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
               placeholder={t('broadcastsPage.searchPlaylists')}
               className="w-full bg-rs-dark border border-rs-border rounded-rs pl-10 pr-4 py-2.5
                          text-sm text-white placeholder:text-rs-muted
-                         focus:outline-hidden focus:border-rs-yellow transition-colors"
+                         focus:border-rs-yellow transition-colors"
             />
           </div>
         </div>
