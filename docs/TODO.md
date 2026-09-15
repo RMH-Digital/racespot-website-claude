@@ -689,47 +689,6 @@ die Erinnerungsglocke schon, kostenlos, und das Publikum ist dort ohnehin. Ein
 eigener E-Mail-Reminder lohnt vor allem, wenn ihr die **Adressen** wollt. Das
 ist eine Geschäftsentscheidung, keine technische.
 
-## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
-
-Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
-Startseite, Kalender und Broadcasts längst ein `revalidate = 300` hatten und
-sämtliche Datenabrufe gecacht sind. Auf einem geteilten Server heißt das: ein
-voller Server-Render pro Besucher und pro Seite, dazu die RSC-Prefetches.
-
-**Ursache: ein einziger `headers()`-Aufruf in `not-found.tsx`.** Die Datei
-gehört zum Segment `[lang]`, und Next behandelt eine dynamische API irgendwo im
-Render-Baum eines Segments als Eigenschaft des ganzen Segments. Die 404-Seite
-las den Sprach-Header, den der Proxy setzt — und zwang damit die komplette
-Website in den dynamischen Modus. Nachgewiesen, nicht vermutet: Aufruf
-testweise entfernt, und zwölf Routen hörten auf, dynamisch zu sein.
-
-**Lösung:** Die Sprache kommt jetzt aus der URL, gelesen im Browser
-(`src/components/layout/NotFoundBody.tsx`, `useSyncExternalStore` — Server-
-Schnappschuss ist Englisch, Client-Schnappschuss die echte Sprache, React löst
-den Unterschied bei der Hydration auf statt ihn zu melden). Die Seite bleibt
-statisch, der Statuscode bleibt 404, der Leser bekommt weiter seine Sprache.
-Geprüft: `/de/gibt-es-nicht` → „Seite nicht gefunden", `/fr/pas-ici` →
-„Page introuvable", beide mit 404.
-
-**Und ein Haken, der dabei fast durchgerutscht wäre:** Neun Seiten hatten gar
-kein `revalidate`. Vollständig statisch hätten sie den **Ticker** aus dem
-Layout — die Liste der nächsten Broadcasts — zum Build-Zeitpunkt eingefroren
-und bis zum nächsten Deploy so gezeigt. Deshalb steht das `revalidate = 300`
-jetzt im Layout und gilt fürs ganze Segment; das passt zum Cache des Master
-Schedule.
-
-**Ergebnis:** Alle 72 Seiten sind `●` (vorgerendert, 5-Minuten-Fenster).
-`Cache-Control` ging von `private, no-cache, no-store` auf
-`s-maxage=300, stale-while-revalidate` — **66 von 72** Seiten sind jetzt
-cachebar, die sechs Ausnahmen sind die `/live`-Seiten, die absichtlich
-dynamisch bleiben. Statt eines Renders pro Besucher jetzt einer pro Seite und
-Fünf-Minuten-Fenster.
-
-Nebenbei: Der Catch-all hat eigene Metadaten bekommen. Das ausgelieferte HTML
-trug den richtigen 404-Titel, aber eine Client-Navigation auf einen toten Link
-löste die Metadaten *dieser* Route auf — und ohne eigene fiel sie auf den
-Layout-Standard zurück, der Tab las sich dann wie die Startseite.
-
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**
