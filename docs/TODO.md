@@ -696,14 +696,22 @@ es ist ein Konfigurationswert.
 
 **Hetzner, als Postgres-Dienst in Coolify**, eigene Instanz (nicht die von
 Umami), im selben Docker-Netz wie die Website, ohne offenen Port. Coolify
-sichert Datenbanken planmäßig; der Dump geht zusätzlich **jede Nacht
-verschlüsselt ins Büro** — so liegt eine Kopie tatsächlich im Haus.
+sichert Datenbanken planmäßig.
 
-Den Produktivbetrieb ins Büro zu legen rate ich ab: Die Website müsste dann
-bei jeder Anmeldung ins Büronetz schreiben — ein offener Weg von außen nach
-innen, plus Latenz, plus die Verfügbarkeit einer Büroleitung für einen
-öffentlichen Dienst. Die Kopie im Büro erfüllt „alle Daten selbst haben"
-besser als ein Server, der dort läuft.
+**Backup (entschieden 2026-09-16, Jürgen: alles bei Hetzner, keine Kopie im
+Büro).** Zwei Ebenen, beide bei Hetzner:
+
+- Die **täglichen Server-Backups** (7 Slots, seit August aktiv) sichern die
+  ganze Maschine samt Datenbank-Volume — bereits bezahlt.
+- Dazu ein **logischer Dump** über Coolifys Datenbank-Backups, täglich, auf
+  eine **Hetzner Storage Box** (BX11, 1 TB, 3,81 €/Monat). Nicht für die
+  Sicherheit, sondern für die Wiederherstellung: Aus dem Server-Backup kommt
+  nur der ganze Server von gestern zurück, aus dem Dump nur die
+  Abonnentenliste — in Minuten, ohne die anderen Apps anzufassen.
+
+Produktivbetrieb oder Kopie im Büro: bewusst nicht. Ein öffentlicher Dienst,
+der ins Büronetz schreibt, wäre ein offener Weg von außen nach innen; für
+eine Sicherungskopie reicht die Storage Box im selben Rechenzentrum.
 
 #### Schema
 
@@ -775,7 +783,7 @@ letzten Fehlern der Warteschlange.
 
 | Teil | Tage |
 |---|---|
-| Postgres in Coolify, Schema, Migrationen, Verbindung aus der Website, Backup-Plan mit nächtlicher Kopie ins Büro | 1 |
+| Postgres in Coolify, Schema, Migrationen, Verbindung aus der Website, täglicher Dump auf die Storage Box | 1 |
 | Anmeldung: Formular mit zwei Themen und Serienwahl, drei API-Routen, Token, Bestätigungsmail, Statusseite `/{lang}/newsletter` | 1,5 |
 | Warteschlange und Worker: Tabelle, Drosselung, Wiederholung, Vorlagen (Bestätigung, Reminder, Newsletter) in sechs Sprachen, Text- und HTML-Fassung | 1,5 |
 | Race Reminder: stündlicher Task, Fenster 60–120 min, `reminder_log`, `.ics`-Anhang | 0,5 |
@@ -806,7 +814,7 @@ Datenschutzerklärung freigegeben ist.
 **Der Einwand von Stufe 1 gilt weiter:** Für angesetzte YouTube-Streams gibt es
 die Erinnerungsglocke kostenlos. Der eigene Reminder ist der Grund, aus dem
 jemand eine **Adresse** hinterlässt — und genau die gehört dann uns, auf
-unserem Server, mit Kopie im Büro. Dafür sind neun Tage der Preis.
+unserem Server. Dafür sind neun Tage der Preis.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
