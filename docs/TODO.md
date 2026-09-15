@@ -518,32 +518,44 @@ erst beim Server. Meist ein Zehntel einer Sekunde und unsichtbar; auf einer
 kalten Route oder schlechter Verbindung lange genug, dass die Seite kaputt
 wirkt — man klickt, und nichts passiert.
 
-`src/components/layout/NavigationProgress.tsx`: eine Haarlinie ganz oben plus
-ein Zähler unten links, beides in Markengelb und der Display-Schrift.
+`src/components/layout/NavigationProgress.tsx`: ein schwarzer Vollbild-Vorhang
+mit „RACESPOT" unten links und einer dreistelligen Zahl unten rechts in großer
+Eurostile und Markengelb, dazu die gelbe Fortschrittslinie am unteren Rand.
+Bei Ankunft schiebt er sich nach oben weg.
 
-Bewusste Entscheidungen:
+**Vorlage ist rmh-digital.de** (`Preloader` in
+`_next/static/chunks/app/[locale]/page-*.js`). Deren Fassung ist ein Intro:
+GSAP-Timeline, fest 0,85 s, einmal pro Session über
+`sessionStorage['rmh:preloaded']`, bei `prefers-reduced-motion` übersprungen,
+danach `yPercent: -100`. Die Zahl dort ist Choreografie und hängt an nichts.
+Hier hängt sie an der echten Navigation — das war Jürgens eigentliche
+Anforderung („wenn eine Seite mal etwas länger braucht").
 
-- **Kein Vollbild-Vorhang.** Für 300 ms Wartezeit ist eine Verdeckung schlimmer
-  als das Warten — der Leser verliert die Seite, die er gerade ansieht.
-- **Erst nach 250 ms.** Darunter bleibt alles still; in Produktion wird die
-  Komponente bei einer schnellen Navigation gar nicht erst gerendert (geprüft:
-  Deckkraft nie über 0).
-- **Der Zähler startet, wenn er sichtbar wird**, nicht beim Klick. Die erste
-  Fassung ließ ihn ab dem Klick laufen — nach der stillen Viertelsekunde stand
-  er schon bei 55, und „0 auf 100" fängt nun mal bei 0 an.
-- **Bis 90, dann Halt.** Wie weit die Anfrage wirklich ist, weiß niemand. Ein
-  Balken, der zielstrebig auf 99 marschiert und dort sitzen bleibt, ist eine
-  Lüge. Bei Ankunft springt er auf 100, hält 200 ms und blendet aus.
-- **Der Zähler steht unten links.** Zuerst saß er unter dem rechten Ende der
-  Linie — damit standen gelbe Ziffern auf dem gelben „Angebot anfragen"-Knopf.
-  Unten links ist auf jeder Seite frei.
+Entscheidungen und Fallen:
+
+- **Erst nach 250 ms.** Darunter wird die Komponente gar nicht erst gerendert
+  (geprüft: Deckkraft bleibt 0). Sonst blitzt bei jedem Klick ein Vorhang auf.
+- **Bis 90, dann Halt.** Wie weit die Anfrage ist, weiß niemand. Bei Ankunft
+  springt sie auf 100, hält 260 ms, dann gleitet der Vorhang weg.
+- **Der Zähler ist kein React-State.** Er war es — und bewegte sich nicht:
+  während der laufenden Route-Transition hat React die Updates pro Frame nicht
+  durchgerendert, die Zahl stand auf 000 und sprang bei Ankunft auf 100. Die
+  Animation-Frames liefen die ganze Zeit (105 Stück in 1,5 s gemessen), React
+  hat nur nicht neu gerendert. Jetzt schreibt die rAF-Schleife direkt in die
+  beiden Knoten.
+- **`transition-[translate,…]`, nicht `transform`.** Tailwind 4 bewegt über die
+  `translate`-Eigenschaft; mit `transform` in der Transition-Liste sprang der
+  Vorhang weg, statt zu gleiten. Gemessen: `translate: 0px -100%` bei
+  `transition-property: transform, opacity`.
+- **`w-full` auf der Zeile.** `container-rs` zentriert sich mit `margin: auto`,
+  und ein Auto-Margin auf der Querachse hebt `align-items: stretch` auf — ohne
+  `w-full` schrumpfte die Zeile auf Inhaltsbreite und die Zahl stand mitten im
+  Bild statt rechts.
 - **Keine CSS-Transition auf dem Balken.** Der Wert ändert sich jeden Frame,
-  und eine jeden Frame neu gestartete Transition kommt nie an: der Balken blieb
-  bei 56 % stehen, während die Zahl weiter auf 100 lief. Jetzt macht
-  `requestAnimationFrame` die Bewegung allein.
-- Zurück/Vorwärts (`popstate`) zählen mit; nach 15 s ohne Ankunft blendet sie
-  sich ab, damit keine Anzeige hängen bleibt. Für Screenreader gibt es *eine*
-  Statusmeldung statt hundert wechselnder Zahlen.
+  eine jeden Frame neu gestartete Transition kommt nie an (blieb bei 56 %).
+- Zurück/Vorwärts zählen mit; nach 15 s ohne Ankunft blendet sie sich ab, damit
+  weder Vorhang noch Scroll-Sperre hängen bleiben. Für Screenreader eine
+  Statusmeldung statt einer sich sechzigmal pro Sekunde ändernden Zahl.
 
 ## 8. Kleinere technische Punkte
 
