@@ -209,10 +209,16 @@ wurde — toter Link und falsche Aussage. Entfernt; die Erklärung nach § 36 VS
 
 Formulare am 2026-09-11 überarbeitet (Website/Adresse optional, Dropdowns für
 Rennen 1–30 und Dauer h/min, übersetzte Feld-Fehlermeldungen, Fehlercodes vom
-Server). Ungeprüft bleibt: ob `SMTP_USER`/`SMTP_PASS` in Coolify gesetzt sind. Ohne sie fällt das Formular auf `mailto:` zurück (öffnet das Mailprogramm des
-Besuchers) — funktioniert, ist aber nicht das Gewollte. Einmal eine Broadcast-Anfrage
-absenden und prüfen, ob sie bei `contact@racespot.tv` **und** als Kopie beim Absender
-ankommt. Falls nicht: Env-Vars in Coolify setzen (Namen in `.env.example`).
+Server).
+
+**Am 2026-09-15 über die Coolify-API geprüft:** `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_USER`, `SMTP_PASS` und `CONTACT_EMAIL` sind gesetzt. Der
+`mailto:`-Notnagel greift also nicht, das Formular versendet echt.
+
+**Offen bleibt genau eine Sache:** einmal eine Broadcast-Anfrage absenden und
+prüfen, ob sie bei `contact@racespot.tv` **und** als Kopie beim Absender
+ankommt. Das kann nur jemand tun, der in den Postfächern nachsehen kann —
+einen Testversand an das echte Team-Postfach löse ich nicht ungefragt aus.
 
 ## 5b. News-Darstellung — erledigt 2026-09-14
 
@@ -652,8 +658,21 @@ ist eine Geschäftsentscheidung, keine technische.
   schloss sie aus; jetzt greift die 301 auch dort, die Sprachlogik überspringt
   sie weiterhin.
 
-**Bewusst offen: `CalendarClient.tsx` aufteilen** (619 Zeilen). Die Datei ist
-klar gegliedert und wurde am 2026-09-14 umfassend umgebaut (Zeitzonen). Sie
-direkt danach ohne fachlichen Anlass zu zerlegen, bringt Regressionsrisiko ohne
-sichtbaren Nutzen. Beim nächsten inhaltlichen Eingriff mitnehmen.
+**Bewusst offen: `CalendarClient.tsx` aufteilen** — inzwischen **755 Zeilen**.
+Am 2026-09-14 waren es 619; seither kamen die Zeitzonen-Umbauten, die
+Trefferflächen aus dem UI-Audit und die Kalender-Downloads dazu. Die
+Begründung fürs Aufschieben („direkt nach einem großen Umbau ohne fachlichen
+Anlass zerlegen bringt Risiko ohne Nutzen") trägt langsam nicht mehr: die
+Datei enthält mittlerweile Listenansicht, Monatsraster, Event-Karte,
+Zeitzonen-Auflösung, Download-Knopf und die Zustandslogik. **Beim nächsten
+inhaltlichen Eingriff wirklich mitnehmen** — ein sinnvoller Schnitt wäre
+`ListView` / `GridView` / `AddToCalendar` / die Zeit-Helfer.
+
+**Offen: alte lokale Branches** — `analytics-page-views`, `i18n-routes`,
+`next-15`, `next-16`, `ui-audit` sind alle in `main` oder überholt und können
+weg. `dockerfile-build` bleibt bewusst liegen (Nixpacks-Entscheidung).
+
+**Offen, minimal: Abhängigkeiten mit neuen Hauptversionen** — ESLint 10,
+TypeScript 7, `@types/node` 26. Nichts davon drängt; TypeScript 7 ist ein
+großer Sprung, der einen eigenen Durchgang verdient.
 
