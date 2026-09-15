@@ -346,6 +346,30 @@ per `ssh` von außen und `cat ~/.ssh/authorized_keys`.
 
 ---
 
+### 6.5 Deploy „failed" mit `exit code 255` ist ein SSH-Abriss, kein Build-Fehler
+
+Coolify führt jeden Build-Schritt per SSH auf dem Server aus
+(`ssh … docker exec <helper> bash /artifacts/build.sh`,
+`app/Traits/ExecuteRemoteCommand.php`). **255 ist der Rückgabewert von `ssh`**
+bei abgerissener Verbindung — nicht der von `npm run build`. Erkennbar daran,
+dass das Log mitten in der Ausgabe endet und **keine** BuildKit-Zeile
+„process … did not complete successfully: exit code N" folgt. Coolifys eigene
+SSH-Wiederholung greift nicht, weil die Fehlermeldung in dem Fall aus
+Build-Ausgabe besteht und nicht nach „Connection reset" aussieht
+(`SshRetryable::isRetryableSshError`).
+
+Historie dieser Instanz: **vier von vier** fehlgeschlagenen Deploys waren 255,
+an beliebigen Stellen — zweimal mitten in einem apt-Download (2026-09-11),
+einmal bei „Creating an optimized production build" von RMH-Digital.de
+(2026-09-04), einmal beim Vorrendern der Racespot-Seiten (2026-09-15).
+
+**Lehre:** Neu anstoßen („Redeploy" in Coolify oder ein leerer Commit), nichts
+am Code ändern. Am 2026-09-15 wurde daraus fälschlich ein Speicherproblem
+geschlossen und ein korrekter Commit zurückgedreht; fünf Minuten später lief
+derselbe Build-Schritt auf demselben Server in 4,4 s durch.
+
+---
+
 ## 7. Nicht anfassen
 
 - **`authorized_keys` auf dem Server:** enthält neben Philips Schlüssel einen
@@ -408,6 +432,20 @@ Beim Durchgehen der Projekte mit korrigieren.
 
 ---
 
+### 8.7 Unbekannter Prozess im Container von RMH-Digital.de — an Philip
+
+Gesehen am 2026-09-15 gegen 10:10 UTC per `ps` und `docker stats`: im Container
+der App `e13nue97v3hnotrvmt7eb03d` (RMH-Digital.de, Dockerfile-Build) läuft ein
+Prozess `./XXNokIgN` mit **2,4 GB RSS und ~370 % CPU** — alle vier Kerne, bei
+7,7 GB RAM ohne Swap und 2,6 GB verfügbar. Ein Webserver sieht so nicht aus.
+
+Nicht weiter untersucht und nicht angefasst — Philips Server, Philips App.
+Bis zum Gegenbeweis als möglichen Fremdprozess behandeln und prüfen:
+`docker top <container>` (Startzeit des Prozesses gegen die des Containers),
+`ls -la /proc/<pid>/exe` und `cwd`, `ss -tnp | grep <pid>`, und ob das
+Dockerfile im Repo so etwas überhaupt startet. Solange er läuft, konkurriert
+jeder Build auf der Maschine mit ihm um CPU und Speicher.
+
 ## 9. Arbeitsweise mit Philip
 
 - **Er schreibt Deutsch — auf Deutsch antworten.**
@@ -451,3 +489,14 @@ Portzustand korrekt, kein Container `unhealthy`, Disk 20/75 GB.
 Neu aufgefallen: Der Server wurde um den **12./13. August neu gestartet** (nicht
 von uns — Uptime knapp 4 Wochen bei 4 Wochen alten Containern). Alles kam
 korrekt hoch; die Konfiguration ist damit nebenbei als reboot-fest bestätigt.
+
+### 2026-09-15 — Deploy-Fehler aufgeklärt
+
+Ein Racespot-Deploy schlug mit `exit code 255` fehl; Ursache ist der
+SSH-Kanal von Coolify, nicht der Build — siehe 6.5. Dabei nachgemessen:
+7,7 GB RAM, **kein Swap**, 2,6 GB verfügbar, Disk 33/75 GB, alle Container
+ohne Speicherlimit, kein OOM im Kernel-Log seit Boot (13. August). Dabei
+aufgefallen: 8.7.
+
+Am Mac fehlt der Alias `ssh coolify` in `~/.ssh/config` — der Schlüssel ist
+hinterlegt, `ssh root@178.104.72.17` funktioniert.
