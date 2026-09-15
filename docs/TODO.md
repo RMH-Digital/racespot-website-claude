@@ -286,10 +286,23 @@ produzierte Videos (4.581), abgedeckte Serien (104).
 - ~~Tote zweite Website-App löschen~~ — erledigt 2026-09-09.
 - Lokaler Branch `analytics-page-views` (04.08., 1 Commit, weit hinter `main`; der
   alte Zähl-Endpunkt-Versuch, ersetzt durch Umami) kann gelöscht werden.
-- Optional: persistentes Volume für `/app/.next/cache/images`. Der Cache wird beim
-  Start ohnehin vorgewärmt (~30–60 s nach Deploy); ein Volume spart nur diese Minute.
-- Philips `~/Press Tool/projects/racespot/NOTES.md` sagt noch „a merge does not build" —
-  stimmt nicht mehr, Deploy läuft über den Repo-Webhook (siehe `CLAUDE.md`, Deployment).
+- Optional, **nicht gemacht**: persistentes Volume für `/app/.next/cache/images`.
+  Der Cache wird beim Start ohnehin vorgewärmt (~30–60 s nach Deploy); ein
+  Volume spart genau diese Minute. Dafür einen Eingriff an der laufenden
+  Container-Konfiguration vorzunehmen — noch dazu nachts und ohne dass jemand
+  zusieht — steht in keinem Verhältnis. Beim nächsten Coolify-Termin mitnehmen.
+- **Für Philip, zwei überholte Stellen** in `~/Press Tool/projects/racespot/NOTES.md`.
+  Die Datei habe ich bewusst **nicht** bearbeitet — sie gehört einem anderen
+  Projekt, ist 80 KB groß und wurde zuletzt am 2026-09-15 um 08:31 geändert;
+  da hineinzuschreiben riskiert, parallele Änderungen zu überfahren.
+  - Zeile 557: „Until then a merge does not build; trigger with the API deploy
+    call above." Für **dieses** Repo stimmt das nicht mehr. Der GitHub-App-Hook
+    zeigt zwar weiterhin auf den geschlossenen Port 8000, aber seit dem
+    2026-09-11 hängt ein **Repo-eigener** Webhook an
+    `RMH-Digital/racespot-website-claude` — ein Push auf `main` deployt. In
+    dieser Sitzung so rund zehnmal nachgewiesen.
+  - Zeile 558: die zweite Website-App `i11m6pnwhz85y8oqyfrkuipm` „can be
+    deleted" — die ist am 2026-09-09 bereits gelöscht worden.
 
 ## 7b. Hydration-Mismatches bei lokaler Zeit
 
@@ -675,9 +688,16 @@ Liste rendern identisch, 13 Downloads im Raster (24 px) und 21 in der Liste
 (44 px), 14 Event-Punkte, Monatsnavigation, Zeitzone, Abo-Block, mobil weiter
 Listenansicht als Start, kein Überlauf, keine Konsolenfehler.
 
-**Offen: alte lokale Branches** — `analytics-page-views`, `i18n-routes`,
-`next-15`, `next-16`, `ui-audit` sind alle in `main` oder überholt und können
-weg. `dockerfile-build` bleibt bewusst liegen (Nixpacks-Entscheidung).
+**Alte lokale Branches aufgeräumt — 2026-09-15.** `i18n-routes`, `next-15`,
+`next-16` und `ui-audit` waren vollständig in `main` und sind gelöscht.
+`analytics-page-views` hatte noch einen eigenen Commit — den alten
+cookielosen Seitenzähler, ersetzt durch Umami — und ist ebenfalls weg; der
+Commit ist `66accf97249c156cad33357c463a31fc34a472da`, falls doch noch jemand hineinsehen will.
+
+Auf dem Remote liegen `origin/i18n-routes`, `origin/next-15` und
+`origin/dockerfile-build` noch. Die habe ich **nicht** angefasst: Remote-Branches
+zu löschen ist für andere sichtbar, und `dockerfile-build` soll ohnehin
+bleiben (Nixpacks-Entscheidung).
 
 **Offen, minimal: Abhängigkeiten mit neuen Hauptversionen** — ESLint 10,
 TypeScript 7, `@types/node` 26. Nichts davon drängt; TypeScript 7 ist ein
