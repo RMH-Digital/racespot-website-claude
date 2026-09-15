@@ -732,7 +732,41 @@ Auf dem Remote liegen `origin/i18n-routes`, `origin/next-15` und
 zu löschen ist für andere sichtbar, und `dockerfile-build` soll ohnehin
 bleiben (Nixpacks-Entscheidung).
 
-**Offen, minimal: Abhängigkeiten mit neuen Hauptversionen** — ESLint 10,
-TypeScript 7, `@types/node` 26. Nichts davon drängt; TypeScript 7 ist ein
-großer Sprung, der einen eigenen Durchgang verdient.
+**Abhängigkeiten — durchgesehen 2026-09-15.** Alle drei „neuen Hauptversionen"
+einzeln ausprobiert statt eingeschätzt:
+
+| | Ergebnis |
+|---|---|
+| **TypeScript 5.9 → 6.0.3** | **übernommen.** Typecheck, Lint und Build sauber, 72 Seiten geprüft |
+| TypeScript 7.0.2 | **blockiert**: `typescript-eslint does not support TS 7.0`. Der Compiler selbst läuft (`tsc --noEmit` war sauber), es scheitert am Lint-Schritt, auf den der Build bewusst wartet. Tracking: typescript-eslint#10940 (Support ab TS ≥ 7.1) |
+| ESLint 9 → 10.10.0 | **blockiert**: bricht sofort mit `TypeError: scopeManager.addGlobals is not a function`. Der Parser kommt mit ESLint 10s internen Änderungen nicht mit |
+| `@types/node` 26 | **falsch, nicht nur verfrüht.** Die Laufzeit ist Node 20 (`.nvmrc`, `engines`). Typen gegen Node-26-APIs zu prüfen, die im Container nicht existieren, wäre schlimmer als veraltete Typen. Bleibt auf `^20.19.43` |
+
+Beide Blockaden hängen am selben Paket — `typescript-eslint`, das
+`eslint-config-next` mitbringt. Die Peer-Ranges dort (`eslint >=9.0.0`,
+`typescript >=3.3.1`) sind großzügiger, als das Ökosystem halten kann; sie
+sagen nur, was nicht verboten ist. Nochmal ansehen, wenn
+`eslint-config-next` nachzieht.
+
+Nebenbei aktualisiert: `nodemailer` 10.0.1 → 10.0.10 (Patch, und der
+Versandweg des Kontaktformulars), `@types/nodemailer`, `@types/node` innerhalb
+von 20.x.
+
+**Totes Gewicht entfernt:**
+
+- `clsx` — als Abhängigkeit geführt, in keiner Datei benutzt.
+- `src/components/sections/TvPartners.tsx` — die alte Text-Partnerliste, seit
+  dem Startseiten-Umbau durch `PartnerLogos` ersetzt. War nie auf i18n
+  umgestellt, hätte also ohnehin nicht wieder eingehängt werden können.
+- `public/images/events/rennsport-relaunch-2026/DSC00315.jpg` — das einzige
+  Foto in `public/`, das in `src/` nirgends vorkommt. CLAUDE.md verlangt genau
+  das. In der Historie, falls es doch gebraucht wird.
+
+**Bewusst behalten**, obwohl unreferenziert:
+
+- Die vier Eurostile-Quelldateien (`.ttf`, `.otf`). `docs/FONTS.md` sagt
+  ausdrücklich: im Repo lassen als Ausgangsmaterial, nur nie darauf zeigen.
+- `public/og-image.jpg`. Unbenutzt im Code, aber eine **live erreichbare URL**,
+  auf die bereits veröffentlichte Social-Posts zeigen können. 201 KB sind ein
+  schlechter Grund, jemandem die Vorschaukarte zu zerschießen.
 
