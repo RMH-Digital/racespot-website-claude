@@ -504,13 +504,46 @@ Verkleinern. Neu dabei: `favicon.ico` (16+32+48 in einer Datei) und ein
 `icon-maskable-512.png`, dessen R innerhalb der Android-Safe-Zone liegt —
 adaptive Icons beschneiden zum Kreis, ein randfüllendes R verlöre die Ecken.
 
-**Die Grafik ist bewusst unverändert.** Und dabei ist etwas aufgefallen, das
-Jürgen entscheiden sollte: das R ist **`#DAA520`** auf **`#000000`** — das ist
-CSS-„goldenrod" auf Reinschwarz, nicht das Marken-Gelb `#F5C000` auf `#0A0A0A`.
-Sieht nach dem Standardwert eines Generators aus, nicht nach einer Entscheidung.
-Umstellen ist eine Zeile in `generate-icons.mjs` plus ein Lauf — aber das
-Favicon ist die Identität der Seite in jedem Tab und Lesezeichen, das ändere
-ich nicht ungefragt.
+**Farbe korrigiert (Jürgen, 2026-09-15).** Das R war `#DAA520` auf `#000000` —
+CSS-„goldenrod" auf Reinschwarz, offenkundig ein Generator-Standard und nicht
+das Marken-Gelb. Es steht jetzt auf **`#F5C000` auf `#0A0A0A`**, also auf den
+Design-Tokens aus `globals.css`. Die *Form* kommt weiterhin aus dem Master;
+dessen alte Farben stehen in `generate-icons.mjs` nur noch als
+`MASTER_YELLOW`/`MASTER_BLACK`, um die Form aus der Datei auszulesen.
+
+## 7f. Ladeanzeige bei Navigationen — neu 2026-09-15
+
+Alle Seiten werden auf Anfrage serverseitig gerendert, ein Klick holt also
+erst beim Server. Meist ein Zehntel einer Sekunde und unsichtbar; auf einer
+kalten Route oder schlechter Verbindung lange genug, dass die Seite kaputt
+wirkt — man klickt, und nichts passiert.
+
+`src/components/layout/NavigationProgress.tsx`: eine Haarlinie ganz oben plus
+ein Zähler unten links, beides in Markengelb und der Display-Schrift.
+
+Bewusste Entscheidungen:
+
+- **Kein Vollbild-Vorhang.** Für 300 ms Wartezeit ist eine Verdeckung schlimmer
+  als das Warten — der Leser verliert die Seite, die er gerade ansieht.
+- **Erst nach 250 ms.** Darunter bleibt alles still; in Produktion wird die
+  Komponente bei einer schnellen Navigation gar nicht erst gerendert (geprüft:
+  Deckkraft nie über 0).
+- **Der Zähler startet, wenn er sichtbar wird**, nicht beim Klick. Die erste
+  Fassung ließ ihn ab dem Klick laufen — nach der stillen Viertelsekunde stand
+  er schon bei 55, und „0 auf 100" fängt nun mal bei 0 an.
+- **Bis 90, dann Halt.** Wie weit die Anfrage wirklich ist, weiß niemand. Ein
+  Balken, der zielstrebig auf 99 marschiert und dort sitzen bleibt, ist eine
+  Lüge. Bei Ankunft springt er auf 100, hält 200 ms und blendet aus.
+- **Der Zähler steht unten links.** Zuerst saß er unter dem rechten Ende der
+  Linie — damit standen gelbe Ziffern auf dem gelben „Angebot anfragen"-Knopf.
+  Unten links ist auf jeder Seite frei.
+- **Keine CSS-Transition auf dem Balken.** Der Wert ändert sich jeden Frame,
+  und eine jeden Frame neu gestartete Transition kommt nie an: der Balken blieb
+  bei 56 % stehen, während die Zahl weiter auf 100 lief. Jetzt macht
+  `requestAnimationFrame` die Bewegung allein.
+- Zurück/Vorwärts (`popstate`) zählen mit; nach 15 s ohne Ankunft blendet sie
+  sich ab, damit keine Anzeige hängen bleibt. Für Screenreader gibt es *eine*
+  Statusmeldung statt hundert wechselnder Zahlen.
 
 ## 8. Kleinere technische Punkte
 

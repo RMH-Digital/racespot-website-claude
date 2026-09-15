@@ -3,6 +3,7 @@ import { Inter, Oswald } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import '../globals.css'
 import { Header } from '@/components/layout/Header'
+import { NavigationProgress } from '@/components/layout/NavigationProgress'
 import { TickerServer } from '@/components/layout/TickerServer'
 import { Footer } from '@/components/layout/Footer'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
@@ -98,6 +99,7 @@ export default async function RootLayout({
             and every page starts behind it. Styled in globals.css. */}
         <a href="#content" className="skip-link">{t(lang, 'a11y.skipToContent')}</a>
         <LiveStatusProvider>
+          <NavigationProgress lang={lang} />
           <Header lang={lang} />
           <TickerServer lang={lang} />
           {/* Offset for fixed header (64px) + ticker (34px) = 98px */}

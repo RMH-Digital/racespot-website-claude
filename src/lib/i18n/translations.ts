@@ -3,6 +3,7 @@ export const translations = {
   // Names for controls whose visible content is an icon, and the skip link.
   // These are read aloud, never seen, so they are written out in full.
   'a11y.skipToContent': { en: 'Skip to content', de: 'Zum Inhalt springen', es: 'Ir al contenido', pt: 'Ir para o conteúdo', fr: 'Aller au contenu', it: 'Vai al contenuto' },
+  'a11y.loading':       { en: 'Loading page', de: 'Seite wird geladen', es: 'Cargando página', pt: 'A carregar a página', fr: 'Chargement de la page', it: 'Caricamento della pagina' },
   'a11y.chooseLanguage': { en: 'Choose language', de: 'Sprache wählen', es: 'Elegir idioma', pt: 'Escolher idioma', fr: 'Choisir la langue', it: 'Scegli la lingua' },
   'a11y.openMenu':      { en: 'Open menu', de: 'Menü öffnen', es: 'Abrir menú', pt: 'Abrir menu', fr: 'Ouvrir le menu', it: 'Apri il menu' },
   'a11y.closeMenu':     { en: 'Close menu', de: 'Menü schließen', es: 'Cerrar menú', pt: 'Fechar menu', fr: 'Fermer le menu', it: 'Chiudi il menu' },

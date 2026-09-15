@@ -8,8 +8,9 @@
  * Browsers scale whatever they get, so nobody noticed — the tab just showed a
  * blurred smudge. Only favicon-16.png was honest.
  *
- * The artwork is deliberately unchanged: the same yellow R on black, same two
- * colours, only rendered at the sizes the markup and the manifest claim.
+ * The shape is unchanged — the same R — but it is now rendered at the sizes
+ * the markup and the manifest claim, and in the brand colours rather than the
+ * generator defaults the master was drawn in (see YELLOW/BLACK below).
  *
  *   node scripts/generate-icons.mjs
  *
@@ -28,9 +29,20 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const MASTER = join(root, 'assets/icon-master.png')
 const OUT = join(root, 'public')
 
-/** The two colours in the mark, sampled from the master. */
-const YELLOW = { r: 0xda, g: 0xa5, b: 0x20 }
-const BLACK = { r: 0x00, g: 0x00, b: 0x00 }
+/**
+ * The brand colours, not the master's.
+ *
+ * The 2026 master was drawn in CSS "goldenrod" on pure black, which is not
+ * what the site uses anywhere else — a generator default that nobody caught.
+ * The shape comes from the master, the colours come from the design tokens in
+ * globals.css, so the tab icon matches the page it opens.
+ */
+const YELLOW = { r: 0xf5, g: 0xc0, b: 0x00 }
+const BLACK = { r: 0x0a, g: 0x0a, b: 0x0a }
+
+/** What the master was drawn in — used only to read its shape. */
+const MASTER_YELLOW = { r: 0xda, g: 0xa5, b: 0x20 }
+const MASTER_BLACK = { r: 0x00, g: 0x00, b: 0x00 }
 
 /** Working resolution for the thresholded master. */
 const WORK = 2048
@@ -68,7 +80,7 @@ async function buildMask() {
   // yellow. Compositing onto black up front is also simply what the file
   // looks like when a browser renders it.
   const { data, info } = await sharp(MASTER)
-    .flatten({ background: BLACK })
+    .flatten({ background: MASTER_BLACK })
     .resize(WORK, WORK, { kernel: 'lanczos3', fit: 'fill' })
     .raw()
     .toBuffer({ resolveWithObject: true })
@@ -76,8 +88,13 @@ async function buildMask() {
   const mask = Buffer.alloc(info.width * info.height)
   for (let i = 0, p = 0; i < data.length; i += info.channels, p++) {
     const dy =
-      (data[i] - YELLOW.r) ** 2 + (data[i + 1] - YELLOW.g) ** 2 + (data[i + 2] - YELLOW.b) ** 2
-    const db = (data[i] - BLACK.r) ** 2 + (data[i + 1] - BLACK.g) ** 2 + (data[i + 2] - BLACK.b) ** 2
+      (data[i] - MASTER_YELLOW.r) ** 2 +
+      (data[i + 1] - MASTER_YELLOW.g) ** 2 +
+      (data[i + 2] - MASTER_YELLOW.b) ** 2
+    const db =
+      (data[i] - MASTER_BLACK.r) ** 2 +
+      (data[i + 1] - MASTER_BLACK.g) ** 2 +
+      (data[i + 2] - MASTER_BLACK.b) ** 2
     mask[p] = dy < db ? 255 : 0
   }
 
