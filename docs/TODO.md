@@ -658,36 +658,76 @@ Abo-Feeds in ihrem eigenen Takt, meist alle paar Stunden. Kurzfristige
 Änderungen kommen verzögert an. `REFRESH-INTERVAL` und `X-PUBLISHED-TTL`
 stehen auf 6 h, sind aber nur Wünsche.
 
-### Stufe 2, geplant, nicht gebaut: E-Mail-Erinnerung und Newsletter
+### Stufe 2, konkret geplant am 2026-09-15, nicht gebaut: E-Mail-Erinnerung und Newsletter
 
-Aufwand ca. **3–5 Tage plus laufender Betrieb**, und der Betrieb ist der
-eigentliche Punkt. Was fehlt:
+**Aufwand: rund vier Arbeitstage auf der Website-Seite**, dazu Wartezeiten,
+die nicht in unserer Hand liegen (DNS-Einträge, Freigabe der Datenschutztexte).
+Selbst bauen (eigene Datenbank, eigener Versand, eigene Bounce-Behandlung)
+läge bei sechs bis acht Tagen plus laufendem Betrieb und ist nicht empfohlen.
 
-- **Eine Datenbank.** Die Website ist zustandslos; es gibt keinen Ort für eine
-  Adresse. Postgres müsste in Coolify daneben.
-- **Ein Scheduler**, der stündlich fällige Erinnerungen versendet (Coolify
-  kann geplante Aufgaben).
-- **Ein Versandweg für Masse** — das SMTP über All-Inkl ist für
-  Kontaktformulare gedacht, nicht für 500 Mails in fünf Minuten.
-- **Double Opt-in** (§ 7 UWG), **Einwilligungsnachweis** (Zeitpunkt, IP,
-  angezeigter Text), **Ein-Klick-Abmeldung** (Art. 7 Abs. 3 DSGVO),
-  Löschkonzept, neuer Abschnitt in der Datenschutzerklärung.
-- **Bounce- und Beschwerdebehandlung** — sonst leidet die Zustellbarkeit von
-  `contact@racespot.tv` mit.
-- Stiller Kostentreiber: **sechs Sprachen** für jede Mail, jede
-  Bestätigungsseite, jede Fehlermeldung.
+**Architektur in einem Satz:** Die Website bleibt zustandslos, ein EU-Anbieter
+(Vorschlag: Brevo, Server in Frankreich, AV-Vertrag online) hält die Adressen
+und verschickt, wir rendern jede Mail selbst aus `translations.ts` und benutzen
+den Anbieter nur als Rohr. Damit bleiben alle sechs Sprachen an einer Stelle,
+und die Double-Opt-in-Logik gehört uns statt sechs Anbieter-Templates.
 
-**Empfehlung:** nicht selbst bauen. Ein EU-Anbieter (Brevo, CleverReach,
-Mailjet, jeweils mit AV-Vertrag) bringt Double Opt-in, Abmeldung,
-Einwilligungsnachweis, Bounces und Zustellbarkeit mit; die Website
-schrumpft dann auf ein Formular, einen API-Aufruf und sechs
-Bestätigungsseiten — **ein bis zwei Tage**. Die Event-Erinnerung ließe sich
-oft über deren Automationen fahren, dann entfällt der eigene Scheduler.
+**Was schon da ist und wiederverwendet wird:**
 
-**Und der ehrliche Einwand:** Bei einem angesetzten YouTube-Livestream gibt es
-die Erinnerungsglocke schon, kostenlos, und das Publikum ist dort ohnehin. Ein
-eigener E-Mail-Reminder lohnt vor allem, wenn ihr die **Adressen** wollt. Das
-ist eine Geschäftsentscheidung, keine technische.
+- `src/lib/ics.ts` — die Erinnerungsmail bekommt den Termin als `.ics` in den
+  Anhang, ein Klick, und er steht im Kalender.
+- Stabile Event-IDs (FNV-1a in `sheets.ts`) — der Schlüssel, an dem sich der
+  Versand merkt, dass eine Erinnerung schon raus ist.
+- Zeitformatierung pro Sprache und Zeitzone (`calendar/time.ts`).
+- Honeypot, Turnstile, Rate-Limit aus `api/contact/route.ts`.
+- SMTP über All-Inkl bleibt für die interne Benachrichtigung („neue Anmeldung").
+
+**Ablauf für den Leser:**
+
+1. Formular unter dem Abo-Block des Kalenders und im Footer: E-Mail, Sprache
+   (aus der URL), optional die Serien, die interessieren. Absenden → „Bitte
+   bestätige deine Adresse".
+2. Bestätigungsmail mit signiertem Link (HMAC über Adresse + Sprache + Serien +
+   Zeitstempel, 48 h gültig). Erst der Klick legt den Kontakt beim Anbieter an,
+   mit `CONSENT_AT`, `CONSENT_IP`, `CONSENT_TEXT_VERSION` als Attribute — das
+   ist der Einwilligungsnachweis nach § 7 UWG.
+3. Eine Stunde vor jedem Broadcast der gewählten Serien: eine Mail in der
+   Sprache des Lesers, mit Titel, Startzeit in seiner Zeitzone, Link zu
+   `/live`, `.ics` im Anhang.
+4. Jede Mail trägt einen Ein-Klick-Abmeldelink (signiert, kein Login) und den
+   `List-Unsubscribe`-Header nach RFC 8058, den Gmail und Apple Mail als
+   eigenen Knopf zeigen.
+
+**Die Bauteile:**
+
+| Teil | Was | Tage |
+|---|---|---|
+| Einrichtung | Brevo-Konto, AV-Vertrag, API-Schlüssel in Coolify, Absender `news@racespot.tv` mit SPF/DKIM — **DNS macht Philip** | 0,5 |
+| Anmeldung | `SubscribeForm` (6 Sprachen), `POST /api/newsletter/subscribe` mit Turnstile und Rate-Limit, Token, Bestätigungsmail, `GET /api/newsletter/confirm`, `GET /api/newsletter/unsubscribe`, eine Seite `/{lang}/newsletter` mit den Zuständen „bestätigen / bestätigt / abgemeldet / abgelaufen" | 1,5 |
+| Erinnerungsversand | `POST /api/cron/reminders` mit Geheimnis, in Coolify stündlich angestoßen. Liest `getCalendarEvents()`, nimmt Broadcasts mit Start in 60–120 Minuten, holt die Empfänger der jeweiligen Serien-Listen, rendert pro Sprache, schickt über die Transaktions-API (bis 1000 Empfänger pro Aufruf). Merkt sich versandte Event-IDs in einer kleinen JSON-Datei auf einem Coolify-Volume — die einzige Stelle, an der Zustand entsteht | 1 |
+| Recht und Texte | Neuer Abschnitt in Datenschutz **de und en** (die heutige Fassung sagt wörtlich „keinen Newsletter" — der Satz muss weg), Einwilligungstext, ~40 neue Übersetzungsschlüssel × 6 Sprachen, Footer-Link | 0,5 + Freigabe |
+| Test und Betrieb | Echte Postfächer (Gmail, Outlook, Apple, GMX), Spam-Score, Bounce-Webhook ins Log, einmal die Abmeldung aus jedem Client heraus | 0,5 |
+
+**Entscheidungen, die vorher fallen müssen (Jürgen):**
+
+- **Nur Erinnerungen, oder auch redaktioneller Newsletter?** Die Technik ist
+  dieselbe, aber ein redaktioneller Newsletter braucht jemanden, der ihn
+  schreibt — in sechs Sprachen oder bewusst nur in einer.
+- **Serien einzeln wählbar oder „alle Broadcasts"?** Alle ≈ zwei Mails pro
+  Woche. Einzeln ist freundlicher, kostet ein Feld im Formular und eine Liste
+  pro Serie beim Anbieter.
+- **Absenderadresse.** `news@racespot.tv` oder `contact@`. Eigene Adresse
+  schützt die Zustellbarkeit des Kontaktpostfachs, falls etwas schiefgeht.
+- **Freigabe der Datenschutztexte** durch einen Menschen, de und en zusammen.
+
+**Kosten:** Brevo bis 300 Mails/Tag kostenlos; darüber ab etwa 9 €/Monat für
+5.000 Mails. Rechenbeispiel: 500 Abonnenten × 100 Broadcasts/Jahr ≈ 4.200
+Mails/Monat — die Grenze zum kleinsten Bezahltarif.
+
+**Der Einwand von vorhin gilt weiter:** Für einen angesetzten YouTube-Stream
+gibt es die Erinnerungsglocke, kostenlos, dort ist das Publikum. Der eigene
+Reminder lohnt, weil er der Grund ist, aus dem jemand eine **Adresse**
+hinterlässt — und die Adressen sind das, was bleibt, wenn eine Plattform ihre
+Regeln ändert. Das ist die Geschäftsentscheidung; die Technik ist vier Tage.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
