@@ -53,11 +53,11 @@ export function LatestNews({ lang }: { lang: Lang }) {
                 <span className={`text-[11px] font-semibold uppercase tracking-widest ${CATEGORY_COLORS[FEATURED.category] ?? 'text-rs-muted'}`}>
                   {categoryLabel(lang, FEATURED.category)}
                 </span>
-                <span className="text-rs-border text-xs">·</span>
+                <span className="text-rs-muted text-xs" aria-hidden="true">·</span>
                 <time dateTime={FEATURED.date} className="text-xs text-rs-muted">
                   {formatDate(lang, FEATURED.date)}
                 </time>
-                <span className="text-rs-border text-xs">·</span>
+                <span className="text-rs-muted text-xs" aria-hidden="true">·</span>
                 <span className="text-xs text-rs-muted">{feature.readTime} {t('news.read')}</span>
               </div>
 
@@ -97,10 +97,10 @@ export function LatestNews({ lang }: { lang: Lang }) {
 
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
+                    <span className={`text-[11px] font-semibold uppercase tracking-widest ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
                       {categoryLabel(lang, article.category)}
                     </span>
-                    <span className="text-rs-border text-xs">·</span>
+                    <span className="text-rs-muted text-xs" aria-hidden="true">·</span>
                     <time dateTime={article.date} className="text-xs text-rs-muted">
                       {formatDate(lang, article.date)}
                     </time>

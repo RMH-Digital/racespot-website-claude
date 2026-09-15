@@ -104,7 +104,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
   const duped = [...rendered, ...rendered]
 
   return (
-    <div className="fixed top-16 left-0 right-0 z-40 h-[34px] bg-rs-yellow border-b border-rs-border overflow-hidden flex items-center">
+    <div className="pause-on-hover fixed top-16 left-0 right-0 z-40 h-[34px] bg-rs-yellow border-b border-rs-border overflow-hidden flex items-center">
       {/* Status label — LIVE → /live, UPCOMING → /calendar */}
       {isLive ? (
         <Link href={localePath(lang, '/live')} className="shrink-0 flex items-center gap-1.5 px-3.5 h-full bg-black/15 hover:bg-black/25 transition-colors">
@@ -123,7 +123,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
           {duped.map((text, i) => (
             <span key={i} className="flex items-center">
               <span className="text-xs font-medium text-rs-black/85 px-1">{text}</span>
-              <span className="text-rs-black/40 mx-6">◆</span>
+              <span className="text-rs-black/40 mx-6" aria-hidden="true">◆</span>
             </span>
           ))}
         </div>

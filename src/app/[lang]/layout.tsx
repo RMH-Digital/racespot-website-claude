@@ -86,11 +86,14 @@ export default async function RootLayout({
         <WebsiteJsonLd lang={lang} />
       </head>
       <body className="bg-rs-black text-white" suppressHydrationWarning>
+        {/* First stop for the keyboard: the fixed header is ten tab stops deep,
+            and every page starts behind it. Styled in globals.css. */}
+        <a href="#content" className="skip-link">{t(lang, 'a11y.skipToContent')}</a>
         <LiveStatusProvider>
           <Header lang={lang} />
           <TickerServer lang={lang} />
           {/* Offset for fixed header (64px) + ticker (34px) = 98px */}
-          <main className="pt-[98px]">{children}</main>
+          <main id="content" className="pt-[98px]">{children}</main>
           <Footer lang={lang} />
         </LiveStatusProvider>
         <Analytics />

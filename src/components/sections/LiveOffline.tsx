@@ -115,12 +115,12 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
             <>
               {/* Next broadcast info */}
               <p className="section-label mb-3">{t('live.nextBroadcast')}</p>
-              <h1
+              <h2
                 className="font-display font-black text-rs-yellow uppercase leading-[0.95] mb-3"
                 style={{ fontSize: 'clamp(24px, 4vw, 48px)' }}
               >
                 {nextEvent.series}
-              </h1>
+              </h2>
               {nextEvent.description && (
                 <p className="text-white/60 text-sm mb-2 max-w-lg mx-auto">
                   {nextEvent.description}
@@ -172,7 +172,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
           ) : (
             <>
               {/* No upcoming events */}
-              <h1 className="section-title mb-4">{t('live.noUpcoming')}</h1>
+              <h2 className="section-title mb-4">{t('live.noUpcoming')}</h2>
               <p className="text-rs-muted text-sm max-w-md mx-auto mb-8">
                 {t('live.noUpcomingDesc')}
               </p>

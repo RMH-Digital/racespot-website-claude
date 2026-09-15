@@ -93,7 +93,7 @@ export function Footer({ lang }: { lang: Lang }) {
         <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr] gap-10">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href={href('/')} className="inline-block mb-4">
+            <Link href={href('/')} className="inline-block py-2 mb-2" prefetch={false}>
               <Image
                 src="/images/logos/racespot-white.png"
                 alt="Racespot"
@@ -105,7 +105,7 @@ export function Footer({ lang }: { lang: Lang }) {
             <p className="text-[14px] text-rs-muted leading-relaxed max-w-[260px] mb-6">
               {t('footer.description')}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {SOCIAL.map(({ href, label, icon }) => (
                 <a
                   key={href}
@@ -113,7 +113,7 @@ export function Footer({ lang }: { lang: Lang }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="w-9 h-9 rounded-rs border border-rs-border
+                  className="w-11 h-11 rounded-rs border border-rs-border
                              flex items-center justify-center
                              text-rs-muted text-sm
                              hover:border-rs-yellow hover:text-rs-yellow
@@ -127,23 +127,30 @@ export function Footer({ lang }: { lang: Lang }) {
 
           {/* Link columns */}
           {FOOTER_LINKS.map(({ categoryKey, links }) => (
-            <div key={categoryKey}>
-              <h4 className="font-display font-bold text-xs uppercase tracking-widest text-white mb-4">
+            <nav key={categoryKey} aria-labelledby={`footer-${categoryKey}`}>
+              <h2
+                id={`footer-${categoryKey}`}
+                className="font-display font-bold text-xs uppercase tracking-widest text-white mb-3"
+              >
                 {t(categoryKey)}
-              </h4>
-              <ul className="space-y-2.5">
+              </h2>
+              <ul className="space-y-1">
                 {links.map(({ href: path, labelKey }) => (
                   <li key={path}>
+                    {/* prefetch={false}: the header already prefetches every one
+                        of these routes, and each prefetch is a full server
+                        render because the pages are dynamic. */}
                     <Link
                       href={href(path)}
-                      className="text-[13px] text-rs-muted hover:text-white transition-colors"
+                      prefetch={false}
+                      className="inline-block py-1.5 text-[13px] text-rs-muted hover:text-white transition-colors"
                     >
                       {t(labelKey)}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 
@@ -153,11 +160,11 @@ export function Footer({ lang }: { lang: Lang }) {
             © {new Date().getFullYear()} Racespot Media House GmbH · {t('footer.location')}
           </p>
           <p className="text-[13px] text-rs-muted flex gap-4">
-            <Link href={href('/privacy')} className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
-            <span>·</span>
-            <Link href={href('/terms')} className="hover:text-white transition-colors">{t('footer.terms')}</Link>
-            <span>·</span>
-            <Link href={href('/imprint')} className="hover:text-white transition-colors">{t('footer.imprint')}</Link>
+            <Link href={href('/privacy')} prefetch={false} className="py-1 hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
+            <span aria-hidden="true">·</span>
+            <Link href={href('/terms')} prefetch={false} className="py-1 hover:text-white transition-colors">{t('footer.terms')}</Link>
+            <span aria-hidden="true">·</span>
+            <Link href={href('/imprint')} prefetch={false} className="py-1 hover:text-white transition-colors">{t('footer.imprint')}</Link>
           </p>
         </div>
       </div>

@@ -21,6 +21,14 @@
         "3102"
       ],
       "port": 3102
+    },
+    {
+      "name": "racespot-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "start"
+      ],
+      "port": 3000
     }
   ]
 }

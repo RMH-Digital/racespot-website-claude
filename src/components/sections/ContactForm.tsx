@@ -20,7 +20,7 @@ type Errors = Record<string, TranslationKey>
 
 const INPUT =
   'w-full bg-rs-dark border rounded-rs px-4 py-3 text-sm text-white ' +
-  'placeholder:text-rs-muted/50 focus:border-rs-yellow focus:outline-hidden transition-colors ' +
+  'placeholder:text-rs-muted focus:border-rs-yellow transition-colors ' +
   'scheme-dark'
 
 const LABEL = 'text-[11px] font-display font-bold uppercase tracking-widest text-rs-muted mb-1.5 block'
@@ -257,8 +257,17 @@ export function ContactForm({ lang }: { lang: Lang }) {
                         type="button"
                         aria-selected={active}
                         aria-controls={`panel-${tab.id}`}
+                        tabIndex={active ? 0 : -1}
                         onClick={() => switchForm(tab.id)}
-                        className={`px-4 py-2.5 rounded-[4px] font-display font-bold text-[12px] uppercase tracking-[0.08em] transition-colors
+                        onKeyDown={(e) => {
+                          if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+                          e.preventDefault()
+                          const i = TABS.findIndex((x) => x.id === tab.id)
+                          const next = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length]
+                          switchForm(next.id)
+                          document.getElementById(`tab-${next.id}`)?.focus()
+                        }}
+                        className={`min-h-11 px-4 py-2.5 rounded-[4px] font-display font-bold text-[12px] uppercase tracking-[0.08em] transition-colors
                           ${active ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                       >
                         {t(tab.labelKey)}
@@ -342,7 +351,7 @@ function Field({
   required?: boolean
   hint?: string
   ctx: FieldCtx
-  children: (a: { invalid: boolean; describedBy?: string; className: string; onChange: () => void }) => ReactNode
+  children: (a: { invalid: boolean; describedBy?: string; className: string; onChange: () => void; required?: boolean }) => ReactNode
 }) {
   const { t, errors, clearError } = ctx
   const errKey = errors[id]
@@ -356,11 +365,14 @@ function Field({
     <div>
       <label htmlFor={id} className={LABEL}>
         {label}
-        <span className={`ml-1.5 normal-case tracking-normal font-sans font-normal ${required ? 'text-rs-yellow/80' : 'text-rs-muted/60'}`}>
+        <span
+          aria-hidden={required || undefined}
+          className={`ml-1.5 normal-case tracking-normal font-sans font-normal ${required ? 'text-rs-yellow/80' : 'text-rs-muted'}`}
+        >
           {required ? '*' : `(${t('contact.optional').toLowerCase()})`}
         </span>
       </label>
-      {children({ invalid, describedBy, className, onChange: () => clearError(id) })}
+      {children({ invalid, describedBy, className, required, onChange: () => clearError(id) })}
       {invalid && (
         <p id={errId} role="alert" className="text-[12px] text-red-400 mt-1.5 flex items-start gap-1.5">
           <svg className="h-3.5 w-3.5 mt-px shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -369,14 +381,14 @@ function Field({
           {t(errKey)}
         </p>
       )}
-      {hint && !invalid && <p id={hintId} className="text-[11px] text-rs-muted/70 mt-1.5">{hint}</p>}
+      {hint && !invalid && <p id={hintId} className="text-[11px] text-rs-muted mt-1.5">{hint}</p>}
     </div>
   )
 }
 
 /** Native <select> styled like the inputs, with our own chevron. */
 function Select({
-  id, name, className, invalid, describedBy, onChange, children, ariaLabel,
+  id, name, className, invalid, describedBy, onChange, children, ariaLabel, required,
 }: {
   id?: string
   name: string
@@ -386,6 +398,7 @@ function Select({
   onChange: () => void
   children: ReactNode
   ariaLabel?: string
+  required?: boolean
 }) {
   return (
     <div className="relative">
@@ -394,6 +407,7 @@ function Select({
         name={name}
         defaultValue=""
         aria-invalid={invalid || undefined}
+        aria-required={required || undefined}
         aria-describedby={describedBy}
         aria-label={ariaLabel}
         onChange={onChange}
@@ -428,36 +442,36 @@ function BroadcastFields(ctx: FieldCtx) {
       <SectionLabel>{t('contact.bc.contactSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field id="name" label={t('contact.name')} required ctx={ctx}>
-          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
         </Field>
         <Field id="email" label={t('contact.email')} required ctx={ctx}>
-          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
         </Field>
       </div>
       <Field id="businessAddress" label={t('contact.bc.businessAddress')} ctx={ctx}>
-        {(a) => <textarea id="businessAddress" name="businessAddress" rows={3} autoComplete="street-address" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.businessAddressPlaceholder')} />}
+        {(a) => <textarea id="businessAddress" name="businessAddress" rows={3} autoComplete="street-address" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.businessAddressPlaceholder')} />}
       </Field>
 
       <SectionLabel>{t('contact.bc.seriesSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field id="seriesName" label={t('contact.bc.seriesName')} required ctx={ctx}>
-          {(a) => <input id="seriesName" name="seriesName" type="text" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.seriesNamePlaceholder')} />}
+          {(a) => <input id="seriesName" name="seriesName" type="text" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.seriesNamePlaceholder')} />}
         </Field>
         <Field id="seriesWebsite" label={t('contact.bc.seriesWebsite')} ctx={ctx}>
-          {(a) => <input id="seriesWebsite" name="seriesWebsite" type="text" inputMode="url" autoComplete="url" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder="https://" />}
+          {(a) => <input id="seriesWebsite" name="seriesWebsite" type="text" inputMode="url" autoComplete="url" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder="https://" />}
         </Field>
       </div>
       <Field id="game" label={t('contact.bc.game')} required ctx={ctx}>
-        {(a) => <input id="game" name="game" type="text" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.gamePlaceholder')} />}
+        {(a) => <input id="game" name="game" type="text" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.bc.gamePlaceholder')} />}
       </Field>
 
       <SectionLabel>{t('contact.bc.scheduleSection')}</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field id="startDate" label={t('contact.bc.startDate')} required ctx={ctx}>
-          {(a) => <input id="startDate" name="startDate" type="date" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
+          {(a) => <input id="startDate" name="startDate" type="date" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
         </Field>
         <Field id="startTime" label={t('contact.bc.startTime')} required hint={t('contact.bc.startTimeHint')} ctx={ctx}>
-          {(a) => <input id="startTime" name="startTime" type="time" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
+          {(a) => <input id="startTime" name="startTime" type="time" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-5">
@@ -499,17 +513,17 @@ function GeneralFields(ctx: FieldCtx) {
     <>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field id="name" label={t('contact.name')} required ctx={ctx}>
-          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
         </Field>
         <Field id="email" label={t('contact.email')} required ctx={ctx}>
-          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
         </Field>
       </div>
       <Field id="subject" label={t('contact.subject')} ctx={ctx}>
         {(a) => <input id="subject" name="subject" type="text" onChange={a.onChange} className={a.className} placeholder={t('contact.subjectPlaceholder')} />}
       </Field>
       <Field id="message" label={t('contact.message')} required ctx={ctx}>
-        {(a) => <textarea id="message" name="message" rows={6} aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.messagePlaceholder')} />}
+        {(a) => <textarea id="message" name="message" rows={6} aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.messagePlaceholder')} />}
       </Field>
     </>
   )

@@ -1,4 +1,12 @@
 export const translations = {
+  // ─── Accessibility ───────────────────────────────────────
+  // Names for controls whose visible content is an icon, and the skip link.
+  // These are read aloud, never seen, so they are written out in full.
+  'a11y.skipToContent': { en: 'Skip to content', de: 'Zum Inhalt springen', es: 'Ir al contenido', pt: 'Ir para o conteúdo', fr: 'Aller au contenu', it: 'Vai al contenuto' },
+  'a11y.chooseLanguage': { en: 'Choose language', de: 'Sprache wählen', es: 'Elegir idioma', pt: 'Escolher idioma', fr: 'Choisir la langue', it: 'Scegli la lingua' },
+  'a11y.openMenu':      { en: 'Open menu', de: 'Menü öffnen', es: 'Abrir menú', pt: 'Abrir menu', fr: 'Ouvrir le menu', it: 'Apri il menu' },
+  'a11y.closeMenu':     { en: 'Close menu', de: 'Menü schließen', es: 'Cerrar menú', pt: 'Fechar menu', fr: 'Fermer le menu', it: 'Chiudi il menu' },
+
   // ─── Navigation ──────────────────────────────────────────
   'nav.broadcasts':    { en: 'Broadcasts', de: 'Broadcasts', es: 'Emisiones', pt: 'Transmissões', fr: 'Diffusions', it: 'Trasmissioni' },
   'nav.calendar':      { en: 'Calendar', de: 'Kalender', es: 'Calendario', pt: 'Calendário', fr: 'Calendrier', it: 'Calendario' },
@@ -6,6 +14,11 @@ export const translations = {
   'nav.services':      { en: 'Services', de: 'Services', es: 'Servicios', pt: 'Serviços', fr: 'Services', it: 'Servizi' },
   'nav.news':          { en: 'News', de: 'News', es: 'Noticias', pt: 'Notícias', fr: 'Actualités', it: 'Notizie' },
   'nav.live':          { en: 'Live', de: 'Live', es: 'En Vivo', pt: 'Ao Vivo', fr: 'En Direct', it: 'In Diretta' },
+  // Short form for the header bar, where the button shares one 64px row with
+  // the logo and six nav items. "Demander un devis" and "Solicitar
+  // presupuesto" pushed the button clean off the right edge; a nav CTA wants
+  // one or two words anyway. The long form stays on the page CTAs.
+  'nav.getQuoteShort': { en: 'Get a Quote', de: 'Anfragen', es: 'Presupuesto', pt: 'Orçamento', fr: 'Devis', it: 'Preventivo' },
   'nav.getQuote':      { en: 'Get a Quote', de: 'Angebot anfragen', es: 'Solicitar presupuesto', pt: 'Solicitar orçamento', fr: 'Demander un devis', it: 'Richiedi preventivo' },
 
   // ─── Hero ────────────────────────────────────────────────
@@ -413,6 +426,8 @@ export const translations = {
   // ─── Calendar: counts and controls ───────────────────────
   'calendar.eventOne': { en: 'event', de: 'Event', es: 'evento', pt: 'evento', fr: 'événement', it: 'evento' },
   'calendar.eventMany': { en: 'events', de: 'Events', es: 'eventos', pt: 'eventos', fr: 'événements', it: 'eventi' },
+  'calendar.prevMonth': { en: 'Previous month', de: 'Vorheriger Monat', es: 'Mes anterior', pt: 'Mês anterior', fr: 'Mois précédent', it: 'Mese precedente' },
+  'calendar.nextMonth': { en: 'Next month', de: 'Nächster Monat', es: 'Mes siguiente', pt: 'Próximo mês', fr: 'Mois suivant', it: 'Mese successivo' },
   'calendar.prevEvent': { en: 'Previous event', de: 'Vorheriges Event', es: 'Evento anterior', pt: 'Evento anterior', fr: 'Événement précédent', it: 'Evento precedente' },
   'calendar.nextEvent': { en: 'Next event', de: 'Nächstes Event', es: 'Evento siguiente', pt: 'Próximo evento', fr: 'Événement suivant', it: 'Evento successivo' },
 
