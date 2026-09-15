@@ -543,10 +543,16 @@ Entscheidungen und Fallen:
   Animation-Frames liefen die ganze Zeit (105 Stück in 1,5 s gemessen), React
   hat nur nicht neu gerendert. Jetzt schreibt die rAF-Schleife direkt in die
   beiden Knoten.
-- **`transition-[translate,…]`, nicht `transform`.** Tailwind 4 bewegt über die
-  `translate`-Eigenschaft; mit `transform` in der Transition-Liste sprang der
-  Vorhang weg, statt zu gleiten. Gemessen: `translate: 0px -100%` bei
-  `transition-property: transform, opacity`.
+- **Die Bewegung ist ein Inline-`transform`, keine Tailwind-Utility.** Zwei
+  Anläufe: `transition-[transform]` feuert nie, weil Tailwind 4 über die
+  `translate`-Eigenschaft bewegt. Die Transition auf `translate` umzustellen
+  half auch nicht — dieser Wert wird aus Custom Properties gebaut
+  (`translate: var(--tw-translate-x) var(--tw-translate-y)`), und obwohl
+  `--tw-translate-y` korrekt auf `-100%` sprang, stand der berechnete Wert die
+  vollen 620 ms bei `0%`: der Vorhang verschwand am Ende einfach. Lokal sah es
+  nach einer sehr langsamen Bewegung aus, live bewegte sich gar nichts — beides
+  gemessen. Ein schlichtes `transform` am Element macht genau das, was man
+  erwartet (gemessen: −5 → −62 → −383 → −563 px über 12 Frames).
 - **`w-full` auf der Zeile.** `container-rs` zentriert sich mit `margin: auto`,
   und ein Auto-Margin auf der Querachse hebt `align-items: stretch` auf — ohne
   `w-full` schrumpfte die Zeile auf Inhaltsbreite und die Zahl stand mitten im

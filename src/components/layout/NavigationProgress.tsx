@@ -192,13 +192,27 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
 
   return (
     <div
-      // transition-[translate,…], not transform: Tailwind 4 moves things with
-      // the `translate` property, so a transition on `transform` never fires
-      // and the curtain jumped off screen instead of sliding.
-      className={`fixed inset-0 z-[100] flex flex-col justify-end bg-rs-black
-        transition-[translate,opacity] ease-[cubic-bezier(0.76,0,0.24,1)]
-        ${phase === 'leaving' ? 'duration-[620ms] -translate-y-full' : 'duration-200 translate-y-0'}
-        ${visible || phase === 'leaving' ? 'opacity-100' : 'opacity-0'}`}
+      className="fixed inset-0 z-[100] flex flex-col justify-end bg-rs-black"
+      /*
+        The slide is an inline transform rather than Tailwind's translate
+        utilities, and it took two goes to get there.
+
+        `transition-[transform]` never fires, because Tailwind 4 moves things
+        with the CSS `translate` property, not `transform`. Switching the
+        transition to `translate` did not help either: that value is built out
+        of custom properties (`translate: var(--tw-translate-x)
+        var(--tw-translate-y)`), and while `--tw-translate-y` did flip to
+        -100%, the computed `translate` sat at 0% for the whole 620ms and the
+        curtain simply vanished at the end. A plain transform on the element
+        transitions the way you would expect it to.
+      */
+      style={{
+        transform: phase === 'leaving' ? 'translateY(-100%)' : 'translateY(0)',
+        opacity: visible || phase === 'leaving' ? 1 : 0,
+        transition:
+          'transform 620ms cubic-bezier(0.76, 0, 0.24, 1), opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+        willChange: 'transform',
+      }}
     >
       {/* aria-hidden sits on the visuals, not on the wrapper: a screen reader
           should hear "loading page" once, not a wordmark and a number that
