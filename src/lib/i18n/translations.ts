@@ -36,7 +36,6 @@ export const translations = {
 
   // ─── Stats ───────────────────────────────────────────────
   'stats.broadcastsLast12Months': { en: 'Broadcasts, Last 12 Months', de: 'Broadcasts, Letzte 12 Monate', es: 'Emisiones, Últimos 12 Meses', pt: 'Transmissões, Últimos 12 Meses', fr: 'Diffusions, 12 Derniers Mois', it: 'Trasmissioni, Ultimi 12 Mesi' },
-  'stats.broadcastHours': { en: 'Hours On Air', de: 'Sendestunden', es: 'Horas en antena', pt: 'Horas no ar', fr: 'Heures d\'antenne', it: 'Ore in onda' },
   'stats.youtubeViews': { en: 'YouTube Views', de: 'YouTube Aufrufe', es: 'Vistas en YouTube', pt: 'Visualizações no YouTube', fr: 'Vues YouTube', it: 'Visualizzazioni YouTube' },
   'stats.followers': { en: 'Followers, All Platforms', de: 'Follower, Alle Plattformen', es: 'Seguidores, Todas Las Plataformas', pt: 'Seguidores, Todas As Plataformas', fr: 'Abonnés, Toutes Plateformes', it: 'Follower, Tutte Le Piattaforme' },
   'stats.languagesCovered': { en: 'Languages Covered', de: 'Abgedeckte Sprachen', es: 'Idiomas Cubiertos', pt: 'Idiomas Cobertos', fr: 'Langues Couvertes', it: 'Lingue Coperte' },
@@ -138,7 +137,6 @@ export const translations = {
   'live.viewFullCalendar': { en: 'View Full Calendar →', de: 'Ganzen Kalender ansehen →', es: 'Ver calendario completo →', pt: 'Ver calendário completo →', fr: 'Voir le calendrier complet →', it: 'Vedi calendario completo →' },
   'live.noUpcoming':   { en: 'No Upcoming Broadcasts', de: 'Keine kommenden Broadcasts', es: 'Sin emisiones programadas', pt: 'Sem transmissões programadas', fr: 'Aucune diffusion prévue', it: 'Nessuna trasmissione in programma' },
   'live.multipleStreams': { en: 'Live Broadcasts', de: 'Live-Übertragungen', es: 'Emisiones en Vivo', pt: 'Transmissões ao Vivo', fr: 'Diffusions en Direct', it: 'Trasmissioni in Diretta' },
-  'live.selectStream': { en: 'Select a broadcast', de: 'Übertragung auswählen', es: 'Seleccionar emisión', pt: 'Selecionar transmissão', fr: 'Sélectionner une diffusion', it: 'Seleziona una trasmissione' },
   'live.noUpcomingDesc': { en: 'There are currently no broadcasts scheduled. Subscribe to our YouTube channel to be notified when we go live.', de: 'Derzeit sind keine Broadcasts geplant. Abonnieren Sie unseren YouTube-Kanal, um benachrichtigt zu werden.', es: 'Actualmente no hay emisiones programadas. Suscríbete a nuestro canal de YouTube para recibir notificaciones.', pt: 'Atualmente não há transmissões programadas. Inscreva-se no nosso canal do YouTube para ser notificado.', fr: 'Aucune diffusion n\'est actuellement prévue. Abonnez-vous à notre chaîne YouTube pour être notifié.', it: 'Attualmente non ci sono trasmissioni programmate. Iscriviti al nostro canale YouTube per essere avvisato.' },
   'live.days':         { en: 'Days', de: 'Tage', es: 'Días', pt: 'Dias', fr: 'Jours', it: 'Giorni' },
   'live.hrs':          { en: 'Hrs', de: 'Std', es: 'Hrs', pt: 'Hrs', fr: 'Hrs', it: 'Ore' },
@@ -169,7 +167,6 @@ export const translations = {
   // ─── Contact: form switcher ──────────────────────────────
   'contact.tab.broadcast': { en: 'Broadcast', de: 'Broadcast', es: 'Transmisión', pt: 'Transmissão', fr: 'Diffusion', it: 'Broadcast' },
   'contact.tab.general':   { en: 'General', de: 'Allgemein', es: 'General', pt: 'Geral', fr: 'Général', it: 'Generale' },
-  'contact.required':      { en: 'Required', de: 'Pflichtfeld', es: 'Obligatorio', pt: 'Obrigatório', fr: 'Obligatoire', it: 'Obbligatorio' },
   'contact.optional':      { en: 'Optional', de: 'Optional', es: 'Opcional', pt: 'Opcional', fr: 'Facultatif', it: 'Facoltativo' },
 
   // ─── Contact: broadcast request fields ───────────────────
@@ -240,10 +237,7 @@ export const translations = {
   // ─── Events Page ─────────────────────────────────────────
   'events.label':      { en: "What's happening", de: 'Aktuelles', es: 'Novedades', pt: 'Novidades', fr: 'Actualités', it: 'Novità' },
   'events.title':      { en: 'Events', de: 'Events', es: 'Eventos', pt: 'Eventos', fr: 'Événements', it: 'Eventi' },
-  'events.upcoming':   { en: 'Upcoming', de: 'Kommende', es: 'Próximos', pt: 'Próximos', fr: 'À venir', it: 'In arrivo' },
-  'events.details':    { en: 'Event details →', de: 'Event-Details →', es: 'Detalles del evento →', pt: 'Detalhes do evento →', fr: 'Détails de l\'événement →', it: 'Dettagli evento →' },
   'events.afterMovie': { en: 'After Movie', de: 'After Movie', es: 'After Movie', pt: 'After Movie', fr: 'After Movie', it: 'After Movie' },
-  'events.pastEvents': { en: 'Past Events', de: 'Vergangene Events', es: 'Eventos Pasados', pt: 'Eventos Passados', fr: 'Événements Passés', it: 'Eventi Passati' },
   'events.eventHighlights': { en: 'Event Highlights', de: 'Event Highlights', es: 'Destacados', pt: 'Destaques', fr: 'Temps forts', it: 'Momenti salienti' },
 
   // ─── About Page ──────────────────────────────────────────
@@ -439,8 +433,6 @@ export const translations = {
   'calendar.nextEvent': { en: 'Next event', de: 'Nächstes Event', es: 'Evento siguiente', pt: 'Próximo evento', fr: 'Événement suivant', it: 'Evento successivo' },
 
   // ─── Contact: errors ─────────────────────────────────────
-  'contact.errorSend': { en: 'Failed to send message', de: 'Nachricht konnte nicht gesendet werden', es: 'No se pudo enviar el mensaje', pt: 'Não foi possível enviar a mensagem', fr: 'Échec de l’envoi du message', it: 'Invio del messaggio non riuscito' },
-  'contact.errorGeneric': { en: 'Something went wrong. Please email us directly at contact@racespot.tv', de: 'Etwas ist schiefgelaufen. Bitte schreib uns direkt an contact@racespot.tv', es: 'Algo salió mal. Escríbenos directamente a contact@racespot.tv', pt: 'Algo deu errado. Escreva diretamente para contact@racespot.tv', fr: 'Une erreur s’est produite. Écrivez-nous directement à contact@racespot.tv', it: 'Qualcosa è andato storto. Scrivici direttamente a contact@racespot.tv' },
 
   // ─── Alt texts ───────────────────────────────────────────
   'about.heroAlt':     { en: 'Racespot team at event', de: 'Racespot-Team bei einem Event', es: 'Equipo de Racespot en un evento', pt: 'Equipe da Racespot em um evento', fr: 'L’équipe Racespot lors d’un événement', it: 'Il team Racespot a un evento' },

@@ -808,15 +808,48 @@ einzeln ausprobiert statt eingeschätzt:
 | | Ergebnis |
 |---|---|
 | **TypeScript 5.9 → 6.0.3** | **übernommen.** Typecheck, Lint und Build sauber, 72 Seiten geprüft |
-| TypeScript 7.0.2 | **blockiert**: `typescript-eslint does not support TS 7.0`. Der Compiler selbst läuft (`tsc --noEmit` war sauber), es scheitert am Lint-Schritt, auf den der Build bewusst wartet. Tracking: typescript-eslint#10940 (Support ab TS ≥ 7.1) |
-| ESLint 9 → 10.10.0 | **blockiert**: bricht sofort mit `TypeError: scopeManager.addGlobals is not a function`. Der Parser kommt mit ESLint 10s internen Änderungen nicht mit |
+| TypeScript 7.0.2 | **blockiert**: `typescript-eslint` deklariert als Peer `typescript: >=4.8.4 <6.1.0` (Stand 8.70.0, 2026-09-15). Der Compiler selbst läuft (`tsc --noEmit` sauber), es scheitert am Lint-Schritt, auf den der Build bewusst wartet |
+| ESLint 9 → 10.10.0 | **blockiert — aber an anderer Stelle als am Vormittag notiert, siehe unten** |
 | `@types/node` 26 | **falsch, nicht nur verfrüht.** Die Laufzeit ist Node 20 (`.nvmrc`, `engines`). Typen gegen Node-26-APIs zu prüfen, die im Container nicht existieren, wäre schlimmer als veraltete Typen. Bleibt auf `^20.19.43` |
 
-Beide Blockaden hängen am selben Paket — `typescript-eslint`, das
-`eslint-config-next` mitbringt. Die Peer-Ranges dort (`eslint >=9.0.0`,
-`typescript >=3.3.1`) sind großzügiger, als das Ökosystem halten kann; sie
-sagen nur, was nicht verboten ist. Nochmal ansehen, wenn
-`eslint-config-next` nachzieht.
+**Korrektur am 2026-09-15, nachmittags.** Am Vormittag stand hier,
+`typescript-eslint` blockiere **beide** Upgrades. Für ESLint 10 war das falsch.
+
+Der damalige Fehler — `TypeError: scopeManager.addGlobals is not a function` —
+war ein Artefakt der Installationsweise, nicht eine Unverträglichkeit:
+`npm i -D eslint@10` in einen bestehenden Baum ließ `eslint-scope@8.4.0` stehen
+(die Abhängigkeit von ESLint **9**), während ESLint 10 `eslint-scope@^9.1.2`
+braucht. Bei einer **sauberen** Installation löst npm korrekt auf
+(`eslint-scope@9.1.2`, `espree@11.2.0`) und der Fehler tritt nicht auf.
+`typescript-eslint@8.70.0` unterstützt ESLint 10 ausdrücklich
+(Peer `eslint: ^8.57.0 || ^9.0.0 || ^10.0.0`), und sein Scope-Manager bringt
+`addGlobals` mit.
+
+**Der wirkliche Blocker für ESLint 10 ist `eslint-plugin-react@7.37.5`**, das
+`eslint-config-next` mitbringt. Sein Peer-Bereich endet bei `^9.7`, und es ruft
+`context.getFilename()` auf, das in ESLint 10 entfernt wurde:
+
+```
+TypeError: Error while loading rule 'react/display-name':
+contextOrFilename.getFilename is not a function
+    at resolveBasedir (eslint-plugin-react/lib/util/version.js:31)
+```
+
+Isoliert nachgestellt mit einer frischen Installation, nicht aus dem
+Fehlerprotokoll geschlossen. Eine korrigierte Fassung ist nicht veröffentlicht;
+7.37.5 ist weiterhin die neueste, auch in der Canary-Kette von
+`eslint-config-next`.
+
+**Damit stehen zwei verschiedene Wartepositionen:**
+
+| Upgrade | wartet auf |
+|---|---|
+| ESLint 10 | `eslint-plugin-react` > 7.37.5 mit ESLint-10-Unterstützung |
+| TypeScript 7 | `typescript-eslint` mit Peer `typescript` ≥ 7 (heute `<6.1.0`) |
+
+Beim nächsten Versuch: **nicht** in den bestehenden Baum installieren, sondern
+`rm -rf node_modules package-lock.json && npm install` — sonst erzeugt npm
+Fehlerbilder, die es ohne die alte Installation gar nicht gäbe.
 
 Nebenbei aktualisiert: `nodemailer` 10.0.1 → 10.0.10 (Patch, und der
 Versandweg des Kontaktformulars), `@types/nodemailer`, `@types/node` innerhalb
@@ -832,19 +865,24 @@ von 20.x.
   Foto in `public/`, das in `src/` nirgends vorkommt. CLAUDE.md verlangt genau
   das. In der Historie, falls es doch gebraucht wird.
 
-**Gefunden, bewusst liegengelassen: ein paar tote Übersetzungsschlüssel.**
-Nachweislich nirgends benutzt sind `stats.broadcastHours` (die Kachel wurde am
-2026-09-14 ersetzt), `live.selectStream`, `events.upcoming`, `events.details`,
-`events.pastEvents`, `contact.required`, `contact.errorSend` und
-`contact.errorGeneric` — letztere beide stammen aus der Zeit vor den
+**Tote Übersetzungsschlüssel entfernt — 2026-09-15.** Acht Einträge waren
+nirgends mehr referenziert und sind raus: `stats.broadcastHours` (die Kachel
+wurde am 2026-09-14 ersetzt), `live.selectStream`, `events.upcoming`,
+`events.details`, `events.pastEvents`, `contact.required`, `contact.errorSend`
+und `contact.errorGeneric` — die beiden letzten stammen aus der Zeit vor den
 Fehlercodes, heute führt `send_failed` auf `contact.err.server`.
 
-Nicht entfernt: Das sind ein paar hundert Byte in einer Datendatei, und ein
-naiver Scan täuscht hier leicht — 54 der 62 zunächst „unbenutzten" Schlüssel
-werden in Wahrheit dynamisch zusammengesetzt (`meta.${key}.title`,
-`category.${name}`, `servicesPage.${key}.d${i}`) und ein Grep findet sie nicht.
-Beim nächsten inhaltlichen Eingriff in `translations.ts` mitnehmen, dann mit
-laufendem Build gegengeprüft.
+Der Grund, das bis dahin liegenzulassen, war die Sorge vor einem naiven Scan:
+54 der 62 zunächst „unbenutzten" Schlüssel werden dynamisch zusammengesetzt und
+von einem Grep nicht gefunden. Deshalb vor dem Löschen nachgesehen, **welche**
+Schlüssel überhaupt dynamisch gebildet werden — es sind genau zwei Stellen,
+beide in `src/app/[lang]/services/page.tsx` (`services.${key}.*` und
+`servicesPage.${key}.*`). Keiner der acht kann daraus entstehen.
+
+Die eigentliche Absicherung ist aber der Typ: `TranslationKey` ist eine Union
+über die Schlüssel des Wörterbuchs, also wird jede statische Referenz auf einen
+gelöschten Schlüssel zum Typfehler. `tsc --noEmit` und der vollständige Build
+(72 Seiten) liefen danach sauber durch.
 
 **Bewusst behalten**, obwohl unreferenziert:
 
