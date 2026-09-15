@@ -487,12 +487,19 @@ wechselseitig, `x-default` auf `/en` · alle 7 Artikel in allen 6 Sprachen
 OG-Bilder alle vorhanden und 1200×630 · alle Bilder mit `alt` · HSTS ·
 Core Web Vitals (CLS 0, TTFB 0,12 s).
 
-**Offen, weil redaktionell:** Zwölf der 42 Artikel-URLs haben Schlagzeilen von
-72–86 Zeichen; Google schneidet bei ~60 ab. Das lässt sich nicht technisch
-lösen, ohne die Schlagzeile zu verstümmeln — entweder kürzer texten (auch im
-Press Tool) oder dem `Article`-Typ ein optionales `seoTitle` geben, das die
-Pipeline füllt. Betroffen ist vor allem `moza-racing-title-sponsor-…`
-(77–86 Zeichen je nach Sprache).
+**Erledigt 2026-09-15: `seoTitle` eingeführt und nachgetragen.** Das Feld
+steht auf `Article` und auf jeder Übersetzung, das Press Tool schreibt es ab
+sofort mit. Die sieben bereits veröffentlichten Artikel habe ich von Hand
+nachgezogen: 32 der 42 Sprachvarianten hatten eine Schlagzeile über 55
+Zeichen und haben jetzt einen Kurztitel, die anderen zehn passten schon und
+sind bewusst leer geblieben — der Fallback auf die Schlagzeile ist ja der Zweck.
+
+Gemessen, nicht geschätzt: Titel-Tags vorher 48–86 Zeichen mit zwölf über 70,
+jetzt **52–69** und keiner über 69, alle mit Markennamen. `titleWithBrand()`
+hat dabei ein Budget von 46 auf **55** bekommen — 46 stammte aus der Zeit vor
+den Kurztiteln und ließ alles ab 47 Zeichen den Markennamen grundlos fallen,
+sodass ein 47-Zeichen-Titel völlig anders behandelt wurde als ein
+45-Zeichen-Titel.
 
 ## 7e. Favicons — repariert 2026-09-15
 

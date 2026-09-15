@@ -95,6 +95,7 @@ export const ARTICLES: Article[] = [
     slug: "simracing-expo-frankfurt-2026-exhibitor-list",
     category: "Events",
     title: "SimRacing Expo Frankfurt 2026: The Exhibitor List So Far",
+    seoTitle: "SimRacing Expo Frankfurt 2026: Exhibitor List",
     excerpt: "Two dozen names and counting have confirmed for Hall 2 of the Frankfurt Messe, 16–18 October. Here is who is coming, what they say they are bringing, and the €10,000 final that turns a trade show into an event. Updated as the list grows.",
     date: "2026-09-09",
     readTime: "5 min",
@@ -148,6 +149,7 @@ export const ARTICLES: Article[] = [
     translations: {
       de: {
         title: "SimRacing Expo Frankfurt 2026: Die Ausstellerliste bislang",
+        seoTitle: "SimRacing Expo Frankfurt 2026: Die Ausstellerliste",
         excerpt: "Zwei Dutzend Namen und mehr haben sich für Halle 2 der Frankfurt Messe angemeldet, 16.–18. Oktober. Hier ist, wer kommt, was sie mitbringen wollen, und das Finale mit 10.000 € Preisgeld, das aus einer Fachmesse ein Event macht. Wird aktualisiert, sobald die Liste wächst.",
         imageAlt: "SimRacing Expo Frankfurt 2026: Die Ausstellerliste bislang",
         readTime: "5 min",
@@ -184,6 +186,7 @@ export const ARTICLES: Article[] = [
       },
       es: {
         title: "SimRacing Expo Frankfurt 2026: la lista de expositores hasta ahora",
+        seoTitle: "SimRacing Expo Frankfurt 2026: lista de expositores",
         excerpt: "Dos docenas de nombres y contando ya han confirmado su presencia en el Pabellón 2 de Frankfurt Messe, del 16 al 18 de octubre. Aquí está quién viene, qué dice que trae, y la final de 10.000 € que convierte una feria comercial en un evento. Se actualiza a medida que crece la lista.",
         imageAlt: "SimRacing Expo Frankfurt 2026: la lista de expositores hasta ahora",
         readTime: "6 min",
@@ -220,6 +223,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "SimRacing Expo Frankfurt 2026 : la liste des exposants pour l'instant",
+        seoTitle: "SimRacing Expo Frankfurt 2026 : liste des exposants",
         excerpt: "Deux douzaines de noms, et ça continue, ont confirmé leur présence dans le Hall 2 de la Frankfurt Messe, du 16 au 18 octobre. Voici qui vient, ce qu'ils annoncent apporter, et la finale à 10 000 € qui transforme un salon professionnel en événement. Mis à jour au fil des confirmations.",
         imageAlt: "SimRacing Expo Frankfurt 2026 : la liste des exposants pour l'instant",
         readTime: "6 min",
@@ -256,6 +260,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "SimRacing Expo Frankfurt 2026: la lista degli espositori finora",
+        seoTitle: "SimRacing Expo Frankfurt 2026: lista espositori",
         excerpt: "Due dozzine di nomi, e il conteggio continua, hanno confermato la presenza nella Hall 2 della Frankfurt Messe, dal 16 al 18 ottobre. Ecco chi arriva, cosa dice di portare, e la finale da 10.000 € che trasforma una fiera di settore in un evento. Aggiornata man mano che la lista cresce.",
         imageAlt: "SimRacing Expo Frankfurt 2026: la lista degli espositori finora",
         readTime: "6 min",
@@ -292,6 +297,7 @@ export const ARTICLES: Article[] = [
       },
       pt: {
         title: "SimRacing Expo Frankfurt 2026: a lista de expositores até agora",
+        seoTitle: "SimRacing Expo Frankfurt 2026: lista de expositores",
         excerpt: "Duas dezenas de nomes e contando já confirmaram presença no Pavilhão 2 da Frankfurt Messe, de 16 a 18 de outubro. Aqui está quem vem, o que dizem que vão trazer, e a final de € 10.000 que transforma uma feira em um evento. Atualizado conforme a lista cresce.",
         imageAlt: "SimRacing Expo Frankfurt 2026: a lista de expositores até agora",
         readTime: "6 min",
@@ -332,6 +338,7 @@ export const ARTICLES: Article[] = [
     slug: "moza-racing-title-sponsor-fia-f4-global-esports-2026",
     category: "Industry",
     title: "MOZA Racing Renews as Title Sponsor of the FIA F4 Global Esports Championship",
+    seoTitle: "MOZA Racing Renews FIA F4 Esports Sponsorship",
     excerpt: "MOZA Racing is back as title sponsor of the FIA F4 Global Esports Championship for a second season, with a $35,000 prize pool and a three-region qualifying structure feeding an eight-round Global Championship on iRacing from October.",
     date: "2026-08-04",
     readTime: "1 min",
@@ -357,6 +364,7 @@ export const ARTICLES: Article[] = [
     translations: {
       de: {
         title: "MOZA Racing verlängert Titelsponsoring der FIA F4 Global Esports Championship",
+        seoTitle: "MOZA Racing bleibt FIA-F4-Esports-Titelsponsor",
         excerpt: "MOZA Racing ist für eine zweite Saison als Titelsponsor der FIA F4 Global Esports Championship zurück, mit einem Preisgeld von 35.000 $ und einer dreiregionalen Qualifikationsstruktur, die in eine achtrunden Global Championship auf iRacing ab Oktober mündet.",
         imageAlt: "MOZA Racing verlängert Titelsponsoring der FIA F4 Global Esports Championship",
         readTime: "1 min",
@@ -374,6 +382,7 @@ export const ARTICLES: Article[] = [
       },
       es: {
         title: "MOZA Racing renueva como patrocinador principal del FIA F4 Global Esports Championship",
+        seoTitle: "MOZA Racing renueva su patrocinio del FIA F4 Esports",
         excerpt: "MOZA Racing vuelve como patrocinador principal del FIA F4 Global Esports Championship por segunda temporada, con una bolsa de premios de 35.000 $ y una estructura clasificatoria de tres regiones que desemboca en un Global Championship de ocho rondas en iRacing a partir de octubre.",
         imageAlt: "MOZA Racing renueva como patrocinador principal del FIA F4 Global Esports Championship",
         readTime: "1 min",
@@ -391,6 +400,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "MOZA Racing renouvelle son sponsoring titre du FIA F4 Global Esports Championship",
+        seoTitle: "MOZA Racing reconduit son sponsoring FIA F4 Esports",
         excerpt: "MOZA Racing revient comme sponsor titre du FIA F4 Global Esports Championship pour une deuxième saison, avec une cagnotte de 35 000 $ et une structure qualificative en trois régions menant à un Global Championship de huit manches sur iRacing à partir d'octobre.",
         imageAlt: "MOZA Racing renouvelle son sponsoring titre du FIA F4 Global Esports Championship",
         readTime: "1 min",
@@ -408,6 +418,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "MOZA Racing rinnova come title sponsor del FIA F4 Global Esports Championship",
+        seoTitle: "MOZA Racing rinnova il title sponsor FIA F4 Esports",
         excerpt: "MOZA Racing torna come title sponsor del FIA F4 Global Esports Championship per una seconda stagione, con un montepremi di 35.000 $ e una struttura di qualificazione in tre regioni che porta a un Global Championship di otto round su iRacing da ottobre.",
         imageAlt: "MOZA Racing rinnova come title sponsor del FIA F4 Global Esports Championship",
         readTime: "1 min",
@@ -425,6 +436,7 @@ export const ARTICLES: Article[] = [
       },
       pt: {
         title: "MOZA Racing renova como patrocinadora principal do FIA F4 Global Esports Championship",
+        seoTitle: "MOZA Racing renova patrocínio do FIA F4 Esports",
         excerpt: "A MOZA Racing está de volta como patrocinadora principal do FIA F4 Global Esports Championship por uma segunda temporada, com uma premiação de US$ 35.000 e uma estrutura classificatória de três regiões que leva a um Global Championship de oito rodadas no iRacing a partir de outubro.",
         imageAlt: "MOZA Racing renova como patrocinadora principal do FIA F4 Global Esports Championship",
         readTime: "1 min",
@@ -498,6 +510,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "RENNSPORT Summit 2026 : le relancement met le cap sur Munich",
+        seoTitle: "RENNSPORT Summit 2026 : cap sur Munich",
         excerpt: "La simulation de course de Competition Company revient avec une ambition affichée — « deux fois plus de contenu, moitié prix ». Le RENNSPORT Summit 2026 à Munich réunit Le Mans, les outils de modding et la ligue ESL R1.",
         imageAlt: "Événement de relancement RENNSPORT 2026 aux couleurs de Racespot",
         content: [
@@ -510,6 +523,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "RENNSPORT Summit 2026: il rilancio fa tappa a Monaco di Baviera",
+        seoTitle: "RENNSPORT Summit 2026: rilancio a Monaco di Baviera",
         excerpt: "Il simulatore di guida di Competition Company torna con una visione ambiziosa — «il doppio dei contenuti a metà prezzo». Il RENNSPORT Summit 2026 a Monaco di Baviera riunisce Le Mans, gli strumenti di modding e la lega ESL R1.",
         imageAlt: "Evento di rilancio RENNSPORT 2026 con il marchio Racespot",
         content: [
@@ -606,6 +620,7 @@ export const ARTICLES: Article[] = [
     slug: 'erl-2025-season-finals-maastricht',
     category: 'Esports',
     title: 'ERL Season 5: 23 Teams Battle Across 6 Games for the European Title',
+    seoTitle: 'ERL Season 5: 23 Teams, 6 Games, One European Title',
     excerpt:
       'The European Racing League\'s most ambitious season yet spans ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT, and more — with the Grand Finals held live at Sim Formula Europe in Maastricht.',
     date: '2026-01-28',
@@ -622,6 +637,7 @@ export const ARTICLES: Article[] = [
     translations: {
       de: {
         title: "ERL Saison 5: 23 Teams kämpfen in 6 Spielen um den Europatitel",
+        seoTitle: "ERL Saison 5: 23 Teams, 6 Spiele, ein Europatitel",
         excerpt: "Die bislang ambitionierteste Saison der European Racing League umfasst ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT und mehr — mit dem großen Finale live bei der Sim Formula Europe in Maastricht.",
         imageAlt: "ERL-Finale mit Simracing-Rigs und VCO-Branding",
         content: [
@@ -634,6 +650,7 @@ export const ARTICLES: Article[] = [
       },
       es: {
         title: "ERL Temporada 5: 23 equipos luchan en 6 juegos por el título europeo",
+        seoTitle: "ERL Temporada 5: 23 equipos, 6 juegos, título europeo",
         excerpt: "La temporada más ambiciosa de la European Racing League abarca ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT y más, con la Gran Final celebrada en directo en la Sim Formula Europe de Maastricht.",
         imageAlt: "Final de la ERL con rigs de simracing y la marca VCO",
         content: [
@@ -646,6 +663,7 @@ export const ARTICLES: Article[] = [
       },
       pt: {
         title: "ERL Temporada 5: 23 equipes disputam o título europeu em 6 jogos",
+        seoTitle: "ERL Temporada 5: 23 equipes, 6 jogos, título europeu",
         excerpt: "A temporada mais ambiciosa da European Racing League abrange ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT e mais — com a grande final realizada ao vivo na Sim Formula Europe, em Maastricht.",
         imageAlt: "Final da ERL com rigs de simracing e a marca VCO",
         content: [
@@ -658,6 +676,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "ERL Saison 5 : 23 équipes s’affrontent sur 6 jeux pour le titre européen",
+        seoTitle: "ERL Saison 5 : 23 équipes, 6 jeux, un titre européen",
         excerpt: "La saison la plus ambitieuse de la European Racing League couvre ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT et plus encore — avec une grande finale disputée en direct au Sim Formula Europe de Maastricht.",
         imageAlt: "Finales de l’ERL avec des rigs de simracing et l’identité VCO",
         content: [
@@ -670,6 +689,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "ERL Stagione 5: 23 team si sfidano su 6 giochi per il titolo europeo",
+        seoTitle: "ERL Stagione 5: 23 team, 6 giochi, titolo europeo",
         excerpt: "La stagione più ambiziosa della European Racing League abbraccia ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT e altro — con la grande finale disputata dal vivo alla Sim Formula Europe di Maastricht.",
         imageAlt: "Finali ERL con postazioni simracing e marchio VCO",
         content: [
@@ -686,6 +706,7 @@ export const ARTICLES: Article[] = [
     slug: 'sim-racing-expo-2025-record-attendance',
     category: 'Events',
     title: 'Sim Racing Expo 2025: Over 24,000 Visitors Set New Record',
+    seoTitle: 'Sim Racing Expo 2025: Over 24,000 Visitors, a Record',
     excerpt:
       'The world\'s largest sim racing trade show drew 24,371 visitors to the Nürburgring — featuring the Assetto Corsa Rally world premiere, 155 million social media impressions, and the Super GT experience.',
     date: '2025-11-02',
@@ -702,6 +723,7 @@ export const ARTICLES: Article[] = [
     translations: {
       de: {
         title: "Sim Racing Expo 2025: Über 24.000 Besucher setzen neuen Rekord",
+        seoTitle: "Sim Racing Expo 2025: Über 24.000 Besucher, Rekord",
         excerpt: "Die größte Simracing-Messe der Welt zog 24.371 Besucher an den Nürburgring — mit der Weltpremiere von Assetto Corsa Rally, 155 Millionen Social-Media-Impressions und der Super-GT-Experience.",
         imageAlt: "Sim Racing Expo 2025 — Hardware-Präsentationen und Event-Highlights",
         content: [
@@ -714,6 +736,7 @@ export const ARTICLES: Article[] = [
       },
       es: {
         title: "Sim Racing Expo 2025: más de 24.000 visitantes marcan un nuevo récord",
+        seoTitle: "Sim Racing Expo 2025: más de 24.000 visitantes",
         excerpt: "La mayor feria de simracing del mundo atrajo a 24.371 visitantes a Nürburgring, con el estreno mundial de Assetto Corsa Rally, 155 millones de impresiones en redes sociales y la experiencia Super GT.",
         imageAlt: "Sim Racing Expo 2025: exposiciones de hardware y momentos destacados del evento",
         content: [
@@ -726,6 +749,7 @@ export const ARTICLES: Article[] = [
       },
       pt: {
         title: "Sim Racing Expo 2025: mais de 24.000 visitantes estabelecem novo recorde",
+        seoTitle: "Sim Racing Expo 2025: mais de 24.000 visitantes",
         excerpt: "A maior feira de simracing do mundo levou 24.371 visitantes a Nürburgring — com a estreia mundial de Assetto Corsa Rally, 155 milhões de impressões nas redes sociais e a experiência Super GT.",
         imageAlt: "Sim Racing Expo 2025 — exposições de hardware e destaques do evento",
         content: [
@@ -738,6 +762,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "Sim Racing Expo 2025 : plus de 24 000 visiteurs, un nouveau record",
+        seoTitle: "Sim Racing Expo 2025 : plus de 24 000 visiteurs",
         excerpt: "Le plus grand salon de simracing au monde a attiré 24 371 visiteurs au Nürburgring — avec la première mondiale d’Assetto Corsa Rally, 155 millions d’impressions sur les réseaux sociaux et l’expérience Super GT.",
         imageAlt: "Sim Racing Expo 2025 — présentations de matériel et temps forts de l’événement",
         content: [
@@ -750,6 +775,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "Sim Racing Expo 2025: oltre 24.000 visitatori, nuovo record",
+        seoTitle: "Sim Racing Expo 2025: oltre 24.000 visitatori",
         excerpt: "La più grande fiera del simracing al mondo ha portato 24.371 visitatori al Nürburgring — con l’anteprima mondiale di Assetto Corsa Rally, 155 milioni di impression sui social e l’esperienza Super GT.",
         imageAlt: "Sim Racing Expo 2025 — esposizioni hardware e momenti salienti dell’evento",
         content: [
@@ -766,6 +792,7 @@ export const ARTICLES: Article[] = [
     slug: 'imsa-esports-2025-virtual-meets-real',
     category: 'Broadcast',
     title: 'IMSA Esports: Where Virtual Prototypes Meet Real-World Heritage',
+    seoTitle: 'IMSA Esports: Virtual Prototypes Meet Real Heritage',
     excerpt:
       'The IMSA Esports series brings legendary endurance racing to the digital world — and Racespot brings it to your screen with broadcast-grade production across the full season.',
     date: '2025-10-15',
@@ -782,6 +809,7 @@ export const ARTICLES: Article[] = [
     translations: {
       de: {
         title: "IMSA Esports: Wo virtuelle Prototypen auf echte Rennhistorie treffen",
+        seoTitle: "IMSA Esports: virtuelle Prototypen, echte Historie",
         excerpt: "Die IMSA-Esports-Serie bringt legendären Langstreckensport in die digitale Welt — und Racespot bringt ihn mit Broadcast-Qualität über die gesamte Saison auf deinen Bildschirm.",
         imageAlt: "IMSA-Esports-Prototypen unter Flutlicht in Daytona",
         content: [
@@ -794,6 +822,7 @@ export const ARTICLES: Article[] = [
       },
       es: {
         title: "IMSA Esports: donde los prototipos virtuales se encuentran con la herencia real",
+        seoTitle: "IMSA Esports: prototipos virtuales, herencia real",
         excerpt: "La serie IMSA Esports lleva la legendaria resistencia al mundo digital, y Racespot la lleva a tu pantalla con una producción de calidad televisiva durante toda la temporada.",
         imageAlt: "Prototipos de IMSA Esports bajo los focos en Daytona",
         content: [
@@ -806,6 +835,7 @@ export const ARTICLES: Article[] = [
       },
       pt: {
         title: "IMSA Esports: onde os protótipos virtuais encontram a herança do mundo real",
+        seoTitle: "IMSA Esports: protótipos virtuais, herança real",
         excerpt: "A série IMSA Esports leva o lendário endurance ao mundo digital — e a Racespot leva tudo isso à sua tela com produção de qualidade broadcast durante toda a temporada.",
         imageAlt: "Protótipos do IMSA Esports sob os holofotes em Daytona",
         content: [
@@ -818,6 +848,7 @@ export const ARTICLES: Article[] = [
       },
       fr: {
         title: "IMSA Esports : quand les prototypes virtuels rencontrent l’héritage du réel",
+        seoTitle: "IMSA Esports : prototypes virtuels, héritage réel",
         excerpt: "La série IMSA Esports transpose la légendaire endurance dans le monde numérique — et Racespot la porte sur votre écran avec une production de qualité broadcast sur toute la saison.",
         imageAlt: "Prototypes IMSA Esports sous les projecteurs à Daytona",
         content: [
@@ -830,6 +861,7 @@ export const ARTICLES: Article[] = [
       },
       it: {
         title: "IMSA Esports: dove i prototipi virtuali incontrano l’eredità del mondo reale",
+        seoTitle: "IMSA Esports: prototipi virtuali, eredità reale",
         excerpt: "La serie IMSA Esports porta il leggendario endurance nel mondo digitale — e Racespot lo porta sul tuo schermo con una produzione di qualità broadcast per tutta la stagione.",
         imageAlt: "Prototipi IMSA Esports sotto i riflettori a Daytona",
         content: [

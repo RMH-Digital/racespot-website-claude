@@ -49,8 +49,15 @@ export function clampDescription(text: string, max = 155): string {
  * Headline long enough that "<headline> | Racespot.tv" would be truncated?
  * Then drop the brand rather than the end of the headline — the brand is
  * already in the URL, the domain line and the site name in rich results.
+ *
+ * The budget is 55, matching the ceiling agreed for `seoTitle`: 55 plus the
+ * fourteen characters of " | Racespot.tv" is 69, and what a search result
+ * trims off the end of that is the brand, which costs nothing. It was 46,
+ * tuned before short titles existed, which made anything from 47 characters up
+ * drop the brand for no reason — a 47-character title and a 45-character one
+ * were being treated completely differently.
  */
-export function titleWithBrand(title: string, budget = 46): Metadata['title'] {
+export function titleWithBrand(title: string, budget = 55): Metadata['title'] {
   return title.length > budget ? { absolute: title } : title
 }
 
