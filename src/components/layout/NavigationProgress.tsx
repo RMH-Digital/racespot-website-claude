@@ -186,10 +186,16 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
         // disappeared. Opacity transitioned fine in the same element, so this
         // is specific to transform. element.animate() is imperative and does
         // not depend on the browser having seen a from-value first.
-        rootEl.current?.animate(
-          [{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }],
-          { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
-        )
+        // globals.css neutralises CSS animation for prefers-reduced-motion,
+        // but element.animate() is script and sails straight past it — so the
+        // check has to happen here.
+        const calmly = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (!calmly) {
+          rootEl.current?.animate(
+            [{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }],
+            { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
+          )
+        }
         setPhase('leaving')
       }, HOLD_MS),
     )
