@@ -398,6 +398,84 @@ Elemente darauf angewiesen waren.
   Flaggen stehen für Länder, nicht für Sprachen (pt ist pt-BR). Entfernen wäre
   ein Einzeiler — das ist Jürgens Entscheidung.
 
+## 7d. SEO-Audit — umgesetzt 2026-09-15
+
+Durchgang über alle 72 Seiten plus 42 Artikel-URLs: Metadaten, strukturierte
+Daten, Sitemap, Weiterleitungen, hreflang, Robots.
+
+**Titel und Beschreibungen**
+
+- `meta.site.title` hieß „Racespot.tv — <Claim>", und die Startseite
+  unterdrückte den Marken-Suffix. Ergebnis war ein `og:title`
+  „Racespot.tv — … | Racespot.tv" — Marke doppelt. Der Claim steht jetzt
+  vorn ohne Marke, das Template hängt sie einmal an. Nebeneffekt: die vier
+  romanischen Fassungen waren 64–70 Zeichen und wurden abgeschnitten; sie
+  liegen ohne den Superlativ jetzt bei 50–55. Alle sechs Startseiten
+  zwischen 50 und 59 Zeichen.
+  Achtung für später: Next wendet ein `title.template` nur auf **Kind**-Segmente
+  an. `[lang]/page.tsx` liegt im selben Segment wie das Layout, das das Template
+  definiert — die Startseite muss ihre Marke deshalb selbst setzen.
+- Artikelbeschreibungen kamen ungekürzt aus dem Excerpt und waren 200–240
+  Zeichen, wurden also mitten im Wort abgeschnitten. `clampDescription()`
+  schneidet am letzten Satzende, sonst an der Wortgrenze. Alle 42
+  Artikel-URLs liegen jetzt zwischen 99 und 156 Zeichen.
+- Drei Beschreibungen waren zu **kurz** (41–68 Zeichen, unter ~70 ersetzt
+  Google sie durch eigenen Text): `live`, `privacy`, `imprint` — neu
+  geschrieben in allen sechs Sprachen.
+- Artikeltitel: `titleWithBrand()` lässt bei langen Schlagzeilen den
+  Marken-Suffix weg, statt die Schlagzeile abschneiden zu lassen.
+- Die 404-Seite trug den Titel der Startseite. Jetzt „Page not found"
+  (nicht übersetzbar — `not-found.tsx` bekommt keine Route-Parameter — aber
+  die Seite ist ohnehin `noindex`, und die Überschrift ist übersetzt).
+
+**Strukturierte Daten**
+
+- **Neu: Broadcast-Termine als `Event`** auf `/calendar`. Die einzige Stelle
+  der Website, die ein Event-Rich-Result verdienen kann: echte geplante
+  Produktionen mit Anfang, Ende und Ort zum Zusehen. Nur zukünftige Termine,
+  maximal 30, als ein `@graph`, Organizer per `@id`-Referenz auf den
+  Organization-Knoten. `VirtualLocation` zeigt auf dieselbe `/live`-Seite, auf
+  die auch der Kalender selbst verlinkt; das Null-Euro-Angebot bildet ab, dass
+  die Übertragungen frei sind.
+  Erste Fassung waren 37 KB JSON-LD = 21 % der Seite; nach dem Straffen 19 KB
+  bei 139 KB Seitengröße.
+- **Neu: `BreadcrumbList`** auf Artikeln (Racespot.tv › News › Schlagzeile)
+  und auf dem Kalender. Ersetzt die URL im Suchergebnis durch einen Pfad.
+- **Organization** trug nur „Hürth, DE". Jetzt vollständige Anschrift wie im
+  Impressum plus `vatID` und `legalName` — Suchmaschinen gleichen
+  Unternehmensangaben gegen das Impressum ab.
+
+**Sitemap**
+
+`lastModified` war für alle 106 URLs die Build-Zeit. Damit behauptet jeder
+Deploy, sämtliche Inhalte hätten sich geändert — Google stuft ein solches
+`lastmod` als unbrauchbar ein. Jetzt: redaktionelle Seiten tragen ihr echtes
+Inhaltsdatum (Tabelle `CONTENT_UPDATED` in `sitemap.ts`, beim Ändern des
+Textes mitziehen), Artikel ihr Veröffentlichungsdatum, datengetriebene Seiten
+weiterhin die Build-Zeit. Verteilung danach: neun verschiedene Daten von
+2025-10-15 bis 2026-09-15.
+
+**Kleinigkeiten**
+
+`twitter:site`/`creator` auf `@RaceSpotTV` (Karten waren anonym; musste in
+`pageMetadata` **und** ins Layout, weil Next verschachtelte Metadaten ersetzt
+statt zusammenzuführen) · `preconnect` auf `i.ytimg.com` und `img.youtube.com`,
+von wo die Video-Vorschaubilder kommen.
+
+**Geprüft und in Ordnung, nichts zu tun:** Weiterleitungen (`/` → 302 `/en`,
+alte URLs → 301, `www` → 301, Slash-Variante → 308) · hreflang vollständig und
+wechselseitig, `x-default` auf `/en` · alle 7 Artikel in allen 6 Sprachen
+übersetzt, keine Fallback-Seite im Index · robots.txt mit TDM-Vorbehalt ·
+OG-Bilder alle vorhanden und 1200×630 · alle Bilder mit `alt` · HSTS ·
+Core Web Vitals (CLS 0, TTFB 0,12 s).
+
+**Offen, weil redaktionell:** Zwölf der 42 Artikel-URLs haben Schlagzeilen von
+72–86 Zeichen; Google schneidet bei ~60 ab. Das lässt sich nicht technisch
+lösen, ohne die Schlagzeile zu verstümmeln — entweder kürzer texten (auch im
+Press Tool) oder dem `Article`-Typ ein optionales `seoTitle` geben, das die
+Pipeline füllt. Betroffen ist vor allem `moza-racing-title-sponsor-…`
+(77–86 Zeichen je nach Sprache).
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

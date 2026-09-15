@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: siteTitle,
+      default: `${siteTitle} | Racespot.tv`,
       template: '%s | Racespot.tv',
     },
     description: t(l, 'meta.site.desc'),
@@ -64,6 +64,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@RaceSpotTV',
+      creator: '@RaceSpotTV',
       images: ['/og-home.jpg'],
     },
   }
@@ -82,6 +84,9 @@ export default async function RootLayout({
   return (
     <html lang={lang} className={`${inter.variable} ${oswald.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preconnect" href="https://img.youtube.com" />
+        <link rel="dns-prefetch" href="https://i.ytimg.com" />
         <OrganizationJsonLd />
         <WebsiteJsonLd lang={lang} />
       </head>

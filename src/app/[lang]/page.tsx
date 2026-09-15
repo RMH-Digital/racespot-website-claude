@@ -27,8 +27,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
     description: t(lang, 'meta.site.desc'),
     image: '/og-home.jpg',
   })
-  // The home title is the full site title, not "… | Racespot.tv".
-  return { ...meta, title: { absolute: t(lang, 'meta.site.title') } }
+  // Next applies a layout's title template to *child* segments only, and the
+  // home page sits in the same segment as the layout that defines it — so the
+  // brand has to be spelled out here or the title ships without it.
+  return { ...meta, title: { absolute: `${t(lang, 'meta.site.title')} | Racespot.tv` } }
 }
 
 export default async function HomePage({ params }: { params: Promise<{ lang: Lang }> }) {

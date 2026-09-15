@@ -7,6 +7,31 @@ import { LEGAL_LANGS } from '@/lib/i18n/legal/types'
 
 type Freq = NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>
 
+/**
+ * When this route is built. The sitemap is prerendered, so this is the deploy
+ * time — the right answer for pages whose content comes from a live feed and
+ * therefore changes at least as often as we ship.
+ */
+const BUILT_AT = new Date()
+
+/**
+ * Pages whose text is written by hand carry the date that text last changed,
+ * **not** the deploy date. Google treats `lastmod` as a hint about content and
+ * quietly stops trusting a sitemap where every URL claims to have changed
+ * because someone adjusted a stylesheet.
+ *
+ * Bump the date here when you change what the page *says*.
+ */
+const CONTENT_UPDATED: Record<string, string> = {
+  '/services': '2026-09-15',
+  '/about':    '2026-09-15',
+  '/events':   '2026-09-15',
+  '/contact':  '2026-09-14',
+  '/privacy':  '2026-09-14',
+  '/terms':    '2026-09-14',
+  '/imprint':  '2026-09-14',
+}
+
 const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number; langs?: readonly Lang[] }[] = [
   { path: '/',           changeFrequency: 'weekly',  priority: 1.0 },
   { path: '/broadcasts', changeFrequency: 'daily',   priority: 0.9 },
@@ -37,15 +62,15 @@ function languages(path: string, langs: readonly Lang[]) {
  * fallback-to-English page is never offered to the index.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date()
   const entries: MetadataRoute.Sitemap = []
 
   for (const page of STATIC_PAGES) {
     const langs = page.langs ?? LANGS
+    const lastModified = CONTENT_UPDATED[page.path] ? new Date(CONTENT_UPDATED[page.path]) : BUILT_AT
     for (const lang of langs) {
       entries.push({
         url: absoluteUrl(lang, page.path),
-        lastModified: now,
+        lastModified,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
         alternates: { languages: languages(page.path, langs) },

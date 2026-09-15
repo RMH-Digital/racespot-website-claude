@@ -27,6 +27,33 @@ export function alternatesFor(lang: Lang, path: string, langs: readonly Lang[] =
   }
 }
 
+/**
+ * Search results cut a description off around 160 characters, mid-word if
+ * necessary. News articles feed their excerpt in here and excerpts run to
+ * 200-240, so they were being shown truncated. Cut at the last sentence that
+ * fits; failing that at a word boundary, with an ellipsis to show it continues.
+ */
+export function clampDescription(text: string, max = 155): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+
+  const head = clean.slice(0, max + 1)
+  const sentenceEnd = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '))
+  if (sentenceEnd > max * 0.6) return clean.slice(0, sentenceEnd + 1)
+
+  const wordEnd = head.lastIndexOf(' ')
+  return clean.slice(0, wordEnd > 0 ? wordEnd : max).replace(/[,;:–—-]$/, '') + '…'
+}
+
+/**
+ * Headline long enough that "<headline> | Racespot.tv" would be truncated?
+ * Then drop the brand rather than the end of the headline — the brand is
+ * already in the URL, the domain line and the site name in rich results.
+ */
+export function titleWithBrand(title: string, budget = 46): Metadata['title'] {
+  return title.length > budget ? { absolute: title } : title
+}
+
 interface PageMeta {
   lang: Lang
   /** Language-free path, e.g. `/services` */
@@ -60,7 +87,7 @@ export function pageMetadata({ lang, path, title, description, image, langs, typ
       description,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
     },
-    twitter: { card: 'summary_large_image', images: [image] },
+    twitter: { card: 'summary_large_image', site: '@RaceSpotTV', creator: '@RaceSpotTV', title: `${title} | Racespot.tv`, description, images: [image] },
   }
 }
 

@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
 import { articleLangs, localizeArticle, renderInline } from '@/lib/articleContent'
-import { ArticleJsonLd } from '@/components/seo/JsonLd'
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
-import { absoluteUrl, pageMetadata } from '@/lib/i18n/seo'
+import { absoluteUrl, clampDescription, pageMetadata, titleWithBrand } from '@/lib/i18n/seo'
 
 interface Props {
   params: Promise<{ lang: Lang; slug: string }>
@@ -26,11 +26,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     lang,
     path,
     title: loc.title,
-    description: loc.excerpt,
+    description: clampDescription(loc.excerpt),
     image: article.image,
     langs: articleLangs(article),
     type: 'article',
   })
+  // Headlines run long; keep the whole headline and drop the brand suffix
+  // rather than let the search result cut the headline in half.
+  meta.title = titleWithBrand(loc.title)
   // Untranslated: the page shows the English text, so it is the English
   // page as far as the index is concerned — canonical points there and this
   // language is not in the hreflang set (pageMetadata already left it out).
@@ -63,6 +66,14 @@ export default async function ArticlePage({ params }: Props) {
         image={article.image}
         datePublished={article.date}
         slug={article.slug}
+      />
+      {/* racespot.tv › News › Headline, instead of a slug in the result */}
+      <BreadcrumbJsonLd
+        crumbs={[
+          { name: 'Racespot.tv', url: `https://racespot.tv/${lang}` },
+          { name: t('nav.news'), url: `https://racespot.tv/${lang}/news` },
+          { name: loc.title },
+        ]}
       />
       {/* Hero image */}
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
