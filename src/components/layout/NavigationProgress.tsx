@@ -65,6 +65,7 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
    * counter regardless.
    */
   const progress = useRef(0)
+  const rootEl = useRef<HTMLDivElement>(null)
   const numberEl = useRef<HTMLSpanElement>(null)
   const barEl = useRef<HTMLDivElement>(null)
 
@@ -176,7 +177,22 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
     }
 
     paint(100)
-    timers.current.push(setTimeout(() => setPhase('leaving'), HOLD_MS))
+    timers.current.push(
+      setTimeout(() => {
+        // Animated here rather than by a class or an inline style, because a
+        // CSS transition on transform would not run: measured live, the style
+        // said translateY(-100%) while the computed transform stayed at the
+        // identity matrix for the whole 620ms and the curtain simply
+        // disappeared. Opacity transitioned fine in the same element, so this
+        // is specific to transform. element.animate() is imperative and does
+        // not depend on the browser having seen a from-value first.
+        rootEl.current?.animate(
+          [{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }],
+          { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
+        )
+        setPhase('leaving')
+      }, HOLD_MS),
+    )
     timers.current.push(setTimeout(reset, HOLD_MS + SLIDE_MS))
   }, [pathname, phase, clearTimers, paint, reset])
 
@@ -192,26 +208,12 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
 
   return (
     <div
+      ref={rootEl}
       className="fixed inset-0 z-[100] flex flex-col justify-end bg-rs-black"
-      /*
-        The slide is an inline transform rather than Tailwind's translate
-        utilities, and it took two goes to get there.
-
-        `transition-[transform]` never fires, because Tailwind 4 moves things
-        with the CSS `translate` property, not `transform`. Switching the
-        transition to `translate` did not help either: that value is built out
-        of custom properties (`translate: var(--tw-translate-x)
-        var(--tw-translate-y)`), and while `--tw-translate-y` did flip to
-        -100%, the computed `translate` sat at 0% for the whole 620ms and the
-        curtain simply vanished at the end. A plain transform on the element
-        transitions the way you would expect it to.
-      */
       style={{
-        transform: phase === 'leaving' ? 'translateY(-100%)' : 'translateY(0)',
         opacity: visible || phase === 'leaving' ? 1 : 0,
-        transition:
-          'transform 620ms cubic-bezier(0.76, 0, 0.24, 1), opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-        willChange: 'transform',
+        transition: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+        willChange: 'transform, opacity',
       }}
     >
       {/* aria-hidden sits on the visuals, not on the wrapper: a screen reader
