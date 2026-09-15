@@ -10,8 +10,12 @@ import { getT, type Lang } from '@/lib/i18n'
  *
  * RMH's version is an intro: a full-bleed panel with the wordmark bottom left
  * and a three-digit count bottom right, running for a fixed 0.85s once per
- * session before sliding up out of the way. The count is choreography — it is
- * not connected to anything loading.
+ * session before sliding out of the way. The count is choreography — it is not
+ * connected to anything loading.
+ *
+ * Ours drops downward rather than lifting: the count and the progress line
+ * live along the bottom edge, so letting the panel fall away carries them out
+ * of the frame last, in the direction the eye is already resting.
  *
  * Here it is connected. Every page is server-rendered on demand, so clicking a
  * link fetches from the server before anything changes on screen. Usually that
@@ -38,7 +42,7 @@ const APPROACH = 0.055
 /** How long 100 stands before the curtain starts moving. */
 const HOLD_MS = 260
 
-/** Must match the slide duration in the class list below. */
+/** How long the curtain takes to fall away. */
 const SLIDE_MS = 620
 
 /** Give up if a navigation never completes (a download, a blocked route). */
@@ -186,13 +190,13 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
         // disappeared. Opacity transitioned fine in the same element, so this
         // is specific to transform. element.animate() is imperative and does
         // not depend on the browser having seen a from-value first.
-        // globals.css neutralises CSS animation for prefers-reduced-motion,
-        // but element.animate() is script and sails straight past it — so the
-        // check has to happen here.
+        // The curtain falls: down, not up. globals.css neutralises CSS
+        // animation for prefers-reduced-motion, but element.animate() is
+        // script and sails straight past it — so the check happens here.
         const calmly = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         if (!calmly) {
           rootEl.current?.animate(
-            [{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }],
+            [{ transform: 'translateY(0)' }, { transform: 'translateY(100%)' }],
             { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
           )
         }

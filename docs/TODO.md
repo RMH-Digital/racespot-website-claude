@@ -521,7 +521,9 @@ wirkt — man klickt, und nichts passiert.
 `src/components/layout/NavigationProgress.tsx`: ein schwarzer Vollbild-Vorhang
 mit „RACESPOT" unten links und einer dreistelligen Zahl unten rechts in großer
 Eurostile und Markengelb, dazu die gelbe Fortschrittslinie am unteren Rand.
-Bei Ankunft schiebt er sich nach oben weg.
+Bei Ankunft fällt er nach unten weg — Zahl und Fortschrittslinie sitzen am
+unteren Rand, sie verlassen das Bild also zuletzt und in der Richtung, in der
+das Auge ohnehin steht.
 
 **Vorlage ist rmh-digital.de** (`Preloader` in
 `_next/static/chunks/app/[locale]/page-*.js`). Deren Fassung ist ein Intro:
