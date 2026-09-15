@@ -27,6 +27,19 @@ const oswald = Oswald({
 
 export const dynamicParams = false
 
+/**
+ * Five minutes for every page in this segment, unless the page says otherwise.
+ *
+ * The layout renders the ticker, which lists the next broadcasts — so a page
+ * that is fully static bakes that list in at build time and shows it until the
+ * next deploy. Nine pages had no `revalidate` of their own and would have
+ * frozen exactly that way.
+ *
+ * Five minutes matches the Master Schedule's own cache, so this costs one
+ * render per page per five minutes instead of one per visitor.
+ */
+export const revalidate = 300
+
 export function generateStaticParams() {
   return LANGS.map((lang) => ({ lang }))
 }

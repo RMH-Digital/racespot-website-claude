@@ -689,61 +689,73 @@ die Erinnerungsglocke schon, kostenlos, und das Publikum ist dort ohnehin. Ein
 eigener E-Mail-Reminder lohnt vor allem, wenn ihr die **Adressen** wollt. Das
 ist eine Geschäftsentscheidung, keine technische.
 
-## 7h. Jede Seite wird bei jedem Aufruf neu gerendert — Ursache gefunden, Umbau zurückgestellt
+## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
-**Der Fund.** Der Build markiert **alle** `[lang]`-Routen als `ƒ` (dynamisch),
-obwohl Startseite, Kalender und Broadcasts ein `revalidate = 300` haben und
-alle Datenabrufe gecacht sind. Ursache ist ein **einziger `headers()`-Aufruf
-in `not-found.tsx`**: Die Datei gehört zum Segment `[lang]`, und Next behandelt
-eine dynamische API irgendwo im Render-Baum eines Segments als Eigenschaft des
-ganzen Segments. Die 404-Seite las den Sprach-Header des Proxys — und zwang
-damit die komplette Website in den Modus „Render pro Besucher".
+Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
+Startseite, Kalender und Broadcasts längst ein `revalidate = 300` hatten und
+sämtliche Datenabrufe gecacht sind. Auf einem geteilten Server heißt das: ein
+voller Server-Render pro Besucher und pro Seite, dazu die RSC-Prefetches.
 
-Nachgewiesen, nicht vermutet: Aufruf testweise entfernt, und zwölf Routen
-hörten auf, dynamisch zu sein. Mit dem Umbau waren lokal **alle 119 Seiten
-vorgerendert in 2,5 Sekunden**, `Cache-Control` ging von
-`private, no-cache, no-store` auf `s-maxage=300, stale-while-revalidate`,
-66 von 72 Seiten cachebar.
+**Ursache: ein einziger `headers()`-Aufruf in `not-found.tsx`.** Die Datei
+gehört zum Segment `[lang]`, und Next behandelt eine dynamische API irgendwo im
+Render-Baum eines Segments als Eigenschaft des ganzen Segments. Die 404-Seite
+las den Sprach-Header, den der Proxy setzt — und zwang damit die komplette
+Website in den dynamischen Modus. Nachgewiesen, nicht vermutet: Aufruf
+testweise entfernt, und zwölf Routen hörten auf, dynamisch zu sein.
 
-**Warum es trotzdem nicht drin ist.** Der Deploy (`edfe29e`) ist auf dem Server
-**fehlgeschlagen** — abgebrochen beim Vorrendern bei Seite 29 von 119, Exit-Code
-255 ohne Fehlermeldung im Log, also ein abgeschossener Prozess. Sofort
-zurückgedreht (`3ec68bc`), Seite lief durchgehend weiter, Coolify hatte den
-kaputten Build ohnehin verworfen.
+**Lösung:** Die Sprache kommt jetzt aus der URL, gelesen im Browser
+(`src/components/layout/NotFoundBody.tsx`, `useSyncExternalStore` — Server-
+Schnappschuss ist Englisch, Client-Schnappschuss die echte Sprache, React löst
+den Unterschied bei der Hydration auf statt ihn zu melden). Die Seite bleibt
+statisch, der Statuscode bleibt 404, der Leser bekommt weiter seine Sprache.
+Geprüft: `/de/gibt-es-nicht` → „Seite nicht gefunden", `/fr/pas-ici` →
+„Page introuvable", beide mit 404.
 
-Was ich zur Ursache ausschließen konnte:
+**Und ein Haken, der dabei fast durchgerutscht wäre:** Neun Seiten hatten gar
+kein `revalidate`. Vollständig statisch hätten sie den **Ticker** aus dem
+Layout — die Liste der nächsten Broadcasts — zum Build-Zeitpunkt eingefroren
+und bis zum nächsten Deploy so gezeigt. Deshalb steht das `revalidate = 300`
+jetzt im Layout und gilt fürs ganze Segment; das passt zum Cache des Master
+Schedule.
 
-- **Nicht die fehlenden Schlüssel.** Lokal ohne `.env.local` gebaut — läuft
-  komplett durch, weil die Datenfunktionen ohne Key sofort zurückkehren.
-- **Nicht zu schwache Hardware im Prinzip.** CPX32, 4 vCPU, 8 GB; lokal
-  dauert das Vorrendern 2,5 s mit 9 Workern.
+**Ergebnis:** Alle 72 Seiten sind `●` (vorgerendert, 5-Minuten-Fenster).
+`Cache-Control` ging von `private, no-cache, no-store` auf
+`s-maxage=300, stale-while-revalidate` — **66 von 72** Seiten sind jetzt
+cachebar, die sechs Ausnahmen sind die `/live`-Seiten, die absichtlich
+dynamisch bleiben. Statt eines Renders pro Besucher jetzt einer pro Seite und
+Fünf-Minuten-Fenster.
 
-Was übrig bleibt und von hier aus nicht sicher feststellbar war: die
-Build-Umgebung auf dem Server. Wahrscheinlichste Kandidaten sind der Speicher
-im Build-Container (der Build läuft neben der laufenden Seite, Coolify und dem
-Press Tool) und der Umstand, dass die 119 Vorrender-Durchläufe **mit** gültigen
-Schlüsseln einen Schwall Anfragen an Google Sheets und die YouTube-API
-auslösen — genau der Pfad, den mein schlüsselloser Test nicht durchläuft.
+**Der erste Deploy (`edfe29e`) ist fehlgeschlagen — und das lag nicht am
+Umbau.** Das Log endete bei „Generating static pages (29/119)", Coolify
+meldete „exit code 255" ohne weitere Fehlermeldung, ich habe sofort
+zurückgedreht (`3ec68bc`) und den Umbau als `static-retry` geparkt. Die
+Aufklärung danach:
 
-**Der Zweig `static-retry` liegt auf dem Remote** und enthält den vollständigen
-Umbau. Nächste Schritte, wenn jemand einen Deploy mitschauen kann:
+- **255 ist der Rückgabewert von `ssh`**, nicht von `next build`. Coolify
+  führt jeden Build-Schritt per `ssh <server> docker exec <helper> bash
+  /artifacts/build.sh` aus (`app/Traits/ExecuteRemoteCommand.php`); reißt die
+  Verbindung ab, kommt 255 zurück, und weil die Fehlermeldung dann aus
+  Build-Ausgabe besteht, greift Coolifys eigene SSH-Wiederholung nicht
+  (`SshRetryable::isRetryableSshError` sucht nach Texten wie „Connection reset").
+- **Es ist ein Muster des Servers, nicht dieses Commits.** In der gesamten
+  Deploy-Historie der Coolify-Instanz gibt es vier fehlgeschlagene Deploys —
+  alle vier mit 255, an beliebigen Stellen (zweimal mitten in einem
+  apt-Download, einmal bei „Creating an optimized production build" von
+  RMH-Digital.de, einmal hier). Ein Build-Fehler sähe anders aus: BuildKit
+  schreibt dann „process did not complete successfully: exit code N".
+- **Der Server hat es fünf Minuten später geschafft.** Der Build von `main`
+  (`c0bb1c6`) durchlief denselben Schritt „119 Seiten mit 3 Workern" in 4,4 s.
+  Kein OOM im Kernel-Log, kein Speicherlimit auf den Containern.
 
-1. Während des Deploys `docker stats` bzw. `free -m` auf dem Server laufen
-   lassen — bestätigt oder widerlegt den Speicher in einem Durchgang.
-2. Falls Speicher: `experimental.cpus` in `next.config.mjs` auf 1–2 setzen,
-   das begrenzt die Vorrender-Worker.
-3. Falls API-Schwall: dieselbe Drosselung hilft auch, alternativ die
-   Sheets-/YouTube-Aufrufe beim Build über einen gemeinsamen Cache bündeln.
+Praktische Regel daraus, auch in `COOLIFY-BASELINE.md`: **Ein Deploy mit
+„exit code 255" und ohne BuildKit-Fehlerzeile wird einfach neu angestoßen**
+(„Redeploy" in Coolify oder ein leerer Commit). Nichts am Code ändern, nichts
+zurückdrehen.
 
-**Nicht** ohne Aufsicht nachschieben: Ein fehlgeschlagener Build blockiert auch
-die Veröffentlichung des Press Tools, und der Gewinn ist eine Optimierung, kein
-Fehler, der Besucher trifft.
-
-Übernommen wurde aus dem Umbau nur ein unabhängiger Teil: Der Catch-all hat
-eigene Metadaten bekommen. Das ausgelieferte HTML trug den richtigen 404-Titel,
-aber eine Client-Navigation auf einen toten Link löste die Metadaten *dieser*
-Route auf — ohne eigene fiel sie auf den Layout-Standard zurück, der Tab las
-sich dann wie die Startseite.
+Nebenbei: Der Catch-all hat eigene Metadaten bekommen. Das ausgelieferte HTML
+trug den richtigen 404-Titel, aber eine Client-Navigation auf einen toten Link
+löste die Metadaten *dieser* Route auf — und ohne eigene fiel sie auf den
+Layout-Standard zurück, der Tab las sich dann wie die Startseite.
 
 ## 8. Kleinere technische Punkte
 
