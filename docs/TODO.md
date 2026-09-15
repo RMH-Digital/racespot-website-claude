@@ -290,10 +290,14 @@ produzierte Videos (4.581), abgedeckte Serien (104).
   Volume spart genau diese Minute. Dafür einen Eingriff an der laufenden
   Container-Konfiguration vorzunehmen — noch dazu nachts und ohne dass jemand
   zusieht — steht in keinem Verhältnis. Beim nächsten Coolify-Termin mitnehmen.
-- **Für Philip, zwei überholte Stellen** in `~/Press Tool/projects/racespot/NOTES.md`.
-  Die Datei habe ich bewusst **nicht** bearbeitet — sie gehört einem anderen
-  Projekt, ist 80 KB groß und wurde zuletzt am 2026-09-15 um 08:31 geändert;
-  da hineinzuschreiben riskiert, parallele Änderungen zu überfahren.
+- **Zwei überholte Stellen in den Notizen des Press-Tool-Projekts**
+  (`~/Press Tool/projects/racespot/NOTES.md`). Das ist die Arbeitsdatei jenes
+  Projekts — „racespot — project notes", mit Themen, Autoren und Quellen —, die
+  seine eigenen Sitzungen pflegen. Sie gehört **nicht** Philip: er gibt Artikel
+  frei und hat die DNS-Einträge gemacht, mehr nicht. (Diese Fehlzuschreibung
+  stand seit einer früheren Sitzung hier und wurde von Jürgen am 2026-09-15
+  korrigiert — schon zum zweiten Mal in dieselbe Richtung.) Bearbeitet habe ich
+  sie nicht: fremdes Projekt, 80 KB, zuletzt am 2026-09-15 um 08:31 geändert.
   - Zeile 557: „Until then a merge does not build; trigger with the API deploy
     call above." Für **dieses** Repo stimmt das nicht mehr. Der GitHub-App-Hook
     zeigt zwar weiterhin auf den geschlossenen Port 8000, aber seit dem
