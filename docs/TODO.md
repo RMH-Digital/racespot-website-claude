@@ -215,10 +215,9 @@ Server).
 `SMTP_USER`, `SMTP_PASS` und `CONTACT_EMAIL` sind gesetzt. Der
 `mailto:`-Notnagel greift also nicht, das Formular versendet echt.
 
-**Offen bleibt genau eine Sache:** einmal eine Broadcast-Anfrage absenden und
-prüfen, ob sie bei `contact@racespot.tv` **und** als Kopie beim Absender
-ankommt. Das kann nur jemand tun, der in den Postfächern nachsehen kann —
-einen Testversand an das echte Team-Postfach löse ich nicht ungefragt aus.
+**Erledigt:** Hugo und Aaron haben am 2026-09-15 jeweils Testanfragen
+abgeschickt (von Jürgen bestätigt). Damit ist der Weg Formular → SMTP →
+Postfach in der Praxis belegt. Punkt geschlossen.
 
 ## 5b. News-Darstellung — erledigt 2026-09-14
 
@@ -532,10 +531,21 @@ dessen alte Farben stehen in `generate-icons.mjs` nur noch als
 
 ## 7f. Ladeanzeige bei Navigationen — neu 2026-09-15
 
-Alle Seiten werden auf Anfrage serverseitig gerendert, ein Klick holt also
-erst beim Server. Meist ein Zehntel einer Sekunde und unsichtbar; auf einer
-kalten Route oder schlechter Verbindung lange genug, dass die Seite kaputt
-wirkt — man klickt, und nichts passiert.
+Zwei Aufgaben in einer Komponente.
+
+**Als Ladeanzeige** bei Navigationen, die länger als 250 ms brauchen. Das ist
+selten: live gemessen dauert ein Seitenwechsel **45–123 ms, Median 73** — null
+von sieben Navigationen erreichen die Schwelle. Die Anzeige ist also im
+Normalbetrieb unsichtbar und meldet sich nur, wenn wirklich etwas hängt
+(kalter Container nach einem Deploy, schlechte Mobilverbindung). Genau richtig
+für einen Fortschrittsbalken, aber der Grund, warum Jürgen sie nie zu sehen
+bekam.
+
+**Als Intro**, einmal pro Session auf der ersten geöffneten Seite, fest 900 ms
+— so wie rmh-digital.de es macht. Diese Hälfte ist reine Choreografie und
+hängt an nichts. Sie kostet ehrlich gesagt eine knappe Sekunde vor dem Hero
+für Erstbesucher; `INTRO_MS = 0` schaltet sie ab und lässt nur die Ladeanzeige
+übrig.
 
 `src/components/layout/NavigationProgress.tsx`: ein schwarzer Vollbild-Vorhang
 mit „RACESPOT" unten links und einer dreistelligen Zahl unten rechts in großer
@@ -580,6 +590,18 @@ Entscheidungen und Fallen:
   Bild statt rechts.
 - **Keine CSS-Transition auf dem Balken.** Der Wert ändert sich jeden Frame,
   eine jeden Frame neu gestartete Transition kommt nie an (blieb bei 56 %).
+- **Kein Intro in unsichtbaren Tabs — und das war ein echter Fehler.** Beim
+  Testen lief der Zähler nie los; eine Sonde in der Schleife zeigte, dass
+  `requestAnimationFrame` **kein einziges Mal** feuerte, bei
+  `document.visibilityState === 'hidden'`. Browser halten Animation-Frames in
+  unsichtbaren Dokumenten komplett an. Da der Vorhang sein Ende ausschließlich
+  aus dieser Schleife bekam, wäre er dort **für immer** stehen geblieben:
+  schwarze, scroll-gesperrte Seite für jeden, der die Website in einem
+  Hintergrundtab öffnet — etwas völlig Alltägliches. Jetzt startet das Intro
+  bei verstecktem Dokument gar nicht erst (und verbraucht auch das
+  Session-Flag nicht), und ein `setTimeout` beendet es unabhängig von der
+  Schleife, falls der Tab mittendrin in den Hintergrund wandert.
+
 - Zurück/Vorwärts zählen mit; nach 15 s ohne Ankunft blendet sie sich ab, damit
   weder Vorhang noch Scroll-Sperre hängen bleiben. Für Screenreader eine
   Statusmeldung statt einer sich sechzigmal pro Sekunde ändernden Zahl.

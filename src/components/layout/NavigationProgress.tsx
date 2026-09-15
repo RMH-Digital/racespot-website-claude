@@ -48,6 +48,25 @@ const SLIDE_MS = 620
 /** Give up if a navigation never completes (a download, a blocked route). */
 const ABANDON_MS = 15_000
 
+/**
+ * The intro: shown once per session on the first page someone opens.
+ *
+ * Measured on the live site, a route change takes 45-123ms — median 73. The
+ * curtain waits 250ms before showing anything, so on a normal day it never
+ * appears at all: the site is too fast for its own loading indicator. That is
+ * the right behaviour for a *progress* indicator and the wrong one for
+ * something meant to be part of the brand.
+ *
+ * So it also runs once as an intro, the way rmh-digital.de does it: a fixed
+ * count, once per session, connected to nothing. The cost is honest — it puts
+ * a second in front of the hero for a first-time visitor. Set INTRO_MS to 0 to
+ * turn it off and keep only the slow-navigation behaviour.
+ */
+const INTRO_MS = 900
+
+/** One key, one session. Cleared when the tab closes, which is the point. */
+const INTRO_KEY = 'racespot:intro'
+
 type Phase = 'idle' | 'running' | 'leaving'
 
 export function NavigationProgress({ lang }: { lang: Lang }) {
@@ -118,6 +137,42 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
     document.body.style.overflow = ''
   }, [clearTimers, paint])
 
+  /**
+   * Finish at 100, hold it long enough to be read, drop the curtain, unmount.
+   * Shared by the intro and by a real arrival — they differ only in how they
+   * get to 100.
+   */
+  const leave = useCallback(() => {
+    clearTimers()
+    paint(100)
+
+    timers.current.push(
+      setTimeout(() => {
+        // Animated here rather than by a class or an inline style, because a
+        // CSS transition on transform would not run: measured live, the style
+        // said translateY(-100%) while the computed transform stayed at the
+        // identity matrix for the whole 620ms and the curtain simply
+        // disappeared. element.animate() is imperative and does not depend on
+        // the browser having seen a from-value first.
+        //
+        // globals.css neutralises CSS animation for prefers-reduced-motion,
+        // but element.animate() is script and sails past a stylesheet, so the
+        // check has to happen here.
+        const calmly = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (!calmly && rootEl.current) {
+          // Clear anything left on the node first — see the `exit` ref above.
+          rootEl.current.getAnimations().forEach((a) => a.cancel())
+          exit.current = rootEl.current.animate(
+            [{ transform: 'translateY(0)' }, { transform: 'translateY(100%)' }],
+            { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
+          )
+        }
+        setPhase('leaving')
+      }, HOLD_MS),
+    )
+    timers.current.push(setTimeout(reset, HOLD_MS + SLIDE_MS))
+  }, [clearTimers, paint, reset])
+
   const start = useCallback(() => {
     clearTimers()
     rootEl.current?.getAnimations().forEach((a) => a.cancel())
@@ -144,6 +199,63 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
     )
     timers.current.push(setTimeout(reset, ABANDON_MS))
   }, [clearTimers, paint, reset])
+
+  // ── The intro, once per session ───────────────────────────────────────
+  useEffect(() => {
+    if (INTRO_MS <= 0) return
+    // Anyone who asked for less motion gets none of this.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    // Opened in a background tab — a very ordinary thing to do. There is no
+    // point playing an intro to a hidden document, and the animation frames it
+    // runs on are suspended there anyway.
+    if (document.hidden) return
+
+    let seen = true
+    try {
+      seen = window.sessionStorage.getItem(INTRO_KEY) === '1'
+      window.sessionStorage.setItem(INTRO_KEY, '1')
+    } catch {
+      // Private windows can refuse storage. Rather than risk showing the
+      // intro on every single page, treat that as "already seen".
+      return
+    }
+    if (seen) return
+
+    from.current = null // there is no navigation to wait for
+    wasShown.current = true
+    setPhase('running')
+    setVisible(true)
+    paint(0)
+    // Nobody should be scrolling a page they cannot see; `reset` puts it back.
+    document.body.style.overflow = 'hidden'
+
+    // A known duration, so this one is a straight ramp rather than the
+    // asymptotic approach a real wait needs.
+    const began = performance.now()
+    const tick = () => {
+      const t = Math.min(1, (performance.now() - began) / INTRO_MS)
+      // easeInOutCubic: settles rather than stopping dead at 100.
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
+      paint(eased * 100)
+      if (t < 1) {
+        frame.current = requestAnimationFrame(tick)
+        return
+      }
+      leave()
+    }
+    frame.current = requestAnimationFrame(tick)
+
+    // Backstop. A browser suspends requestAnimationFrame entirely while the
+    // document is hidden, and the intro's only way out is that loop — so a tab
+    // that goes to the background mid-intro would come back to a black,
+    // scroll-locked page that never clears. This ends it either way.
+    timers.current.push(setTimeout(leave, INTRO_MS + 200))
+
+    return clearTimers
+    // Mount only: this is the first paint of the session or it is nothing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ── Navigation start: a plain left-click on an internal link ──────────
   useEffect(() => {
@@ -194,33 +306,8 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
       return
     }
 
-    paint(100)
-    timers.current.push(
-      setTimeout(() => {
-        // Animated here rather than by a class or an inline style, because a
-        // CSS transition on transform would not run: measured live, the style
-        // said translateY(-100%) while the computed transform stayed at the
-        // identity matrix for the whole 620ms and the curtain simply
-        // disappeared. Opacity transitioned fine in the same element, so this
-        // is specific to transform. element.animate() is imperative and does
-        // not depend on the browser having seen a from-value first.
-        // The curtain falls: down, not up. globals.css neutralises CSS
-        // animation for prefers-reduced-motion, but element.animate() is
-        // script and sails straight past it — so the check happens here.
-        const calmly = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        if (!calmly && rootEl.current) {
-          // Clear anything left on the node first — see the `exit` ref above.
-          rootEl.current.getAnimations().forEach((a) => a.cancel())
-          exit.current = rootEl.current.animate(
-            [{ transform: 'translateY(0)' }, { transform: 'translateY(100%)' }],
-            { duration: SLIDE_MS, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' },
-          )
-        }
-        setPhase('leaving')
-      }, HOLD_MS),
-    )
-    timers.current.push(setTimeout(reset, HOLD_MS + SLIDE_MS))
-  }, [pathname, phase, clearTimers, paint, reset])
+    leave()
+  }, [pathname, phase, clearTimers, reset, leave])
 
   useEffect(
     () => () => {
