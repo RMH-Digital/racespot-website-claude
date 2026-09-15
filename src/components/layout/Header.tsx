@@ -139,7 +139,6 @@ export function Header({ lang }: { lang: Lang }) {
               aria-expanded={langOpen}
               className="flex items-center gap-1.5 px-3 py-1.5 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
             >
-              <span aria-hidden="true">{currentLang.flag}</span>
               <span>{currentLang.code.toUpperCase()}</span>
               <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" className={`ml-0.5 transition-transform ${langOpen ? 'rotate-180' : ''}`}>
                 <path d="M4 5L0 0h8L4 5z" />
@@ -159,7 +158,9 @@ export function Header({ lang }: { lang: Lang }) {
                     className={`w-full flex items-center gap-2 px-3 py-2 text-[12px] font-display uppercase tracking-wider transition-colors
                       ${l.code === lang ? 'bg-rs-yellow/10 text-rs-yellow' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                   >
-                    <span aria-hidden="true">{l.flag}</span>
+                    <span className="font-mono text-[10px] tracking-widest text-rs-muted w-5 shrink-0">
+                      {l.code.toUpperCase()}
+                    </span>
                     <span>{l.label}</span>
                   </Link>
                 ))}
@@ -228,7 +229,6 @@ export function Header({ lang }: { lang: Lang }) {
                         ? 'bg-rs-yellow text-rs-black border-rs-yellow'
                         : 'text-rs-muted border-rs-border hover:text-white'}`}
                   >
-                    <span aria-hidden="true">{l.flag}</span>
                     {l.code.toUpperCase()}
                   </Link>
                 ))}

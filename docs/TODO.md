@@ -658,15 +658,22 @@ ist eine Geschäftsentscheidung, keine technische.
   schloss sie aus; jetzt greift die 301 auch dort, die Sprachlogik überspringt
   sie weiterhin.
 
-**Bewusst offen: `CalendarClient.tsx` aufteilen** — inzwischen **755 Zeilen**.
-Am 2026-09-14 waren es 619; seither kamen die Zeitzonen-Umbauten, die
-Trefferflächen aus dem UI-Audit und die Kalender-Downloads dazu. Die
-Begründung fürs Aufschieben („direkt nach einem großen Umbau ohne fachlichen
-Anlass zerlegen bringt Risiko ohne Nutzen") trägt langsam nicht mehr: die
-Datei enthält mittlerweile Listenansicht, Monatsraster, Event-Karte,
-Zeitzonen-Auflösung, Download-Knopf und die Zustandslogik. **Beim nächsten
-inhaltlichen Eingriff wirklich mitnehmen** — ein sinnvoller Schnitt wäre
-`ListView` / `GridView` / `AddToCalendar` / die Zeit-Helfer.
+**`CalendarClient.tsx` aufgeteilt — erledigt 2026-09-15.** 755 Zeilen in einer
+Datei, jetzt sechs:
+
+| Datei | Zeilen | Inhalt |
+|---|---|---|
+| `calendar/time.ts` | 184 | Locale- und Zeitzonen-Auflösung, Formatierung, Monatsarithmetik — reine Logik, kein Markup |
+| `calendar/GridView.tsx` | 270 | Monatsraster, Tageszelle, Event-Karte |
+| `calendar/ListView.tsx` | 86 | Listenansicht und Zeile |
+| `calendar/AddToCalendar.tsx` | 56 | Der Download-Knopf, von beiden Ansichten benutzt |
+| `calendar/shared.tsx` | 25 | Live-Badge, Leerzustand |
+| `CalendarClient.tsx` | 160 | Nur noch Zustand und Steuerleiste |
+
+Reines Verschieben, keine Verhaltensänderung. Danach gegengeprüft: Raster und
+Liste rendern identisch, 13 Downloads im Raster (24 px) und 21 in der Liste
+(44 px), 14 Event-Punkte, Monatsnavigation, Zeitzone, Abo-Block, mobil weiter
+Listenansicht als Start, kein Überlauf, keine Konsolenfehler.
 
 **Offen: alte lokale Branches** — `analytics-page-views`, `i18n-routes`,
 `next-15`, `next-16`, `ui-audit` sind alle in `main` oder überholt und können

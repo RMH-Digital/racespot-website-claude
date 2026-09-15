@@ -13,13 +13,19 @@ export { LANGS, DEFAULT_LANG, LANG_COOKIE, LANG_HEADER, isLang, localePath, spli
 export type { Lang } from './langs'
 import { LANGS, type Lang } from './langs'
 
-export const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'pt', label: 'Português', flag: '🇧🇷' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+/**
+ * No flags. A flag is a country, not a language — Portuguese here is Brazilian,
+ * English is read everywhere but Britain — and flag emoji render as two bare
+ * letters on Windows anyway, which looks like a bug. The code and the language's
+ * own name carry the meaning without either problem.
+ */
+export const LANGUAGES: { code: Lang; label: string }[] = [
+  { code: 'en', label: 'English' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'es', label: 'Español' },
+  { code: 'pt', label: 'Português' },
+  { code: 'fr', label: 'Français' },
+  { code: 'it', label: 'Italiano' },
 ]
 
 /**

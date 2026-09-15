@@ -31,9 +31,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     langs: articleLangs(article),
     type: 'article',
   })
-  // Headlines run long; keep the whole headline and drop the brand suffix
-  // rather than let the search result cut the headline in half.
-  meta.title = titleWithBrand(loc.title)
+  // `seoTitle` when the pipeline supplied one, otherwise the headline. Long
+  // headlines still drop the brand suffix rather than be cut in half — but a
+  // short title is the better answer, which is what seoTitle is for.
+  meta.title = titleWithBrand(loc.seoTitle)
   // Untranslated: the page shows the English text, so it is the English
   // page as far as the index is concerned — canonical points there and this
   // language is not in the hreflang set (pageMetadata already left it out).

@@ -1,0 +1,86 @@
+'use client'
+
+import { useMemo } from 'react'
+import type { CalendarEvent } from '@/lib/sheets'
+import { getT, localePath, type Lang } from '@/lib/i18n'
+import { AddToCalendar } from './AddToCalendar'
+import { LiveBadge, EmptyState } from './shared'
+import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
+
+export function ListView({ lang, events, year, month, is24h, locale, timeZone }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string }) {
+  const monthEvents = useMemo(() => {
+    return events.filter((e) => {
+      const p = zonedParts(localDate(e.dateISO), timeZone)
+      return p.year === year && p.month === month
+    })
+  }, [events, year, month, timeZone])
+
+  const t = getT(lang)
+
+  if (monthEvents.length === 0) return <EmptyState lang={lang} />
+
+  return (
+    <div>
+      <div className="flex items-baseline gap-3 mb-4 pb-3 border-b border-rs-border">
+        <span className="text-rs-muted text-[11px]">
+          {monthEvents.length} {t(monthEvents.length === 1 ? 'calendar.eventOne' : 'calendar.eventMany')}
+        </span>
+      </div>
+      <div>
+        {monthEvents.map(event => (
+          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
+  const d = localDate(event.dateISO)
+  const day = d.getDate()
+  const weekday = formatWeekday(event.dateISO, locale, timeZone)
+  const monthStr = d.toLocaleDateString(locale, { month: 'short', timeZone })
+
+  const t = getT(lang)
+
+  return (
+    // A div, not an anchor: the row used to be one link, which left nowhere to
+    // put the calendar button — an anchor cannot contain another. The watch
+    // link is stretched across the row instead, and the button sits above it.
+    <div
+      className="group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
+                 hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30"
+    >
+      <a href={localePath(lang, '/live')} className="absolute inset-0" aria-label={event.series}>
+        <span className="sr-only">{event.series}</span>
+      </a>
+      <div className="flex flex-col items-center justify-center text-center">
+        <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
+        <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
+        <span className="text-[11px] uppercase text-rs-muted leading-none">{monthStr}</span>
+      </div>
+      <div className="min-w-0 flex flex-col justify-center">
+        <div className="flex items-center gap-2 flex-wrap">
+          {event.isLive && <LiveBadge />}
+          <p className="text-rs-white font-medium text-sm truncate group-hover:text-rs-yellow transition-colors">
+            {event.series}
+          </p>
+        </div>
+        {event.description && (
+          <p className="text-rs-muted text-xs mt-0.5 truncate">{event.description}</p>
+        )}
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-[11px] text-rs-yellow font-bold">{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
+          <span className="text-[11px] text-rs-muted" aria-hidden="true">–</span>
+          <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="hidden sm:inline text-xs text-rs-yellow font-display font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+          Watch →
+        </span>
+        <AddToCalendar lang={lang} event={event} t={t} />
+      </div>
+    </div>
+  )
+}

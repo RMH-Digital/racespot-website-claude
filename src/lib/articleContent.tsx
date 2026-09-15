@@ -122,6 +122,8 @@ export interface LocalizedArticle {
   /** The language actually rendered — `en` when `lang` has no translation. */
   lang: Lang
   title: string
+  /** Short title for `<title>` and the search result; the headline when unset. */
+  seoTitle: string
   excerpt: string
   imageAlt: string
   readTime: string
@@ -140,6 +142,7 @@ export function localizeArticle(article: Article, lang: Lang): LocalizedArticle 
     return {
       lang: 'en',
       title: article.title,
+      seoTitle: article.seoTitle || article.title,
       excerpt: article.excerpt,
       imageAlt: article.imageAlt,
       readTime: article.readTime,
@@ -149,6 +152,9 @@ export function localizeArticle(article: Article, lang: Lang): LocalizedArticle 
   return {
     lang,
     title: tr.title,
+    // Falls back to the translated headline, not the English short title — a
+    // German page must not end up with an English title tag.
+    seoTitle: tr.seoTitle || tr.title,
     excerpt: tr.excerpt,
     imageAlt: tr.imageAlt,
     readTime: tr.readTime ?? article.readTime,

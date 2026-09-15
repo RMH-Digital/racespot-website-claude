@@ -86,6 +86,7 @@ array (newest first; `generateStaticParams` picks up slugs automatically).
 ```ts
 interface Article {
   slug: string; category: string; title: string; excerpt: string   // English
+  seoTitle?: string     // ≤ 55 chars for <title>; omitted = the headline
   date: string; readTime: string; image: string; imageAlt: string
   imageCredit?: string  // shown bottom-right on the hero
   author?: string       // byline; omitted = no byline shown
@@ -96,6 +97,7 @@ interface Article {
 
 interface ArticleTranslation {
   title: string; excerpt: string; imageAlt: string
+  seoTitle?: string     // per language; omitted = that language's headline
   content: Block[]      // same block kinds, same inline syntax
   readTime?: string     // omitted = English value
 }
@@ -122,6 +124,13 @@ and `[label](url)`. They are parsed into React elements by `renderInline()`.
 **Never** switch this to `dangerouslySetInnerHTML`: article text comes from an
 automated pipeline reading third-party feeds, so it has to stay text, not
 markup. If a fourth construct is ever needed, add it to that parser.
+
+`seoTitle` is the short form of the headline, used for the `<title>` tag and
+therefore for the search result. Google cuts a title at roughly 60 characters,
+the site appends `" | Racespot.tv"`, so the budget is **55**. Read it through
+`localizeArticle()` like everything else — `loc.seoTitle` falls back to that
+language's headline, never to the English one. Leave it out whenever the
+headline already fits; it exists for the long ones.
 
 `category` must be a key of `CATEGORY_COLORS` (Events, Broadcast, Esports,
 Motorsport, Industry, Company) — a category that is not a key renders without a

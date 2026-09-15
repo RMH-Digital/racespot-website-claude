@@ -31,6 +31,8 @@ export interface Source {
 export interface ArticleTranslation {
   title: string
   excerpt: string
+  /** Short title for the browser tab and search results. See `Article.seoTitle`. */
+  seoTitle?: string
   imageAlt: string
   /** Same block kinds, same inline syntax as the English `content`. */
   content: Block[]
@@ -42,6 +44,24 @@ export interface Article {
   slug: string
   category: string
   title: string
+  /**
+   * Optional short title for the `<title>` tag and the search result.
+   *
+   * A headline is written for a reader who is already on the page; a search
+   * result has about sixty characters before Google cuts it off mid-word.
+   * Twelve of the articles here run 72-86 characters, so the end of the
+   * sentence is simply lost to anyone finding us through search.
+   *
+   * Keep it to **55 characters or fewer** — the site appends " | Racespot.tv"
+   * and that has to fit too. Front-load the distinctive part: the series, the
+   * event, the manufacturer. It must say the same thing the headline says; a
+   * search result that promises something the article does not deliver is
+   * worse than a truncated one.
+   *
+   * Omit it and the headline is used, which is right whenever the headline is
+   * already short enough.
+   */
+  seoTitle?: string
   excerpt: string
   date: string
   readTime: string
