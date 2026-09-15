@@ -658,76 +658,153 @@ Abo-Feeds in ihrem eigenen Takt, meist alle paar Stunden. Kurzfristige
 Änderungen kommen verzögert an. `REFRESH-INTERVAL` und `X-PUBLISHED-TTL`
 stehen auf 6 h, sind aber nur Wünsche.
 
-### Stufe 2, konkret geplant am 2026-09-15, nicht gebaut: E-Mail-Erinnerung und Newsletter
+### Stufe 2, geplant am 2026-09-15, nicht gebaut: Newsletter und Race Reminder, komplett selbst betrieben
 
-**Aufwand: rund vier Arbeitstage auf der Website-Seite**, dazu Wartezeiten,
-die nicht in unserer Hand liegen (DNS-Einträge, Freigabe der Datenschutztexte).
-Selbst bauen (eigene Datenbank, eigener Versand, eigene Bounce-Behandlung)
-läge bei sechs bis acht Tagen plus laufendem Betrieb und ist nicht empfohlen.
+**Entschieden (Jürgen, 2026-09-15):** kein fremder Dienst. Alle Daten bleiben
+auf eigenen Servern. Zwei getrennt wählbare Themen — **Newsletter**
+(Pressemitteilungen und News) und **Race Reminder** (Erinnerung vor
+Broadcasts) —, je eine Checkbox, einzeln kündbar.
 
-**Architektur in einem Satz:** Die Website bleibt zustandslos, ein EU-Anbieter
-(Vorschlag: Brevo, Server in Frankreich, AV-Vertrag online) hält die Adressen
-und verschickt, wir rendern jede Mail selbst aus `translations.ts` und benutzen
-den Anbieter nur als Rohr. Damit bleiben alle sechs Sprachen an einer Stelle,
-und die Double-Opt-in-Logik gehört uns statt sechs Anbieter-Templates.
+**Aufwand: rund neun Arbeitstage auf der Website-Seite**, dazu Wartezeiten
+(DNS, Freigabe der Rechtstexte) und **laufender Betrieb von etwa einer Stunde
+im Monat** — Bounces, Zustellbarkeit, Backups nachsehen. Das ist gut doppelt
+so viel wie mit einem Anbieter; die Differenz ist exakt das, was ein Anbieter
+sonst übernimmt: Warteschlange, Bounce-Behandlung, Ruf der Absenderadresse.
 
-**Was schon da ist und wiederverwendet wird:**
+#### Eine Unterscheidung, die den Plan bestimmt
 
-- `src/lib/ics.ts` — die Erinnerungsmail bekommt den Termin als `.ics` in den
-  Anhang, ein Klick, und er steht im Kalender.
-- Stabile Event-IDs (FNV-1a in `sheets.ts`) — der Schlüssel, an dem sich der
-  Versand merkt, dass eine Erinnerung schon raus ist.
-- Zeitformatierung pro Sprache und Zeitzone (`calendar/time.ts`).
-- Honeypot, Turnstile, Rate-Limit aus `api/contact/route.ts`.
-- SMTP über All-Inkl bleibt für die interne Benachrichtigung („neue Anmeldung").
+„Selbst betreiben" heißt zweierlei, und nur eines davon ist teuer:
 
-**Ablauf für den Leser:**
+- **Die Daten selbst halten** — Adressen, Einwilligungen, Themen, Protokolle.
+  Das ist eine Postgres-Datenbank neben der Website und kostet einen halben Tag.
+- **Die Mails selbst zustellen** — ein eigener Mailserver mit eigener IP. Das
+  ist der Ruf einer Adresse bei Gmail, Microsoft und GMX, der über Wochen
+  aufgebaut werden muss, Hetzner-IP-Bereiche auf Sperrlisten, Port 25 bei
+  Hetzner erst auf Antrag, Reverse-DNS, tägliche Pflege. Zwei Tage extra und
+  das Risiko, dass Erinnerungen im Spam landen, den niemand sieht.
 
-1. Formular unter dem Abo-Block des Kalenders und im Footer: E-Mail, Sprache
-   (aus der URL), optional die Serien, die interessieren. Absenden → „Bitte
-   bestätige deine Adresse".
-2. Bestätigungsmail mit signiertem Link (HMAC über Adresse + Sprache + Serien +
-   Zeitstempel, 48 h gültig). Erst der Klick legt den Kontakt beim Anbieter an,
-   mit `CONSENT_AT`, `CONSENT_IP`, `CONSENT_TEXT_VERSION` als Attribute — das
-   ist der Einwilligungsnachweis nach § 7 UWG.
-3. Eine Stunde vor jedem Broadcast der gewählten Serien: eine Mail in der
-   Sprache des Lesers, mit Titel, Startzeit in seiner Zeitzone, Link zu
-   `/live`, `.ics` im Anhang.
-4. Jede Mail trägt einen Ein-Klick-Abmeldelink (signiert, kein Login) und den
-   `List-Unsubscribe`-Header nach RFC 8058, den Gmail und Apple Mail als
-   eigenen Knopf zeigen.
+**Vorschlag:** das erste ja, das zweite nein. Versendet wird über den
+**bestehenden SMTP-Zugang bei All-Inkl** — das ist unser eigenes Postfach beim
+Hoster, den wir ohnehin bezahlen, kein Marketing-Dienst, der die Liste sieht.
+Die Adressliste verlässt Hetzner nie; All-Inkl sieht jede Mail so, wie jeder
+Mailserver eine Mail sieht. Das Stundenlimit des Postfachs steht im KAS und
+wird zur Obergrenze der Warteschlange. Ein eigener Mailserver bleibt als
+späterer Schritt möglich, ohne dass irgendetwas anderes umgebaut werden muss —
+es ist ein Konfigurationswert.
 
-**Die Bauteile:**
+#### Wo die Daten liegen
 
-| Teil | Was | Tage |
-|---|---|---|
-| Einrichtung | Brevo-Konto, AV-Vertrag, API-Schlüssel in Coolify, Absender `news@racespot.tv` mit SPF/DKIM — **DNS macht Philip** | 0,5 |
-| Anmeldung | `SubscribeForm` (6 Sprachen), `POST /api/newsletter/subscribe` mit Turnstile und Rate-Limit, Token, Bestätigungsmail, `GET /api/newsletter/confirm`, `GET /api/newsletter/unsubscribe`, eine Seite `/{lang}/newsletter` mit den Zuständen „bestätigen / bestätigt / abgemeldet / abgelaufen" | 1,5 |
-| Erinnerungsversand | `POST /api/cron/reminders` mit Geheimnis, in Coolify stündlich angestoßen. Liest `getCalendarEvents()`, nimmt Broadcasts mit Start in 60–120 Minuten, holt die Empfänger der jeweiligen Serien-Listen, rendert pro Sprache, schickt über die Transaktions-API (bis 1000 Empfänger pro Aufruf). Merkt sich versandte Event-IDs in einer kleinen JSON-Datei auf einem Coolify-Volume — die einzige Stelle, an der Zustand entsteht | 1 |
-| Recht und Texte | Neuer Abschnitt in Datenschutz **de und en** (die heutige Fassung sagt wörtlich „keinen Newsletter" — der Satz muss weg), Einwilligungstext, ~40 neue Übersetzungsschlüssel × 6 Sprachen, Footer-Link | 0,5 + Freigabe |
-| Test und Betrieb | Echte Postfächer (Gmail, Outlook, Apple, GMX), Spam-Score, Bounce-Webhook ins Log, einmal die Abmeldung aus jedem Client heraus | 0,5 |
+**Hetzner, als Postgres-Dienst in Coolify**, eigene Instanz (nicht die von
+Umami), im selben Docker-Netz wie die Website, ohne offenen Port. Coolify
+sichert Datenbanken planmäßig; der Dump geht zusätzlich **jede Nacht
+verschlüsselt ins Büro** — so liegt eine Kopie tatsächlich im Haus.
 
-**Entscheidungen, die vorher fallen müssen (Jürgen):**
+Den Produktivbetrieb ins Büro zu legen rate ich ab: Die Website müsste dann
+bei jeder Anmeldung ins Büronetz schreiben — ein offener Weg von außen nach
+innen, plus Latenz, plus die Verfügbarkeit einer Büroleitung für einen
+öffentlichen Dienst. Die Kopie im Büro erfüllt „alle Daten selbst haben"
+besser als ein Server, der dort läuft.
 
-- **Nur Erinnerungen, oder auch redaktioneller Newsletter?** Die Technik ist
-  dieselbe, aber ein redaktioneller Newsletter braucht jemanden, der ihn
-  schreibt — in sechs Sprachen oder bewusst nur in einer.
-- **Serien einzeln wählbar oder „alle Broadcasts"?** Alle ≈ zwei Mails pro
-  Woche. Einzeln ist freundlicher, kostet ein Feld im Formular und eine Liste
-  pro Serie beim Anbieter.
-- **Absenderadresse.** `news@racespot.tv` oder `contact@`. Eigene Adresse
-  schützt die Zustellbarkeit des Kontaktpostfachs, falls etwas schiefgeht.
-- **Freigabe der Datenschutztexte** durch einen Menschen, de und en zusammen.
+#### Schema
 
-**Kosten:** Brevo bis 300 Mails/Tag kostenlos; darüber ab etwa 9 €/Monat für
-5.000 Mails. Rechenbeispiel: 500 Abonnenten × 100 Broadcasts/Jahr ≈ 4.200
-Mails/Monat — die Grenze zum kleinsten Bezahltarif.
+| Tabelle | Inhalt |
+|---|---|
+| `subscribers` | E-Mail (klein geschrieben, eindeutig), Sprache, Status `pending / active / unsubscribed`, angelegt, bestätigt, Einwilligungs-IP, Version des angezeigten Textes, Abmelde-Token |
+| `subscriptions` | Abonnent × Thema (`newsletter` / `reminders`), bei Reminders optional die Serien |
+| `mail_queue` | Empfänger, Betreff, HTML, Text, Header, Status `queued / sent / failed`, Versuche, nächster Versuch, Fehlertext |
+| `reminder_log` | Event-ID (die stabile aus `sheets.ts`) × Zeitpunkt — verhindert die doppelte Erinnerung |
+| `newsletter_issues` | Ausgabe: enthaltene Artikel, Betreff je Sprache, Status `preview / approved / sent` |
+| `bounces` | Adresse, hart/weich, Zeitpunkt, Rohtext |
+| `suppressions` | Hash abgemeldeter und hart gebouncter Adressen — bleibt nach dem Löschen der Person, damit sie nie wieder angeschrieben wird |
 
-**Der Einwand von vorhin gilt weiter:** Für einen angesetzten YouTube-Stream
-gibt es die Erinnerungsglocke, kostenlos, dort ist das Publikum. Der eigene
-Reminder lohnt, weil er der Grund ist, aus dem jemand eine **Adresse**
-hinterlässt — und die Adressen sind das, was bleibt, wenn eine Plattform ihre
-Regeln ändert. Das ist die Geschäftsentscheidung; die Technik ist vier Tage.
+#### Ablauf für den Leser
+
+1. Formular unter dem Kalender-Abo-Block und im Footer: E-Mail, zwei
+   Checkboxen **Newsletter** und **Race Reminder**, unter Reminder aufklappbar
+   die Serien (Standard: alle). Sprache aus der URL. Honeypot, Turnstile und
+   Rate-Limit wie beim Kontaktformular.
+2. Bestätigungsmail mit signiertem Link (48 h). Erst der Klick setzt den Status
+   auf `active` und schreibt Zeitpunkt, IP und Textversion — der
+   Einwilligungsnachweis nach § 7 UWG. Unbestätigte Einträge werden nach sieben
+   Tagen gelöscht.
+3. **Race Reminder:** eine Stunde vor jedem Broadcast der gewählten Serien, in
+   der Sprache und Zeitzone des Lesers, mit Link zu `/live` und dem Termin als
+   `.ics` im Anhang (Builder aus Stufe 1).
+4. **Newsletter:** einmal wöchentlich eine Ausgabe mit den Artikeln der letzten
+   sieben Tage — **automatisch in allen sechs Sprachen**, weil das Press Tool
+   jeden Artikel sechssprachig liefert. Keine Artikel, keine Ausgabe.
+5. Jede Mail trägt Abmeldelinks **pro Thema und für alles**, signiert, ohne
+   Login, plus `List-Unsubscribe` nach RFC 8058 — Gmail und Apple Mail zeigen
+   den als eigenen Knopf.
+
+#### Redaktion ohne Admin-Oberfläche
+
+Eine Bedienoberfläche zum Schreiben und Freigeben wäre der teuerste Einzelteil
+und wird nicht gebaut. Stattdessen: Der Wochen-Cron stellt die Ausgabe
+zusammen und schickt eine **Vorschau an `contact@racespot.tv`** mit zwei
+signierten Links — **„Senden"** und **„Diese Woche überspringen"**. Klickt
+24 Stunden lang niemand, wird gesendet. Wer eine Ausgabe ändern will, ändert
+den Artikel im Press Tool; die Vorschau zieht nach.
+
+Verwaltung der Abonnenten über kleine, protokollierende Skripte im
+Coolify-Terminal: Zahl je Thema und Sprache, Export, **Löschung einer Person
+auf Verlangen** (Art. 17 DSGVO — landet als Hash in `suppressions`), Sperren
+einer Adresse. Dazu eine Statusseite hinter Basic-Auth mit Zahlen und den
+letzten Fehlern der Warteschlange.
+
+#### Versand und Bounces — das, was ein Anbieter sonst übernimmt
+
+- **Warteschlange:** Jede Mail wird erst in `mail_queue` geschrieben, nie
+  direkt gesendet. Ein Coolify-„Scheduled Task" läuft jede Minute im
+  Website-Container (`node scripts/mail-worker.mjs`), nimmt bis zu N Mails,
+  hält das Stundenlimit ein, wiederholt Fehler mit wachsendem Abstand, gibt
+  nach fünf Versuchen auf und protokolliert. Ein Deploy mitten im Versand ist
+  ungefährlich — der Zustand liegt in der Datenbank.
+- **Return-Path** je Mail `bounce+<id>@racespot.tv` (Catch-all bei All-Inkl).
+  Ein zweiter Task holt dieses Postfach per IMAP ab, liest die Fehlermeldungen
+  (RFC 3464), ordnet sie über die ID zu und deaktiviert nach einem harten oder
+  drei weichen Bounces.
+- **Absender `news@racespot.tv`**, nicht `contact@` — schützt das
+  Kontaktpostfach, falls der Ruf einmal leidet. SPF ist da, **DKIM im KAS
+  aktivieren, DMARC-Eintrag setzen** — DNS macht Philip. Danach Google
+  Postmaster Tools eintragen, um Beschwerden und Ruf zu sehen.
+
+#### Die Bauteile
+
+| Teil | Tage |
+|---|---|
+| Postgres in Coolify, Schema, Migrationen, Verbindung aus der Website, Backup-Plan mit nächtlicher Kopie ins Büro | 1 |
+| Anmeldung: Formular mit zwei Themen und Serienwahl, drei API-Routen, Token, Bestätigungsmail, Statusseite `/{lang}/newsletter` | 1,5 |
+| Warteschlange und Worker: Tabelle, Drosselung, Wiederholung, Vorlagen (Bestätigung, Reminder, Newsletter) in sechs Sprachen, Text- und HTML-Fassung | 1,5 |
+| Race Reminder: stündlicher Task, Fenster 60–120 min, `reminder_log`, `.ics`-Anhang | 0,5 |
+| Newsletter: Wochen-Task, Zusammenstellung aus `ARTICLES`, Vorschau mit Senden/Überspringen, Ausgaben-Protokoll | 1 |
+| Bounces: Postfach, IMAP-Abholung, DSN-Auswertung, Deaktivierung, Unterdrückungsliste | 1 |
+| Zustellbarkeit: DKIM, DMARC, Postmaster Tools, Tests mit echten Postfächern (Gmail, Outlook, Apple, GMX), Spam-Score | 1 |
+| Verwaltung: Skripte, Statusseite, Löschung auf Verlangen | 0,5 |
+| Recht und Texte: Datenschutz de+en (heute steht dort wörtlich „keinen Newsletter"), Einwilligungstext, Verarbeitungsverzeichnis, ~60 Schlüssel × 6 Sprachen | 0,5 + Freigabe |
+| Betriebshandbuch: was tun bei Bounce-Welle, Sperrliste, vollem Postfach, Wiederherstellung aus dem Backup | 0,5 |
+
+**Reihenfolge:** Datenbank → Anmeldung mit Bestätigung → Warteschlange →
+Reminder → Newsletter → Bounces → Zustellbarkeit → Recht. Nach dem dritten
+Schritt kann man schon Adressen sammeln, auch wenn noch nichts verschickt
+wird; nach dem vierten läuft der Reminder. Nichts geht live, bevor die
+Datenschutzerklärung freigegeben ist.
+
+#### Annahmen, die sich ändern lassen
+
+- Newsletter **wöchentlich** als Zusammenfassung. Sofortversand einzelner
+  Pressemitteilungen wäre derselbe Mechanismus mit anderem Auslöser (Kategorie
+  `Company`), ein halber Tag mehr.
+- Serien **einzeln wählbar**, Standard „alle". Ohne Serienwahl spart man ein
+  Feld und eine Tabelle, verliert aber die Möglichkeit, jemandem nur seine
+  Serie zu schicken.
+- Erinnerung **eine Stunde** vorher. Ein zweiter Zeitpunkt (Vortag) wäre ein
+  zweites Fenster im selben Task.
+
+**Der Einwand von Stufe 1 gilt weiter:** Für angesetzte YouTube-Streams gibt es
+die Erinnerungsglocke kostenlos. Der eigene Reminder ist der Grund, aus dem
+jemand eine **Adresse** hinterlässt — und genau die gehört dann uns, auf
+unserem Server, mit Kopie im Büro. Dafür sind neun Tage der Preis.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
