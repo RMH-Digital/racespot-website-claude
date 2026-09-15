@@ -689,6 +689,62 @@ die Erinnerungsglocke schon, kostenlos, und das Publikum ist dort ohnehin. Ein
 eigener E-Mail-Reminder lohnt vor allem, wenn ihr die **Adressen** wollt. Das
 ist eine Geschäftsentscheidung, keine technische.
 
+## 7h. Jede Seite wird bei jedem Aufruf neu gerendert — Ursache gefunden, Umbau zurückgestellt
+
+**Der Fund.** Der Build markiert **alle** `[lang]`-Routen als `ƒ` (dynamisch),
+obwohl Startseite, Kalender und Broadcasts ein `revalidate = 300` haben und
+alle Datenabrufe gecacht sind. Ursache ist ein **einziger `headers()`-Aufruf
+in `not-found.tsx`**: Die Datei gehört zum Segment `[lang]`, und Next behandelt
+eine dynamische API irgendwo im Render-Baum eines Segments als Eigenschaft des
+ganzen Segments. Die 404-Seite las den Sprach-Header des Proxys — und zwang
+damit die komplette Website in den Modus „Render pro Besucher".
+
+Nachgewiesen, nicht vermutet: Aufruf testweise entfernt, und zwölf Routen
+hörten auf, dynamisch zu sein. Mit dem Umbau waren lokal **alle 119 Seiten
+vorgerendert in 2,5 Sekunden**, `Cache-Control` ging von
+`private, no-cache, no-store` auf `s-maxage=300, stale-while-revalidate`,
+66 von 72 Seiten cachebar.
+
+**Warum es trotzdem nicht drin ist.** Der Deploy (`edfe29e`) ist auf dem Server
+**fehlgeschlagen** — abgebrochen beim Vorrendern bei Seite 29 von 119, Exit-Code
+255 ohne Fehlermeldung im Log, also ein abgeschossener Prozess. Sofort
+zurückgedreht (`3ec68bc`), Seite lief durchgehend weiter, Coolify hatte den
+kaputten Build ohnehin verworfen.
+
+Was ich zur Ursache ausschließen konnte:
+
+- **Nicht die fehlenden Schlüssel.** Lokal ohne `.env.local` gebaut — läuft
+  komplett durch, weil die Datenfunktionen ohne Key sofort zurückkehren.
+- **Nicht zu schwache Hardware im Prinzip.** CPX32, 4 vCPU, 8 GB; lokal
+  dauert das Vorrendern 2,5 s mit 9 Workern.
+
+Was übrig bleibt und von hier aus nicht sicher feststellbar war: die
+Build-Umgebung auf dem Server. Wahrscheinlichste Kandidaten sind der Speicher
+im Build-Container (der Build läuft neben der laufenden Seite, Coolify und dem
+Press Tool) und der Umstand, dass die 119 Vorrender-Durchläufe **mit** gültigen
+Schlüsseln einen Schwall Anfragen an Google Sheets und die YouTube-API
+auslösen — genau der Pfad, den mein schlüsselloser Test nicht durchläuft.
+
+**Der Zweig `static-retry` liegt auf dem Remote** und enthält den vollständigen
+Umbau. Nächste Schritte, wenn jemand einen Deploy mitschauen kann:
+
+1. Während des Deploys `docker stats` bzw. `free -m` auf dem Server laufen
+   lassen — bestätigt oder widerlegt den Speicher in einem Durchgang.
+2. Falls Speicher: `experimental.cpus` in `next.config.mjs` auf 1–2 setzen,
+   das begrenzt die Vorrender-Worker.
+3. Falls API-Schwall: dieselbe Drosselung hilft auch, alternativ die
+   Sheets-/YouTube-Aufrufe beim Build über einen gemeinsamen Cache bündeln.
+
+**Nicht** ohne Aufsicht nachschieben: Ein fehlgeschlagener Build blockiert auch
+die Veröffentlichung des Press Tools, und der Gewinn ist eine Optimierung, kein
+Fehler, der Besucher trifft.
+
+Übernommen wurde aus dem Umbau nur ein unabhängiger Teil: Der Catch-all hat
+eigene Metadaten bekommen. Das ausgelieferte HTML trug den richtigen 404-Titel,
+aber eine Client-Navigation auf einen toten Link löste die Metadaten *dieser*
+Route auf — ohne eigene fiel sie auf den Layout-Standard zurück, der Tab las
+sich dann wie die Startseite.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**
