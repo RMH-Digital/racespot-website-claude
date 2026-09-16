@@ -704,6 +704,17 @@ stehen auf 6 h, sind aber nur Wünsche.
   seinem Knopf, statt zu schließen — die Seite scrollt weich, und ein Klick
   während des Ausrollens hätte sonst ein Menü geöffnet, das sofort wieder
   zu war.
+- **Steuerleiste (2026-09-16, Jürgen):** Der Monat steht wieder **exakt
+  mittig** — ab `xl` ein Dreispalten-Grid `1fr auto 1fr`, darunter bekommt der
+  Monat eine eigene zentrierte Zeile oben. Und die **Pfeile bewegen sich nicht
+  mehr**: Vorher war das Label `min-w-[140px]`, aber „septiembre de 2026" in
+  Eurostile Extended ist über 300 px breit, also sprang der rechte Pfeil je
+  nach Monat und Sprache. Jetzt liegen alle zwölf Monatsnamen der Sprache in
+  derselben Grid-Zelle, elf davon `invisible` — die Box ist so breit wie der
+  breiteste, ohne Zahl im Code. Gemessen (es, 1440): Pfeile bei 564/828 px
+  über sieben Monate, Mitte 718 = Mitte der Leiste. Die Zeitzone steht jetzt
+  links neben dem Ansichts-Umschalter, damit rechts nur der Abo-Knopf liegt,
+  der auf Spanisch die Breite braucht.
 
 ### Stufe 2, geplant am 2026-09-15, nicht gebaut: Newsletter und Race Reminder, komplett selbst betrieben
 

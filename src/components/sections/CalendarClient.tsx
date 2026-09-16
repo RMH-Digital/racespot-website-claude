@@ -62,10 +62,7 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
     }
   }
 
-  const calMonthLabel = new Date(calYear, calMonth, 1).toLocaleDateString(locale, {
-    month: 'long',
-    year: 'numeric',
-  })
+  const monthLabel = (m: number) => new Date(calYear, m, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 
   return (
     <div>
@@ -91,9 +88,15 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
         </div>
       )}
 
-      {/* Controls bar */}
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        {/* View toggle */}
+      {/* Controls bar. From xl up, three columns so the month sits in the exact
+          centre whatever the two outer groups weigh. Below that the month gets a
+          centred row of its own on top — the Spanish subscribe button and a
+          three-hundred-pixel month box do not share a row at 1024. */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 xl:grid xl:grid-cols-[1fr_auto_1fr]">
+        {/* View toggle, with the timezone beside it — the two quiet controls
+            share the left so the right holds only the subscribe button, which in
+            Spanish is wide enough to need the room. */}
+        <div className="flex items-center gap-4">
         <div className="flex items-center bg-rs-dark border border-rs-border rounded-rs overflow-hidden">
           <button
             onClick={() => setViewMode('calendar')}
@@ -110,9 +113,19 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
             {t('calendar.listView')}
           </button>
         </div>
+        <Tip content={t('calendar.timezoneNote')} width={240}>
+          <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
+            <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <circle cx="8" cy="8" r="6.25" />
+              <path d="M8 4.5V8l2.25 1.5" strokeLinecap="round" />
+            </svg>
+            {timezone.replace(/_/g, ' ')}
+          </div>
+        </Tip>
+        </div>
 
-        {/* Month nav — always visible for both views */}
-        <div className="flex items-center gap-3">
+        {/* Month nav — always visible for both views, centred */}
+        <div className="order-first flex w-full items-center justify-center gap-3 xl:order-none xl:w-auto xl:justify-self-center">
           <button
             onClick={prevMonth}
             aria-label={t('calendar.prevMonth')}
@@ -121,8 +134,21 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
           >
             <span aria-hidden="true">←</span>
           </button>
-          <span className="text-sm font-display font-bold text-white min-w-[140px] text-center">
-            {calMonthLabel}
+          {/* Every month of the year is laid into the same grid cell, the eleven
+              that are not showing kept invisible — so the box is as wide as the
+              widest month name in this language ("septiembre de 2026" runs a
+              third longer than "mayo de 2026"), and the arrows never move while
+              someone clicks through the year. */}
+          <span className="grid text-sm font-display font-bold text-white text-center whitespace-nowrap" aria-live="polite">
+            {Array.from({ length: 12 }, (_, m) => (
+              <span
+                key={m}
+                className={`[grid-area:1/1] ${m === calMonth ? '' : 'invisible'}`}
+                aria-hidden={m === calMonth ? undefined : true}
+              >
+                {monthLabel(m)}
+              </span>
+            ))}
           </span>
           <button
             onClick={nextMonth}
@@ -134,17 +160,8 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
           </button>
         </div>
 
-        {/* Timezone indicator and the schedule subscription, right-aligned */}
-        <div className="flex items-center gap-4 ml-auto">
-          <Tip content={t('calendar.timezoneNote')} width={240}>
-            <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
-              <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <circle cx="8" cy="8" r="6.25" />
-                <path d="M8 4.5V8l2.25 1.5" strokeLinecap="round" />
-              </svg>
-              {timezone.replace(/_/g, ' ')}
-            </div>
-          </Tip>
+        {/* The schedule subscription, right-aligned */}
+        <div className="ml-auto flex items-center xl:ml-0 xl:justify-self-end">
           <SubscribeButton t={t} />
         </div>
       </div>
