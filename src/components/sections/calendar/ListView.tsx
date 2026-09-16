@@ -83,7 +83,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
           {hoverLabel}
         </span>
         {past
-          ? event.videoId && <ReplayOnYouTube lang={lang} videoId={event.videoId} />
+          ? <ReplayOnYouTube lang={lang} videoId={event.videoId} />
           : <AddToCalendar lang={lang} event={event} t={t} />}
       </div>
     </div>

@@ -91,19 +91,26 @@ export function ReplayBadge({ lang }: { lang: Lang }) {
   )
 }
 
-/** The recording on YouTube itself, as an icon beside the time — the click on the card plays it here. */
-export function ReplayOnYouTube({ lang, videoId, compact = false }: { lang: Lang; videoId: string; compact?: boolean }) {
+/**
+ * YouTube, beside the time of a past broadcast: the recording when we found
+ * one, otherwise — dimmed — the channel's list of past streams, so every past
+ * broadcast has the same button in the same place and the tip says which of
+ * the two it is.
+ */
+export function ReplayOnYouTube({ lang, videoId, compact = false }: { lang: Lang; videoId?: string; compact?: boolean }) {
   const t = getT(lang)
+  const label = videoId ? t('calendar.openReplayOnYouTube') : t('calendar.tipNoReplay')
   return (
     <a
-      href={`https://www.youtube.com/watch?v=${videoId}`}
+      href={videoId ? `https://www.youtube.com/watch?v=${videoId}` : YOUTUBE_STREAMS_URL}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => e.stopPropagation()}
-      title={t('calendar.openReplayOnYouTube')}
-      aria-label={t('calendar.openReplayOnYouTube')}
+      title={label}
+      aria-label={label}
       className={`relative z-10 flex shrink-0 items-center justify-center rounded-rs transition-colors
-        ${compact ? 'h-6 w-6 text-rs-muted hover:text-rs-yellow' : 'h-11 w-11 border border-rs-border text-rs-muted hover:border-rs-yellow hover:text-rs-yellow'}`}
+        ${compact ? 'h-6 w-6 text-rs-muted hover:text-rs-yellow' : 'h-11 w-11 border border-rs-border text-rs-muted hover:border-rs-yellow hover:text-rs-yellow'}
+        ${videoId ? '' : 'opacity-50 hover:opacity-100'}`}
     >
       <YouTubeIcon size={compact ? 13 : 16} />
     </a>

@@ -893,7 +893,13 @@ sagt „PCA Sim Racing Series 16 | Event 2 | Club Class at Portland". Index per
 `unstable_cache` 24 h, ~20 Quota-Einheiten am Tag. **Gemessen: 372 von 412
 vergangenen Broadcasts zugeordnet (90 %)**; die Lücke sind vor allem die
 „eNASCAR … BS+ Team Stream"-Zeilen, die auf einem fremden Kanal laufen.
-Ohne Zuordnung führt der Klick zur Stream-Liste des Kanals auf YouTube.
+Ohne Zuordnung führt der Klick zur Stream-Liste des Kanals auf YouTube, und
+das YouTube-Icon neben der Uhrzeit bleibt — abgedunkelt, mit demselben Ziel
+und dem Tipp „Keine Aufzeichnung gefunden" — damit jeder vergangene Termin
+denselben Knopf an derselben Stelle hat. Nachgeprüft am Beispiel eNASCAR
+(Jürgen, 2026-09-16): Das Sheet sagt „RaceSpot's YT", die Streams liegen aber
+auf dem Kanal **BSCOMPETITION**; auf unserem Kanal gibt es sie nicht. Das ist
+keine Lücke im Matching, sondern eine Frage, auf welchem Kanal gesendet wurde.
 
 **Der Player** (`src/components/video/VideoPlayerProvider.tsx`): ein Dialog
 über der Seite, `youtube-nocookie.com`, Escape/Backdrop schließen, Fokus geht

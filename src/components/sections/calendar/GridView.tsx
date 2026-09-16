@@ -272,7 +272,7 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
           {formatTime(event.dateISO, is24h, locale, timeZone)}
         </span>
         {past
-          ? event.videoId && <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
+          ? <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
           : <AddToCalendar lang={lang} event={event} t={t} compact />}
       </div>
     </div>
