@@ -916,10 +916,26 @@ Broadcasts-Seite im Abschnittskopf, Live-Seite unter dem Stream bzw. im
 Offline-Block (ersetzt den alten Abo-Link, `live.subscribe` weg), und im
 Player unter dem Video.
 
-**Idee, nicht gebaut:** Kommende Termine könnten auf den bereits angesetzten
-YouTube-Stream zeigen (die Upload-Liste enthält ihn mit `P0D` und ohne
-`actualStartTime`) — dann hätte man dort die YouTube-Glocke. Gleicher Index,
-anderer Filter.
+**Nachgezogen am selben Tag (Jürgen):**
+
+- **Die Glocke.** Der Index führt jetzt auch die **angesetzten** Streams
+  (`scheduledStartTime`, noch kein `actualStartTime`); kommende Termine
+  werden im selben Drei-Stunden-Fenster darauf gematcht. Im Kalender-Menü
+  eines Termins steht dann als dritter Eintrag „🔔 Auf YouTube erinnern
+  lassen" → die Watch-Seite des angesetzten Streams, wo die YouTube-Glocke
+  sitzt. Auf der Live-Seite im Offline-Zustand derselbe Knopf für den
+  nächsten Broadcast, wenn er schon angesetzt ist. Cache-Schlüssel des Index
+  auf `-v2`, weil die Einträge das Feld `finished` bekommen haben.
+- **Startseite ohne Extra-Platz:** Die Follow-Zeile unter den letzten
+  Broadcasts ist weg. Stattdessen sitzt „Auf YouTube abonnieren" **in der
+  Knopfzeile der Zuschauer-Karte** direkt unter der Kennzahlenleiste, neben
+  LIVE und KALENDER; die weiteren Kanäle stecken hinter einem ···-Icon
+  (`FollowUs compact`). Kein zusätzlicher Block, keine zusätzliche Höhe.
+- **Events-Seite:** Der After-Movie war ein iframe, das beim Laden mitkam.
+  Jetzt ein Standbild mit Play (`VideoPoster`), das denselben Player öffnet —
+  nichts von YouTube lädt, bevor jemand drückt. Damit läuft **jedes Video
+  der Website** über den einen Player; einzige Ausnahme bleibt der
+  Livestream auf `/live`, der weiter direkt eingebettet ist (Chat daneben).
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 

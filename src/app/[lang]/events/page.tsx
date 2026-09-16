@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import PastEventCard from '@/components/sections/PastEventCard'
 import { getT, type Lang } from '@/lib/i18n'
+import { VideoPoster } from '@/components/video/VideoPoster'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -116,15 +117,9 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
             <div className="h-[2px] flex-1 bg-linear-to-r from-rs-yellow/60 to-transparent" />
           </div>
 
-          <div className="relative aspect-video rounded-rs overflow-hidden border border-white/10">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/TFW_9FalOdY?rel=0&modestbranding=1"
-              title={t('events.afterMovieTitle')}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full"
-            />
-          </div>
+          {/* A still until someone presses play — then the site's player,
+              like every other video on the site. */}
+          <VideoPoster lang={lang} id="TFW_9FalOdY" title={t('events.afterMovieTitle')} />
           <p className="text-rs-muted text-sm mt-3">
             {t('events.afterMovieCaption')}
           </p>

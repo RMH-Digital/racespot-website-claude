@@ -14,6 +14,8 @@ import { seriesFeedUrl } from './feed'
  *   alarm, raised by the reader's own calendar.
  * - **The whole series** — a `webcal://` subscription filtered to this series,
  *   so every round turns up by itself.
+ * - **The bell** — when YouTube already lists the stream, a link to it, where
+ *   "Notify me" does what people expect from YouTube.
  *
  * We store nothing and ask for nothing either way. The menu is rendered into
  * `document.body` with fixed positioning: in the month grid the button sits
@@ -149,6 +151,23 @@ export function AddToCalendar({
               <span className="block text-sm font-medium text-white">{t('calendar.subscribeSeries')}</span>
               <span className="block text-[11px] text-rs-muted mt-0.5 truncate">{event.series}</span>
             </a>
+            {/* The stream is already announced on YouTube: its page carries
+                the bell, which is the reminder most viewers already use. */}
+            {event.videoId && (
+              <a
+                role="menuitem"
+                href={`https://www.youtube.com/watch?v=${event.videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => close()}
+                className="block px-4 py-3 border-t border-rs-border/60 hover:bg-rs-gray focus-visible:bg-rs-gray transition-colors"
+              >
+                <span className="block text-sm font-medium text-white">
+                  <span aria-hidden="true">🔔 </span>{t('calendar.remindOnYouTube')}
+                </span>
+                <span className="block text-[11px] text-rs-muted mt-0.5">{t('calendar.remindOnYouTubeHint')}</span>
+              </a>
+            )}
           </div>,
           document.body,
         )}

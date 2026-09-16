@@ -14,6 +14,8 @@ interface SerializedEvent {
   description: string
   dateISO: string
   tier: number
+  /** The stream as already announced on YouTube, if any — where the bell is */
+  youtubeId?: string
 }
 
 interface LiveOfflineProps {
@@ -156,6 +158,17 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
 
               {/* CTAs */}
               <div className="flex flex-wrap justify-center gap-4">
+                {nextEvent.youtubeId && (
+                  <a
+                    href={`https://www.youtube.com/watch?v=${nextEvent.youtubeId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline"
+                    title={t('calendar.remindOnYouTubeHint')}
+                  >
+                    <span aria-hidden="true">🔔</span> {t('calendar.remindOnYouTube')}
+                  </a>
+                )}
                 <FollowUs lang={lang} size="md" className="justify-center" />
                 <Link href={localePath(lang, '/calendar')} className="btn-outline">
                   {t('live.viewCalendar')}

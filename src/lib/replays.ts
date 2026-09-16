@@ -31,8 +31,10 @@ const REVALIDATE = 60 * 60 * 24
 export interface Replay {
   id: string
   title: string
-  /** actualStartTime of the stream, ISO */
+  /** actualStartTime of a finished stream, scheduledStartTime of one still to come — ISO */
   start: string
+  /** true once the stream has ended and is a recording */
+  finished: boolean
 }
 
 const getReplayIndex = unstable_cache(
@@ -68,11 +70,15 @@ const getReplayIndex = unstable_cache(
         if (!res.ok) continue
         const data = await res.json()
         for (const v of data.items ?? []) {
-          const start = v.liveStreamingDetails?.actualStartTime
-          // Only finished streams: a scheduled one has no actualStartTime yet,
-          // and a plain upload was never a broadcast.
-          if (!start || !v.liveStreamingDetails?.actualEndTime) continue
-          replays.push({ id: v.id, title: v.snippet.title, start })
+          const live = v.liveStreamingDetails
+          if (!live) continue // a plain upload was never a broadcast
+          if (live.actualEndTime && live.actualStartTime) {
+            replays.push({ id: v.id, title: v.snippet.title, start: live.actualStartTime, finished: true })
+          } else if (!live.actualStartTime && live.scheduledStartTime) {
+            // Announced on YouTube but not yet live: the page where the
+            // reader can set the bell.
+            replays.push({ id: v.id, title: v.snippet.title, start: live.scheduledStartTime, finished: false })
+          }
         }
       }
       return replays
@@ -80,7 +86,8 @@ const getReplayIndex = unstable_cache(
       return []
     }
   },
-  ['youtube-replay-index', String(REPLAY_DAYS)],
+  // v2: entries carry `finished`; an older cached index would match nothing.
+  ['youtube-replay-index-v2', String(REPLAY_DAYS)],
   { revalidate: REVALIDATE },
 )
 
@@ -106,13 +113,13 @@ function overlap(a: string, b: string): number {
 }
 
 /**
- * Attach the recording to every past event that has one. Upcoming and live
- * events are returned untouched; a past event with no stream within the
- * window stays without `videoId`, and the calendar links it to the channel's
- * list of past streams instead.
+ * Attach the YouTube video to every event that has one: the recording for a
+ * past broadcast, the announced stream — where the bell lives — for an
+ * upcoming one. Live events are left alone; they go to the live page. An
+ * event with no stream within the window stays without `videoId`.
  */
 export async function withReplays(events: CalendarEvent[]): Promise<CalendarEvent[]> {
-  if (!events.some((e) => e.isPast)) return events
+  if (events.length === 0) return events
   const index = await getReplayIndex()
   if (index.length === 0) return events
 
@@ -120,9 +127,9 @@ export async function withReplays(events: CalendarEvent[]): Promise<CalendarEven
   const used = new Set<string>()
 
   return events.map((e) => {
-    if (!e.isPast) return e
+    if (e.isLive) return e
     const t0 = Date.parse(e.dateISO)
-    const candidates = byTime.filter((r) => !used.has(r.id) && Math.abs(r.t - t0) <= MATCH_WINDOW_MS)
+    const candidates = byTime.filter((r) => !used.has(r.id) && r.finished === e.isPast && Math.abs(r.t - t0) <= MATCH_WINDOW_MS)
     if (candidates.length === 0) return e
 
     let best = candidates[0]

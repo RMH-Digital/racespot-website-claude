@@ -55,7 +55,7 @@ export interface CalendarEvent {
   isLive: boolean
   /** Over, including the 90-minute overtime buffer */
   isPast: boolean
-  /** The YouTube recording, when one could be paired — see src/lib/replays.ts */
+  /** The YouTube video: the recording of a past broadcast, the announced stream of an upcoming one — see src/lib/replays.ts */
   videoId?: string
 }
 

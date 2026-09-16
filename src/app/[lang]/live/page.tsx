@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getLiveStreams } from '@/lib/youtube'
-import { getUpcomingEvents } from '@/lib/sheets'
+import { getUpcomingEvents, toCalendarEvent } from '@/lib/sheets'
+import { withReplays } from '@/lib/replays'
 import { LiveEmbed } from '@/components/sections/LiveEmbed'
 import { LiveOffline } from '@/components/sections/LiveOffline'
 import type { Lang } from '@/lib/i18n'
@@ -40,7 +41,11 @@ export default async function LivePage({ params }: { params: Promise<{ lang: Lan
     return <LiveEmbed lang={lang} liveStreams={liveStreams} upcomingEvents={upcomingEvents} />
   }
 
-  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : null
+  // The next broadcast may already be announced on YouTube — then the offline
+  // page can offer the bell there, next to the calendar.
+  const nextUpcoming = events.find((e) => e.isUpcoming)
+  const [withVideo] = nextUpcoming ? await withReplays([toCalendarEvent(nextUpcoming)]) : []
+  const nextEvent = upcomingEvents.length > 0 ? { ...upcomingEvents[0], youtubeId: withVideo?.videoId } : null
 
   return (
     <LiveOffline

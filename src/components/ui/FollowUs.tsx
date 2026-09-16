@@ -14,7 +14,7 @@ import { SOCIAL, YOUTUBE_SUBSCRIBE_URL, YouTubeIcon } from '@/lib/socials'
  * a chooser, not a row of icons competing with the content. Both leave the
  * site, deliberately, in a new tab.
  */
-export function FollowUs({ lang, className = '', dropUp = false, size = 'sm' }: { lang: Lang; className?: string; dropUp?: boolean; size?: 'sm' | 'md' }) {
+export function FollowUs({ lang, className = '', dropUp = false, size = 'sm', compact = false }: { lang: Lang; className?: string; dropUp?: boolean; size?: 'sm' | 'md'; compact?: boolean }) {
   const sm = size === 'sm' ? 'btn-sm' : ''
   const t = getT(lang)
   const [open, setOpen] = useState(false)
@@ -63,19 +63,32 @@ export function FollowUs({ lang, className = '', dropUp = false, size = 'sm' }: 
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={open ? menuId : undefined}
-          className={`btn-outline ${sm} whitespace-nowrap`}
+          aria-label={compact ? t('social.moreChannels') : undefined}
+          title={compact ? t('social.moreChannels') : undefined}
+          className={compact
+            // Icon only, for a row that already has enough words in it.
+            ? 'flex h-11 w-11 items-center justify-center rounded-rs border border-rs-border text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow'
+            : `btn-outline ${sm} whitespace-nowrap`}
         >
-          {t('social.moreChannels')}
-          <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" aria-hidden="true" className={`transition-transform ${open !== dropUp ? 'rotate-180' : ''}`}>
-            <path d="M4 5L0 0h8L4 5z" />
-          </svg>
+          {compact ? (
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <circle cx="3" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="13" cy="8" r="1.5" />
+            </svg>
+          ) : (
+            <>
+              {t('social.moreChannels')}
+              <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" aria-hidden="true" className={`transition-transform ${open !== dropUp ? 'rotate-180' : ''}`}>
+                <path d="M4 5L0 0h8L4 5z" />
+              </svg>
+            </>
+          )}
         </button>
 
         {open && (
           <div
             id={menuId}
             role="menu"
-            className={`absolute right-0 z-[95] w-60 overflow-hidden rounded-rs border border-rs-border bg-rs-dark text-left shadow-xl
+            className={`absolute z-[95] w-60 overflow-hidden ${compact ? 'left-0' : 'right-0'} rounded-rs border border-rs-border bg-rs-dark text-left shadow-xl
               ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}
           >
             <p className="px-4 pb-2 pt-3 text-[11px] leading-snug text-rs-muted">{t('social.followHint')}</p>
