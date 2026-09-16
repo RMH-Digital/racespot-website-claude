@@ -250,6 +250,17 @@ Seit 2026-09-14 zeigt die Leiste **Broadcasts · YouTube-Aufrufe · Follower ·
 Sprachen**. Sendestunden (1.071) und Serien (104) werden weiter berechnet und
 stehen in `SiteStats` bereit, falls eine Kachel getauscht werden soll.
 
+**Getauscht am 2026-09-16 (Jürgen):** YouTube-Aufrufe raus, **Sendestunden
+der letzten 12 Monate** rein — aus derselben Quelle wie die Broadcasts
+(Master Schedule, `public = yes`, Dauer als Tagesbruch × 24, gemessen 1.071),
+in Zehnerschritten abgerundet wie die Broadcasts. Begründung: Sendestunden
+sagen, was wir tun; Lebenszeit-Aufrufe sagen vor allem, wie lange es den Kanal
+gibt. **Angesehene Stunden** (Watch Time) wären die bessere Zahl, sind aber
+über die öffentliche YouTube-Data-API nicht verfügbar — dafür braucht es die
+YouTube-Analytics-API mit OAuth des Kanalinhabers. Falls gewünscht: ein
+einmaliges Einloggen mit dem Brand-Konto, dann ist es eine Kachel wie die
+anderen.
+
 **Follower gesamt: 57.559** — YouTube (34.200) kommt live aus der API, die
 übrigen Plattformen stehen als `SOCIAL_FOLLOWERS` in `stats.ts`, geliefert vom
 Team am 2026-09-14: X 9.728, Facebook 7.692, Instagram 3.072, Twitch 2.467,
