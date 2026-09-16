@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
+import type { CalendarEvent } from '@/lib/sheets'
+import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -13,6 +15,8 @@ export interface TickerItem {
   label: string
   /** Optional ISO 8601 date — when present the Ticker adds localised "Weekday Day Mon · HH:MM" */
   dateISO?: string
+  /** The broadcast itself — when present a small calendar menu follows the text */
+  event?: CalendarEvent
 }
 
 interface TickerProps {
@@ -78,21 +82,18 @@ export function Ticker({ lang, items = [] }: TickerProps) {
 
   const rendered = useMemo(() => {
     // Prepend live stream titles from client-side polling
-    const liveItems: string[] = liveStreams.map(stream => {
+    const liveItems: { text: string; event?: CalendarEvent }[] = liveStreams.map(stream => {
       const viewers = formatViewCount(stream.concurrentViewers)
-      return `${stream.title} — ${viewers} ${t('live.watching')}`
+      return { text: `${stream.title} — ${viewers} ${t('live.watching')}` }
     })
 
     const serverItems = (!items || items.length === 0) ? [] : items.map(item => {
-      if (item.dateISO) {
-        if (!mounted) {
-          return item.label
-        }
+      if (item.dateISO && mounted) {
         const dateStr = formatLocalDate(item.dateISO)
         const timeStr = formatLocalTime(item.dateISO, is24h)
-        return `${item.label} — ${dateStr} · ${timeStr}`
+        return { text: `${item.label} — ${dateStr} · ${timeStr}`, event: item.event }
       }
-      return item.label
+      return { text: item.label, event: item.event }
     })
 
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
@@ -120,9 +121,12 @@ export function Ticker({ lang, items = [] }: TickerProps) {
       {/* Scrolling ticker */}
       <div className="overflow-hidden flex-1">
         <div className="flex animate-ticker whitespace-nowrap">
-          {duped.map((text, i) => (
+          {duped.map((item, i) => (
             <span key={i} className="flex items-center">
-              <span className="text-xs font-medium text-rs-black/85 px-1">{text}</span>
+              <span className="text-xs font-medium text-rs-black/85 px-1">{item.text}</span>
+              {/* The same three-way menu as in the calendar, in the strip's own
+                  colours. The strip pauses while it is open (globals.css). */}
+              {item.event && <AddToCalendar lang={lang} event={item.event} t={t} compact tone="light" />}
               <span className="text-rs-black/40 mx-6" aria-hidden="true">◆</span>
             </span>
           ))}

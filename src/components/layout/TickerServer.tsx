@@ -1,6 +1,7 @@
 import { Ticker } from './Ticker'
 import type { TickerItem } from './Ticker'
-import { getUpcomingEvents } from '@/lib/sheets'
+import { getUpcomingEvents, toCalendarEvent } from '@/lib/sheets'
+import { withReplays } from '@/lib/replays'
 import { getT, type Lang } from '@/lib/i18n'
 
 /** Fallback items when no data is available */
@@ -23,12 +24,15 @@ export async function TickerServer({ lang }: { lang: Lang }) {
       })
     }
 
-    // Add upcoming events — pass ISO date so Ticker can format in user's local timezone
+    // Add upcoming events — pass ISO date so Ticker can format in user's local
+    // timezone, and the event itself for the small calendar menu beside it.
     const upcoming = events.filter(e => e.isUpcoming).slice(0, 3)
-    for (const event of upcoming) {
+    const withVideo = await withReplays(upcoming.map(toCalendarEvent))
+    for (const event of withVideo) {
       tickerItems.push({
         label: `${event.series}`,
-        dateISO: event.date.toISOString(),
+        dateISO: event.dateISO,
+        event,
       })
     }
   } catch (error) {

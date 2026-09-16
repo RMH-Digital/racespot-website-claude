@@ -932,11 +932,27 @@ Player unter dem Video.
   sitzt. Auf der Live-Seite im Offline-Zustand derselbe Knopf für den
   nächsten Broadcast, wenn er schon angesetzt ist. Cache-Schlüssel des Index
   auf `-v2`, weil die Einträge das Feld `finished` bekommen haben.
-- **Startseite ohne Extra-Platz:** Die Follow-Zeile unter den letzten
-  Broadcasts ist weg. Stattdessen sitzt „Auf YouTube abonnieren" **in der
-  Knopfzeile der Zuschauer-Karte** direkt unter der Kennzahlenleiste, neben
-  LIVE und KALENDER; die weiteren Kanäle stecken hinter einem ···-Icon
-  (`FollowUs compact`). Kein zusätzlicher Block, keine zusätzliche Höhe.
+- **Startseite ohne Extra-Platz** — zweiter Anlauf, nachdem die Zuschauer-
+  Karte Jürgen nicht gefiel: „Auf YouTube abonnieren" sitzt jetzt **rechts im
+  Kopf des Abschnitts „Neueste Broadcasts"**, neben „Alle Broadcasts →" —
+  dort, wo die Videos sind; die weiteren Kanäle hinter einem ···-Icon
+  (`FollowUs compact`). Die Kopfzeile gab es schon, also kein neuer Block.
+  Unter `sm` ausgeblendet wie der Link daneben.
+- **Hero und Ticker:** Neben dem nächsten Broadcast im Hero und hinter jedem
+  Termin im gelben Laufband ein 24-px-Kalender-Icon mit demselben Menü wie
+  im Kalender (Eintrag, Serie, Glocke). Im Laufband in Schwarztönen
+  (`tone="light"`), und das Band **pausiert, solange ein Menü offen ist**
+  (`.pause-on-hover:has([aria-expanded="true"])`), sonst liefe der Knopf
+  unter seinem Menü weg. Der Knopf steht außerhalb des Links, weil ein Button
+  in einem Anker nicht erlaubt ist.
+- **After-Movie ohne Bild (Jürgen):** Für dieses Video gibt es kein
+  `maxresdefault.jpg` (404), nur `sddefault`. `VideoPoster` fragt jetzt die
+  größte Version an und fällt bei Fehler auf `sddefault`, dann `hqdefault`
+  zurück; 4:3-Standbilder werden per `object-cover` von ihren Balken befreit.
+- **„Latest Broadcasts leitet zu YouTube" (Jürgen):** Live nachgestellt —
+  die drei Karten sind Buttons ohne Link, der Klick öffnet den Player mit
+  `youtube-nocookie`-Frame. Wahrscheinlich eine vor dem Deploy geladene Seite;
+  falls es wieder auftritt: welches Video, welches Gerät.
 - **Events-Seite:** Der After-Movie war ein iframe, das beim Laden mitkam.
   Jetzt ein Standbild mit Play (`VideoPoster`), das denselben Player öffnet —
   nichts von YouTube lädt, bevor jemand drückt. Damit läuft **jedes Video

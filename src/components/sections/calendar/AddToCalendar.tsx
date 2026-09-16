@@ -30,11 +30,14 @@ export function AddToCalendar({
   event,
   t,
   compact = false,
+  tone = 'dark',
 }: {
   lang: Lang
   event: CalendarEvent
   t: (k: TranslationKey) => string
   compact?: boolean
+  /** `light` for a yellow ground, where muted grey and a yellow hover would both vanish */
+  tone?: 'dark' | 'light'
 }) {
   const [rect, setRect] = useState<DOMRect | null>(null)
   const open = rect !== null
@@ -101,9 +104,9 @@ export function AddToCalendar({
             ? // 24px: the month grid's cells are ~97px wide, so the 44px target
               // used everywhere else simply does not fit. 24 is the floor WCAG
               // 2.2 sets, and the same size the event dots settled on.
-              'h-6 w-6 text-rs-muted hover:text-rs-yellow'
+              (tone === 'light' ? 'h-6 w-6 text-rs-black/55 hover:text-rs-black' : 'h-6 w-6 text-rs-muted hover:text-rs-yellow')
             : 'h-11 w-11 border border-rs-border text-rs-muted hover:border-rs-yellow hover:text-rs-yellow'}
-          ${open ? 'text-rs-yellow' : ''}`}
+          ${open ? (tone === 'light' ? 'text-rs-black' : 'text-rs-yellow') : ''}`}
       >
         <svg
           width={compact ? 13 : 16}

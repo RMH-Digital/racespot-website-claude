@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
-import { FollowUs } from '@/components/ui/FollowUs'
 
 /**
  * Two audiences, two paths — placed directly under the hero.
@@ -35,8 +34,6 @@ export function AudienceFork({ lang }: { lang: Lang }) {
               <Link href={localePath(lang, '/calendar')} className="btn-outline btn-sm">
                 {t('nav.calendar')}
               </Link>
-              {/* Same row, no extra height: subscribe, and the other channels behind one icon. */}
-              <FollowUs lang={lang} compact />
             </div>
           </div>
 

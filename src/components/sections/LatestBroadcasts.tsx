@@ -3,6 +3,7 @@ import { getCompletedBroadcasts } from '@/lib/youtube'
 import { VideoCard } from '@/components/ui/VideoCard'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { LiveBanners } from './LiveBanners'
+import { FollowUs } from '@/components/ui/FollowUs'
 
 export async function LatestBroadcasts({ lang }: { lang: Lang }) {
   const t = getT(lang)
@@ -18,9 +19,15 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
             <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
             <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
           </div>
-          <Link href={localePath(lang, '/broadcasts')} className="btn-ghost hidden sm:flex">
-            {t('broadcasts.viewAll')}
-          </Link>
+          {/* The right side of the header the section already has: subscribe
+              where the videos are, the other channels behind one icon, and the
+              link to all broadcasts — one row, no new block. */}
+          <div className="hidden sm:flex items-center gap-3">
+            <FollowUs lang={lang} compact />
+            <Link href={localePath(lang, '/broadcasts')} className="btn-ghost">
+              {t('broadcasts.viewAll')}
+            </Link>
+          </div>
         </div>
 
         {/* Live stream banners — client-side, from LiveStatusProvider */}

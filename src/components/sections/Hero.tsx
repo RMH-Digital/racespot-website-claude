@@ -5,14 +5,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getT, localePath, LOCALES, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
+import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
+import type { CalendarEvent } from '@/lib/sheets'
 
 interface HeroProps {
   lang: Lang
   nextEventSeries?: string
   nextEventDateISO?: string
+  /** The same event in full, for the calendar menu beside the label */
+  nextEvent?: CalendarEvent
 }
 
-export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
+export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: HeroProps) {
   const t = getT(lang)
   const { liveStreams, isLive } = useLiveStatus()
 
@@ -86,13 +90,20 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO }: HeroProps) {
               <span className="text-white/60 text-sm group-hover:text-white transition-colors line-clamp-1">{singleTitle}</span>
             </Link>
           ) : nextEventSeries ? (
-            <Link href={localePath(lang, '/live')} className="flex items-center gap-3 mb-5 md:mb-8 group">
-              <span className="bg-rs-dark border border-rs-border text-white text-[11px] font-display font-bold uppercase tracking-wider px-3 py-1.5 rounded-rs flex items-center gap-1.5 shrink-0 group-hover:border-rs-yellow transition-colors">
-                <span className="w-1.5 h-1.5 rounded-full bg-rs-yellow" />
-                {t('hero.nextBroadcast')}
-              </span>
-              <NextEventLabel series={nextEventSeries} dateISO={nextEventDateISO} lang={lang} />
-            </Link>
+            // The menu sits outside the link: a button cannot live inside an
+            // anchor, and the two do different things — the link goes to the
+            // live page, the small icon offers the calendar entry, the series
+            // feed and, where YouTube already lists the stream, the bell.
+            <div className="flex items-center gap-3 mb-5 md:mb-8">
+              <Link href={localePath(lang, '/live')} className="flex items-center gap-3 group min-w-0">
+                <span className="bg-rs-dark border border-rs-border text-white text-[11px] font-display font-bold uppercase tracking-wider px-3 py-1.5 rounded-rs flex items-center gap-1.5 shrink-0 group-hover:border-rs-yellow transition-colors">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rs-yellow" />
+                  {t('hero.nextBroadcast')}
+                </span>
+                <NextEventLabel series={nextEventSeries} dateISO={nextEventDateISO} lang={lang} />
+              </Link>
+              {nextEvent && <AddToCalendar lang={lang} event={nextEvent} t={t} compact />}
+            </div>
           ) : null}
 
           {/* Main title */}

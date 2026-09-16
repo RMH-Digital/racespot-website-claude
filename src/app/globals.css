@@ -354,7 +354,10 @@
   one. Keyboard users reach it because the ticker's items are links.
 */
 .pause-on-hover:hover [class*='animate-'],
-.pause-on-hover:focus-within [class*='animate-'] {
+.pause-on-hover:focus-within [class*='animate-'],
+/* …and while one of the ticker's calendar menus is open, or its button would
+   scroll away from under the menu it just opened. */
+.pause-on-hover:has([aria-expanded='true']) [class*='animate-'] {
   animation-play-state: paused;
 }
 

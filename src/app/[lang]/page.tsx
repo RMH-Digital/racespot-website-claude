@@ -10,7 +10,8 @@ import { Process }          from '@/components/sections/Process'
 import { PhotoGallery }     from '@/components/sections/PhotoGallery'
 import { LatestNews }       from '@/components/sections/LatestNews'
 import { ContactCTA }       from '@/components/sections/ContactCTA'
-import { getUpcomingEvents } from '@/lib/sheets'
+import { getUpcomingEvents, toCalendarEvent } from '@/lib/sheets'
+import { withReplays } from '@/lib/replays'
 import type { Metadata } from 'next'
 import { t, type Lang } from '@/lib/i18n'
 import { pageMetadata } from '@/lib/i18n/seo'
@@ -37,8 +38,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
   const { lang } = await params
   const events = await getUpcomingEvents(3)
 
-  // Next upcoming event for hero (when not live)
+  // Next upcoming event for hero (when not live), with its announced
+  // YouTube stream attached when there is one — that is where the bell is.
   const nextEvent = events.find(e => e.isUpcoming)
+  const [nextCal] = nextEvent ? await withReplays([toCalendarEvent(nextEvent)]) : []
 
   return (
     <>
@@ -46,6 +49,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
         lang={lang}
         nextEventSeries={nextEvent?.series}
         nextEventDateISO={nextEvent?.date.toISOString()}
+        nextEvent={nextCal}
       />
       <StatsBar lang={lang} />
       {/* Viewers and clients get their own door, right after the numbers. */}
