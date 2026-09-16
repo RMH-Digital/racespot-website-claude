@@ -8,7 +8,8 @@
     "start": "node scripts/start.mjs",
     "lint": "eslint .",
     "optimize-images": "node scripts/optimize-images.mjs",
-    "generate-icons": "node scripts/generate-icons.mjs"
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "youtube-auth": "node scripts/youtube-analytics-auth.mjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",

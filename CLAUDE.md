@@ -163,6 +163,12 @@ for the AI notice, which is why you will not find one here. Do not "helpfully"
 add either to the page — see `editorial.link_sources_in_body` and
 `editorial.ai_notice_enabled` in the pipeline's project config.
 
+## YouTube Watch Time
+
+Optional, per OAuth des Brand-Kontos: `docs/YOUTUBE-ANALYTICS.md`. Ohne die drei
+`YOUTUBE_OAUTH_*`-Variablen zeigt die Kennzahlenleiste Sendestunden statt
+angesehener Stunden — das ist kein Fehler, sondern der Zustand vor der Einrichtung.
+
 ## Deployment
 
 Hosting ist **Coolify** auf Philips Hetzner-Server (`178.104.72.17`), App-UUID

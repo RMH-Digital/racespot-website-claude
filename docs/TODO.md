@@ -257,9 +257,16 @@ in Zehnerschritten abgerundet wie die Broadcasts. Begründung: Sendestunden
 sagen, was wir tun; Lebenszeit-Aufrufe sagen vor allem, wie lange es den Kanal
 gibt. **Angesehene Stunden** (Watch Time) wären die bessere Zahl, sind aber
 über die öffentliche YouTube-Data-API nicht verfügbar — dafür braucht es die
-YouTube-Analytics-API mit OAuth des Kanalinhabers. Falls gewünscht: ein
-einmaliges Einloggen mit dem Brand-Konto, dann ist es eine Kachel wie die
-anderen.
+YouTube-Analytics-API mit OAuth des Kanalinhabers.
+
+**Website-Seite dafür fertig (2026-09-16):** `youtubeWatchHours()` in
+`stats.ts`, Kachel „Angesehene Stunden, letzte 12 Monate" sobald die drei
+Variablen `YOUTUBE_OAUTH_CLIENT_ID / _SECRET / _REFRESH_TOKEN` in Coolify
+stehen, sonst weiter Sendestunden. Das Token holt `npm run youtube-auth`
+einmalig mit dem Brand-Konto; die komplette Anleitung mit den zwei Fallen
+(Testing-Status verfällt nach 7 Tagen, persönlicher statt Brand-Kanal) steht
+in [docs/YOUTUBE-ANALYTICS.md](YOUTUBE-ANALYTICS.md). **Offen: Jürgen führt
+die Schritte 1–5 aus.**
 
 **Follower gesamt: 57.559** — YouTube (34.200) kommt live aus der API, die
 übrigen Plattformen stehen als `SOCIAL_FOLLOWERS` in `stats.ts`, geliefert vom

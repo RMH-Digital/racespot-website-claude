@@ -8,10 +8,9 @@ import { Tip } from '@/components/ui/Tip'
  * on air from the Master Schedule over the last 365 days, subscribers from
  * the YouTube API, the other platforms from the team's own analytics,
  * languages stated by the team. Lifetime YouTube views were the second tile
- * until 2026-09-16; hours on air replaced them because they say what we do
- * rather than how long the channel has existed. (Watch time — hours people
- * actually watched — would need the YouTube Analytics API with the channel
- * owner's OAuth; the public Data API does not expose it.) See src/lib/stats.ts for the sourcing and the reason the
+ * until 2026-09-16; hours replaced them because they say what we do rather
+ * than how long the channel has existed — hours watched where the Analytics
+ * API is authorised, hours on air otherwise. See src/lib/stats.ts for the sourcing and the reason the
  * old "100M+ impressions" tile is gone.
  *
  * Figures are rounded *down*, so what we show is always a number we beat — but
@@ -28,7 +27,11 @@ export async function StatsBar({ lang }: { lang: Lang }) {
   // line of small print under the numbers, now only for whoever asks.
   const tiles: { value: string; labelKey: TranslationKey; tipKey: TranslationKey }[] = [
     { value: roundedDown(stats.broadcasts, locale, 10), labelKey: 'stats.broadcastsLast12Months', tipKey: 'stats.tip.broadcasts' },
-    { value: roundedDown(stats.hours, locale, 10), labelKey: 'stats.hoursOnAir', tipKey: 'stats.tip.hoursOnAir' },
+    // Hours watched once the Analytics API is set up (docs/YOUTUBE-ANALYTICS.md);
+    // hours on air until then, and again whenever Google does not answer.
+    stats.watchHours !== null
+      ? { value: roundedDown(stats.watchHours, locale, 100), labelKey: 'stats.hoursWatched', tipKey: 'stats.tip.hoursWatched' }
+      : { value: roundedDown(stats.hours, locale, 10), labelKey: 'stats.hoursOnAir', tipKey: 'stats.tip.hoursOnAir' },
     { value: roundedDown(stats.followers, locale, 100), labelKey: 'stats.followers', tipKey: 'stats.tip.followers' },
     { value: String(stats.languages), labelKey: 'stats.languagesCovered', tipKey: 'stats.tip.languages' },
   ]

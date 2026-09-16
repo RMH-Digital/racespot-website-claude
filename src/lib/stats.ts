@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache'
+
 /**
  * The four numbers in the yellow band on the home page — measured, not claimed.
  *
@@ -20,6 +22,9 @@ const SHEET_ID = process.env.GOOGLE_SHEETS_ID
 const SHEET_KEY = process.env.GOOGLE_SHEETS_API_KEY
 const YT_KEY = process.env.YOUTUBE_API_KEY
 const YT_CHANNEL = process.env.YOUTUBE_CHANNEL_ID
+const OAUTH_CLIENT_ID = process.env.YOUTUBE_OAUTH_CLIENT_ID
+const OAUTH_CLIENT_SECRET = process.env.YOUTUBE_OAUTH_CLIENT_SECRET
+const OAUTH_REFRESH_TOKEN = process.env.YOUTUBE_OAUTH_REFRESH_TOKEN
 
 /** Twelve hours: the schedule moves slowly, and the API has a quota worth protecting. */
 const REVALIDATE = 60 * 60 * 12
@@ -41,6 +46,12 @@ export interface SiteStats {
   series: number
   /** Lifetime views on the YouTube channel */
   youtubeViews: number
+  /**
+   * Hours watched on YouTube in the last 365 days, or null when the Analytics
+   * API is not set up or did not answer — the band then shows hours on air
+   * instead. Needs the OAuth trio in the environment: docs/YOUTUBE-ANALYTICS.md.
+   */
+  watchHours: number | null
   /** Followers across all social platforms combined */
   followers: number
   /** Languages we broadcast in — not measurable, stated by the team */
@@ -59,6 +70,7 @@ const FALLBACK: SiteStats = {
   hours: 1_000,      // measured 1,071
   series: 100,       // measured 104
   youtubeViews: 6_100_000, // measured 6,184,897
+  watchHours: null,        // no fallback on purpose: a stale figure under this label would be a claim we cannot show
   followers: 57_000, // measured 57,559
   languages: 8,
   live: false,
@@ -146,8 +158,63 @@ async function youtubeChannel(): Promise<{ views: number; subscribers: number } 
   }
 }
 
+/**
+ * Hours watched over the last 365 days, from the YouTube Analytics API.
+ *
+ * Unlike everything else in this file this needs the channel owner's consent,
+ * obtained once with scripts/youtube-analytics-auth.mjs and stored as a
+ * refresh token. The access token it yields lives an hour and changes every
+ * time, which would defeat fetch()'s cache key, so the whole lookup is cached
+ * with unstable_cache instead — once every six hours, like the subscribers.
+ * Analytics data trails by about two days, so the window ends the day before
+ * yesterday rather than today.
+ */
+const youtubeWatchHours = unstable_cache(
+  async (): Promise<number | null> => {
+    if (!OAUTH_CLIENT_ID || !OAUTH_CLIENT_SECRET || !OAUTH_REFRESH_TOKEN) return null
+    try {
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          refresh_token: OAUTH_REFRESH_TOKEN,
+          client_id: OAUTH_CLIENT_ID,
+          client_secret: OAUTH_CLIENT_SECRET,
+          grant_type: 'refresh_token',
+        }),
+        cache: 'no-store',
+      })
+      if (!tokenRes.ok) return null
+      const accessToken = (await tokenRes.json())?.access_token
+      if (typeof accessToken !== 'string') return null
+
+      const end = new Date(Date.now() - 2 * 86_400_000)
+      const start = new Date(end.getTime() - 365 * 86_400_000)
+      const day = (d: Date) => d.toISOString().slice(0, 10)
+      const query = new URLSearchParams({
+        ids: 'channel==MINE',
+        startDate: day(start),
+        endDate: day(end),
+        metrics: 'estimatedMinutesWatched',
+      })
+      const res = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?${query}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
+      })
+      if (!res.ok) return null
+      const minutes = Number((await res.json())?.rows?.[0]?.[0])
+      if (!Number.isFinite(minutes) || minutes <= 0) return null
+      return Math.round(minutes / 60)
+    } catch {
+      return null
+    }
+  },
+  ['youtube-watch-hours'],
+  { revalidate: YT_REVALIDATE },
+)
+
 export async function getSiteStats(): Promise<SiteStats> {
-  const [schedule, youtube] = await Promise.all([scheduleStats(), youtubeChannel()])
+  const [schedule, youtube, watchHours] = await Promise.all([scheduleStats(), youtubeChannel(), youtubeWatchHours()])
 
   const otherPlatforms = Object.values(SOCIAL_FOLLOWERS).reduce((a, b) => a + b, 0)
   const followers = otherPlatforms + (youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK)
@@ -157,6 +224,7 @@ export async function getSiteStats(): Promise<SiteStats> {
     hours: schedule?.hours ?? FALLBACK.hours,
     series: schedule?.series ?? FALLBACK.series,
     youtubeViews: youtube?.views ?? FALLBACK.youtubeViews,
+    watchHours,
     followers,
     languages: FALLBACK.languages,
     live: schedule !== null && youtube !== null,
