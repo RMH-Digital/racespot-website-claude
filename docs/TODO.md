@@ -874,6 +874,53 @@ die Erinnerungsglocke kostenlos. Der eigene Reminder ist der Grund, aus dem
 jemand eine **Adresse** hinterlässt — und genau die gehört dann uns, auf
 unserem Server. Dafür sind neun Tage der Preis.
 
+## 7i. Aufzeichnungen, eigener Player, Follow-Leiste — 2026-09-16
+
+**Anlass (Jürgen):** Vergangene Monate im Kalender waren leer, vergangene
+Broadcasts verlinkten nach YouTube, und es gab außer den Footer-Icons keinen
+Ort, der zum Abonnieren einlud.
+
+**Vergangene Broadcasts im Kalender.** `getCalendarEvents()` behält jetzt
+die letzten 365 Tage (`CALENDAR_PAST_DAYS`), vorher nur Kommendes und Live.
+Für die Aufzeichnung dazu gibt es **keine Spalte im Master Schedule** — 3.209
+vergangene öffentliche Zeilen, kein einziger YouTube-Link. Die Zuordnung
+kommt deshalb vom Kanal selbst (`src/lib/replays.ts`): Upload-Playlist des
+Kanals bis zum Stichtag durchblättern, pro 50 Videos `liveStreamingDetails`
+holen, und ein beendeter Stream, der binnen drei Stunden um den geplanten
+Start losging, ist die Aufzeichnung. Titel entscheiden nur bei mehreren
+Kandidaten — das Sheet sagt „Porsche Club of America S16 - Club", YouTube
+sagt „PCA Sim Racing Series 16 | Event 2 | Club Class at Portland". Index per
+`unstable_cache` 24 h, ~20 Quota-Einheiten am Tag. **Gemessen: 372 von 412
+vergangenen Broadcasts zugeordnet (90 %)**; die Lücke sind vor allem die
+„eNASCAR … BS+ Team Stream"-Zeilen, die auf einem fremden Kanal laufen.
+Ohne Zuordnung führt der Klick zur Stream-Liste des Kanals auf YouTube.
+
+**Der Player** (`src/components/video/VideoPlayerProvider.tsx`): ein Dialog
+über der Seite, `youtube-nocookie.com`, Escape/Backdrop schließen, Fokus geht
+zum Schließen-Knopf und zurück zum Auslöser, Seite dahinter scrollt nicht.
+Öffnet sich von: vergangenen Terminen im Kalender (Raster und Liste),
+`VideoCard` (Startseite, Broadcasts) und `PlaylistCard` (Broadcasts, als
+`videoseries?list=`). „Auf YouTube öffnen" bleibt im Dialog für Kommentare
+und Verlauf. **Offen: Datenschutzerklärung.** Abschnitt 7 nennt Live
+(`youtube.com`) und Events (`youtube-nocookie.com`); der Player ist derselbe
+nocookie-Modus, jetzt aber auch auf Startseite, Broadcasts und Kalender —
+ein Satz, de und en zusammen, Freigabe Jürgen.
+
+**Follow-Leiste** (`src/components/ui/FollowUs.tsx`): „Auf YouTube abonnieren"
+ist ein Link mit `sub_confirmation=1` — YouTube fragt selbst „Abonnieren?",
+kein Google-Skript auf unserer Seite. Daneben ein dezenter Knopf „Weitere
+Kanäle", der die fünf anderen Profile als Auswahl aufklappt; alle Ziele in
+neuem Tab. Die Kanalliste liegt jetzt einmal in `src/lib/socials.tsx`
+(Footer liest daraus). Platziert: Startseite unter den letzten Broadcasts,
+Broadcasts-Seite im Abschnittskopf, Live-Seite unter dem Stream bzw. im
+Offline-Block (ersetzt den alten Abo-Link, `live.subscribe` weg), und im
+Player unter dem Video.
+
+**Idee, nicht gebaut:** Kommende Termine könnten auf den bereits angesetzten
+YouTube-Stream zeigen (die Upload-Liste enthält ihn mit `P0D` und ohne
+`actualStartTime`) — dann hätte man dort die YouTube-Glocke. Gleicher Index,
+anderer Filter.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

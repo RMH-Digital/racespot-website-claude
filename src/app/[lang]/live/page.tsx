@@ -16,8 +16,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 
 export default async function LivePage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
-  const channelId = process.env.YOUTUBE_CHANNEL_ID || ''
-
   const [liveStreams, events] = await Promise.all([
     getLiveStreams(),
     getUpcomingEvents(10),
@@ -49,7 +47,6 @@ export default async function LivePage({ params }: { params: Promise<{ lang: Lan
       lang={lang}
       nextEvent={nextEvent}
       upcomingEvents={upcomingEvents}
-      channelId={channelId}
     />
   )
 }

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useCountdown } from '@/lib/hooks/useCountdown'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { getT, localePath, type Lang } from '@/lib/i18n'
+import { FollowUs } from '@/components/ui/FollowUs'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -19,7 +20,6 @@ interface LiveOfflineProps {
   lang: Lang
   nextEvent: SerializedEvent | null
   upcomingEvents: SerializedEvent[]
-  channelId: string
 }
 
 // ─── Locale helpers ─────────────────────────────────────────
@@ -56,7 +56,7 @@ function formatLocalDate(iso: string, { locale, timeZone }: Fmt): string {
 
 // ─── Component ──────────────────────────────────────────────
 
-export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: LiveOfflineProps) {
+export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProps) {
   const fmt = useLocalFormat(lang)
   const countdown = useCountdown(nextEvent?.dateISO || '')
   const t = getT(lang)
@@ -156,14 +156,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
 
               {/* CTAs */}
               <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href={`https://www.youtube.com/channel/${channelId}?sub_confirmation=1`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary"
-                >
-                  {t('live.subscribe')}
-                </a>
+                <FollowUs lang={lang} size="md" className="justify-center" />
                 <Link href={localePath(lang, '/calendar')} className="btn-outline">
                   {t('live.viewCalendar')}
                 </Link>
@@ -176,14 +169,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents, channelId }: Live
               <p className="text-rs-muted text-sm max-w-md mx-auto mb-8">
                 {t('live.noUpcomingDesc')}
               </p>
-              <a
-                href={`https://www.youtube.com/channel/${channelId}?sub_confirmation=1`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-              >
-                {t('live.subscribe')}
-              </a>
+              <FollowUs lang={lang} size="md" className="justify-center" />
             </>
           )}
         </div>

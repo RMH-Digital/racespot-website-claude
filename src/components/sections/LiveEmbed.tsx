@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
+import { FollowUs } from '@/components/ui/FollowUs'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 
@@ -133,6 +134,8 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
             </p>
           )}
         </div>
+
+        <FollowUs lang={lang} className="mb-8" />
 
         {/* Chat embed */}
         <div className="border border-rs-border rounded-rs overflow-hidden">

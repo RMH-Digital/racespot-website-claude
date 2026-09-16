@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EmptyState, EventTipContent } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
 
@@ -41,21 +41,21 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
   const day = d.getDate()
   const weekday = formatWeekday(event.dateISO, locale, timeZone)
   const monthStr = d.toLocaleDateString(locale, { month: 'short', timeZone })
+  const past = event.isPast
 
   const t = getT(lang)
+  const hoverLabel = past ? (event.videoId ? t('calendar.watchReplay') : t('broadcasts.watchOnYT')) : t('calendar.watch')
 
   return (
     // A div, not an anchor: the row used to be one link, which left nowhere to
-    // put the calendar button — an anchor cannot contain another. The watch
-    // link is stretched across the row instead, and the button sits above it.
+    // put the calendar button — an anchor cannot contain another. The click
+    // target is stretched across the row instead, and the button sits above it.
     <Tip content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
     <div
-      className="group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
-                 hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30"
+      className={`group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
+                 hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 ${past ? 'opacity-75 hover:opacity-100' : ''}`}
     >
-      <a href={localePath(lang, '/live')} className="absolute inset-0" aria-label={event.series}>
-        <span className="sr-only">{event.series}</span>
-      </a>
+      <EventLink lang={lang} event={event} className="absolute inset-0" />
       <div className="flex flex-col items-center justify-center text-center">
         <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
         <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
@@ -64,6 +64,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2 flex-wrap">
           {event.isLive && <LiveBadge />}
+          {past && event.videoId && <ReplayBadge lang={lang} />}
           <p className="text-rs-white font-medium text-sm truncate group-hover:text-rs-yellow transition-colors">
             {event.series}
           </p>
@@ -72,16 +73,18 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
           <p className="text-rs-muted text-xs mt-0.5 truncate">{event.description}</p>
         )}
         <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-[11px] text-rs-yellow font-bold">{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
+          <span className={`text-[11px] font-bold ${past ? 'text-rs-muted' : 'text-rs-yellow'}`}>{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
           <span className="text-[11px] text-rs-muted" aria-hidden="true">–</span>
           <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
         </div>
       </div>
       <div className="flex items-center gap-3">
         <span className="hidden sm:inline text-xs text-rs-yellow font-display font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-          Watch →
+          {hoverLabel}
         </span>
-        <AddToCalendar lang={lang} event={event} t={t} />
+        {past
+          ? event.videoId && <ReplayOnYouTube lang={lang} videoId={event.videoId} />
+          : <AddToCalendar lang={lang} event={event} t={t} />}
       </div>
     </div>
     </Tip>

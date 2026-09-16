@@ -3,6 +3,7 @@ import { getCompletedBroadcasts } from '@/lib/youtube'
 import { VideoCard } from '@/components/ui/VideoCard'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { LiveBanners } from './LiveBanners'
+import { FollowUs } from '@/components/ui/FollowUs'
 
 export async function LatestBroadcasts({ lang }: { lang: Lang }) {
   const t = getT(lang)
@@ -36,6 +37,13 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
         ) : (
           <FallbackBroadcasts lang={lang} />
         )}
+
+        {/* Where new broadcasts turn up first — the one place on the home
+            page that asks for a follow, right under the proof of what to expect. */}
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-rs-border pt-6">
+          <p className="max-w-md text-sm text-rs-muted">{t('social.followHint')}</p>
+          <FollowUs lang={lang} />
+        </div>
       </div>
     </section>
   )

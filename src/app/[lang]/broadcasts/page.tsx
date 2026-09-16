@@ -6,6 +6,7 @@ import { getSeriesTiers } from '@/lib/sheets'
 import { VideoCard } from '@/components/ui/VideoCard'
 import { BroadcastsClient, type PlaylistWithMeta } from '@/components/sections/BroadcastsClient'
 import { getT, type Lang } from '@/lib/i18n'
+import { FollowUs } from '@/components/ui/FollowUs'
 
 /* Refresh video data every 5 minutes */
 export const revalidate = 300
@@ -141,6 +142,7 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
               <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
               <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
             </div>
+            <FollowUs lang={lang} />
           </div>
 
           {broadcasts.length > 0 ? (

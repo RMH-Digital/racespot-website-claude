@@ -53,6 +53,10 @@ export interface CalendarEvent {
   endDateISO: string
   durationHours: number
   isLive: boolean
+  /** Over, including the 90-minute overtime buffer */
+  isPast: boolean
+  /** The YouTube recording, when one could be paired — see src/lib/replays.ts */
+  videoId?: string
 }
 
 /**
@@ -243,8 +247,12 @@ export function toCalendarEvent(e: ScheduleEvent): CalendarEvent {
     endDateISO: e.endDate.toISOString(),
     durationHours: e.durationHours,
     isLive: e.isLive,
+    isPast: e.isPast,
   }
 }
+
+/** How far back the calendar reaches; the replay index in replays.ts uses the same year. */
+const CALENDAR_PAST_DAYS = 365
 
 /**
  * Fetch ALL public upcoming events (no limit) for the calendar view.
@@ -274,7 +282,9 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
       .filter((e: ScheduleEvent | null): e is ScheduleEvent => {
         if (!e) return false
         if (!e.isPublic) return false
-        return e.isUpcoming || e.isLive
+        // Past broadcasts stay for a year, so the calendar's earlier months
+        // are a record with recordings behind them rather than blank pages.
+        return e.isUpcoming || e.isLive || e.date.getTime() > Date.now() - CALENDAR_PAST_DAYS * 86_400_000
       })
       .sort((a: ScheduleEvent, b: ScheduleEvent) => a.date.getTime() - b.date.getTime())
       .map(toCalendarEvent)

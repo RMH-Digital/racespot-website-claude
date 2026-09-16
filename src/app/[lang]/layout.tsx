@@ -7,6 +7,7 @@ import { NavigationProgress } from '@/components/layout/NavigationProgress'
 import { TickerServer } from '@/components/layout/TickerServer'
 import { Footer } from '@/components/layout/Footer'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
+import { VideoPlayerProvider } from '@/components/video/VideoPlayerProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { Analytics } from '@/components/seo/Analytics'
 import { DEFAULT_LANG, LANGS, OG_LOCALES, isLang, t, type Lang } from '@/lib/i18n'
@@ -116,7 +117,9 @@ export default async function RootLayout({
           <Header lang={lang} />
           <TickerServer lang={lang} />
           {/* Offset for fixed header (64px) + ticker (34px) = 98px */}
-          <main id="content" className="pt-[98px]">{children}</main>
+          <main id="content" className="pt-[98px]">
+            <VideoPlayerProvider lang={lang}>{children}</VideoPlayerProvider>
+          </main>
           <Footer lang={lang} />
         </LiveStatusProvider>
         <Analytics />

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getCalendarEvents } from '@/lib/sheets'
+import { withReplays } from '@/lib/replays'
 import { CalendarClient } from '@/components/sections/CalendarClient'
 import { BreadcrumbJsonLd, BroadcastScheduleJsonLd, upcomingBroadcasts } from '@/components/seo/JsonLd'
 import { getT, type Lang } from '@/lib/i18n'
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 export default async function CalendarPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
   const t = getT(lang)
-  const events = await getCalendarEvents()
+  // Past broadcasts get their YouTube recording attached where one exists.
+  const events = await withReplays(await getCalendarEvents())
 
   return (
     <div className="pt-8">

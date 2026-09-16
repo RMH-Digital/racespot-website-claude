@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EventTipContent } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, getWeekdayNames, getDaysInMonth, getFirstDayOfWeek, zonedParts } from './time'
 
@@ -230,20 +230,25 @@ function DayCell({
 
 function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
   const t = getT(lang)
+  const past = event.isPast
 
   return (
     <Tip className="h-full" content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
     <div
-      className="group relative flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
-                 p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors"
+      className={`group relative flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
+                 p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors
+                 ${past ? 'opacity-75 hover:opacity-100' : ''}`}
     >
-      <a href={localePath(lang, '/live')} className="absolute inset-0 rounded-rs" aria-label={event.series}>
-        <span className="sr-only">{event.series}</span>
-      </a>
-      {/* Live badge */}
+      <EventLink lang={lang} event={event} className="absolute inset-0 rounded-rs" />
+      {/* Live badge, or the replay mark once the recording is up */}
       {event.isLive && (
         <div className="mb-1">
           <LiveBadge />
+        </div>
+      )}
+      {past && event.videoId && (
+        <div className="mb-1">
+          <ReplayBadge lang={lang} />
         </div>
       )}
 
@@ -260,12 +265,15 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
         </p>
       )}
 
-      {/* Start time, and the calendar download beside it */}
+      {/* Start time, and beside it the calendar menu — or, for a past
+          broadcast, the recording on YouTube */}
       <div className="mt-auto pt-1 flex items-center justify-between gap-1">
-        <span className="text-[10px] md:text-[11px] text-rs-yellow font-bold whitespace-nowrap">
+        <span className={`text-[10px] md:text-[11px] font-bold whitespace-nowrap ${past ? 'text-rs-muted' : 'text-rs-yellow'}`}>
           {formatTime(event.dateISO, is24h, locale, timeZone)}
         </span>
-        <AddToCalendar lang={lang} event={event} t={t} compact />
+        {past
+          ? event.videoId && <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
+          : <AddToCalendar lang={lang} event={event} t={t} compact />}
       </div>
     </div>
     </Tip>

@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { YouTubePlaylist } from '@/lib/youtube-utils'
 import { getT, type Lang } from '@/lib/i18n'
+import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -278,12 +279,12 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
 // ─── Playlist Card ──────────────────────────────────────────
 
 function PlaylistCard({ playlist }: { playlist: PlaylistWithMeta }) {
+  const { play } = useVideoPlayer()
   return (
-    <a
-      href={`https://www.youtube.com/playlist?list=${playlist.id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="card-dark overflow-hidden group cursor-pointer block"
+    <button
+      type="button"
+      onClick={() => play({ kind: 'playlist', id: playlist.id, title: playlist.title })}
+      className="card-dark overflow-hidden group cursor-pointer block w-full text-left"
     >
       {/* Thumbnail */}
       <div className="relative aspect-video bg-rs-gray">
@@ -328,6 +329,6 @@ function PlaylistCard({ playlist }: { playlist: PlaylistWithMeta }) {
           </p>
         )}
       </div>
-    </a>
+    </button>
   )
 }

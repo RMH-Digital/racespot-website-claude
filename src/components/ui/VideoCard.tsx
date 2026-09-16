@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { formatViewCount, formatDate, type YouTubeVideo } from '@/lib/youtube-utils'
 import { getT, type Lang } from '@/lib/i18n'
+import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 
 interface VideoCardProps {
   lang: Lang
@@ -12,6 +13,7 @@ interface VideoCardProps {
 
 export function VideoCard({ lang, video }: VideoCardProps) {
   const t = getT(lang)
+  const { play } = useVideoPlayer()
   const isLive = video.liveBroadcastContent === 'live'
   const isUpcoming = video.liveBroadcastContent === 'upcoming'
 
@@ -22,11 +24,13 @@ export function VideoCard({ lang, video }: VideoCardProps) {
   }, [video.publishedAt, lang])
 
   return (
-    <a
-      href={`https://youtube.com/watch?v=${video.id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="card-dark overflow-hidden group cursor-pointer block"
+    // A button, not a link to YouTube: the recording plays here, in the
+    // site's own player. The player offers the YouTube link for anyone who
+    // wants the comments or their own watch history.
+    <button
+      type="button"
+      onClick={() => play({ kind: 'video', id: video.id, title: video.title })}
+      className="card-dark overflow-hidden group cursor-pointer block w-full text-left"
     >
       {/* Thumbnail */}
       <div className="relative aspect-video bg-rs-gray">
@@ -67,6 +71,6 @@ export function VideoCard({ lang, video }: VideoCardProps) {
           {formatViewCount(video.viewCount)} {t('common.views')}{dateStr ? ` · ${dateStr}` : ''}
         </p>
       </div>
-    </a>
+    </button>
   )
 }
