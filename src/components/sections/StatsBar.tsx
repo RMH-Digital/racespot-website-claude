@@ -1,6 +1,7 @@
 import { getT, LOCALES, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 import { getSiteStats, roundedDown } from '@/lib/stats'
+import { Tip } from '@/components/ui/Tip'
 
 /**
  * The yellow band of numbers. Every figure is measured — broadcasts from the
@@ -19,11 +20,13 @@ export async function StatsBar({ lang }: { lang: Lang }) {
   const stats = await getSiteStats()
   const locale = LOCALES[lang]
 
-  const tiles: { value: string; labelKey: TranslationKey }[] = [
-    { value: roundedDown(stats.broadcasts, locale, 10), labelKey: 'stats.broadcastsLast12Months' },
-    { value: roundedDown(stats.youtubeViews, locale), labelKey: 'stats.youtubeViews' },
-    { value: roundedDown(stats.followers, locale, 100), labelKey: 'stats.followers' },
-    { value: String(stats.languages), labelKey: 'stats.languagesCovered' },
+  // Every tile explains itself on hover — the sourcing that used to be a
+  // line of small print under the numbers, now only for whoever asks.
+  const tiles: { value: string; labelKey: TranslationKey; tipKey: TranslationKey }[] = [
+    { value: roundedDown(stats.broadcasts, locale, 10), labelKey: 'stats.broadcastsLast12Months', tipKey: 'stats.tip.broadcasts' },
+    { value: roundedDown(stats.youtubeViews, locale), labelKey: 'stats.youtubeViews', tipKey: 'stats.tip.youtubeViews' },
+    { value: roundedDown(stats.followers, locale, 100), labelKey: 'stats.followers', tipKey: 'stats.tip.followers' },
+    { value: String(stats.languages), labelKey: 'stats.languagesCovered', tipKey: 'stats.tip.languages' },
   ]
 
   return (
@@ -31,14 +34,14 @@ export async function StatsBar({ lang }: { lang: Lang }) {
       <div className="container-rs">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
           {tiles.map((tile) => (
-            <div key={tile.labelKey} className="text-center">
+            <Tip key={tile.labelKey} content={t(tile.tipKey)} className="text-center">
               <p className="font-display font-black text-rs-black" style={{ fontSize: 'clamp(36px, 5vw, 56px)' }}>
                 {tile.value}
               </p>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-rs-black/70 mt-1">
                 {t(tile.labelKey)}
               </p>
-            </div>
+            </Tip>
           ))}
         </div>
       </div>

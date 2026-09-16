@@ -8,6 +8,8 @@ import { ListView } from './calendar/ListView'
 import { CalendarGridView } from './calendar/GridView'
 import { EmptyState, LiveBadge } from './calendar/shared'
 import { useLocaleFormat, getMonthLabel, getUserTimezone, zonedParts } from './calendar/time'
+import { SubscribeButton } from './calendar/SubscribeButton'
+import { Tip } from '@/components/ui/Tip'
 
 // ─── Main Calendar Component ────────────────────────────────
 
@@ -114,6 +116,7 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
           <button
             onClick={prevMonth}
             aria-label={t('calendar.prevMonth')}
+            title={t('calendar.prevMonth')}
             className="w-11 h-11 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
           >
             <span aria-hidden="true">←</span>
@@ -124,19 +127,25 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
           <button
             onClick={nextMonth}
             aria-label={t('calendar.nextMonth')}
+            title={t('calendar.nextMonth')}
             className="w-11 h-11 flex items-center justify-center rounded-rs border border-rs-border text-rs-muted hover:text-white hover:border-rs-yellow transition-colors"
           >
             <span aria-hidden="true">→</span>
           </button>
         </div>
 
-        {/* Timezone indicator */}
-        <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
-          <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-            <circle cx="8" cy="8" r="6.25" />
-            <path d="M8 4.5V8l2.25 1.5" strokeLinecap="round" />
-          </svg>
-          {timezone.replace(/_/g, ' ')}
+        {/* Timezone indicator and the schedule subscription, right-aligned */}
+        <div className="flex items-center gap-4 ml-auto">
+          <Tip content={t('calendar.timezoneNote')} width={240}>
+            <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
+              <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <circle cx="8" cy="8" r="6.25" />
+                <path d="M8 4.5V8l2.25 1.5" strokeLinecap="round" />
+              </svg>
+              {timezone.replace(/_/g, ' ')}
+            </div>
+          </Tip>
+          <SubscribeButton t={t} />
         </div>
       </div>
 

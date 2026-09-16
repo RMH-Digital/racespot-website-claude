@@ -1,5 +1,5 @@
 import { getCalendarEvents } from '@/lib/sheets'
-import { buildIcs, type IcsEvent } from '@/lib/ics'
+import { buildIcs, icsFilename, type IcsEvent } from '@/lib/ics'
 import { SITE_URL } from '@/lib/i18n/seo'
 
 /**
@@ -22,12 +22,20 @@ export const revalidate = 300
 /** Past broadcasts stay in for a while — a calendar is also a record. */
 const KEEP_PAST_DAYS = 60
 
-export async function GET() {
+/**
+ * `?series=<exact name>` narrows the feed to one series. The name is matched
+ * as the Master Schedule spells it, season included, so a finished season's
+ * feed goes quietly empty instead of guessing at its successor. An empty
+ * calendar is still a valid calendar — no 404, the client keeps refreshing.
+ */
+export async function GET(request: Request) {
+  const series = new URL(request.url).searchParams.get('series')?.trim() || null
   const events = await getCalendarEvents()
   const floor = Date.now() - KEEP_PAST_DAYS * 86_400_000
 
   const entries: IcsEvent[] = events
     .filter((e) => {
+      if (series && e.series !== series) return false
       const t = Date.parse(e.dateISO)
       return Number.isFinite(t) && t > floor && Number.isFinite(Date.parse(e.endDateISO))
     })
@@ -42,12 +50,12 @@ export async function GET() {
       url: `${SITE_URL}/en/live`,
     }))
 
-  const body = buildIcs(entries, { name: 'Racespot Broadcasts', refreshHours: 6 })
+  const body = buildIcs(entries, { name: series ?? 'Racespot Broadcasts', refreshHours: 6 })
 
   return new Response(body, {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
-      'Content-Disposition': 'inline; filename="racespot-schedule.ics"',
+      'Content-Disposition': `inline; filename="${series ? icsFilename(series) : 'racespot-schedule.ics'}"`,
       'Cache-Control': 'public, max-age=300, s-maxage=300',
     },
   })

@@ -136,6 +136,7 @@ export function Header({ lang }: { lang: Lang }) {
               ref={langBtnRef}
               onClick={() => setLangOpen(!langOpen)}
               aria-label={t('a11y.chooseLanguage')}
+              title={t('a11y.chooseLanguage')}
               aria-expanded={langOpen}
               className="flex items-center gap-1.5 px-3 py-1.5 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
             >
@@ -178,6 +179,7 @@ export function Header({ lang }: { lang: Lang }) {
           ref={menuBtnRef}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? t('a11y.closeMenu') : t('a11y.openMenu')}
+          title={menuOpen ? t('a11y.closeMenu') : t('a11y.openMenu')}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
         >

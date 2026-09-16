@@ -113,6 +113,7 @@ export function Footer({ lang }: { lang: Lang }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
+                  title={label}
                   className="w-11 h-11 rounded-rs border border-rs-border
                              flex items-center justify-center
                              text-rs-muted text-sm

@@ -5,7 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge } from './shared'
+import { LiveBadge, EventTipContent } from './shared'
+import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, getWeekdayNames, getDaysInMonth, getFirstDayOfWeek, zonedParts } from './time'
 
 export function CalendarGridView({
@@ -231,6 +232,7 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
   const t = getT(lang)
 
   return (
+    <Tip className="h-full" content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
     <div
       className="group relative flex flex-col justify-center h-full rounded-rs bg-rs-dark/60 border border-rs-border/40
                  p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors"
@@ -266,5 +268,6 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
         <AddToCalendar lang={lang} event={event} t={t} compact />
       </div>
     </div>
+    </Tip>
   )
 }

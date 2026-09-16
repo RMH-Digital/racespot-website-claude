@@ -74,6 +74,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
                        transition-all duration-300"
             aria-label={labels.prev}
+            title={labels.prev}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -89,6 +90,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
                        transition-all duration-300"
             aria-label={labels.next}
+            title={labels.next}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

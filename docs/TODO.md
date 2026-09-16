@@ -658,6 +658,35 @@ Abo-Feeds in ihrem eigenen Takt, meist alle paar Stunden. Kurzfristige
 Änderungen kommen verzögert an. `REFRESH-INTERVAL` und `X-PUBLISHED-TTL`
 stehen auf 6 h, sind aber nur Wünsche.
 
+**Umgebaut am 2026-09-16 (Jürgen):**
+
+- Der erklärende Abo-Block über dem Kalender ist weg. Stattdessen **ein
+  Knopf „Zeitplan abonnieren" rechts in der Steuerleiste**, die Erklärung
+  als Hover-Tipp. Kein „Link kopieren" mehr — Rechtsklick → „Link kopieren"
+  bietet jeder Browser auf einem Link an, der Tipp sagt das für den
+  Google-Kalender-Fall.
+- **Abo pro Serie.** `/schedule.ics?series=<Name>` filtert den Feed auf eine
+  Serie, exakt so geschrieben wie im Master Schedule (mit Saison, also
+  „Radical e-Cup - 2026 Season 4"); eine beendete Saison läuft leer, statt
+  einen Nachfolger zu raten. Der Kalender-Knopf an jedem Termin ist jetzt ein
+  **Menü mit zwei Einträgen**: „In den Kalender" (nur diese Übertragung, `.ics`)
+  und „Serie abonnieren" (`webcal://…?series=`).
+- **Hover-Tipps** (`src/components/ui/Tip.tsx`): an jedem Termin in Raster
+  und Liste (voller Serienname, Beschreibung, Datum, lokale Start–Endzeit,
+  „Klick öffnet die Live-Seite"), an der Zeitzonen-Anzeige, an den vier
+  Kennzahlen der Startseite (Herkunft und Rundung — das, was vorher als
+  Kleingedrucktes unter den Zahlen stand), plus native `title`-Attribute an
+  allen Icon-Knöpfen (Monatspfeile, Sprachwahl, Burger, Footer-Icons,
+  Event-Pfeile, Ticker-Label). Tipp und Menü werden per Portal in `body`
+  gerendert und fest positioniert, weil das Monatsraster seine Zellen mit
+  `overflow: hidden` beschneidet — innerhalb der Zelle wäre beides ein
+  Streifen. Der Tipp zeigt sich bei Maus und Tastaturfokus (nur
+  `:focus-visible`, sonst holt ihn der Klick, der das Menü öffnet, sofort
+  zurück) und verschwindet bei `mousedown`. Das Menü folgt beim Scrollen
+  seinem Knopf, statt zu schließen — die Seite scrollt weich, und ein Klick
+  während des Ausrollens hätte sonst ein Menü geöffnet, das sofort wieder
+  zu war.
+
 ### Stufe 2, geplant am 2026-09-15, nicht gebaut: Newsletter und Race Reminder, komplett selbst betrieben
 
 **Entschieden (Jürgen, 2026-09-15):** kein fremder Dienst. Alle Daten bleiben

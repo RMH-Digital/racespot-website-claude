@@ -4,7 +4,8 @@ import { useMemo } from 'react'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EmptyState } from './shared'
+import { LiveBadge, EmptyState, EventTipContent } from './shared'
+import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
 
 export function ListView({ lang, events, year, month, is24h, locale, timeZone }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string }) {
@@ -47,6 +48,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
     // A div, not an anchor: the row used to be one link, which left nowhere to
     // put the calendar button — an anchor cannot contain another. The watch
     // link is stretched across the row instead, and the button sits above it.
+    <Tip content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
     <div
       className="group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
                  hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30"
@@ -82,5 +84,6 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
         <AddToCalendar lang={lang} event={event} t={t} />
       </div>
     </div>
+    </Tip>
   )
 }

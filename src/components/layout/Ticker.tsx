@@ -107,12 +107,12 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     <div className="pause-on-hover fixed top-16 left-0 right-0 z-40 h-[34px] bg-rs-yellow border-b border-rs-border overflow-hidden flex items-center">
       {/* Status label — LIVE → /live, UPCOMING → /calendar */}
       {isLive ? (
-        <Link href={localePath(lang, '/live')} className="shrink-0 flex items-center gap-1.5 px-3.5 h-full bg-black/15 hover:bg-black/25 transition-colors">
+        <Link href={localePath(lang, '/live')} title={t('hero.watchLive')} className="shrink-0 flex items-center gap-1.5 px-3.5 h-full bg-black/15 hover:bg-black/25 transition-colors">
           <span className="w-1.5 h-1.5 rounded-full bg-rs-live animate-pulse-live" />
           <span className="text-[11px] font-display font-bold uppercase text-rs-black">{t('ticker.live')}</span>
         </Link>
       ) : (
-        <Link href={localePath(lang, '/calendar')} className="shrink-0 flex items-center px-3.5 h-full bg-black/10 hover:bg-black/20 transition-colors">
+        <Link href={localePath(lang, '/calendar')} title={t('hero.viewSchedule')} className="shrink-0 flex items-center px-3.5 h-full bg-black/10 hover:bg-black/20 transition-colors">
           <span className="text-[11px] font-display font-bold uppercase text-rs-black/70">{t('ticker.upcoming')}</span>
         </Link>
       )}

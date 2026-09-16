@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getCalendarEvents } from '@/lib/sheets'
 import { CalendarClient } from '@/components/sections/CalendarClient'
-import { SubscribeSchedule } from '@/components/sections/SubscribeSchedule'
 import { BreadcrumbJsonLd, BroadcastScheduleJsonLd, upcomingBroadcasts } from '@/components/seo/JsonLd'
 import { getT, type Lang } from '@/lib/i18n'
 
@@ -34,11 +33,6 @@ export default async function CalendarPage({ params }: { params: Promise<{ lang:
         <p className="text-rs-muted max-w-xl mb-6">
           {t('calendar.intro')}
         </p>
-
-        {/* Reminders without an account: the feed carries its own alarms. */}
-        <div className="mb-8">
-          <SubscribeSchedule lang={lang} />
-        </div>
 
         {/* Interactive calendar (client component) */}
         <CalendarClient lang={lang} events={events} />
