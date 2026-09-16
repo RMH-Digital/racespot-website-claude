@@ -424,7 +424,6 @@ export const translations = {
   'social.moreChannels': { en: 'More channels', de: 'Weitere Kanäle', es: 'Más canales', pt: 'Mais canais', fr: 'Autres chaînes', it: 'Altri canali' },
   'social.followHint': { en: 'New broadcasts, clips and news — pick your platform.', de: 'Neue Broadcasts, Clips und News — wähle deine Plattform.', es: 'Nuevas emisiones, clips y noticias: elige tu plataforma.', pt: 'Novas transmissões, clipes e notícias — escolha a sua plataforma.', fr: 'Nouvelles diffusions, clips et actualités — choisissez votre plateforme.', it: 'Nuove trasmissioni, clip e notizie: scegli la tua piattaforma.' },
   'social.subscribers': { en: '{n} subscribers', de: '{n} Abonnenten', es: '{n} suscriptores', pt: '{n} inscritos', fr: '{n} abonnés', it: '{n} iscritti' },
-  'social.channelTagline': { en: 'Every broadcast — live, and as a recording afterwards.', de: 'Jeder Broadcast — live, und danach als Aufzeichnung.', es: 'Cada emisión: en directo y después como grabación.', pt: 'Cada transmissão — ao vivo e depois como gravação.', fr: 'Chaque diffusion — en direct, puis en replay.', it: 'Ogni trasmissione: in diretta e poi come registrazione.' },
   'social.alsoOn': { en: 'Also on', de: 'Auch auf', es: 'También en', pt: 'Também no', fr: 'Aussi sur', it: 'Anche su' },
   'social.subscribe': { en: 'Subscribe', de: 'Abonnieren', es: 'Suscribirse', pt: 'Inscrever-se', fr: 'S’abonner', it: 'Iscriviti' },
   'ticker.live':       { en: 'Live', de: 'Live', es: 'En vivo', pt: 'Ao vivo', fr: 'En direct', it: 'Live' },

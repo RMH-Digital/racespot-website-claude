@@ -36,8 +36,9 @@ export async function ChannelCard({ lang }: { lang: Lang }) {
         <span className="text-xs text-rs-muted">{t('social.subscribers').replace('{n}', subscribers)}</span>
       </a>
 
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <p className="text-sm leading-snug text-rs-muted">{t('social.channelTagline')}</p>
+      {/* No sentence here: the video cards beside it carry a title and a
+          line of meta, so the tile stays at button plus channel icons. */}
+      <div className="flex flex-1 flex-col justify-between gap-4 p-4">
         <a
           href={YOUTUBE_SUBSCRIBE_URL}
           target="_blank"
