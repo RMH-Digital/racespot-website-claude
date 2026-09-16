@@ -54,6 +54,8 @@ export interface SiteStats {
   watchHours: number | null
   /** Followers across all social platforms combined */
   followers: number
+  /** YouTube subscribers alone — shown on the channel tile */
+  youtubeSubscribers: number
   /** Languages we broadcast in — not measurable, stated by the team */
   languages: number
   /** False when at least one source failed and a fallback is being shown */
@@ -72,6 +74,7 @@ const FALLBACK: SiteStats = {
   youtubeViews: 6_100_000, // measured 6,184,897
   watchHours: null,        // no fallback on purpose: a stale figure under this label would be a claim we cannot show
   followers: 57_000, // measured 57,559
+  youtubeSubscribers: 34_000, // measured 34,200
   languages: 8,
   live: false,
 }
@@ -226,6 +229,7 @@ export async function getSiteStats(): Promise<SiteStats> {
     youtubeViews: youtube?.views ?? FALLBACK.youtubeViews,
     watchHours,
     followers,
+    youtubeSubscribers: youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK,
     languages: FALLBACK.languages,
     live: schedule !== null && youtube !== null,
   }

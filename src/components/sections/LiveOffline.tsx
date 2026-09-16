@@ -148,7 +148,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
                       <p className="font-display font-black text-rs-yellow text-2xl sm:text-4xl leading-none">
                         {unit.value}
                       </p>
-                      <p className="text-[10px] uppercase tracking-widest text-rs-muted mt-1">
+                      <p className="text-[11px] uppercase tracking-widest text-rs-muted mt-1">
                         {unit.label}
                       </p>
                     </div>

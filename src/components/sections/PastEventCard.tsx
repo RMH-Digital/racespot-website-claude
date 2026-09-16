@@ -154,23 +154,32 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
         {/* Dot indicators - appear on hover */}
         {hasMultiple && (
           <div
-            className="flex items-center gap-1.5 mt-3 opacity-0 translate-y-2
+            className="flex items-center gap-0.5 mt-2 -mb-2 opacity-0 translate-y-2
                        group-hover:opacity-100 group-hover:translate-y-0
                        transition-all duration-300 delay-75"
           >
             {event.images.map((_, i) => (
+              // The visible dot stays a dot; the button around it is 24 px,
+              // the floor for a target, and says which photo it shows.
               <button
                 key={i}
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation()
                   setActiveIndex(i)
                 }}
-                className={`h-1 rounded-full transition-all duration-300
-                  ${i === activeIndex
-                    ? 'w-4 bg-rs-yellow'
-                    : 'w-1.5 bg-white/40 hover:bg-white/60'
-                  }`}
-              />
+                aria-label={`${labels.photo} ${i + 1} / ${event.images.length}`}
+                aria-current={i === activeIndex || undefined}
+                className="group/dot flex h-6 min-w-6 items-center justify-center"
+              >
+                <span
+                  className={`block h-1 rounded-full transition-all duration-300
+                    ${i === activeIndex
+                      ? 'w-4 bg-rs-yellow'
+                      : 'w-1.5 bg-white/40 group-hover/dot:bg-white/60'
+                    }`}
+                />
+              </button>
             ))}
           </div>
         )}

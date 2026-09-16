@@ -224,6 +224,10 @@ export const translations = {
   'broadcastsPage.seriesPlaylists': { en: 'Series Playlists', de: 'Serien Playlisten', es: 'Listas de Series', pt: 'Playlists de Séries', fr: 'Playlists de Séries', it: 'Playlist delle Serie' },
   'broadcastsPage.filter': { en: 'Filter', de: 'Filter', es: 'Filtrar', pt: 'Filtrar', fr: 'Filtrer', it: 'Filtra' },
   'broadcastsPage.searchPlaylists': { en: 'Search playlists...', de: 'Playlisten suchen...', es: 'Buscar playlists...', pt: 'Buscar playlists...', fr: 'Rechercher des playlists...', it: 'Cerca playlist...' },
+  'broadcastsPage.playlistOne': { en: '1 playlist', de: '1 Playlist', es: '1 lista de reproducción', pt: '1 playlist', fr: '1 playlist', it: '1 playlist' },
+  'broadcastsPage.playlistMany': { en: '{n} playlists', de: '{n} Playlists', es: '{n} listas de reproducción', pt: '{n} playlists', fr: '{n} playlists', it: '{n} playlist' },
+  'broadcastsPage.playlistFoundOne': { en: '1 playlist found', de: '1 Playlist gefunden', es: '1 lista encontrada', pt: '1 playlist encontrada', fr: '1 playlist trouvée', it: '1 playlist trovata' },
+  'broadcastsPage.playlistFoundMany': { en: '{n} playlists found', de: '{n} Playlists gefunden', es: '{n} listas encontradas', pt: '{n} playlists encontradas', fr: '{n} playlists trouvées', it: '{n} playlist trovate' },
   'broadcastsPage.noPlaylists': { en: 'No playlists found', de: 'Keine Playlisten gefunden', es: 'No se encontraron playlists', pt: 'Nenhuma playlist encontrada', fr: 'Aucune playlist trouvée', it: 'Nessuna playlist trovata' },
   'broadcastsPage.clearFilters': { en: 'Clear filters', de: 'Filter zurücksetzen', es: 'Borrar filtros', pt: 'Limpar filtros', fr: 'Effacer les filtres', it: 'Cancella filtri' },
 
@@ -307,6 +311,8 @@ export const translations = {
 
   // ─── Common ──────────────────────────────────────────────
   'common.views':      { en: 'views', de: 'Aufrufe', es: 'vistas', pt: 'visualizações', fr: 'vues', it: 'visualizzazioni' },
+  'common.videoOne': { en: '1 video', de: '1 Video', es: '1 vídeo', pt: '1 vídeo', fr: '1 vidéo', it: '1 video' },
+  'common.videoMany': { en: '{n} videos', de: '{n} Videos', es: '{n} vídeos', pt: '{n} vídeos', fr: '{n} vidéos', it: '{n} video' },
   'common.today':      { en: 'Today', de: 'Heute', es: 'Hoy', pt: 'Hoje', fr: "Aujourd'hui", it: 'Oggi' },
   'common.yesterday':  { en: 'Yesterday', de: 'Gestern', es: 'Ayer', pt: 'Ontem', fr: 'Hier', it: 'Ieri' },
   'common.playlists':  { en: 'playlists', de: 'Playlisten', es: 'playlists', pt: 'playlists', fr: 'playlists', it: 'playlist' },
@@ -417,6 +423,10 @@ export const translations = {
   'social.subscribeYouTube': { en: 'Subscribe on YouTube', de: 'Auf YouTube abonnieren', es: 'Suscribirse en YouTube', pt: 'Inscrever-se no YouTube', fr: 'S’abonner sur YouTube', it: 'Iscriviti su YouTube' },
   'social.moreChannels': { en: 'More channels', de: 'Weitere Kanäle', es: 'Más canales', pt: 'Mais canais', fr: 'Autres chaînes', it: 'Altri canali' },
   'social.followHint': { en: 'New broadcasts, clips and news — pick your platform.', de: 'Neue Broadcasts, Clips und News — wähle deine Plattform.', es: 'Nuevas emisiones, clips y noticias: elige tu plataforma.', pt: 'Novas transmissões, clipes e notícias — escolha a sua plataforma.', fr: 'Nouvelles diffusions, clips et actualités — choisissez votre plateforme.', it: 'Nuove trasmissioni, clip e notizie: scegli la tua piattaforma.' },
+  'social.subscribers': { en: '{n} subscribers', de: '{n} Abonnenten', es: '{n} suscriptores', pt: '{n} inscritos', fr: '{n} abonnés', it: '{n} iscritti' },
+  'social.channelTagline': { en: 'Every broadcast — live, and as a recording afterwards.', de: 'Jeder Broadcast — live, und danach als Aufzeichnung.', es: 'Cada emisión: en directo y después como grabación.', pt: 'Cada transmissão — ao vivo e depois como gravação.', fr: 'Chaque diffusion — en direct, puis en replay.', it: 'Ogni trasmissione: in diretta e poi come registrazione.' },
+  'social.alsoOn': { en: 'Also on', de: 'Auch auf', es: 'También en', pt: 'Também no', fr: 'Aussi sur', it: 'Anche su' },
+  'social.subscribe': { en: 'Subscribe', de: 'Abonnieren', es: 'Suscribirse', pt: 'Inscrever-se', fr: 'S’abonner', it: 'Iscriviti' },
   'ticker.live':       { en: 'Live', de: 'Live', es: 'En vivo', pt: 'Ao vivo', fr: 'En direct', it: 'Live' },
   'ticker.upcoming':   { en: 'Upcoming', de: 'Demnächst', es: 'Próximamente', pt: 'Em breve', fr: 'À venir', it: 'In arrivo' },
   'ticker.fb1':        { en: 'RACESPOT.TV — Professional Simracing Broadcast Production', de: 'RACESPOT.TV — Professionelle Simracing-Broadcast-Produktion', es: 'RACESPOT.TV — Producción profesional de transmisiones de simracing', pt: 'RACESPOT.TV — Produção profissional de transmissões de simracing', fr: 'RACESPOT.TV — Production professionnelle de diffusions de simracing', it: 'RACESPOT.TV — Produzione professionale di trasmissioni di simracing' },

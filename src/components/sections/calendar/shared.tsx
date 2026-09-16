@@ -84,7 +84,7 @@ export function EventLink({ lang, event, className }: { lang: Lang; event: Calen
 export function ReplayBadge({ lang }: { lang: Lang }) {
   const t = getT(lang)
   return (
-    <span className="inline-flex items-center gap-1 rounded-sm bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+    <span className="inline-flex items-center gap-1 rounded-sm bg-white/10 px-1.5 py-0.5 text-[11px] font-bold uppercase text-white">
       <span aria-hidden="true">▶</span>
       {t('calendar.replay')}
     </span>

@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { YouTubePlaylist } from '@/lib/youtube-utils'
 import { getT, type Lang } from '@/lib/i18n'
+import type { TranslationKey } from '@/lib/i18n/translations'
 import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 
 // ─── Types ──────────────────────────────────────────────────
@@ -194,6 +195,7 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
                 setShowAll(false)
               }}
               placeholder={t('broadcastsPage.searchPlaylists')}
+              aria-label={t('broadcastsPage.searchPlaylists')}
               className="w-full bg-rs-dark border border-rs-border rounded-rs pl-10 pr-4 py-2.5
                          text-sm text-white placeholder:text-rs-muted
                          focus:border-rs-yellow transition-colors"
@@ -223,15 +225,15 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
       {/* Result count */}
       <p className="text-xs text-rs-muted mb-5">
         {activeFilters
-          ? `${displayed.length} playlist${displayed.length !== 1 ? 's' : ''} found`
-          : `${playlists.length} playlists`}
+          ? count(t, displayed.length, 'broadcastsPage.playlistFoundOne', 'broadcastsPage.playlistFoundMany')
+          : count(t, playlists.length, 'broadcastsPage.playlistOne', 'broadcastsPage.playlistMany')}
       </p>
 
       {/* Playlist grid */}
       {visible.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {visible.map((playlist) => (
-            <PlaylistCard key={playlist.id} playlist={playlist} />
+            <PlaylistCard key={playlist.id} playlist={playlist} lang={lang} />
           ))}
         </div>
       ) : (
@@ -278,7 +280,13 @@ export function BroadcastsClient({ lang, playlists, families }: BroadcastsClient
 
 // ─── Playlist Card ──────────────────────────────────────────
 
-function PlaylistCard({ playlist }: { playlist: PlaylistWithMeta }) {
+/** "1 video" / "12 videos" in the page's language — the count sits in the string where the grammar wants it. */
+function count(t: (k: TranslationKey) => string, n: number, one: TranslationKey, many: TranslationKey): string {
+  return (n === 1 ? t(one) : t(many)).replace('{n}', String(n))
+}
+
+function PlaylistCard({ playlist, lang }: { playlist: PlaylistWithMeta; lang: Lang }) {
+  const t = getT(lang)
   const { play } = useVideoPlayer()
   return (
     <button
@@ -305,7 +313,7 @@ function PlaylistCard({ playlist }: { playlist: PlaylistWithMeta }) {
 
         {/* Video count badge */}
         <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[11px] font-semibold px-2 py-0.5 rounded-sm">
-          {playlist.itemCount} video{playlist.itemCount !== 1 ? 's' : ''}
+          {count(t, playlist.itemCount, 'common.videoOne', 'common.videoMany')}
         </span>
 
         {/* Playlist icon overlay */}

@@ -959,6 +959,34 @@ Player unter dem Video.
   der Website** über den einen Player; einzige Ausnahme bleibt der
   Livestream auf `/live`, der weiter direkt eingebettet ist (Chat daneben).
 
+## 7j. UI-Durchgang über alle Seiten — 2026-09-16
+
+Auf Jürgens Wunsch alle zwölf Seiten in 1280 und 375 px per DOM-Prüfung
+durchgesehen (Überlauf, Überschriften, Alt-Texte, unbenannte Bedienelemente,
+Ziele unter 24 px, Text unter 11 px, unbeschriftete Eingabefelder, englische
+Reste auf deutschen Seiten). Kein horizontaler Überlauf, keine
+Überschriftenlücke, keine Bilder ohne Alt. Gefunden und behoben:
+
+| Wo | Was | Fix |
+|---|---|---|
+| Live (offline) | Countdown-Einheiten 10 px | 11 px |
+| Kalender | Karussell-Pfeile in den Tageszellen 20 px; Replay-Marke 10 px | 24 px; 11 px |
+| Events | Foto-Punkte 6×4 px, ohne Namen | 24-px-Knopf um den Punkt, `aria-label` „Foto 2 / 5", `aria-current` |
+| Broadcasts | Suchfeld nur mit Platzhalter; „12 videos", „48 playlists" englisch | `aria-label`; Zählungen übersetzt mit Ein-/Mehrzahl (`count()`) |
+| Artikel | Fotocredit 10 px | 11 px |
+
+Bewusst gelassen: Textlinks in Fließtext (Kontakt, Datenschutz, Impressum)
+sind 17–20 px hoch — Links im Satz sind von der Zielgrößen-Regel ausgenommen.
+
+**Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
+Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
+(`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine
+Videokarte: oben YouTube-Logo, `@RaceSpotTV` und die Abonnentenzahl (aus
+`getSiteStats().youtubeSubscribers`, auf Hunderter abgerundet), unten ein Satz,
+der Abonnieren-Knopf und die fünf anderen Kanäle als Icons. Kein Extra-Block,
+und der Aufruf steht dort, wo man gerade gesehen hat, was man bekommt. Die
+kompakte Follow-Leiste im Abschnittskopf ist damit wieder weg.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

@@ -88,7 +88,7 @@ export default async function ArticlePage({ params }: Props) {
         />
         <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/50 to-rs-black/10" />
         {article.imageCredit && (
-          <p className="absolute bottom-2.5 right-4 font-mono text-[10px] tracking-wide text-rs-white/45">
+          <p className="absolute bottom-2.5 right-4 font-mono text-[11px] tracking-wide text-rs-white/45">
             {article.imageCredit}
           </p>
         )}
