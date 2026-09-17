@@ -10,6 +10,7 @@ import { EmptyState, LiveBadge } from './calendar/shared'
 import { useLocaleFormat, getMonthLabel, getUserTimezone, zonedParts } from './calendar/time'
 import { SubscribeButton } from './calendar/SubscribeButton'
 import { Tip } from '@/components/ui/Tip'
+import { useEventStatus } from './calendar/status'
 
 // ─── Main Calendar Component ────────────────────────────────
 
@@ -43,9 +44,12 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
   const timezone = mounted ? getUserTimezone() : 'UTC'
   const t = getT(lang)
 
-  const liveEvents = useMemo(() => events.filter(e => e.isLive), [events])
+  // Live and "next" come from the reconciled status (sheet window × YouTube),
+  // the same answer the header and ticker give — see calendar/status.ts.
+  const statusOf = useEventStatus()
+  const liveEvents = useMemo(() => events.filter(e => statusOf(e).live), [events, statusOf])
   // The very next broadcast — events arrive sorted by start — gets the "up next" mark.
-  const nextId = useMemo(() => events.find(e => !e.isPast && !e.isLive)?.id, [events])
+  const nextId = useMemo(() => events.find(e => statusOf(e).upcoming)?.id, [events, statusOf])
 
   function prevMonth() {
     if (calMonth === 0) {

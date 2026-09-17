@@ -7,6 +7,7 @@ import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { CalendarEvent } from '@/lib/sheets'
 import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
+import { eventStatus } from '@/components/sections/calendar/status'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -75,7 +76,7 @@ function formatLocalDate(iso: string): string {
 export function Ticker({ lang, items = [] }: TickerProps) {
   const is24h = useIs24Hour()
   const [mounted, setMounted] = useState(false)
-  const { liveStreams, isLive } = useLiveStatus()
+  const { liveStreams, isLive, loaded, polledAt } = useLiveStatus()
   const t = getT(lang)
 
   useEffect(() => { setMounted(true) }, [])
@@ -87,7 +88,15 @@ export function Ticker({ lang, items = [] }: TickerProps) {
       return { text: `${stream.title} — ${viewers} ${t('live.watching')}` }
     })
 
-    const serverItems = (!items || items.length === 0) ? [] : items.map(item => {
+    // A sheet row still inside its window but no longer on air is over — drop
+    // it rather than announce a broadcast that has ended. Only once YouTube's
+    // answer is in; until then the server's list stands.
+    const current = (!items || items.length === 0) ? [] : items.filter(item => {
+      if (!item.event || !loaded) return true
+      const s = eventStatus(item.event, isLive, polledAt)
+      return !s.past
+    })
+    const serverItems = current.map(item => {
       if (item.dateISO && mounted) {
         const dateStr = formatLocalDate(item.dateISO)
         const timeStr = formatLocalTime(item.dateISO, is24h)
@@ -97,7 +106,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     })
 
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
-  }, [items, is24h, mounted, liveStreams, t])
+  }, [items, is24h, mounted, liveStreams, isLive, loaded, polledAt, t])
 
   if (rendered.length === 0) return null
 

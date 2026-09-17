@@ -3,6 +3,7 @@
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 import { YOUTUBE_STREAMS_URL, YouTubeIcon } from '@/lib/socials'
+import { useEventStatus } from './status'
 import type { CalendarEvent } from '@/lib/sheets'
 import { formatTime, localDate } from './time'
 
@@ -36,6 +37,7 @@ export function EmptyState({ lang }: { lang: Lang }) {
  */
 export function EventTipContent({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
   const t = getT(lang)
+  const status = useEventStatus()(event)
   const date = localDate(event.dateISO).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone })
   return (
     <>
@@ -48,7 +50,7 @@ export function EventTipContent({ lang, event, is24h, locale, timeZone }: { lang
         <span className="text-rs-muted"> – {formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
       </p>
       <p className="mt-2 text-[11px] uppercase tracking-wider font-display font-bold text-rs-muted">
-        {event.isPast ? t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay') : event.isLive ? t('calendar.tipLive') : t('calendar.eventTip')}
+        {status.past ? t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay') : status.live ? t('calendar.tipLive') : t('calendar.eventTip')}
       </p>
     </>
   )
@@ -64,11 +66,12 @@ export function EventTipContent({ lang, event, is24h, locale, timeZone }: { lang
  */
 export function EventLink({ lang, event, className, onOpenMenu }: { lang: Lang; event: CalendarEvent; className: string; onOpenMenu?: () => void }) {
   const { play } = useVideoPlayer()
+  const status = useEventStatus()(event)
   const label = <span className="sr-only">{event.series}</span>
-  if (event.isLive) {
+  if (status.live) {
     return <a href={localePath(lang, '/live')} className={className} aria-label={event.series}>{label}</a>
   }
-  if (!event.isPast) {
+  if (!status.past) {
     return (
       <button type="button" onClick={onOpenMenu} className={className} aria-label={event.series} aria-haspopup="menu">
         {label}

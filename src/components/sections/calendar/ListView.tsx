@@ -6,6 +6,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
 import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
+import { useEventStatus } from './status'
 import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
 
 export function ListView({ lang, events, year, month, is24h, locale, timeZone, nextId }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string; nextId?: string }) {
@@ -42,12 +43,13 @@ function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { la
   const day = d.getDate()
   const weekday = formatWeekday(event.dateISO, locale, timeZone)
   const monthStr = d.toLocaleDateString(locale, { month: 'short', timeZone })
-  const past = event.isPast
+  const status = useEventStatus()(event)
+  const past = status.past
 
   const t = getT(lang)
   // One label for every past broadcast — the tip already says whether the
   // click plays the recording here or opens the channel's past streams.
-  const hoverLabel = past ? t('calendar.watchReplay') : event.isLive ? t('calendar.watch') : t('calendar.remind')
+  const hoverLabel = past ? t('calendar.watchReplay') : status.live ? t('calendar.watch') : t('calendar.remind')
 
   return (
     // A div, not an anchor: the row used to be one link, which left nowhere to
@@ -66,8 +68,8 @@ function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { la
       </div>
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2 flex-wrap">
-          {event.isLive && <LiveBadge />}
-          {isNext && !event.isLive && <UpNextBadge lang={lang} />}
+          {status.live && <LiveBadge />}
+          {isNext && !status.live && <UpNextBadge lang={lang} />}
           {past && event.videoId && <ReplayBadge lang={lang} />}
           <p className="text-rs-white font-medium text-sm truncate group-hover:text-rs-yellow transition-colors">
             {event.series}

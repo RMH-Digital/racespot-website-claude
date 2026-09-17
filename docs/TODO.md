@@ -1012,6 +1012,26 @@ sind 17–20 px hoch — Links im Satz sind von der Zielgrößen-Regel ausgenomm
   (`UpNextBadge`). Bewusst nicht „der nächste des Tages": das wäre auf jedem
   Tag ein anderer und hieße nichts mehr.
 
+**„Live" überall aus einer Quelle (Jürgen, 2026-09-17):** Der Kalender zeigte
+LIVE, während Header und Ticker längst offline waren. Zwei Quellen, die
+auseinanderlaufen mussten: Das Master Schedule kennt nur den **Plan** — sein
+`isLive` heißt „zwischen geplantem Start und 90 Minuten nach geplantem Ende",
+berechnet beim Rendern der Seite (bis zu 5 Minuten alt) — und bleibt wahr,
+lange nachdem ein Stream vorzeitig geendet hat. YouTube weiß, was **tatsächlich**
+läuft, minütlich gepollt vom `LiveStatusProvider`; Header, Hero und Ticker
+hörten schon darauf, der Kalender nicht.
+
+`src/components/sections/calendar/status.ts` versöhnt beides — eine Antwort
+für Badge, Klickziel, Tipp, Hover-Label, Tages-Vorauswahl, „Als Nächstes",
+Live-Banner und Ticker-Zeilen: vor dem geplanten Start → kommend; im Fenster
+und YouTube live → **live**; im Fenster ohne YouTube → 15 Minuten lang noch
+kommend (verspäteter Start), danach vergangen (vorzeitig beendet); nach dem
+Fenster → vergangen. Uhr ist der Zeitpunkt des letzten Polls (`polledAt`),
+damit im Render keine Wanduhr gelesen wird und alle Konsumenten im selben
+Moment umschalten. Vor dem Mount gelten die Sheet-Flags, damit Server- und
+erster Client-Render übereinstimmen. Ticker-Zeilen für Broadcasts, die laut
+Sheet noch im Fenster, laut YouTube aber vorbei sind, fallen weg.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine

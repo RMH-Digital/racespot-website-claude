@@ -9,6 +9,9 @@ interface LiveStatus {
   isLive: boolean
   /** false until the first /api/live-streams poll has returned */
   loaded: boolean
+  /** When the last poll returned (ms since epoch); 0 before the first. The
+   *  calendar uses it as its clock so "live" only changes when the poll does. */
+  polledAt: number
 }
 
 const LiveStatusContext = createContext<LiveStatus>({
@@ -16,6 +19,7 @@ const LiveStatusContext = createContext<LiveStatus>({
   liveCount: 0,
   isLive: false,
   loaded: false,
+  polledAt: 0,
 })
 
 export function useLiveStatus() {
@@ -34,6 +38,7 @@ export function LiveStatusProvider({
   const [liveStreams, setLiveStreams] = useState<YouTubeLiveStream[]>([])
   const [liveCount, setLiveCount] = useState(initialLiveCount)
   const [loaded, setLoaded] = useState(false)
+  const [polledAt, setPolledAt] = useState(0)
 
   const poll = useCallback(async () => {
     try {
@@ -44,6 +49,7 @@ export function LiveStatusProvider({
       setLiveStreams(streams)
       setLiveCount(streams.length)
       setLoaded(true)
+      setPolledAt(Date.now())
     } catch {
       // Silently ignore poll errors
     }
@@ -85,7 +91,7 @@ export function LiveStatusProvider({
   }, [poll])
 
   return (
-    <LiveStatusContext.Provider value={{ liveStreams, liveCount, isLive: liveCount > 0, loaded }}>
+    <LiveStatusContext.Provider value={{ liveStreams, liveCount, isLive: liveCount > 0, loaded, polledAt }}>
       {children}
     </LiveStatusContext.Provider>
   )

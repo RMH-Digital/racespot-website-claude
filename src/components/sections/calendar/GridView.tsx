@@ -7,6 +7,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
 import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
+import { useEventStatus } from './status'
 import { localDate, formatTime, getWeekdayNames, getDaysInMonth, getFirstDayOfWeek, zonedParts } from './time'
 
 export function CalendarGridView({
@@ -121,23 +122,26 @@ function DayCell({
   nextId?: string
 }) {
   const t = getT(lang)
+  const statusOf = useEventStatus()
   // The card a day opens on: what is live, else the next broadcast still to
   // come, else the first. So a day with three streams shows the one that
   // matters now, not the one that sorts first.
   const defaultIndex = (list: CalendarEvent[]) => {
-    const live = list.findIndex((e) => e.isLive)
+    const live = list.findIndex((e) => statusOf(e).live)
     if (live >= 0) return live
-    const upcoming = list.findIndex((e) => !e.isPast)
+    const upcoming = list.findIndex((e) => !statusOf(e).past)
     return upcoming >= 0 ? upcoming : 0
   }
   const [activeIndex, setActiveIndex] = useState(() => defaultIndex(events))
   const hasEvents = events.length > 0
   const hasMultiple = events.length > 1
 
-  // Re-pick when the day's events change (month navigation reuses cells)
+  // Re-pick when the day's events change (month navigation reuses cells) or
+  // the live state does — a stream ending hands the cell to the next one.
   useEffect(() => {
     setActiveIndex(defaultIndex(events))
-  }, [events])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, statusOf])
 
   return (
     <div
@@ -245,7 +249,8 @@ function DayCell({
 
 function EventCard({ lang, event, is24h, locale, timeZone, isNext = false }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string; isNext?: boolean }) {
   const t = getT(lang)
-  const past = event.isPast
+  const status = useEventStatus()(event)
+  const past = status.past
   const menuTrigger = useRef<HTMLButtonElement | null>(null)
 
   return (
@@ -257,12 +262,12 @@ function EventCard({ lang, event, is24h, locale, timeZone, isNext = false }: { l
     >
       <EventLink lang={lang} event={event} className="absolute inset-0 rounded-rs" onOpenMenu={() => menuTrigger.current?.click()} />
       {/* Live badge, "up next" on the very next one, or the replay mark once the recording is up */}
-      {event.isLive && (
+      {status.live && (
         <div className="mb-1">
           <LiveBadge />
         </div>
       )}
-      {isNext && !event.isLive && (
+      {isNext && !status.live && (
         <div className="mb-1">
           <UpNextBadge lang={lang} />
         </div>
