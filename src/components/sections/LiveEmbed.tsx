@@ -144,11 +144,16 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
               {t('live.liveChat')}
             </p>
           </div>
-          <div className="relative h-[400px] lg:h-[500px]">
+          {/* dark_theme=1: YouTube's chat defaults to its light theme, a white
+              box in a black page. The dark one matches; the container is dark
+              too so the frame never flashes white while it loads. */}
+          <div className="relative h-[400px] lg:h-[500px] bg-rs-dark">
             <iframe
               key={`chat-${activeStream.id}`}
-              src={`https://www.youtube.com/live_chat?v=${activeStream.id}&embed_domain=racespot.tv`}
+              src={`https://www.youtube.com/live_chat?v=${activeStream.id}&embed_domain=racespot.tv&dark_theme=1`}
+              title={t('live.liveChat')}
               className="absolute inset-0 w-full h-full"
+              style={{ colorScheme: 'dark' }}
             />
           </div>
         </div>

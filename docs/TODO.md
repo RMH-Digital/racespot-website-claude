@@ -978,6 +978,20 @@ Reste auf deutschen Seiten). Kein horizontaler Überlauf, keine
 Bewusst gelassen: Textlinks in Fließtext (Kontakt, Datenschutz, Impressum)
 sind 17–20 px hoch — Links im Satz sind von der Zielgrößen-Regel ausgenommen.
 
+**Nachgemeldet von Jürgen am 2026-09-17, behoben:**
+
+- **Live-Chat weiß auf weiß.** YouTubes `live_chat`-Embed kommt im hellen
+  Theme; mit `color-scheme: dark` der Seite wurde daraus Weiß auf Weiß. Jetzt
+  `&dark_theme=1` an der Embed-URL, `color-scheme: dark` am Frame, dunkler
+  Container (kein weißer Blitz beim Laden), `title` am Frame. Nur bei laufendem
+  Stream sichtbar — beim nächsten Live-Termin einmal ansehen.
+- **YouTube-Icon im Knopf zu tief.** Eurostile sitzt hoch in seiner Zeile —
+  die Versalien enden weit über dem Unterlängenraum —, ein auf die Zeile
+  zentriertes Icon landet daher gut 1,5 px unter den Buchstaben. Regel in
+  `globals.css`: jedes `svg` direkt in `.btn-primary/.btn-outline/.btn-ghost`
+  rückt 1,5 px nach oben. Gemessen: Icon-Mitte vorher 384,2 px, nachher
+  382,7 px bei Versalien-Mitte ≈ 382,5 px.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine

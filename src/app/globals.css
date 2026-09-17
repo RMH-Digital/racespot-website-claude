@@ -140,6 +140,17 @@
   @apply px-5 py-2.5 text-xs min-h-11;
 }
 
+/* Eurostile sits high in its line box — the capitals end well above the
+   descender space the font reserves — so an icon centred on the line box lands
+   a hair below the letters beside it. Nudge every icon inside a display-font
+   button up to the centre of the capitals. */
+.btn-primary > svg,
+.btn-outline > svg,
+.btn-ghost > svg {
+  position: relative;
+  top: -1.5px;
+}
+
 @utility section-label {
   /* Typography */
   @apply text-rs-yellow text-[11px] font-semibold tracking-widest uppercase;
