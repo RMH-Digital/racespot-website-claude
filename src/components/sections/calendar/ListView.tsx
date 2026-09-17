@@ -44,7 +44,9 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
   const past = event.isPast
 
   const t = getT(lang)
-  const hoverLabel = past ? (event.videoId ? t('calendar.watchReplay') : t('broadcasts.watchOnYT')) : t('calendar.watch')
+  // One label for every past broadcast — the tip already says whether the
+  // click plays the recording here or opens the channel's past streams.
+  const hoverLabel = past ? t('calendar.watchReplay') : t('calendar.watch')
 
   return (
     // A div, not an anchor: the row used to be one link, which left nowhere to

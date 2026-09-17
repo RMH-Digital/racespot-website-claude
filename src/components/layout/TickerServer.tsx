@@ -16,11 +16,13 @@ export async function TickerServer({ lang }: { lang: Lang }) {
   try {
     const events = await getUpcomingEvents(5)
 
-    // Add live event titles from Sheets
+    // Add live event titles from Sheets — with the same calendar menu as the
+    // upcoming ones (entry and series feed; no bell, the stream is on already).
     const liveEvents = events.filter(e => e.isLive)
     for (const event of liveEvents) {
       tickerItems.push({
         label: `${event.series}${event.description ? ` — ${event.description}` : ''}`,
+        event: toCalendarEvent(event),
       })
     }
 
