@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
+import { ARTICLES, sortedArticles, CATEGORY_COLORS } from '@/lib/articles'
 import { articleLangs, localizeArticle, renderInline } from '@/lib/articleContent'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
@@ -53,9 +53,11 @@ export default async function ArticlePage({ params }: Props) {
   const loc = localizeArticle(article, lang)
   const fallback = loc.lang !== lang
 
-  const idx = ARTICLES.indexOf(article)
-  const prev = idx > 0 ? ARTICLES[idx - 1] : null
-  const next = idx < ARTICLES.length - 1 ? ARTICLES[idx + 1] : null
+  // Neighbours in reading order — by date, like the list — not array order.
+  const ordered = sortedArticles()
+  const idx = ordered.indexOf(article)
+  const prev = idx > 0 ? ordered[idx - 1] : null
+  const next = idx < ordered.length - 1 ? ordered[idx + 1] : null
 
   return (
     <div>
@@ -65,7 +67,8 @@ export default async function ArticlePage({ params }: Props) {
         title={loc.title}
         description={loc.excerpt}
         image={article.image}
-        datePublished={article.date}
+        datePublished={article.publishedAt}
+        dateModified={article.updatedAt ?? article.publishedAt}
         slug={article.slug}
       />
       {/* racespot.tv › News › Headline, instead of a slug in the result */}
@@ -109,6 +112,15 @@ export default async function ArticlePage({ params }: Props) {
             </span>
             <span className="text-rs-muted" aria-hidden="true">·</span>
             <time dateTime={article.date} className="text-rs-muted text-xs">{formatDate(lang, article.date)}</time>
+            {article.updatedAt && (
+              <>
+                <span className="text-rs-muted" aria-hidden="true">·</span>
+                <span className="text-rs-muted text-xs">
+                  {t('news.updated')}{' '}
+                  <time dateTime={article.updatedAt}>{formatDate(lang, article.updatedAt.slice(0, 10))}</time>
+                </span>
+              </>
+            )}
             <span className="text-rs-muted" aria-hidden="true">·</span>
             <span className="text-rs-muted text-xs">{loc.readTime} {t('news.read')}</span>
             {article.author && (

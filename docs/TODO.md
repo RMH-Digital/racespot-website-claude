@@ -1108,6 +1108,25 @@ Erkennung 1 440 (minütlich) + Suche höchstens 6 pro Broadcast-Start.
   Steuerleiste löst ihre linke Gruppe unter `xl` per `contents` auf und ordnet
   per `order`: Monat / Umschalter + Abo-Icon / Zeitzone.
 
+**Artikel nach Datum sortiert, Press-Tool-Vertrag erweitert (2026-09-17,
+Übergabe aus der Press-Tool-Sitzung):** `date` ist seit heute der
+Veröffentlichungstag (oder ein bewusst gewählter früherer Tag), nicht mehr der
+Tag des Ereignisses, und die Reihenfolge im Array bedeutet nichts mehr — das
+Tool fügt oben ein, egal welches Datum. Deshalb `sortedArticles()` in
+`articles.ts` (nach `date` absteigend, innerhalb eines Tages nach
+`publishedAt`), benutzt von Newsliste, Startseiten-Teasern, Vor/Zurück im
+Artikel und Sitemap. Neue Pflichtfeld `publishedAt` (ISO), optional
+`updatedAt`, `topics[]`, `tags[]`; die acht Bestandsartikel haben
+`publishedAt = date + "T09:00:00Z"` bekommen. Artikelseite zeigt „Aktualisiert"
+mit `updatedAt`, wenn vorhanden; JSON-LD `dateModified` und Sitemap `lastmod`
+sind `updatedAt ?? publishedAt`. Lokal geprüft: ein Testeintrag mit
+`date: 2026-01-15` an Array-Position 1 erschien in der Liste an Position 7,
+mit den richtigen Nachbarn; danach entfernt. Sichtbare Folge sofort: Der vom
+Tool zuletzt eingefügte Porsche-Supercup-Artikel (05.09.) steht jetzt hinter
+der Frankfurt-Ausstellerliste (09.09.), wo er hingehört. **Nicht gebaut:**
+Themenfilter und Presse-Menü — laut Übergabe erst, wenn mindestens zwei Themen
+Artikel haben; heute trägt noch kein Artikel `topics`.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine

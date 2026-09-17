@@ -95,9 +95,11 @@ interface ArticleJsonLdProps {
   image: string
   datePublished: string
   slug: string
+  /** ISO; the last publish — falls back to datePublished */
+  dateModified?: string
 }
 
-export function ArticleJsonLd({ lang, urlLang, title, description, image, datePublished, slug }: ArticleJsonLdProps) {
+export function ArticleJsonLd({ lang, urlLang, title, description, image, datePublished, dateModified, slug }: ArticleJsonLdProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -105,7 +107,7 @@ export function ArticleJsonLd({ lang, urlLang, title, description, image, datePu
     description,
     image: `https://racespot.tv${image}`,
     datePublished,
-    dateModified: datePublished,
+    dateModified: dateModified ?? datePublished,
     inLanguage: LOCALES[lang],
     url: `https://racespot.tv/${urlLang}/news/${slug}`,
     author: {

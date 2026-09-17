@@ -81,15 +81,26 @@ is silent). **Read `docs/FONTS.md` before touching them.**
 
 `src/lib/articles.ts` exports `ARTICLES: Article[]`, rendered by
 `src/app/news/[slug]/page.tsx`. Adding an article = adding an object to that
-array (newest first; `generateStaticParams` picks up slugs automatically).
+array; `generateStaticParams` picks up slugs automatically. **Order in the array
+means nothing** (changed 2026-09-17): every list — news page, home teasers,
+prev/next on an article, sitemap — goes through `sortedArticles()`, which sorts
+by `date` descending and `publishedAt` descending within a day. The Press Tool
+inserts at the top whatever the date, and the desk may publish an older piece
+with the day it belongs to. Shown dates are `date`; "Updated" shows `updatedAt`
+when present; the sitemap's `lastmod` is `updatedAt ?? publishedAt`.
 
 ```ts
 interface Article {
   slug: string; category: string; title: string; excerpt: string   // English
   seoTitle?: string     // ≤ 55 chars for <title>; omitted = the headline
-  date: string; readTime: string; image: string; imageAlt: string
+  date: string          // YYYY-MM-DD, publication day (or a chosen earlier day) — THE SORT KEY
+  publishedAt: string   // ISO 8601 UTC, first publication; tie-breaker within a day
+  updatedAt?: string    // ISO 8601 UTC, only on a later publish; keeps `date`, so it does not move
+  readTime: string; image: string; imageAlt: string
   imageCredit?: string  // shown bottom-right on the hero
   author?: string       // byline; omitted = no byline shown
+  topics?: { id: string; label: string }[]     // editorial beats, finer than category — carried, not rendered yet
+  tags?: string[]                              // free tags — carried, not rendered
   sources?: { label: string; url: string }[]   // recorded, NOT rendered
   content: string[] | Block[]
   translations?: Partial<Record<'de'|'es'|'pt'|'fr'|'it', ArticleTranslation>>

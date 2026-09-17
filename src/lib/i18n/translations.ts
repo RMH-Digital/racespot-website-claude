@@ -356,6 +356,7 @@ export const translations = {
   'news.countOne':     { en: '1 article', de: '1 Artikel', es: '1 artículo', pt: '1 artigo', fr: '1 article', it: '1 articolo' },
   'news.countMany':    { en: '{n} articles', de: '{n} Artikel', es: '{n} artículos', pt: '{n} artigos', fr: '{n} articles', it: '{n} articoli' },
   'news.read':         { en: 'read', de: 'Lesezeit', es: 'de lectura', pt: 'de leitura', fr: 'de lecture', it: 'di lettura' },
+  'news.updated': { en: 'Updated', de: 'Aktualisiert', es: 'Actualizado', pt: 'Atualizado', fr: 'Mis à jour', it: 'Aggiornato' },
   'news.previous':     { en: 'Previous', de: 'Zurück', es: 'Anterior', pt: 'Anterior', fr: 'Précédent', it: 'Precedente' },
   'news.next':         { en: 'Next', de: 'Weiter', es: 'Siguiente', pt: 'Próximo', fr: 'Suivant', it: 'Successivo' },
   'news.allNews':      { en: 'All News', de: 'Alle News', es: 'Todas las noticias', pt: 'Todas as notícias', fr: 'Toutes les actualités', it: 'Tutte le notizie' },

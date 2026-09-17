@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
-import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
+import { sortedArticles, CATEGORY_COLORS } from '@/lib/articles'
 import { localizeArticle } from '@/lib/articleContent'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
 import { NewsBrowser, type NewsItem } from '@/components/sections/NewsBrowser'
@@ -17,7 +17,7 @@ export default async function NewsPage({ params }: { params: Promise<{ lang: Lan
 
   // Localise on the server and hand the client only what the list needs —
   // never the article bodies, which would bloat the page payload.
-  const items: NewsItem[] = ARTICLES.map((article) => {
+  const items: NewsItem[] = sortedArticles().map((article) => {
     const a = localizeArticle(article, lang)
     return {
       slug: article.slug,

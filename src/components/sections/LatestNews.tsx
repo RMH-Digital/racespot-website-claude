@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
+import { sortedArticles, CATEGORY_COLORS } from '@/lib/articles'
 import { localizeArticle } from '@/lib/articleContent'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
 
@@ -12,10 +12,9 @@ import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i1
  * articles a week, so this is the part of the home page that changes most and
  * belongs above the fold-ish, not at the bottom.
  */
-const [FEATURED, ...NEXT_THREE] = ARTICLES.slice(0, 4)
-
 export function LatestNews({ lang }: { lang: Lang }) {
   const t = getT(lang)
+  const [FEATURED, ...NEXT_THREE] = sortedArticles().slice(0, 4)
   const feature = localizeArticle(FEATURED, lang)
 
   return (

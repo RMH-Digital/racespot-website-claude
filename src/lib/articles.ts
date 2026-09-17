@@ -63,7 +63,18 @@ export interface Article {
    */
   seoTitle?: string
   excerpt: string
+  /**
+   * Publication day, YYYY-MM-DD — **the sort key**. Since 2026-09-17 this is
+   * the day the piece went out on racespot.tv, or an earlier day the desk chose
+   * so that an older story files where it belongs. Never the day the story
+   * broke. Lists sort by it through sortedArticles(), never by array position:
+   * the Press Tool keeps inserting at the top regardless of date.
+   */
   date: string
+  /** First publication, ISO 8601 UTC. Tie-breaker within a day; sitemap lastmod when nothing was updated. */
+  publishedAt: string
+  /** Only when the entry was published again — a correction, new material, translations. Keeps its `date`, so it does not move. */
+  updatedAt?: string
   readTime: string
   image: string
   imageAlt: string
@@ -77,6 +88,10 @@ export interface Article {
    * structured data and for anyone checking the origin later.
    */
   sources?: Source[]
+  /** Editorial beats, finer than `category`; several share one category. Carried for a topic filter or press menu, not rendered yet. */
+  topics?: { id: string; label: string }[]
+  /** Free tags from the Press Tool. Carried, not rendered. */
+  tags?: string[]
   /**
    * `string[]` is still valid and means "these are plain paragraphs", so every
    * article written before blocks existed keeps working untouched. Read it
@@ -90,6 +105,19 @@ export interface Article {
   translations?: Partial<Record<Exclude<Lang, 'en'>, ArticleTranslation>>
 }
 
+/**
+ * Every list of articles goes through this: newest publication day first, and
+ * within a day the later first publication first. The array's own order means
+ * nothing — the Press Tool inserts at the top whatever the date, and the desk
+ * publishes older pieces with the day they belong to.
+ */
+export function sortedArticles(): Article[] {
+  return [...ARTICLES].sort((a, b) => {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1
+    return a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0
+  })
+}
+
 export const ARTICLES: Article[] = [
   {
     slug: "porsche-esports-supercup-world-championship-kicks-off-septem",
@@ -97,6 +125,7 @@ export const ARTICLES: Article[] = [
     title: "Porsche Esports Supercup World Championship Kicks Off September 19th",
     excerpt: "Thirty-two drivers from four regions have earned their spot in the Porsche Esports Supercup World Championship, five races from Spa to Monza, with $10,000 and a real-world Porsche drive on the line.",
     date: "2026-09-05",
+    publishedAt: "2026-09-05T09:00:00Z",
     readTime: "2 min",
     image: "/images/news/porsche-esports-supercup-world-championship-kicks-off-septem/pescamer-wgi-race-1-072526-copy.webp",
     imageAlt: "Porsche Esports Supercup World Championship Kicks Off September 19th",
@@ -222,6 +251,7 @@ export const ARTICLES: Article[] = [
     seoTitle: "SimRacing Expo Frankfurt 2026: Exhibitor List",
     excerpt: "Two dozen names and counting have confirmed for Hall 2 of the Frankfurt Messe, 16–18 October. Here is who is coming, what they say they are bringing, and the €10,000 final that turns a trade show into an event. Updated as the list grows.",
     date: "2026-09-09",
+    publishedAt: "2026-09-09T09:00:00Z",
     readTime: "5 min",
     image: "/images/news/simracing-expo-frankfurt-2026-exhibitor-list/sre.webp",
     imageAlt: "SimRacing Expo Frankfurt 2026: The Exhibitor List So Far",
@@ -465,6 +495,7 @@ export const ARTICLES: Article[] = [
     seoTitle: "MOZA Racing Renews FIA F4 Esports Sponsorship",
     excerpt: "MOZA Racing is back as title sponsor of the FIA F4 Global Esports Championship for a second season, with a $35,000 prize pool and a three-region qualifying structure feeding an eight-round Global Championship on iRacing from October.",
     date: "2026-08-04",
+    publishedAt: "2026-08-04T09:00:00Z",
     readTime: "1 min",
     image: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-2.webp",
     imageAlt: "MOZA Racing Renews as Title Sponsor of the FIA F4 Global Esports Championship",
@@ -585,6 +616,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       'Competition Company\'s racing sim returns with a bold new vision — "Double the Content, Half the Price." The RENNSPORT Summit 2026 in Munich brings Le Mans, modding tools, and the ESL R1 league together.',
     date: '2026-03-10',
+    publishedAt: '2026-03-10T09:00:00Z',
     readTime: '4 min',
     image: '/images/events/rennsport-relaunch-2026/DSC00329.jpg',
     imageAlt: 'RENNSPORT Re-Launch 2026 event with Racespot branding',
@@ -667,6 +699,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       '40 teams, 250+ drivers, 24 races in 24 hours — VCO Infinity pushes the endurance format to its absolute limit on iRacing. Here\'s how the marathon event unfolded.',
     date: '2026-02-20',
+    publishedAt: '2026-02-20T09:00:00Z',
     readTime: '5 min',
     image: '/images/gallery/VCO_Infinity_HiRes.jpg',
     imageAlt: 'VCO Infinity prototype endurance racing on iRacing',
@@ -748,6 +781,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       'The European Racing League\'s most ambitious season yet spans ACC, LMU, Gran Turismo 7, iRacing, RENNSPORT, and more — with the Grand Finals held live at Sim Formula Europe in Maastricht.',
     date: '2026-01-28',
+    publishedAt: '2026-01-28T09:00:00Z',
     readTime: '4 min',
     image: '/images/gallery/ERLFinals-Heat1-38.jpeg',
     imageAlt: 'ERL Finals with sim racing rigs and VCO branding',
@@ -834,6 +868,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       'The world\'s largest sim racing trade show drew 24,371 visitors to the Nürburgring — featuring the Assetto Corsa Rally world premiere, 155 million social media impressions, and the Super GT experience.',
     date: '2025-11-02',
+    publishedAt: '2025-11-02T09:00:00Z',
     readTime: '4 min',
     image: '/images/gallery/SRE_2025_Hardware.jpg',
     imageAlt: 'Sim Racing Expo 2025 Dortmund — hardware showcases and event highlights',
@@ -920,6 +955,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       'The IMSA Esports series brings legendary endurance racing to the digital world — and Racespot brings it to your screen with broadcast-grade production across the full season.',
     date: '2025-10-15',
+    publishedAt: '2025-10-15T09:00:00Z',
     readTime: '4 min',
     image: '/images/gallery/IMSAEsports_R4_EMM-1.jpg',
     imageAlt: 'IMSA Esports prototype racing under floodlights at Daytona',

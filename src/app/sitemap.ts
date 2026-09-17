@@ -84,7 +84,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const lang of langs) {
       entries.push({
         url: absoluteUrl(lang, path),
-        lastModified: new Date(article.date),
+        // The last publish, not the byline day: a correction re-dates the entry for crawlers without moving it in the list.
+        lastModified: new Date(article.updatedAt ?? article.publishedAt),
         changeFrequency: 'monthly',
         priority: 0.7,
         alternates: { languages: languages(path, langs) },
