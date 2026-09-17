@@ -1164,8 +1164,9 @@ Arbeitsansicht, das Raster nur Navigation.
 - Zeiten in den Listenzeilen von 11 auf 12 px.
 
 Desktop-Raster unverändert (`hidden md:block`). Beide Varianten stehen im HTML;
-CSS entscheidet, damit nichts beim Hydrieren springt. Die Listenansicht bleibt
-auf Handys die Voreinstellung.
+CSS entscheidet, damit nichts beim Hydrieren springt. Seit dem Umbau öffnet der
+Kalender auf jeder Breite im Raster (vorher auf Handys in der Liste, weil das
+Raster dort nicht passte) — Jürgens Wunsch nach dem ersten Blick, 2026-09-17.
 
 **Live-Seite** im selben Commit: Erinnerung und Kalender-Knopf links, YouTube
 (Abonnieren, weitere Kanäle) rechts; auf dem Handy eine Spalte in dieser Reihenfolge.

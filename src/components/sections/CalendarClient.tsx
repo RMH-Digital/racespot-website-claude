@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { useMediaQuery } from '@/lib/hooks/useLocalTime'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { ListView } from './calendar/ListView'
@@ -17,10 +16,10 @@ import { useEventStatus } from './calendar/status'
 type ViewMode = 'list' | 'calendar'
 
 export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarEvent[] }) {
-  const isNarrow = useMediaQuery('(max-width: 767px)')
-  const [chosenView, setChosenView] = useState<ViewMode | null>(null)
-  const viewMode: ViewMode = chosenView ?? (isNarrow ? 'list' : 'calendar')
-  const setViewMode = setChosenView
+  // The month grid everywhere. Phones used to open on the list because the
+  // grid did not fit them; since it has its own phone shape (GridView.tsx,
+  // MonthCompact) the same default serves every width.
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar')
   const { locale, is24h, timeZone, mounted } = useLocaleFormat(lang)
 
   // The month to open on is itself timezone-dependent: at 23:30 UTC on the last
