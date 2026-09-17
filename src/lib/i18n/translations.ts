@@ -456,6 +456,7 @@ export const translations = {
   'calendar.remindOnYouTubeHint': { en: 'Opens the announced stream — set the bell there', de: 'Öffnet den angesetzten Stream — dort die Glocke setzen', es: 'Abre la emisión anunciada: activa allí la campana', pt: 'Abre a transmissão anunciada — ative lá o sino', fr: 'Ouvre le stream annoncé — activez-y la cloche', it: 'Apre lo stream annunciato: attiva lì la campanella' },
   'calendar.remindShort': { en: 'YouTube reminder', de: 'YouTube-Erinnerung', es: 'Recordatorio en YouTube', pt: 'Lembrete no YouTube', fr: 'Rappel YouTube', it: 'Promemoria YouTube' },
   'calendar.reminderNote':  { en: 'Reminder 15 minutes before the start', de: 'Erinnerung 15 Minuten vor Beginn', es: 'Recordatorio 15 minutos antes', pt: 'Lembrete 15 minutos antes', fr: 'Rappel 15 minutes avant', it: 'Promemoria 15 minuti prima' },
+  'calendar.noEventsDay': { en: 'No broadcasts on this day', de: 'An diesem Tag keine Broadcasts', es: 'Sin emisiones este día', pt: 'Sem transmissões neste dia', fr: 'Aucune diffusion ce jour-là', it: 'Nessuna trasmissione in questo giorno' },
   'calendar.prevMonth': { en: 'Previous month', de: 'Vorheriger Monat', es: 'Mes anterior', pt: 'Mês anterior', fr: 'Mois précédent', it: 'Mese precedente' },
   'calendar.nextMonth': { en: 'Next month', de: 'Nächster Monat', es: 'Mes siguiente', pt: 'Próximo mês', fr: 'Mois suivant', it: 'Mese successivo' },
   'calendar.prevEvent': { en: 'Previous event', de: 'Vorheriges Event', es: 'Evento anterior', pt: 'Evento anterior', fr: 'Événement précédent', it: 'Evento precedente' },

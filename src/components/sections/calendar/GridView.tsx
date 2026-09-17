@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
+import { EventRow } from './ListView'
 import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { useEventStatus } from './status'
@@ -19,6 +20,8 @@ export function CalendarGridView({
   locale,
   timeZone,
   nextId,
+  onPrevMonth,
+  onNextMonth,
 }: {
   lang: Lang
   events: CalendarEvent[]
@@ -29,6 +32,9 @@ export function CalendarGridView({
   timeZone?: string
   /** id of the very next broadcast, for its badge */
   nextId?: string
+  /** The phone view turns the month on a swipe — through the same handlers as the arrows */
+  onPrevMonth?: () => void
+  onNextMonth?: () => void
 }) {
   const eventsByDay = useMemo(() => {
     const map = new Map<number, CalendarEvent[]>()
@@ -61,7 +67,27 @@ export function CalendarGridView({
   for (let d = 1; d <= daysInMonth; d++) cells.push(d)
 
   return (
-    <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+    <>
+      {/* Phones: the month as a compact grid of dots, the chosen day spelled
+          out underneath — see MonthCompact. */}
+      <MonthCompact
+        lang={lang}
+        cells={cells}
+        eventsByDay={eventsByDay}
+        year={year}
+        month={month}
+        todayDate={isCurrentMonth ? todayDate : null}
+        weekdays={WEEKDAYS}
+        is24h={is24h}
+        locale={locale}
+        timeZone={timeZone}
+        nextId={nextId}
+        onPrevMonth={onPrevMonth}
+        onNextMonth={onNextMonth}
+      />
+
+      {/* Tablets and up: one card per day with the broadcast on it. */}
+      <div className="hidden md:block overflow-x-auto">
       <div className="min-w-[700px]">
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
@@ -97,6 +123,171 @@ export function CalendarGridView({
             )
           })}
         </div>
+      </div>
+      </div>
+    </>
+  )
+}
+
+/**
+ * The month on a phone.
+ *
+ * Seven day cards of ~95 px do not fit in 360 px, and the earlier answer — the
+ * desktop grid behind a horizontal scroll — showed four days of seven at
+ * ten-pixel type. This is the shape every phone calendar settles on instead:
+ * a compact seven-column month where each day is a 44 px tap target with a
+ * dot per broadcast (yellow ahead, red live, grey past), and under it the
+ * chosen day written out in full-size rows — the same rows as the list view,
+ * with the same buttons. Tapping a day swaps the rows; swiping the grid
+ * changes the month, as the arrows above do.
+ *
+ * The grid opens on the day that matters: the one with something live, else
+ * the one with the next broadcast, else today, else the first day with any
+ * broadcast. A tap overrides that until the month changes.
+ */
+const MAX_DOTS = 3
+const SWIPE_PX = 48
+
+function MonthCompact({
+  lang,
+  cells,
+  eventsByDay,
+  year,
+  month,
+  todayDate,
+  weekdays,
+  is24h,
+  locale,
+  timeZone,
+  nextId,
+  onPrevMonth,
+  onNextMonth,
+}: {
+  lang: Lang
+  cells: (number | null)[]
+  eventsByDay: Map<number, CalendarEvent[]>
+  year: number
+  month: number
+  /** Today's day of month when this is the current month, else null */
+  todayDate: number | null
+  weekdays: string[]
+  is24h: boolean
+  locale: string
+  timeZone?: string
+  nextId?: string
+  onPrevMonth?: () => void
+  onNextMonth?: () => void
+}) {
+  const t = getT(lang)
+  const statusOf = useEventStatus()
+  const monthKey = `${year}-${month}`
+
+  const defaultDay = useMemo(() => {
+    const days = [...eventsByDay.keys()].sort((a, b) => a - b)
+    const liveDay = days.find((d) => eventsByDay.get(d)!.some((e) => statusOf(e).live))
+    if (liveDay) return liveDay
+    const nextDay = days.find((d) => eventsByDay.get(d)!.some((e) => e.id === nextId))
+    if (nextDay) return nextDay
+    if (todayDate) return todayDate
+    return days[0] ?? 1
+  }, [eventsByDay, statusOf, nextId, todayDate])
+
+  // The tap is remembered together with the month it was made in, so the next
+  // month opens on its own default rather than on "the 17th" again.
+  const [chosen, setChosen] = useState<{ key: string; day: number } | null>(null)
+  const selectedDay = chosen?.key === monthKey ? chosen.day : defaultDay
+  const selectedEvents = eventsByDay.get(selectedDay) ?? []
+  // Built from parts, formatted without a zone: identical on server and client.
+  const selectedLabel = new Date(year, month, selectedDay).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+
+  // A horizontal swipe on the grid turns the month — the arrows still work,
+  // but a thumb expects this. Vertical movement is left to the page.
+  const touch = useRef<{ x: number; y: number } | null>(null)
+  function onTouchStart(e: React.TouchEvent) {
+    touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (!touch.current) return
+    const dx = e.changedTouches[0].clientX - touch.current.x
+    const dy = e.changedTouches[0].clientY - touch.current.y
+    touch.current = null
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    if (dx < 0) onNextMonth?.()
+    else onPrevMonth?.()
+  }
+
+  return (
+    <div className="md:hidden">
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {weekdays.map((wd) => (
+          <div key={wd} className="text-center text-[11px] text-rs-muted uppercase tracking-wider py-1.5 font-medium">
+            {wd}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} aria-hidden="true" />
+          const dayEvents = eventsByDay.get(day) ?? []
+          const selected = day === selectedDay
+          const isToday = day === todayDate
+          const n = dayEvents.length
+          const label = `${new Date(year, month, day).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}${n ? `, ${n} ${t(n === 1 ? 'calendar.eventOne' : 'calendar.eventMany')}` : ''}`
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => setChosen({ key: monthKey, day })}
+              aria-pressed={selected}
+              aria-label={label}
+              className={`flex min-h-[52px] flex-col items-center justify-start gap-1 rounded-rs border pt-1.5 pb-1 transition-colors
+                ${selected ? 'border-rs-yellow/50 bg-rs-yellow/10' : 'border-transparent bg-rs-dark/30'}
+                ${n ? '' : 'text-rs-muted/60'}`}
+            >
+              {isToday ? (
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rs-yellow text-xs font-bold text-rs-black">{day}</span>
+              ) : (
+                <span className={`flex h-6 items-center text-sm font-medium ${n ? 'text-white' : ''}`}>{day}</span>
+              )}
+              {/* One dot per broadcast — the day's rows below say what they are */}
+              <span className="flex h-1.5 items-center gap-[3px]" aria-hidden="true">
+                {dayEvents.slice(0, MAX_DOTS).map((e) => {
+                  const st = statusOf(e)
+                  return (
+                    <span
+                      key={e.id}
+                      className={`h-1.5 w-1.5 rounded-full ${st.live ? 'bg-rs-live' : st.past ? 'bg-rs-muted/60' : 'bg-rs-yellow'}`}
+                    />
+                  )
+                })}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* The chosen day, in the list view's rows */}
+      <div className="mt-5">
+        <h3 className="mb-1 border-b border-rs-border pb-2 text-[11px] font-medium uppercase tracking-wider text-rs-muted" aria-live="polite">
+          {selectedLabel}
+        </h3>
+        {selectedEvents.length === 0 ? (
+          <p className="py-6 text-center text-sm text-rs-muted">{t('calendar.noEventsDay')}</p>
+        ) : (
+          selectedEvents.map((event) => (
+            <EventRow
+              key={event.id}
+              lang={lang}
+              event={event}
+              is24h={is24h}
+              locale={locale}
+              timeZone={timeZone}
+              isNext={event.id === nextId}
+              showDate={false}
+            />
+          ))
+        )}
       </div>
     </div>
   )

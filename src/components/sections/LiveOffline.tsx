@@ -156,26 +156,28 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
                 </div>
               )}
 
-              {/* CTAs */}
-              {/* One column of equal buttons on a phone, a centred row from sm up */}
-              <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
-                <FollowUs lang={lang} size="md" stretch className="sm:justify-center" />
-                {nextEvent.youtubeId && (
-                  <a
-                    href={`https://www.youtube.com/watch?v=${nextEvent.youtubeId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-outline whitespace-nowrap"
-                    title={t('calendar.remindOnYouTubeHint')}
-                  >
-                    <span aria-hidden="true">🔔</span>
-                    <span className="sm:hidden">{t('calendar.remindShort')}</span>
-                    <span className="hidden sm:inline">{t('calendar.remindOnYouTube')}</span>
-                  </a>
-                )}
-                <Link href={localePath(lang, '/calendar')} className="btn-outline whitespace-nowrap">
-                  {t('live.viewCalendar')}
-                </Link>
+              {/* CTAs. Ours on the left — the reminder and the calendar —
+                  YouTube's on the right; one column of equal buttons on a phone. */}
+              <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 text-left">
+                <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  {nextEvent.youtubeId && (
+                    <a
+                      href={`https://www.youtube.com/watch?v=${nextEvent.youtubeId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline whitespace-nowrap"
+                      title={t('calendar.remindOnYouTubeHint')}
+                    >
+                      <span aria-hidden="true">🔔</span>
+                      <span className="sm:hidden">{t('calendar.remindShort')}</span>
+                      <span className="hidden sm:inline">{t('calendar.remindOnYouTube')}</span>
+                    </a>
+                  )}
+                  <Link href={localePath(lang, '/calendar')} className="btn-outline whitespace-nowrap">
+                    {t('live.viewCalendar')}
+                  </Link>
+                </div>
+                <FollowUs lang={lang} size="md" stretch className="sm:justify-end" />
               </div>
             </>
           ) : (

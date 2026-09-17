@@ -37,7 +37,12 @@ export function ListView({ lang, events, year, month, is24h, locale, timeZone, n
   )
 }
 
-function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string; isNext?: boolean }) {
+/**
+ * One broadcast as a row: date column, series and times, the action button.
+ * Shared with the phone month view, which drops the date column (`showDate`)
+ * because the heading above its rows already names the day.
+ */
+export function EventRow({ lang, event, is24h, locale, timeZone, isNext = false, showDate = true }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string; isNext?: boolean; showDate?: boolean }) {
   const menuTrigger = useRef<HTMLButtonElement | null>(null)
   const d = localDate(event.dateISO)
   const day = d.getDate()
@@ -57,15 +62,17 @@ function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { la
     // target is stretched across the row instead, and the button sits above it.
     <Tip content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
     <div
-      className={`group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
+      className={`group relative grid ${showDate ? 'grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto]' : 'grid-cols-[1fr_auto]'} gap-4 py-4 px-3 -mx-3
                  hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 ${past ? 'opacity-75 hover:opacity-100' : ''}`}
     >
       <EventLink lang={lang} event={event} className="absolute inset-0" onOpenMenu={() => menuTrigger.current?.click()} />
+      {showDate && (
       <div className="flex flex-col items-center justify-center text-center">
         <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
         <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
         <span className="text-[11px] uppercase text-rs-muted leading-none">{monthStr}</span>
       </div>
+      )}
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2 flex-wrap">
           {status.live && <LiveBadge />}
@@ -79,9 +86,9 @@ function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { la
           <p className="text-rs-muted text-xs mt-0.5 truncate">{event.description}</p>
         )}
         <div className="flex items-center gap-1.5 mt-1">
-          <span className={`text-[11px] font-bold ${past ? 'text-rs-muted' : 'text-rs-yellow'}`}>{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
-          <span className="text-[11px] text-rs-muted" aria-hidden="true">–</span>
-          <span className="text-[11px] text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
+          <span className={`text-xs font-bold ${past ? 'text-rs-muted' : 'text-rs-yellow'}`}>{formatTime(event.dateISO, is24h, locale, timeZone)}</span>
+          <span className="text-xs text-rs-muted" aria-hidden="true">–</span>
+          <span className="text-xs text-rs-muted">{formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
         </div>
       </div>
       <div className="flex items-center gap-3">

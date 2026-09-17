@@ -1136,6 +1136,40 @@ der Abonnieren-Knopf und die fünf anderen Kanäle als Icons. Kein Extra-Block,
 und der Aufruf steht dort, wo man gerade gesehen hat, was man bekommt. Die
 kompakte Follow-Leiste im Abschnittskopf ist damit wieder weg.
 
+## 7k. Kalender auf dem Handy — 2026-09-17
+
+**Befund** (Screenshot iPhone, Safari): Die Monatsansicht erzwang 700 px
+Mindestbreite und scrollte seitlich. Sichtbar waren vier von sieben Tagen, die
+Kacheln standen in 10-px-Schrift, Serienname auf zwei Zeilen abgeschnitten,
+Kalender-Knopf 24 px. Nichts davon war auf einem Daumen bedienbar.
+
+**Muster**: Jede Handy-Kalender-App (iOS Kalender, Google Kalender, Fantastical)
+löst das gleich — ein kompaktes Sieben-Spalten-Raster, in dem jeder Tag nur
+Zahl und Punkte trägt, darunter der gewählte Tag ausgeschrieben. Unter ~360 px
+sind Rasterkacheln nicht mehr bedienbar; die Liste ist die eigentliche
+Arbeitsansicht, das Raster nur Navigation.
+
+**Umsetzung** (`calendar/GridView.tsx`, `MonthCompact`, nur unter `md`):
+
+- Sieben Spalten passen in 375 px (7 × ~47 px). Jeder Tag ist ein Knopf ≥ 52 px
+  hoch mit Tageszahl (14 px) und bis zu drei Punkten: gelb kommend, rot live,
+  grau vergangen. Heute wie am Desktop als gelber Kreis.
+- Darunter der gewählte Tag als Überschrift und seine Broadcasts in den Zeilen
+  der Listenansicht (`EventRow`, exportiert, `showDate={false}`) — 14 px Titel,
+  44-px-Knöpfe, dieselben Menüs wie überall.
+- Öffnet auf dem Tag, der zählt: live → nächster Broadcast → heute → erster Tag
+  mit Einträgen. Ein Tipp merkt sich den Tag nur für diesen Monat.
+- Wischen nach links/rechts blättert den Monat, über dieselben Handler wie die
+  Pfeile. Vertikal bleibt der Seite.
+- Zeiten in den Listenzeilen von 11 auf 12 px.
+
+Desktop-Raster unverändert (`hidden md:block`). Beide Varianten stehen im HTML;
+CSS entscheidet, damit nichts beim Hydrieren springt. Die Listenansicht bleibt
+auf Handys die Voreinstellung.
+
+**Live-Seite** im selben Commit: Erinnerung und Kalender-Knopf links, YouTube
+(Abonnieren, weitere Kanäle) rechts; auf dem Handy eine Spalte in dieser Reihenfolge.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

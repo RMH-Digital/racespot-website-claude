@@ -178,7 +178,7 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
       {viewMode === 'list' ? (
         <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} nextId={nextId} />
       ) : (
-        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} nextId={nextId} />
+        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} nextId={nextId} onPrevMonth={prevMonth} onNextMonth={nextMonth} />
       )}
 
       {/* Footer */}
