@@ -5,6 +5,7 @@ import Link from 'next/link'
 import PastEventCard from '@/components/sections/PastEventCard'
 import { getT, type Lang } from '@/lib/i18n'
 import { VideoPoster } from '@/components/video/VideoPoster'
+import { getVideoThumbnail } from '@/lib/youtube'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -81,8 +82,13 @@ const PAST_EVENTS: { name: string; year: string; locationKey: TranslationKey; im
   },
 ]
 
+const AFTER_MOVIE_ID = 'TFW_9FalOdY'
+
 export default async function EventsPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
+  // The still is chosen here, where the API is: which sizes exist is known
+  // before the page ships, so the browser asks for the right one once.
+  const afterMoviePoster = await getVideoThumbnail(AFTER_MOVIE_ID)
   const t = getT(lang)
   return (
     <div>
@@ -119,7 +125,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
 
           {/* A still until someone presses play — then the site's player,
               like every other video on the site. */}
-          <VideoPoster lang={lang} id="TFW_9FalOdY" title={t('events.afterMovieTitle')} />
+          <VideoPoster lang={lang} id={AFTER_MOVIE_ID} title={t('events.afterMovieTitle')} poster={afterMoviePoster} priority />
           <p className="text-rs-muted text-sm mt-3">
             {t('events.afterMovieCaption')}
           </p>

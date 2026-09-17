@@ -30,9 +30,13 @@ export async function GET() {
     }
 
     // Fallback: Sheets says we should be live but primary detection failed.
-    // This handles edge cases: brand new stream not yet in RSS, or API hiccup.
-    const liveEvents = events.filter((e) => e.isLive)
-    if (liveEvents.length > 0) {
+    // Only within the first half hour after a scheduled start — that is the
+    // window in which a brand-new stream may not be in the upload list yet.
+    // Later, "not found" means "not on air" (streams end early far more often
+    // than they start late), and a 100-unit search every five minutes for
+    // ninety minutes after every broadcast would be quota spent on nothing.
+    const recentlyStarted = events.filter((e) => e.isLive && Date.now() - e.date.getTime() < 30 * 60 * 1000)
+    if (recentlyStarted.length > 0) {
       console.log('[Live API] Primary detection empty but Sheets shows live event — trying Search API')
       const searchResults = await getLiveStreamsViaSearch()
       return Response.json({ streams: searchResults }, { headers })

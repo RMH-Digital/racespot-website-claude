@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { getCompletedBroadcasts } from '@/lib/youtube'
+import { getCompletedBroadcasts, getChannelPlaylists } from '@/lib/youtube'
+import { PlaylistCard } from '@/components/ui/PlaylistCard'
 import { VideoCard } from '@/components/ui/VideoCard'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { LiveBanners } from './LiveBanners'
@@ -7,10 +8,15 @@ import { ChannelCard } from './ChannelCard'
 
 export async function LatestBroadcasts({ lang }: { lang: Lang }) {
   const t = getT(lang)
-  // Two recordings; the third cell is the channel they come from.
+  // Two recordings; the third cell is the channel they come from. When the
+  // upload list cannot be read, the two newest series playlists stand in —
+  // a library card is better than a placeholder, and far better than a notice.
   const videos = await getCompletedBroadcasts(2)
-
-  const hasData = videos.length > 0
+  const playlists = videos.length > 0
+    ? []
+    : (await getChannelPlaylists(50))
+        .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+        .slice(0, 2)
 
   return (
     <section className="section">
@@ -28,53 +34,17 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
         {/* Live stream banners — client-side, from LiveStatusProvider */}
         <LiveBanners lang={lang} />
 
-        {/* Two latest recordings, and the channel as the third tile */}
-        {hasData ? (
-          <div className="card-grid card-grid--3">
-            {videos.map((video) => (
-              <VideoCard key={video.id} lang={lang} video={video} />
-            ))}
-            <ChannelCard lang={lang} />
-          </div>
-        ) : (
-          <FallbackBroadcasts lang={lang} />
-        )}
+        {/* Two latest recordings (or playlists), and the channel as the third tile */}
+        <div className="card-grid card-grid--3">
+          {videos.map((video) => (
+            <VideoCard key={video.id} lang={lang} video={video} />
+          ))}
+          {playlists.map((playlist) => (
+            <PlaylistCard key={playlist.id} lang={lang} playlist={playlist} />
+          ))}
+          <ChannelCard lang={lang} />
+        </div>
       </div>
     </section>
-  )
-}
-
-/** Fallback when YouTube API is unavailable */
-function FallbackBroadcasts({ lang }: { lang: Lang }) {
-  const t = getT(lang)
-  const placeholders = [
-    { emoji: '🏎', title: t('broadcasts.fb1.title'), category: t('broadcasts.fb1.category') },
-    { emoji: '🏁', title: t('broadcasts.fb2.title'), category: t('broadcasts.fb2.category') },
-    { emoji: '🌙', title: t('broadcasts.fb3.title'), category: t('broadcasts.fb3.category') },
-  ]
-
-  return (
-    <div className="card-grid card-grid--3">
-      {placeholders.map((b, i) => (
-        <a
-          key={i}
-          href="https://www.youtube.com/@RaceSpotTV"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="card-dark overflow-hidden group"
-        >
-          <div className="aspect-video bg-rs-gray flex items-center justify-center">
-            <span className="text-4xl">{b.emoji}</span>
-          </div>
-          <div className="p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-rs-yellow mb-1.5">
-              {b.category}
-            </p>
-            <h3 className="text-[15px] font-semibold text-white leading-snug mb-2 group-hover:text-rs-yellow transition-colors">{b.title}</h3>
-            <p className="text-xs text-rs-muted">{t('broadcasts.watchOnYT')}</p>
-          </div>
-        </a>
-      ))}
-    </div>
   )
 }

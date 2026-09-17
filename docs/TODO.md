@@ -1032,6 +1032,43 @@ Moment umschalten. Vor dem Mount gelten die Sheet-Flags, damit Server- und
 erster Client-Render übereinstimmen. Ticker-Zeilen für Broadcasts, die laut
 Sheet noch im Fenster, laut YouTube aber vorbei sind, fallen weg.
 
+**„No broadcasts available" auf der Broadcasts-Seite (Jürgen, 2026-09-17):**
+Nicht die API-Quota — beide Schlüssel antworteten normal. **YouTubes
+RSS-Feed** (`feeds/videos.xml?channel_id=…`) lieferte den Abend über erst 500,
+dann 404, vom Server wie vom Mac. Alles, was „neueste Videos" brauchte, hing
+allein an diesem Feed: Broadcasts-Seite, Startseite, und die erste Stufe der
+Live-Erkennung. Behoben und gleichzeitig die API-Nutzung durchgesehen:
+
+- **`getRecentVideos()`** in `youtube.ts`: RSS zuerst (0 Einheiten), bei
+  Ausfall die **Upload-Playlist** des Kanals (`playlistItems.list`, 1 Einheit,
+  1 h Cache). Alle drei Verbraucher lesen daraus. Broadcasts erscheinen wieder,
+  obwohl RSS weiter 404 liefert.
+- **Search-API gedeckelt.** 100 Einheiten pro Aufruf, und jeder offene Tab
+  pollt `/api/live-streams` minütlich. Wenn das Sheet „live" sagt und die
+  Erkennung nichts findet, lief die Suche bisher bis zu einmal pro Minute —
+  6.000 Einheiten pro Stunde, das Tageskontingent (10.000) in unter zwei
+  Stunden, danach fällt der Live-Schlüssel auf den Hauptschlüssel zurück und
+  reißt Broadcasts und Playlists mit. Jetzt: `unstable_cache` 300 s für **jeden**
+  Aufrufer (Route-Fallback und Scrape-Pfad teilen sich den Cache), und die
+  Route sucht nur in den **ersten 30 Minuten** nach geplantem Start — danach
+  heißt „nicht gefunden" schlicht „nicht auf Sendung". Worst case jetzt
+  ~600 Einheiten pro Broadcast-Start statt 9.000 pro Sendefenster.
+- **Kein Hinweis mehr, sondern weglassen.** Kommen keine Aufzeichnungen, fehlt
+  der Abschnitt „Neueste Broadcasts" ganz; die Follow-Leiste rückt neben die
+  Überschrift „Serien-Playlists" (`followSlot`). Startseite: statt zweier
+  Videos die zwei neuesten Playlists, die Kanal-Kachel bleibt. Die alten
+  Emoji-Platzhalter (`FallbackBroadcasts`) und ihre acht Schlüssel sind weg;
+  `PlaylistCard` liegt jetzt in `components/ui` für beide Seiten.
+- **After-Movie-Poster kam verzögert (Jürgen):** Der Poster fragte blind
+  `maxresdefault` an, bekam 404 durch den Bildoptimierer und lud dann erst
+  `sddefault` — zwei Roundtrips. Jetzt wählt die Events-Seite das Standbild
+  serverseitig über `getVideoThumbnail()` (1 Einheit, 24 h Cache) und gibt es
+  dem Poster mit `priority`; der Browser lädt einmal, sofort.
+
+Quota-Bilanz pro Tag (Hauptschlüssel): Stats 4 + Uploads 24 + Details 24 +
+Playlists 1 + Replay-Index ~20 + Poster 1 ≈ **75 Einheiten**. Live-Schlüssel:
+Erkennung 1 440 (minütlich) + Suche höchstens 6 pro Broadcast-Start.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine

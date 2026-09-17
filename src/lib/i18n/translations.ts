@@ -50,8 +50,6 @@ export const translations = {
   'broadcasts.recentCoverage': { en: 'Recent Coverage', de: 'Aktuelle Broadcasts', es: 'Cobertura Reciente', pt: 'Cobertura Recente', fr: 'Couverture Récente', it: 'Copertura Recente' },
   'broadcasts.latestBroadcasts': { en: 'Latest Broadcasts', de: 'Neueste Broadcasts', es: 'Últimas Emisiones', pt: 'Últimas Transmissões', fr: 'Dernières Diffusions', it: 'Ultime Trasmissioni' },
   'broadcasts.viewAll': { en: 'View All Broadcasts →', de: 'Alle Broadcasts →', es: 'Ver todas →', pt: 'Ver todas →', fr: 'Voir toutes →', it: 'Vedi tutte →' },
-  'broadcasts.watchOnYT': { en: 'Watch on YouTube →', de: 'Auf YouTube ansehen →', es: 'Ver en YouTube →', pt: 'Assistir no YouTube →', fr: 'Regarder sur YouTube →', it: 'Guarda su YouTube →' },
-  'broadcasts.noBroadcasts': { en: 'No broadcasts available at the moment.', de: 'Derzeit keine Broadcasts verfügbar.', es: 'No hay emisiones disponibles en este momento.', pt: 'Nenhuma transmissão disponível no momento.', fr: 'Aucune diffusion disponible pour le moment.', it: 'Nessuna trasmissione disponibile al momento.' },
 
   // ─── Services ────────────────────────────────────────────
   'services.label':    { en: 'What We Do', de: 'Was Wir Tun', es: 'Lo Que Hacemos', pt: 'O Que Fazemos', fr: 'Ce Que Nous Faisons', it: 'Cosa Facciamo' },
@@ -432,12 +430,6 @@ export const translations = {
   'ticker.fb2':        { en: '400+ Live Broadcasts Per Year — Cologne, Germany', de: 'Über 400 Live-Broadcasts pro Jahr — Köln, Deutschland', es: 'Más de 400 transmisiones en vivo al año — Colonia, Alemania', pt: 'Mais de 400 transmissões ao vivo por ano — Colônia, Alemanha', fr: 'Plus de 400 diffusions en direct par an — Cologne, Allemagne', it: 'Oltre 400 trasmissioni live all’anno — Colonia, Germania' },
   'ticker.fb3':        { en: 'Partners: Eurosport · Sport 1 · MotorsTV', de: 'Partner: Eurosport · Sport 1 · MotorsTV', es: 'Socios: Eurosport · Sport 1 · MotorsTV', pt: 'Parceiros: Eurosport · Sport 1 · MotorsTV', fr: 'Partenaires : Eurosport · Sport 1 · MotorsTV', it: 'Partner: Eurosport · Sport 1 · MotorsTV' },
   'live.watch':        { en: 'Watch', de: 'Ansehen', es: 'Ver', pt: 'Assistir', fr: 'Regarder', it: 'Guarda' },
-  'broadcasts.fb1.title': { en: 'Latest broadcast from RaceSpot.tv', de: 'Neuester Broadcast von RaceSpot.tv', es: 'Última transmisión de RaceSpot.tv', pt: 'Última transmissão da RaceSpot.tv', fr: 'Dernière diffusion de RaceSpot.tv', it: 'Ultima trasmissione di RaceSpot.tv' },
-  'broadcasts.fb1.category': { en: 'Broadcast', de: 'Broadcast', es: 'Transmisión', pt: 'Transmissão', fr: 'Diffusion', it: 'Trasmissione' },
-  'broadcasts.fb2.title': { en: 'Recent race coverage', de: 'Aktuelle Rennberichterstattung', es: 'Cobertura de carreras recientes', pt: 'Cobertura de corridas recentes', fr: 'Couverture de courses récentes', it: 'Copertura delle gare recenti' },
-  'broadcasts.fb2.category': { en: 'Coverage', de: 'Berichterstattung', es: 'Cobertura', pt: 'Cobertura', fr: 'Couverture', it: 'Copertura' },
-  'broadcasts.fb3.title': { en: 'Endurance event replay', de: 'Wiederholung eines Endurance-Events', es: 'Repetición de un evento de resistencia', pt: 'Replay de um evento de endurance', fr: 'Replay d’une épreuve d’endurance', it: 'Replay di un evento endurance' },
-  'broadcasts.fb3.category': { en: 'Endurance', de: 'Endurance', es: 'Resistencia', pt: 'Endurance', fr: 'Endurance', it: 'Endurance' },
 
   // ─── Calendar: counts and controls ───────────────────────
   'calendar.eventOne': { en: 'event', de: 'Event', es: 'evento', pt: 'evento', fr: 'événement', it: 'evento' },

@@ -135,38 +135,39 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
           {t('broadcastsPage.intro')}
         </p>
 
-        {/* Latest Broadcasts section */}
-        <div className="mb-20">
-          <div className="section-header">
-            <div>
-              <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
-              <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
+        {/* Latest broadcasts — or nothing. When the upload list cannot be
+            read, a notice saying so helps nobody; the playlists below are
+            the library anyway, and the subscribe row moves down to them. */}
+        {broadcasts.length > 0 && (
+          <div className="mb-20">
+            <div className="section-header">
+              <div>
+                <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
+                <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
+              </div>
+              <FollowUs lang={lang} />
             </div>
-            <FollowUs lang={lang} />
-          </div>
-
-          {broadcasts.length > 0 ? (
             <div className="card-grid card-grid--3">
               {broadcasts.map((video) => (
                 <VideoCard key={video.id} lang={lang} video={video} />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-16 border border-rs-border rounded-rs">
-              <p className="text-rs-muted text-sm">
-                {t('broadcasts.noBroadcasts')}
-              </p>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Playlists section — hidden when YouTube API is unavailable */}
         {enriched.length > 0 && (
           <>
-            <div className="divider mb-20" />
-            <BroadcastsClient lang={lang} playlists={enriched} families={families} />
+            {broadcasts.length > 0 && <div className="divider mb-20" />}
+            <BroadcastsClient
+              lang={lang}
+              playlists={enriched}
+              families={families}
+              followSlot={broadcasts.length === 0 ? <FollowUs lang={lang} /> : undefined}
+            />
           </>
         )}
+        {broadcasts.length === 0 && enriched.length === 0 && <FollowUs lang={lang} />}
       </div>
     </div>
   )

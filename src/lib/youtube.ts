@@ -15,6 +15,7 @@
 export type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
 export { formatViewCount, formatDate, formatDuration } from './youtube-utils'
 
+import { unstable_cache } from 'next/cache'
 import type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
 
 const API_KEY = process.env.YOUTUBE_API_KEY
@@ -119,6 +120,58 @@ async function getVideosFromRSS(): Promise<RSSVideoData[]> {
 }
 
 /**
+ * The channel's most recent uploads from the Data API — the fallback for the
+ * RSS feed, which YouTube serves unreliably (it answered 500, then 404, for a
+ * whole evening in September 2026 and took the broadcasts section down with
+ * it). Cost: 1 unit, cached an hour. Same shape as the RSS rows so callers do
+ * not care which source answered.
+ */
+async function getUploadsFromApi(maxResults = 15): Promise<RSSVideoData[]> {
+  if (!CHANNEL_ID || !API_KEY) return []
+  try {
+    // The uploads playlist is the channel id with its "UC" swapped for "UU".
+    const uploads = 'UU' + CHANNEL_ID.slice(2)
+    const url = `${BASE_URL}/playlistItems?part=snippet&playlistId=${uploads}&maxResults=${maxResults}&key=${API_KEY}`
+    const res = await fetch(url, { next: { revalidate: CACHE_1H } })
+    if (!res.ok) {
+      console.error('YouTube uploads API error:', res.status)
+      return []
+    }
+    const data = await res.json()
+    return (data.items || []).map((item: {
+      snippet: {
+        resourceId: { videoId: string }
+        title: string
+        description: string
+        publishedAt: string
+        thumbnails: { medium?: { url: string }; high?: { url: string } }
+      }
+    }) => ({
+      id: item.snippet.resourceId.videoId,
+      title: item.snippet.title,
+      description: item.snippet.description,
+      thumbnail: item.snippet.thumbnails.medium?.url || '',
+      publishedAt: item.snippet.publishedAt,
+      viewCount: '0',
+    }))
+  } catch (error) {
+    console.error('YouTube uploads error:', error)
+    return []
+  }
+}
+
+/**
+ * Recent videos from whichever source answers: the free RSS feed first, the
+ * uploads playlist (1 unit) when it does not. Nothing downstream depends on
+ * RSS alone any more.
+ */
+async function getRecentVideos(): Promise<RSSVideoData[]> {
+  const rss = await getVideosFromRSS()
+  if (rss.length > 0) return rss
+  return getUploadsFromApi()
+}
+
+/**
  * Convert RSS data to full YouTubeVideo format (without duration/detailed stats).
  */
 function rssToYouTubeVideo(rss: RSSVideoData): YouTubeVideo {
@@ -179,7 +232,7 @@ export async function getLatestVideos(maxResults = 6): Promise<YouTubeVideo[]> {
   }
 
   try {
-    const rssVideos = await getVideosFromRSS()
+    const rssVideos = await getRecentVideos()
     if (!rssVideos.length) return []
 
     const subset = rssVideos.slice(0, maxResults)
@@ -210,7 +263,7 @@ export async function getCompletedBroadcasts(maxResults = 6): Promise<YouTubeVid
   }
 
   try {
-    const rssVideos = await getVideosFromRSS()
+    const rssVideos = await getRecentVideos()
     if (!rssVideos.length) return []
 
     // Try API for full details (needed for duration filtering)
@@ -289,33 +342,9 @@ export async function getLiveStreams(): Promise<YouTubeLiveStream[]> {
 
     if (!scrapeFoundLive) return []
 
-    // Scraping says live but RSS check didn't find it — try Search API
-    // ── Tier 3: Search API (100 units) to find ALL live streams ──
-    // Uses LIVE_API_KEY — separate quota from main API key
-    if (!LIVE_API_KEY && !API_KEY) return []
-
-    const tier3BaseUrl = `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&maxResults=10`
-    let searchRes = await fetch(`${tier3BaseUrl}&key=${LIVE_API_KEY || API_KEY}`, { next: { revalidate: CACHE_LIVE } })
-
-    // Fallback to main API key if live key quota is exhausted
-    if (!searchRes.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
-      console.warn(`[Live] Tier 3 LIVE_API_KEY failed (${searchRes.status}), falling back to main API_KEY`)
-      searchRes = await fetch(`${tier3BaseUrl}&key=${API_KEY}`, { next: { revalidate: CACHE_LIVE } })
-    }
-
-    if (!searchRes.ok) {
-      console.warn('[Live] Tier 3 (Search API) failed:', searchRes.status)
-      return []
-    }
-
-    const searchData = await searchRes.json()
-    const searchItems = searchData.items || []
-
-    if (searchItems.length === 0) return []
-
-    // ── Tier 4: Get details for all found live streams (1 unit) ──
-    const videoIds = searchItems.map((item: { id: { videoId: string } }) => item.id.videoId)
-    return await fetchLiveStreamDetails(videoIds)
+    // Scraping says live but the upload list did not — the Search API, through
+    // the same five-minute cache as the route's fallback (100 units a call).
+    return await getLiveStreamsViaSearch()
   } catch (error) {
     console.error('YouTube live check error:', error)
     return []
@@ -334,8 +363,8 @@ async function detectLiveViaRSS(): Promise<YouTubeLiveStream[]> {
   }
 
   try {
-    // Step 1: Get recent video IDs from free RSS feed
-    const rssVideos = await getVideosFromRSS()
+    // Step 1: Get recent video IDs — free RSS feed, uploads playlist when RSS is down
+    const rssVideos = await getRecentVideos()
     console.log(`[Live] RSS feed returned ${rssVideos.length} videos: ${rssVideos.map(v => v.id).join(',')}`)
     if (rssVideos.length === 0) return []
 
@@ -450,7 +479,17 @@ export async function getLiveStream(): Promise<YouTubeLiveStream | null> {
  * Cost: 100 units — only call when primary detection fails but Sheets confirms live.
  * This handles edge cases where streams aren't in RSS yet.
  */
-export async function getLiveStreamsViaSearch(): Promise<YouTubeLiveStream[]> {
+export const getLiveStreamsViaSearch = unstable_cache(
+  searchLiveStreams,
+  ['youtube-live-search'],
+  // 100 units a call. Every client tab polls /api/live-streams each minute,
+  // so without this a long "sheet says live, nothing found" window would
+  // burn the daily quota in under two hours. Five minutes between searches
+  // still finds a stream a few minutes after it goes live.
+  { revalidate: 300 },
+)
+
+async function searchLiveStreams(): Promise<YouTubeLiveStream[]> {
   if (!LIVE_API_KEY || !CHANNEL_ID) return []
 
   try {
@@ -547,3 +586,20 @@ export async function getChannelPlaylists(maxResults = 50): Promise<YouTubePlayl
 
 // ─── Formatting utilities ────────────────────────────────────
 
+
+/**
+ * The largest still YouTube actually has for a video. Not every video has a
+ * `maxresdefault`; asking for it blind costs a 404 and a second request, which
+ * is what made the events page's poster arrive late. One unit, cached a day.
+ */
+export async function getVideoThumbnail(videoId: string): Promise<string | null> {
+  if (!API_KEY) return null
+  try {
+    const res = await fetch(`${BASE_URL}/videos?part=snippet&id=${videoId}&key=${API_KEY}`, { next: { revalidate: CACHE_24H } })
+    if (!res.ok) return null
+    const t = (await res.json())?.items?.[0]?.snippet?.thumbnails
+    return t?.maxres?.url || t?.standard?.url || t?.high?.url || null
+  } catch {
+    return null
+  }
+}
