@@ -363,8 +363,16 @@ an beliebigen Stellen — zweimal mitten in einem apt-Download (2026-09-11),
 einmal bei „Creating an optimized production build" von RMH-Digital.de
 (2026-09-04), einmal beim Vorrendern der Racespot-Seiten (2026-09-15).
 
+Fünfter Fall am 2026-09-17, 01:49 UTC: Abriss 27 s nach Beginn des
+`nix-env`-Schritts, der nach dem nächtlichen Docker-Cleanup (`0 0 * * *`,
+`force_docker_cleanup`) die Basisschicht neu ziehen musste und dabei lange
+nichts ausgibt. Auffällig über alle fünf Fälle: **immer in einem langen,
+stillen Schritt** (apt-Download, Nix-Entpacken, Vorrendern). Die Zeile „Error
+response from daemon: No such container: <uuid>" davor ist harmlos — Coolify
+räumt vor dem Start einen gleichnamigen Container weg, der nicht existiert.
+
 **Lehre:** Neu anstoßen („Redeploy" in Coolify oder ein leerer Commit), nichts
-am Code ändern. Am 2026-09-15 wurde daraus fälschlich ein Speicherproblem
+am Code ändern. Der Wiederholungs-Deploy lief in allen Fällen durch. Am 2026-09-15 wurde daraus fälschlich ein Speicherproblem
 geschlossen und ein korrekter Commit zurückgedreht; fünf Minuten später lief
 derselbe Build-Schritt auf demselben Server in 4,4 s durch.
 

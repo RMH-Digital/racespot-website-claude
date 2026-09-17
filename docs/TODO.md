@@ -985,6 +985,9 @@ sind 17–20 px hoch — Links im Satz sind von der Zielgrößen-Regel ausgenomm
   `&dark_theme=1` an der Embed-URL, `color-scheme: dark` am Frame, dunkler
   Container (kein weißer Blitz beim Laden), `title` am Frame. Nur bei laufendem
   Stream sichtbar — beim nächsten Live-Termin einmal ansehen.
+- Der erste Deploy dieser beiden Fixes fiel wieder dem SSH-Abriss zum Opfer
+  (fünfter Fall, Details in COOLIFY-BASELINE 6.5); der leere Commit danach
+  lief durch.
 - **YouTube-Icon im Knopf zu tief.** Eurostile sitzt hoch in seiner Zeile —
   die Versalien enden weit über dem Unterlängenraum —, ein auf die Zeile
   zentriertes Icon landet daher gut 1,5 px unter den Buchstaben. Regel in
