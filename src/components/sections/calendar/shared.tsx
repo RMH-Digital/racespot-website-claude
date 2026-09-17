@@ -48,23 +48,32 @@ export function EventTipContent({ lang, event, is24h, locale, timeZone }: { lang
         <span className="text-rs-muted"> – {formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
       </p>
       <p className="mt-2 text-[11px] uppercase tracking-wider font-display font-bold text-rs-muted">
-        {event.isPast ? t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay') : t('calendar.eventTip')}
+        {event.isPast ? t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay') : event.isLive ? t('calendar.tipLive') : t('calendar.eventTip')}
       </p>
     </>
   )
 }
 
 /**
- * The stretched click target behind a broadcast. Upcoming and live go to the
- * live page; a past broadcast with a recording opens it in the site's player;
- * a past one without goes to the channel's list of past streams on YouTube —
- * the one case where the reader does leave.
+ * The stretched click target behind a broadcast. Live goes to the live page;
+ * upcoming opens the reminder menu (calendar entry, series feed, bell) — the
+ * same one behind the small icon, so the whole card is the affordance; a past
+ * broadcast with a recording opens it in the site's player; a past one
+ * without goes to the channel's list of past streams on YouTube — the one
+ * case where the reader does leave.
  */
-export function EventLink({ lang, event, className }: { lang: Lang; event: CalendarEvent; className: string }) {
+export function EventLink({ lang, event, className, onOpenMenu }: { lang: Lang; event: CalendarEvent; className: string; onOpenMenu?: () => void }) {
   const { play } = useVideoPlayer()
   const label = <span className="sr-only">{event.series}</span>
-  if (!event.isPast) {
+  if (event.isLive) {
     return <a href={localePath(lang, '/live')} className={className} aria-label={event.series}>{label}</a>
+  }
+  if (!event.isPast) {
+    return (
+      <button type="button" onClick={onOpenMenu} className={className} aria-label={event.series} aria-haspopup="menu">
+        {label}
+      </button>
+    )
   }
   if (event.videoId) {
     const id = event.videoId
@@ -78,6 +87,16 @@ export function EventLink({ lang, event, className }: { lang: Lang; event: Calen
     <a href={YOUTUBE_STREAMS_URL} target="_blank" rel="noopener noreferrer" className={className} aria-label={event.series}>
       {label}
     </a>
+  )
+}
+
+/** Marks the very next broadcast — one per site, the same one the hero names. */
+export function UpNextBadge({ lang }: { lang: Lang }) {
+  const t = getT(lang)
+  return (
+    <span className="inline-flex items-center rounded-sm bg-rs-yellow px-1.5 py-0.5 text-[11px] font-bold uppercase text-rs-black">
+      {t('calendar.upNext')}
+    </span>
   )
 }
 

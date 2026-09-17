@@ -44,6 +44,8 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
   const t = getT(lang)
 
   const liveEvents = useMemo(() => events.filter(e => e.isLive), [events])
+  // The very next broadcast — events arrive sorted by start — gets the "up next" mark.
+  const nextId = useMemo(() => events.find(e => !e.isPast && !e.isLive)?.id, [events])
 
   function prevMonth() {
     if (calMonth === 0) {
@@ -168,9 +170,9 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
 
       {/* View content */}
       {viewMode === 'list' ? (
-        <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} />
+        <ListView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} nextId={nextId} />
       ) : (
-        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} />
+        <CalendarGridView lang={lang} events={events} year={calYear} month={calMonth} is24h={is24h} locale={locale} timeZone={timeZone} nextId={nextId} />
       )}
 
       {/* Footer */}

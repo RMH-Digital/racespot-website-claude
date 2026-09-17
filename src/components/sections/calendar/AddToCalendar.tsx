@@ -31,6 +31,7 @@ export function AddToCalendar({
   t,
   compact = false,
   tone = 'dark',
+  triggerRef,
 }: {
   lang: Lang
   event: CalendarEvent
@@ -38,6 +39,8 @@ export function AddToCalendar({
   compact?: boolean
   /** `light` for a yellow ground, where muted grey and a yellow hover would both vanish */
   tone?: 'dark' | 'light'
+  /** Lets a parent reach the trigger — the calendar cards open this menu from their whole surface */
+  triggerRef?: React.RefObject<HTMLButtonElement | null>
 }) {
   const [rect, setRect] = useState<DOMRect | null>(null)
   const open = rect !== null
@@ -91,7 +94,10 @@ export function AddToCalendar({
   return (
     <div className="relative z-10 shrink-0" onClick={(e) => e.stopPropagation()}>
       <button
-        ref={trigger}
+        ref={(el) => {
+          trigger.current = el
+          if (triggerRef) triggerRef.current = el
+        }}
         type="button"
         onClick={() => (open ? close() : setRect(trigger.current!.getBoundingClientRect()))}
         aria-haspopup="menu"

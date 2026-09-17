@@ -1,14 +1,14 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
 
-export function ListView({ lang, events, year, month, is24h, locale, timeZone }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string }) {
+export function ListView({ lang, events, year, month, is24h, locale, timeZone, nextId }: { lang: Lang; events: CalendarEvent[]; year: number; month: number; is24h: boolean; locale: string; timeZone?: string; nextId?: string }) {
   const monthEvents = useMemo(() => {
     return events.filter((e) => {
       const p = zonedParts(localDate(e.dateISO), timeZone)
@@ -29,14 +29,15 @@ export function ListView({ lang, events, year, month, is24h, locale, timeZone }:
       </div>
       <div>
         {monthEvents.map(event => (
-          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />
+          <EventRow key={event.id} lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} isNext={event.id === nextId} />
         ))}
       </div>
     </div>
   )
 }
 
-function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
+function EventRow({ lang, event, is24h, locale, timeZone, isNext = false }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string; isNext?: boolean }) {
+  const menuTrigger = useRef<HTMLButtonElement | null>(null)
   const d = localDate(event.dateISO)
   const day = d.getDate()
   const weekday = formatWeekday(event.dateISO, locale, timeZone)
@@ -46,7 +47,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
   const t = getT(lang)
   // One label for every past broadcast — the tip already says whether the
   // click plays the recording here or opens the channel's past streams.
-  const hoverLabel = past ? t('calendar.watchReplay') : t('calendar.watch')
+  const hoverLabel = past ? t('calendar.watchReplay') : event.isLive ? t('calendar.watch') : t('calendar.remind')
 
   return (
     // A div, not an anchor: the row used to be one link, which left nowhere to
@@ -57,7 +58,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
       className={`group relative grid grid-cols-[56px_1fr_auto] md:grid-cols-[64px_1fr_auto] gap-4 py-4 px-3 -mx-3
                  hover:bg-rs-dark/60 transition-colors border-b border-rs-border/30 ${past ? 'opacity-75 hover:opacity-100' : ''}`}
     >
-      <EventLink lang={lang} event={event} className="absolute inset-0" />
+      <EventLink lang={lang} event={event} className="absolute inset-0" onOpenMenu={() => menuTrigger.current?.click()} />
       <div className="flex flex-col items-center justify-center text-center">
         <span className="text-[11px] uppercase text-rs-muted font-medium leading-none">{weekday}</span>
         <span className="text-xl font-display font-bold text-rs-white leading-tight">{day}</span>
@@ -66,6 +67,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
       <div className="min-w-0 flex flex-col justify-center">
         <div className="flex items-center gap-2 flex-wrap">
           {event.isLive && <LiveBadge />}
+          {isNext && !event.isLive && <UpNextBadge lang={lang} />}
           {past && event.videoId && <ReplayBadge lang={lang} />}
           <p className="text-rs-white font-medium text-sm truncate group-hover:text-rs-yellow transition-colors">
             {event.series}
@@ -86,7 +88,7 @@ function EventRow({ lang, event, is24h, locale, timeZone }: { lang: Lang; event:
         </span>
         {past
           ? <ReplayOnYouTube lang={lang} videoId={event.videoId} />
-          : <AddToCalendar lang={lang} event={event} t={t} />}
+          : <AddToCalendar lang={lang} event={event} t={t} triggerRef={menuTrigger} />}
       </div>
     </div>
     </Tip>

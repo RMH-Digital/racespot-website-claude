@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { localDate, formatTime, getWeekdayNames, getDaysInMonth, getFirstDayOfWeek, zonedParts } from './time'
 
@@ -17,6 +17,7 @@ export function CalendarGridView({
   is24h,
   locale,
   timeZone,
+  nextId,
 }: {
   lang: Lang
   events: CalendarEvent[]
@@ -25,6 +26,8 @@ export function CalendarGridView({
   is24h: boolean
   locale: string
   timeZone?: string
+  /** id of the very next broadcast, for its badge */
+  nextId?: string
 }) {
   const eventsByDay = useMemo(() => {
     const map = new Map<number, CalendarEvent[]>()
@@ -88,6 +91,7 @@ export function CalendarGridView({
                 is24h={is24h}
                 locale={locale}
                 timeZone={timeZone}
+                nextId={nextId}
               />
             )
           })}
@@ -105,6 +109,7 @@ function DayCell({
   is24h,
   locale,
   timeZone,
+  nextId,
 }: {
   lang: Lang
   day: number
@@ -113,16 +118,26 @@ function DayCell({
   is24h: boolean
   locale: string
   timeZone?: string
+  nextId?: string
 }) {
   const t = getT(lang)
-  const [activeIndex, setActiveIndex] = useState(0)
+  // The card a day opens on: what is live, else the next broadcast still to
+  // come, else the first. So a day with three streams shows the one that
+  // matters now, not the one that sorts first.
+  const defaultIndex = (list: CalendarEvent[]) => {
+    const live = list.findIndex((e) => e.isLive)
+    if (live >= 0) return live
+    const upcoming = list.findIndex((e) => !e.isPast)
+    return upcoming >= 0 ? upcoming : 0
+  }
+  const [activeIndex, setActiveIndex] = useState(() => defaultIndex(events))
   const hasEvents = events.length > 0
   const hasMultiple = events.length > 1
 
-  // Reset index when events change
+  // Re-pick when the day's events change (month navigation reuses cells)
   useEffect(() => {
-    setActiveIndex(0)
-  }, [events.length])
+    setActiveIndex(defaultIndex(events))
+  }, [events])
 
   return (
     <div
@@ -165,7 +180,7 @@ function DayCell({
                 transition={{ duration: 0.15 }}
                 className="h-full"
               >
-                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} timeZone={timeZone} />
+                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} timeZone={timeZone} isNext={events[activeIndex].id === nextId} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -228,9 +243,10 @@ function DayCell({
   )
 }
 
-function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string }) {
+function EventCard({ lang, event, is24h, locale, timeZone, isNext = false }: { lang: Lang; event: CalendarEvent; is24h: boolean; locale: string; timeZone?: string; isNext?: boolean }) {
   const t = getT(lang)
   const past = event.isPast
+  const menuTrigger = useRef<HTMLButtonElement | null>(null)
 
   return (
     <Tip className="h-full" content={<EventTipContent lang={lang} event={event} is24h={is24h} locale={locale} timeZone={timeZone} />}>
@@ -239,11 +255,16 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
                  p-2 md:p-2.5 hover:border-rs-yellow/40 hover:bg-rs-dark transition-colors
                  ${past ? 'opacity-75 hover:opacity-100' : ''}`}
     >
-      <EventLink lang={lang} event={event} className="absolute inset-0 rounded-rs" />
-      {/* Live badge, or the replay mark once the recording is up */}
+      <EventLink lang={lang} event={event} className="absolute inset-0 rounded-rs" onOpenMenu={() => menuTrigger.current?.click()} />
+      {/* Live badge, "up next" on the very next one, or the replay mark once the recording is up */}
       {event.isLive && (
         <div className="mb-1">
           <LiveBadge />
+        </div>
+      )}
+      {isNext && !event.isLive && (
+        <div className="mb-1">
+          <UpNextBadge lang={lang} />
         </div>
       )}
       {past && event.videoId && (
@@ -273,7 +294,7 @@ function EventCard({ lang, event, is24h, locale, timeZone }: { lang: Lang; event
         </span>
         {past
           ? <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
-          : <AddToCalendar lang={lang} event={event} t={t} compact />}
+          : <AddToCalendar lang={lang} event={event} t={t} compact triggerRef={menuTrigger} />}
       </div>
     </div>
     </Tip>

@@ -995,6 +995,23 @@ sind 17–20 px hoch — Links im Satz sind von der Zielgrößen-Regel ausgenomm
   rückt 1,5 px nach oben. Gemessen: Icon-Mitte vorher 384,2 px, nachher
   382,7 px bei Versalien-Mitte ≈ 382,5 px.
 
+**Kalender-Verhalten nachgeschärft (Jürgen, 2026-09-17):**
+
+- **Klick auf einen kommenden Termin öffnet das Erinnerungs-Menü** (Eintrag,
+  Serie, Glocke) statt der Live-Seite — die ganze Karte bzw. Zeile ist jetzt
+  die Fläche für dasselbe Menü, das hinter dem kleinen Icon steckt
+  (`EventLink` mit `onOpenMenu`, `AddToCalendar` gibt seinen Auslöser per
+  `triggerRef` heraus). Live-Termine führen weiter zur Live-Seite, vergangene
+  in den Player. Tipp und Hover-Label sagen es: „Klick öffnet die
+  Erinnerungs-Optionen", „Erinnern →".
+- **Tage mit mehreren Streams** öffnen auf dem, der live ist, sonst auf dem
+  nächsten noch kommenden, sonst auf dem ersten (`defaultIndex` in `DayCell`,
+  auch beim Monatswechsel neu berechnet).
+- **„Als Nächstes"** markiert den einen, allerersten kommenden Broadcast der
+  ganzen Liste — derselbe, den der Hero nennt — in Raster und Liste
+  (`UpNextBadge`). Bewusst nicht „der nächste des Tages": das wäre auf jedem
+  Tag ein anderer und hieße nichts mehr.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine
