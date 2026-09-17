@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { formatViewCount, formatDate, type YouTubeVideo } from '@/lib/youtube-utils'
 import { getT, type Lang } from '@/lib/i18n'
 import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
+import { PlayIcon } from '@/components/ui/icons'
 
 interface VideoCardProps {
   lang: Lang
@@ -46,7 +47,7 @@ export function VideoCard({ lang, video }: VideoCardProps) {
         {/* Play on hover */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="w-12 h-12 rounded-full bg-rs-yellow flex items-center justify-center shadow-lg">
-            <span className="text-rs-black text-lg ml-0.5">▶</span>
+            <PlayIcon size={20} className="ml-0.5 text-rs-black" />
           </div>
         </div>
 

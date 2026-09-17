@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getT, localePath, LOCALES, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
+import { PlayIcon } from '@/components/ui/icons'
 import type { CalendarEvent } from '@/lib/sheets'
 
 interface HeroProps {
@@ -124,7 +125,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
           <div className="flex flex-wrap gap-3 md:gap-4">
             {isLive ? (
               <Link href={localePath(lang, '/live')} className="btn-primary">
-                ▶ {t('hero.watchLive')}
+                <PlayIcon size={12} /> {t('hero.watchLive')}
               </Link>
             ) : (
               <Link href={localePath(lang, '/broadcasts')} className="btn-primary">

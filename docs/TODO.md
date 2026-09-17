@@ -1069,6 +1069,32 @@ Quota-Bilanz pro Tag (Hauptschlüssel): Stats 4 + Uploads 24 + Details 24 +
 Playlists 1 + Replay-Index ~20 + Poster 1 ≈ **75 Einheiten**. Live-Schlüssel:
 Erkennung 1 440 (minütlich) + Suche höchstens 6 pro Broadcast-Start.
 
+**Mobil-Durchgang (Jürgen, 2026-09-17):**
+
+- **Laufband und Partner-Band standen auf dem Handy.** `.pause-on-hover`
+  pausierte bei `:hover` und `:focus-within` — auf Touch-Geräten bleibt beides
+  am zuletzt angetippten Element hängen, ein Tipp aufs Band fror es ein.
+  Beide Regeln jetzt nur unter `@media (hover: hover)`; das Pausieren bei
+  offenem Menü (`:has([aria-expanded])`) gilt weiter überall.
+- **Zwei Play-Symbole übereinander (Events).** Das war das Zeichen „▶"
+  (U+25B6), das iOS als Emoji zeichnet — blaues Kästchen mit weißem Dreieck im
+  gelben Kreis. Überall durch `PlayIcon` (SVG) ersetzt: Poster, Videokarte,
+  Hero, Live-Banner, Replay-Marke.
+- **Tooltips bei Touch aus.** `Tip` zeigt nur bei `(hover: hover)`; ein Tipp,
+  der einen Tipp braucht, stritte sich mit dem Klick, auf dem er sitzt.
+  Nichts in einem Tipp ist essenziell.
+- **Broadcasts:** Der Playlist-Filter öffnete rechtsbündig und lag bei 375 px
+  200 px links außerhalb — jetzt `left-0` unter `sm`. „Filter by Series" und
+  „Clear all" übersetzt. Follow-Leiste im Kopf kompakt (Abonnieren + ···),
+  `.section-header` bricht um statt zu quetschen.
+- **Einheitliche Follow-Leiste:** auf Handys „Abonnieren", ab `sm` „Auf
+  YouTube abonnieren"; Variante `stretch` = eine Spalte voller Breite (Live
+  offline: Abonnieren / Weitere Kanäle / YouTube-Erinnerung / Kalender
+  ansehen untereinander, ab `sm` zentrierte Zeile, Glocke mit Kurzlabel).
+- **Kalender:** Abo-Knopf unter `sm` nur als Icon mit `aria-label`; die
+  Steuerleiste löst ihre linke Gruppe unter `xl` per `contents` auf und ordnet
+  per `order`: Monat / Umschalter + Abo-Icon / Zeitzone.
+
 **Abonnieren auf der Startseite, dritter Anlauf (Jürgen):** Statt drei
 Aufzeichnungen zeigt „Neueste Broadcasts" jetzt **zwei plus eine Kanal-Kachel**
 (`ChannelCard`) an der Stelle der dritten — gleiche Proportionen wie eine

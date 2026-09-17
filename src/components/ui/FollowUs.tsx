@@ -14,7 +14,7 @@ import { SOCIAL, YOUTUBE_SUBSCRIBE_URL, YouTubeIcon } from '@/lib/socials'
  * a chooser, not a row of icons competing with the content. Both leave the
  * site, deliberately, in a new tab.
  */
-export function FollowUs({ lang, className = '', dropUp = false, size = 'sm', compact = false }: { lang: Lang; className?: string; dropUp?: boolean; size?: 'sm' | 'md'; compact?: boolean }) {
+export function FollowUs({ lang, className = '', dropUp = false, size = 'sm', compact = false, stretch = false }: { lang: Lang; className?: string; dropUp?: boolean; size?: 'sm' | 'md'; compact?: boolean; /** Two equal columns on a phone, a row from `sm` up */ stretch?: boolean }) {
   const sm = size === 'sm' ? 'btn-sm' : ''
   const t = getT(lang)
   const [open, setOpen] = useState(false)
@@ -44,18 +44,20 @@ export function FollowUs({ lang, className = '', dropUp = false, size = 'sm', co
   }, [open])
 
   return (
-    <div ref={root} className={`flex flex-wrap items-center gap-3 ${className}`}>
+    <div ref={root} className={`${stretch ? 'grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-center' : 'flex flex-wrap items-center gap-3'} ${className}`}>
       <a
         href={YOUTUBE_SUBSCRIBE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className={`btn-primary ${sm} whitespace-nowrap`}
+        className={`btn-primary ${sm} whitespace-nowrap ${stretch ? 'w-full sm:w-auto' : ''}`}
       >
         <YouTubeIcon size={15} />
-        {t('social.subscribeYouTube')}
+        {/* "Subscribe" on a phone, "Subscribe on YouTube" where there is room — the icon says YouTube either way */}
+        <span className="sm:hidden">{t('social.subscribe')}</span>
+        <span className="hidden sm:inline">{t('social.subscribeYouTube')}</span>
       </a>
 
-      <div className="relative">
+      <div className={`relative ${stretch ? 'w-full sm:w-auto' : ''}`}>
         <button
           ref={trigger}
           type="button"
@@ -68,7 +70,7 @@ export function FollowUs({ lang, className = '', dropUp = false, size = 'sm', co
           className={compact
             // Icon only, for a row that already has enough words in it.
             ? 'flex h-11 w-11 items-center justify-center rounded-rs border border-rs-border text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow'
-            : `btn-outline ${sm} whitespace-nowrap`}
+            : `btn-outline ${sm} whitespace-nowrap ${stretch ? 'w-full sm:w-auto' : ''}`}
         >
           {compact ? (
             <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

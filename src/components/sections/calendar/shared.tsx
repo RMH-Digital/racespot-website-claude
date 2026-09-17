@@ -4,6 +4,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 import { YOUTUBE_STREAMS_URL, YouTubeIcon } from '@/lib/socials'
 import { useEventStatus } from './status'
+import { PlayIcon } from '@/components/ui/icons'
 import type { CalendarEvent } from '@/lib/sheets'
 import { formatTime, localDate } from './time'
 
@@ -107,7 +108,7 @@ export function ReplayBadge({ lang }: { lang: Lang }) {
   const t = getT(lang)
   return (
     <span className="inline-flex items-center gap-1 rounded-sm bg-white/10 px-1.5 py-0.5 text-[11px] font-bold uppercase text-white">
-      <span aria-hidden="true">▶</span>
+      <PlayIcon size={9} />
       {t('calendar.replay')}
     </span>
   )

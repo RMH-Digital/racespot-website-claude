@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { PlayIcon } from '@/components/ui/icons'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
@@ -32,7 +33,7 @@ export function LiveBanners({ lang }: { lang: Lang }) {
             </p>
           </div>
           <span className="text-rs-yellow text-sm font-display font-bold uppercase tracking-wider shrink-0">
-            {t('live.watch')} ▶
+            {t('live.watch')} <PlayIcon size={11} className="inline -mt-px" />
           </span>
         </Link>
       ))}

@@ -102,8 +102,10 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
         {/* View toggle, with the timezone beside it — the two quiet controls
             share the left so the right holds only the subscribe button, which in
             Spanish is wide enough to need the room. */}
-        <div className="flex items-center gap-4">
-        <div className="flex items-center bg-rs-dark border border-rs-border rounded-rs overflow-hidden">
+        <div className="contents xl:flex xl:items-center xl:gap-4">
+        {/* Below xl the wrapper dissolves (`contents`), so a phone gets three calm
+            rows: month / toggle + subscribe icon / timezone. */}
+        <div className="order-1 xl:order-none flex items-center bg-rs-dark border border-rs-border rounded-rs overflow-hidden">
           <button
             onClick={() => setViewMode('calendar')}
             className={`min-h-11 px-4 py-2 text-xs font-display font-bold uppercase tracking-wider transition-colors
@@ -119,7 +121,7 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
             {t('calendar.listView')}
           </button>
         </div>
-        <Tip content={t('calendar.timezoneNote')} width={240}>
+        <Tip content={t('calendar.timezoneNote')} width={240} className="order-3 xl:order-none w-full xl:w-auto">
           <div className="flex items-center gap-1.5 text-[11px] text-rs-muted">
             <svg className="h-3 w-3 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <circle cx="8" cy="8" r="6.25" />
@@ -167,7 +169,7 @@ export function CalendarClient({ lang, events }: { lang: Lang; events: CalendarE
         </div>
 
         {/* The schedule subscription, right-aligned */}
-        <div className="ml-auto flex items-center xl:ml-0 xl:justify-self-end">
+        <div className="order-2 xl:order-none ml-auto flex items-center xl:ml-0 xl:justify-self-end">
           <SubscribeButton t={t} />
         </div>
       </div>

@@ -140,18 +140,18 @@ export function BroadcastsClient({ lang, playlists, families, followSlot }: Broa
 
             {/* Dropdown panel */}
             {filterOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-rs-dark border border-rs-border rounded-rs shadow-xl z-50 max-h-[360px] flex flex-col">
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-72 sm:w-80 bg-rs-dark border border-rs-border rounded-rs shadow-xl z-50 max-h-[360px] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-rs-border shrink-0">
                   <span className="text-xs font-display font-bold uppercase tracking-wider text-rs-muted">
-                    Filter by Series
+                    {t('broadcastsPage.filterBySeries')}
                   </span>
                   {isFiltering && (
                     <button
                       onClick={clearFilters}
                       className="text-[11px] text-rs-yellow hover:underline"
                     >
-                      Clear all
+                      {t('broadcastsPage.clearAll')}
                     </button>
                   )}
                 </div>

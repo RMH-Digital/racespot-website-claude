@@ -145,7 +145,7 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
                 <p className="section-label mb-2">{t('broadcasts.recentCoverage')}</p>
                 <h2 className="section-title">{t('broadcasts.latestBroadcasts')}</h2>
               </div>
-              <FollowUs lang={lang} />
+              <FollowUs lang={lang} compact />
             </div>
             <div className="card-grid card-grid--3">
               {broadcasts.map((video) => (
@@ -163,7 +163,7 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
               lang={lang}
               playlists={enriched}
               families={families}
-              followSlot={broadcasts.length === 0 ? <FollowUs lang={lang} /> : undefined}
+              followSlot={broadcasts.length === 0 ? <FollowUs lang={lang} compact /> : undefined}
             />
           </>
         )}

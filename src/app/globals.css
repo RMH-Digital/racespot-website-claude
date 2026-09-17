@@ -174,7 +174,8 @@
 }
 
 @utility section-header {
-  @apply flex items-end justify-between mb-9;
+  /* wraps, so a control on the right drops under the title on a phone instead of squeezing it */
+  @apply flex flex-wrap items-end justify-between gap-4 mb-9;
 }
 
 @utility divider {
@@ -364,10 +365,17 @@
   to the wrapper; the animated child is the target, so the whole strip stops as
   one. Keyboard users reach it because the ticker's items are links.
 */
-.pause-on-hover:hover [class*='animate-'],
-.pause-on-hover:focus-within [class*='animate-'],
-/* …and while one of the ticker's calendar menus is open, or its button would
-   scroll away from under the menu it just opened. */
+/* Only where a pointer can hover. On a phone the browser keeps :hover and
+   focus on whatever was last tapped, so one tap on the strip froze it for
+   good — the ticker and the partner band stood still on mobile. */
+@media (hover: hover) {
+  .pause-on-hover:hover [class*='animate-'],
+  .pause-on-hover:focus-within [class*='animate-'] {
+    animation-play-state: paused;
+  }
+}
+/* …and while one of the ticker's calendar menus is open, on any device, or
+   the button would scroll away from under the menu it just opened. */
 .pause-on-hover:has([aria-expanded='true']) [class*='animate-'] {
   animation-play-state: paused;
 }

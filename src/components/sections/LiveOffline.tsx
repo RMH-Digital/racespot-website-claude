@@ -157,20 +157,23 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
               )}
 
               {/* CTAs */}
-              <div className="flex flex-wrap justify-center gap-4">
+              {/* One column of equal buttons on a phone, a centred row from sm up */}
+              <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
+                <FollowUs lang={lang} size="md" stretch className="sm:justify-center" />
                 {nextEvent.youtubeId && (
                   <a
                     href={`https://www.youtube.com/watch?v=${nextEvent.youtubeId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-outline"
+                    className="btn-outline whitespace-nowrap"
                     title={t('calendar.remindOnYouTubeHint')}
                   >
-                    <span aria-hidden="true">🔔</span> {t('calendar.remindOnYouTube')}
+                    <span aria-hidden="true">🔔</span>
+                    <span className="sm:hidden">{t('calendar.remindShort')}</span>
+                    <span className="hidden sm:inline">{t('calendar.remindOnYouTube')}</span>
                   </a>
                 )}
-                <FollowUs lang={lang} size="md" className="justify-center" />
-                <Link href={localePath(lang, '/calendar')} className="btn-outline">
+                <Link href={localePath(lang, '/calendar')} className="btn-outline whitespace-nowrap">
                   {t('live.viewCalendar')}
                 </Link>
               </div>
@@ -182,7 +185,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
               <p className="text-rs-muted text-sm max-w-md mx-auto mb-8">
                 {t('live.noUpcomingDesc')}
               </p>
-              <FollowUs lang={lang} size="md" className="justify-center" />
+              <FollowUs lang={lang} size="md" stretch className="mx-auto max-w-md sm:justify-center" />
             </>
           )}
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 /**
@@ -18,6 +18,10 @@ import { createPortal } from 'react-dom'
  * be essential — touch screens never hover — so the tip only ever restates or
  * expands what is already on the page.
  */
+const subscribeNoop = () => () => {}
+/** Touch screens never hover; a tip that needs a tap would fight the click it sits on. */
+const canHover = () => window.matchMedia('(hover: hover)').matches
+
 export function Tip({
   content,
   children,
@@ -33,10 +37,11 @@ export function Tip({
   const [rect, setRect] = useState<DOMRect | null>(null)
   const anchor = useRef<HTMLDivElement>(null)
   const id = useId()
+  const hoverable = useSyncExternalStore(subscribeNoop, canHover, () => false)
 
   const show = useCallback(() => {
-    if (anchor.current) setRect(anchor.current.getBoundingClientRect())
-  }, [])
+    if (hoverable && anchor.current) setRect(anchor.current.getBoundingClientRect())
+  }, [hoverable])
   const hide = useCallback(() => setRect(null), [])
 
   // Anything that moves the anchor invalidates the measured position; hiding
