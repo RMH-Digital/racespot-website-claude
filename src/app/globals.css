@@ -358,6 +358,21 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* The partner bands cannot scroll, so a frozen strip would show three logos
+     and hide the rest. Show the first set once, wrapped and centred; the
+     loop copies and the edge fades go. (The ticker handles this in JS.) */
+  .pause-on-hover [class*='animate-scroll'] {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem 2.5rem;
+    padding: 0 1rem;
+  }
+  .pause-on-hover [data-copy],
+  .pause-on-hover .marquee-fade {
+    display: none;
+  }
 }
 
 /*

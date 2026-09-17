@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { formatViewCount } from '@/lib/youtube-utils'
@@ -71,11 +71,34 @@ function formatLocalDate(iso: string): string {
   return `${weekday} ${day} ${month}`
 }
 
+// ─── Reduced motion ─────────────────────────────────────────
+
+const reduceQuery = () => window.matchMedia('(prefers-reduced-motion: reduce)')
+const subscribeReduce = (cb: () => void) => {
+  const q = reduceQuery()
+  q.addEventListener('change', cb)
+  return () => q.removeEventListener('change', cb)
+}
+
+/**
+ * Whether the visitor asked for less motion. The global stylesheet then stops
+ * the scrolling strip, which used to leave whatever happened to be at the
+ * left edge frozen in place — on an iPhone with "Reduce Motion" on, the
+ * ticker looked broken rather than considerate. Instead the strip shows one
+ * broadcast at a time and swaps every six seconds: no continuous motion, but
+ * every item still gets its turn.
+ */
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReduce, () => reduceQuery().matches, () => false)
+}
+
 // ─── Component ──────────────────────────────────────────────
 
 export function Ticker({ lang, items = [] }: TickerProps) {
   const is24h = useIs24Hour()
   const [mounted, setMounted] = useState(false)
+  const reducedMotion = usePrefersReducedMotion()
+  const [step, setStep] = useState(0)
   const { liveStreams, isLive, loaded, polledAt } = useLiveStatus()
   const t = getT(lang)
 
@@ -108,10 +131,18 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
   }, [items, is24h, mounted, liveStreams, isLive, loaded, polledAt, t])
 
+  // Step through the items when nothing may scroll (see usePrefersReducedMotion)
+  useEffect(() => {
+    if (!reducedMotion || rendered.length < 2) return
+    const id = setInterval(() => setStep((s) => s + 1), 6000)
+    return () => clearInterval(id)
+  }, [reducedMotion, rendered.length])
+
   if (rendered.length === 0) return null
 
   // Duplicate for seamless infinite scroll
   const duped = [...rendered, ...rendered]
+  const single = rendered[step % rendered.length]
 
   return (
     <div className="pause-on-hover fixed top-16 left-0 right-0 z-40 h-[34px] bg-rs-yellow border-b border-rs-border overflow-hidden flex items-center">
@@ -127,7 +158,13 @@ export function Ticker({ lang, items = [] }: TickerProps) {
         </Link>
       )}
 
-      {/* Scrolling ticker */}
+      {/* Scrolling ticker — or, for reduced motion, one item at a time */}
+      {reducedMotion ? (
+        <div className="flex flex-1 items-center gap-1 overflow-hidden px-3">
+          <span key={step} className="truncate text-xs font-medium text-rs-black/85">{single.text}</span>
+          {single.event && <AddToCalendar lang={lang} event={single.event} t={t} compact tone="light" />}
+        </div>
+      ) : (
       <div className="overflow-hidden flex-1">
         <div className="flex animate-ticker whitespace-nowrap">
           {duped.map((item, i) => (
@@ -141,6 +178,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
           ))}
         </div>
       </div>
+      )}
     </div>
   )
 }

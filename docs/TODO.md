@@ -1071,11 +1071,24 @@ Erkennung 1 440 (minütlich) + Suche höchstens 6 pro Broadcast-Start.
 
 **Mobil-Durchgang (Jürgen, 2026-09-17):**
 
-- **Laufband und Partner-Band standen auf dem Handy.** `.pause-on-hover`
-  pausierte bei `:hover` und `:focus-within` — auf Touch-Geräten bleibt beides
-  am zuletzt angetippten Element hängen, ein Tipp aufs Band fror es ein.
-  Beide Regeln jetzt nur unter `@media (hover: hover)`; das Pausieren bei
-  offenem Menü (`:has([aria-expanded])`) gilt weiter überall.
+- **Laufband und Partner-Band standen auf dem Handy.** Erster Fund:
+  `.pause-on-hover` pausierte bei `:hover` und `:focus-within` — auf
+  Touch-Geräten bleibt beides am zuletzt angetippten Element hängen. Beide
+  Regeln jetzt nur unter `@media (hover: hover)`. **Reichte auf Jürgens iPhone
+  nicht.** In Chromium-Emulation (375 px, `hover: none`) laufen beide Bänder;
+  das Live-CSS ist in Ordnung (Keyframes auf oberster Ebene, Utility
+  `animation: var(--animate-ticker)`, Variable in `@layer theme`). Bleibt als
+  wahrscheinlichste Ursache **„Bewegung reduzieren"** in den iOS-Bedienungs-
+  hilfen: Der `prefers-reduced-motion`-Block kappt jede Animation, und ein
+  eingefrorener Streifen sah dann nach Fehler aus. Deshalb jetzt ein
+  gestaltetes Verhalten statt Stillstand: Das **Laufband zeigt einen Termin
+  auf einmal und wechselt alle sechs Sekunden** (`usePrefersReducedMotion`
+  in `Ticker.tsx`, kein Dauer-Scrollen, aber jeder Termin kommt dran); die
+  **Partner-Logos brechen einmal umlaufend um** — die drei Schleifenkopien
+  (`data-copy`) und die Randverläufe (`.marquee-fade`) sind unter reduced
+  motion ausgeblendet. Offen: Jürgen prüft die Einstellung; falls sie aus
+  ist, ist die Ursache eine andere und braucht ein echtes iOS zum Testen
+  (kein Xcode auf diesem Mac, Simulator nicht verfügbar).
 - **Zwei Play-Symbole übereinander (Events).** Das war das Zeichen „▶"
   (U+25B6), das iOS als Emoji zeichnet — blaues Kästchen mit weißem Dreieck im
   gelben Kreis. Überall durch `PlayIcon` (SVG) ersetzt: Poster, Videokarte,
