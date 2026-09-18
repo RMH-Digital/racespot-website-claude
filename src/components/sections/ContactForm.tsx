@@ -1,8 +1,9 @@
 'use client'
 
-// Contact form — two forms behind a tab switcher:
+// Contact form — three forms behind a tab switcher:
 //   1. Broadcast Request (default) — structured quote request for a series/event
-//   2. General Inquiry — the classic name / email / subject / message form
+//   2. Event Inquiry — dates, whether a broadcast is planned, whether a venue exists
+//   3. General Inquiry — the classic name / email / subject / message form
 // Both share the honeypot, Cloudflare Turnstile and the /api/contact endpoint,
 // which branches on `type`.
 //
@@ -14,7 +15,7 @@ import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
-type FormType = 'broadcast' | 'general'
+type FormType = 'broadcast' | 'event' | 'general'
 type T = (key: TranslationKey) => string
 type Errors = Record<string, TranslationKey>
 
@@ -32,7 +33,20 @@ export const WINDOW_MINUTE_STEPS = [0, 15, 30, 45] as const
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Server error codes → translated messages (see src/app/api/contact/route.ts)
+// Field-level codes the server returns per field (see src/app/api/contact/route.ts).
+// Without this map every server-side field error read "This field is required",
+// whatever it actually was.
+const FIELD_ERRORS: Record<string, TranslationKey> = {
+  required: 'contact.err.required',
+  email: 'contact.err.email',
+  url: 'contact.err.url',
+  select: 'contact.err.select',
+  window: 'contact.err.window',
+  date: 'contact.err.date',
+  range: 'contact.err.dateRange',
+}
+
+// Form-level error codes → translated messages
 const SERVER_ERRORS: Record<string, TranslationKey> = {
   turnstile_missing: 'contact.err.turnstile',
   turnstile_failed: 'contact.err.turnstileFailed',
@@ -62,6 +76,21 @@ function validate(type: FormType, data: FormData): Errors {
 
   if (type === 'general') {
     required('message')
+    return errors
+  }
+
+  if (type === 'event') {
+    required('eventName')
+    if (!get('eventStartDate')) errors.eventStartDate = 'contact.err.required'
+    else if (Number.isNaN(new Date(get('eventStartDate')).getTime())) errors.eventStartDate = 'contact.err.date'
+    if (get('eventEndDate')) {
+      if (Number.isNaN(new Date(get('eventEndDate')).getTime())) errors.eventEndDate = 'contact.err.date'
+      // Both are YYYY-MM-DD, so a string comparison is the date comparison.
+      else if (get('eventStartDate') && get('eventEndDate') < get('eventStartDate')) errors.eventEndDate = 'contact.err.dateRange'
+    }
+    if (!get('broadcastPlanned')) errors.broadcastPlanned = 'contact.err.select'
+    if (!get('locationAvailable')) errors.locationAvailable = 'contact.err.select'
+    else if (get('locationAvailable') === 'yes' && !get('locationDetails')) errors.locationDetails = 'contact.err.required'
     return errors
   }
 
@@ -145,7 +174,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
         if (result.fields && typeof result.fields === 'object') {
           const errs: Errors = {}
           for (const [k, v] of Object.entries(result.fields as Record<string, string>)) {
-            errs[k] = (v in SERVER_ERRORS ? SERVER_ERRORS[v] : 'contact.err.required')
+            errs[k] = FIELD_ERRORS[v] ?? 'contact.err.required'
           }
           setErrors(errs)
           focusFirstError(errs)
@@ -175,8 +204,21 @@ export function ContactForm({ lang }: { lang: Lang }) {
 
   const TABS: { id: FormType; labelKey: TranslationKey }[] = [
     { id: 'broadcast', labelKey: 'contact.tab.broadcast' },
+    { id: 'event',     labelKey: 'contact.tab.event' },
     { id: 'general',   labelKey: 'contact.tab.general' },
   ]
+
+  // Per form: the send button and the line on the thank-you panel
+  const SEND_LABEL: Record<FormType, TranslationKey> = {
+    broadcast: 'contact.bc.send',
+    event: 'contact.ev.send',
+    general: 'contact.send',
+  }
+  const THANKS: Record<FormType, TranslationKey> = {
+    broadcast: 'contact.bc.thanksDesc',
+    event: 'contact.ev.thanksDesc',
+    general: 'contact.thanksDesc',
+  }
 
   const fieldProps = { t, errors, clearError }
 
@@ -230,7 +272,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
                   {t('contact.thanks')}
                 </p>
                 <p className="text-rs-muted text-sm mb-6">
-                  {t(submitted === 'broadcast' ? 'contact.bc.thanksDesc' : 'contact.thanksDesc')}{' '}
+                  {t(THANKS[submitted])}{' '}
                   <a href="mailto:contact@racespot.tv" className="text-rs-yellow hover:underline">
                     contact@racespot.tv
                   </a>
@@ -245,7 +287,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
                 <div
                   role="tablist"
                   aria-label={t('contact.title')}
-                  className="grid grid-cols-2 gap-1 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
+                  className="grid grid-cols-3 gap-1 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
                 >
                   {TABS.map((tab) => {
                     const active = tab.id === formType
@@ -267,7 +309,12 @@ export function ContactForm({ lang }: { lang: Lang }) {
                           switchForm(next.id)
                           document.getElementById(`tab-${next.id}`)?.focus()
                         }}
-                        className={`min-h-11 px-4 py-2.5 rounded-[4px] font-display font-bold text-[12px] uppercase tracking-[0.08em] transition-colors
+                        // Three tabs across a phone leave ~103 px each, and the
+                        // longest label ("Transmisión", "Transmissão") does not fit
+                        // on one line there. Smaller type, tighter padding and
+                        // automatic hyphenation — the document's `lang` picks the
+                        // right patterns — let it break instead of being clipped.
+                        className={`min-h-11 px-1 py-2 sm:px-4 sm:py-2.5 rounded-[4px] font-display font-bold text-[10px] sm:text-[12px] uppercase tracking-normal sm:tracking-[0.08em] leading-[1.15] hyphens-auto transition-colors
                           ${active ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                       >
                         {t(tab.labelKey)}
@@ -286,7 +333,9 @@ export function ContactForm({ lang }: { lang: Lang }) {
                   noValidate
                   className="space-y-5"
                 >
-                  {formType === 'broadcast' ? <BroadcastFields {...fieldProps} /> : <GeneralFields {...fieldProps} />}
+                  {formType === 'broadcast' && <BroadcastFields {...fieldProps} />}
+                  {formType === 'event' && <EventFields {...fieldProps} />}
+                  {formType === 'general' && <GeneralFields {...fieldProps} />}
 
                   {/* Honeypot — hidden from real users, bots fill it out */}
                   <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
@@ -326,7 +375,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
                         {t('contact.sending')}
                       </span>
                     ) : (
-                      t(formType === 'broadcast' ? 'contact.bc.send' : 'contact.send')
+                      t(SEND_LABEL[formType])
                     )}
                   </button>
                 </form>
@@ -500,6 +549,152 @@ function BroadcastFields(ctx: FieldCtx) {
       </div>
       <Field id="additionalInfo" label={t('contact.bc.additionalInfo')} ctx={ctx}>
         {(a) => <textarea id="additionalInfo" name="additionalInfo" rows={5} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.additionalInfoPlaceholder')} />}
+      </Field>
+    </>
+  )
+}
+
+// ─── Event inquiry ───────────────────────────────────────────
+
+/**
+ * A yes/no question as two buttons rather than a dropdown.
+ *
+ * Two options are faster to answer than a select on every device, and on a
+ * phone they avoid the native picker entirely. The real input is a pair of
+ * radios kept visually hidden, so the keyboard behaviour (arrow keys inside
+ * the group, one tab stop) and what a screen reader announces are the
+ * browser's own — only the painting is ours.
+ */
+function YesNo({
+  name, label, value, onSelect, invalid, describedBy, t,
+}: {
+  name: string
+  /** The question itself — the group carries it, since no single control does */
+  label: string
+  value: string
+  onSelect: (v: string) => void
+  invalid: boolean
+  describedBy?: string
+  t: T
+}) {
+  const options: { value: string; label: string }[] = [
+    { value: 'yes', label: t('contact.yes') },
+    { value: 'no', label: t('contact.no') },
+  ]
+  return (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      aria-required="true"
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
+      className="grid grid-cols-2 gap-3 max-w-xs"
+    >
+      {options.map((o) => {
+        const checked = value === o.value
+        return (
+          <label
+            key={o.value}
+            className={`relative flex min-h-11 cursor-pointer items-center justify-center rounded-rs border px-4 text-sm font-medium transition-colors
+              has-[:focus-visible]:ring-1 has-[:focus-visible]:ring-rs-yellow
+              ${checked
+                ? 'border-rs-yellow bg-rs-yellow/10 text-white'
+                : `${invalid ? 'border-red-500/70' : 'border-rs-border'} bg-rs-dark text-rs-muted hover:text-white`}`}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={o.value}
+              checked={checked}
+              onChange={() => onSelect(o.value)}
+              className="sr-only"
+            />
+            {o.label}
+          </label>
+        )
+      })}
+    </div>
+  )
+}
+
+function EventFields(ctx: FieldCtx) {
+  const { t, clearError } = ctx
+  // Controlled, because the venue question decides whether the "where?" field
+  // is on the page at all — and an unanswered radio group has no value to read.
+  const [broadcastPlanned, setBroadcastPlanned] = useState('')
+  const [locationAvailable, setLocationAvailable] = useState('')
+
+  return (
+    <>
+      <SectionLabel>{t('contact.bc.contactSection')}</SectionLabel>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Field id="name" label={t('contact.name')} required ctx={ctx}>
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
+        </Field>
+        <Field id="email" label={t('contact.email')} required ctx={ctx}>
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
+        </Field>
+      </div>
+      <Field id="businessAddress" label={t('contact.bc.businessAddress')} ctx={ctx}>
+        {(a) => <textarea id="businessAddress" name="businessAddress" rows={3} autoComplete="street-address" onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.bc.businessAddressPlaceholder')} />}
+      </Field>
+
+      <SectionLabel>{t('contact.ev.eventSection')}</SectionLabel>
+      <Field id="eventName" label={t('contact.ev.eventName')} required ctx={ctx}>
+        {(a) => <input id="eventName" name="eventName" type="text" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.ev.eventNamePlaceholder')} />}
+      </Field>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Field id="eventStartDate" label={t('contact.ev.startDate')} required ctx={ctx}>
+          {(a) => <input id="eventStartDate" name="eventStartDate" type="date" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
+        </Field>
+        <Field id="eventEndDate" label={t('contact.ev.endDate')} hint={t('contact.ev.endDateHint')} ctx={ctx}>
+          {(a) => <input id="eventEndDate" name="eventEndDate" type="date" aria-invalid={a.invalid || undefined} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} />}
+        </Field>
+      </div>
+      <Field id="eventStartTime" label={t('contact.ev.startTime')} hint={t('contact.bc.startTimeHint')} ctx={ctx}>
+        {(a) => <input id="eventStartTime" name="eventStartTime" type="time" aria-describedby={a.describedBy} onChange={a.onChange} className={`${a.className} sm:max-w-xs`} />}
+      </Field>
+
+      <SectionLabel>{t('contact.ev.setupSection')}</SectionLabel>
+      <Field id="broadcastPlanned" label={t('contact.ev.broadcastPlanned')} required ctx={ctx}>
+        {(a) => (
+          <YesNo
+            name="broadcastPlanned"
+            label={t('contact.ev.broadcastPlanned')}
+            value={broadcastPlanned}
+            onSelect={(v) => { setBroadcastPlanned(v); a.onChange() }}
+            invalid={a.invalid}
+            describedBy={a.describedBy}
+            t={t}
+          />
+        )}
+      </Field>
+      <Field id="locationAvailable" label={t('contact.ev.locationAvailable')} required ctx={ctx}>
+        {(a) => (
+          <YesNo
+            name="locationAvailable"
+            label={t('contact.ev.locationAvailable')}
+            value={locationAvailable}
+            onSelect={(v) => {
+              setLocationAvailable(v)
+              a.onChange()
+              // The "where?" field disappears on "no" — its error would linger.
+              if (v === 'no') clearError('locationDetails')
+            }}
+            invalid={a.invalid}
+            describedBy={a.describedBy}
+            t={t}
+          />
+        )}
+      </Field>
+      {locationAvailable === 'yes' && (
+        <Field id="locationDetails" label={t('contact.ev.locationDetails')} required ctx={ctx}>
+          {(a) => <input id="locationDetails" name="locationDetails" type="text" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.ev.locationPlaceholder')} />}
+        </Field>
+      )}
+
+      <Field id="eventInfo" label={t('contact.ev.info')} ctx={ctx}>
+        {(a) => <textarea id="eventInfo" name="eventInfo" rows={5} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.ev.infoPlaceholder')} />}
       </Field>
     </>
   )

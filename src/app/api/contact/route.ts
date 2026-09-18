@@ -3,9 +3,11 @@ import { NextResponse } from 'next/server'
 /**
  * POST /api/contact
  *
- * Two form types share this endpoint, selected by `body.type`:
+ * Three form types share this endpoint, selected by `body.type`:
  *   - 'general'   — name, email, subject?, message
  *   - 'broadcast' — structured quote request for a series/event broadcast
+ *   - 'event'     — an event: its dates, whether a broadcast is planned,
+ *                   whether a venue is in place, and anything else
  *
  * Both pass through the same honeypot, Turnstile check and rate limit.
  * Delivery: SMTP when configured, otherwise a mailto fallback for the client.
@@ -93,12 +95,12 @@ function internalRecipients(): string[] {
 
 // ─── Form definitions ────────────────────────────────────────
 
-type FormType = 'general' | 'broadcast'
+type FormType = 'general' | 'broadcast' | 'event'
 
 interface Row { label: string; value: string; multiline?: boolean }
 
 /** Field name → error code; the client maps codes to translated messages. */
-type FieldErrors = Record<string, 'required' | 'email' | 'url' | 'select' | 'window' | 'date'>
+type FieldErrors = Record<string, 'required' | 'email' | 'url' | 'select' | 'window' | 'date' | 'range'>
 interface Invalid { error: string; fields: FieldErrors }
 
 interface Prepared {
@@ -216,6 +218,68 @@ function prepareBroadcast(body: Record<string, unknown>): Prepared | Invalid {
   }
 }
 
+function prepareEvent(body: Record<string, unknown>): Prepared | Invalid {
+  const name = str(body.name, 200)
+  const email = str(body.email, 200)
+  const businessAddress = str(body.businessAddress, 1000)   // optional
+  const eventName = str(body.eventName, 300)
+  const startDate = str(body.eventStartDate, 50)
+  const endDate = str(body.eventEndDate, 50)               // optional
+  const startTime = str(body.eventStartTime, 50)           // optional
+  const broadcastPlanned = str(body.broadcastPlanned, 10)
+  const locationAvailable = str(body.locationAvailable, 10)
+  const locationDetails = str(body.locationDetails, 500)
+  const info = str(body.eventInfo)
+
+  const YES_NO = new Set(['yes', 'no'])
+
+  const fields: FieldErrors = {}
+  if (!name) fields.name = 'required'
+  if (!email) fields.email = 'required'
+  else if (!EMAIL_RE.test(email)) fields.email = 'email'
+  if (!eventName) fields.eventName = 'required'
+  if (!startDate) fields.eventStartDate = 'required'
+  else if (Number.isNaN(new Date(startDate).getTime())) fields.eventStartDate = 'date'
+  if (endDate) {
+    if (Number.isNaN(new Date(endDate).getTime())) fields.eventEndDate = 'date'
+    // Both are YYYY-MM-DD, so comparing the strings compares the dates.
+    else if (startDate && endDate < startDate) fields.eventEndDate = 'range'
+  }
+  if (!YES_NO.has(broadcastPlanned)) fields.broadcastPlanned = 'select'
+  if (!YES_NO.has(locationAvailable)) fields.locationAvailable = 'select'
+  else if (locationAvailable === 'yes' && !locationDetails) fields.locationDetails = 'required'
+  if (Object.keys(fields).length) return { error: 'Please check the highlighted fields.', fields }
+
+  const yesNo = (v: string) => (v === 'yes' ? 'Yes' : 'No')
+  const dates = endDate && endDate !== startDate ? `${startDate} – ${endDate}` : startDate
+
+  const rows: Row[] = [
+    { label: 'Contact', value: name },
+    { label: 'Email', value: email },
+    ...(businessAddress ? [{ label: 'Business Address', value: businessAddress, multiline: true }] : []),
+    { label: 'Event', value: eventName },
+    { label: 'Dates', value: dates },
+    ...(startTime ? [{ label: 'Start Time', value: `${startTime} (sender local time)` }] : []),
+    { label: 'Broadcast Planned', value: yesNo(broadcastPlanned) },
+    {
+      label: 'Venue',
+      value: locationAvailable === 'yes' ? `Yes — ${locationDetails}` : 'No',
+    },
+  ]
+
+  const summary =
+    rows.map((r) => `${r.label}: ${r.value}`).join('\n') +
+    (info ? `\n\nGeneral information:\n${info}` : '')
+
+  return {
+    subject: `Event Inquiry: ${eventName}`,
+    heading: 'New Event Inquiry',
+    rows,
+    freeText: info ? { label: 'General Information', value: info } : undefined,
+    summary,
+  }
+}
+
 // ─── Rendering ───────────────────────────────────────────────
 
 const HTML_HEAD = `<div style="background: #0A0A0A; padding: 20px 24px; border-bottom: 3px solid #F5C000;">`
@@ -304,8 +368,10 @@ export async function POST(request: Request) {
       }
     }
 
-    const type: FormType = body.type === 'broadcast' ? 'broadcast' : 'general'
-    const prepared = type === 'broadcast' ? prepareBroadcast(body) : prepareGeneral(body)
+    const type: FormType =
+      body.type === 'broadcast' ? 'broadcast' : body.type === 'event' ? 'event' : 'general'
+    const prepared =
+      type === 'broadcast' ? prepareBroadcast(body) : type === 'event' ? prepareEvent(body) : prepareGeneral(body)
     if ('error' in prepared) {
       return NextResponse.json({ error: prepared.error, code: 'validation', fields: prepared.fields }, { status: 400 })
     }
@@ -349,7 +415,7 @@ export async function POST(request: Request) {
       if (!internal.includes(email.toLowerCase())) await transporter.sendMail({
         from: `"Racespot.tv" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: `Copy of your ${type === 'broadcast' ? 'broadcast request' : 'message'} to Racespot.tv`,
+        subject: `Copy of your ${type === 'broadcast' ? 'broadcast request' : type === 'event' ? 'event inquiry' : 'message'} to Racespot.tv`,
         text: `Hi ${name},\n\nThank you for reaching out to Racespot.tv! This is a copy of what you sent us:\n\n${prepared.summary}\n\n---\nWe'll get back to you as soon as possible.\n\nBest regards,\nThe Racespot Team\ncontact@racespot.tv\nhttps://racespot.tv`,
         html: renderConfirmationHtml(name, prepared),
       })

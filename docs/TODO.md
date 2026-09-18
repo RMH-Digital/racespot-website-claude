@@ -1171,6 +1171,40 @@ Raster dort nicht passte) — Jürgens Wunsch nach dem ersten Blick, 2026-09-17.
 **Live-Seite** im selben Commit: Erinnerung und Kalender-Knopf links, YouTube
 (Abonnieren, weitere Kanäle) rechts; auf dem Handy eine Spalte in dieser Reihenfolge.
 
+## 7l. Drittes Kontaktformular: Event — 2026-09-18
+
+Der Reiter **Event** steht zwischen Broadcast und Allgemein. Er läuft über
+denselben Endpunkt (`/api/contact`, `type: 'event'`), dieselbe Honeypot-,
+Turnstile-, Rate-Limit- und Dedup-Kette und denselben Mailweg (interne
+Benachrichtigung + Kopie an den Absender; ohne SMTP der mailto-Fallback).
+
+Felder: Name*, E-Mail*, Geschäftsadresse; Name des Events*, Beginn*, Ende
+(leer = eintägig), Startzeit; „Ist ein Broadcast vom Event geplant?"* Ja/Nein;
+„Ist eine Location vorhanden?"* Ja/Nein, bei Ja das Pflichtfeld „Wenn ja, wo?";
+Allgemeine Infos. Alles in sechs Sprachen.
+
+Die beiden Ja/Nein-Fragen sind echte Radio-Gruppen, nur visuell als zwei
+Knöpfe: Pfeiltasten, ein Tabstopp und die Ansage im Screenreader bleiben die
+des Browsers. Zwei Optionen beantwortet man so schneller als über ein
+Auswahlmenü, und auf dem Handy öffnet sich kein Systemdialog.
+
+Serverseitig neu geprüft: Enddatum nicht vor Beginn (Fehlercode `range`),
+Ja/Nein nur als `yes`/`no` (ein manipulierter Wert fällt auf `select`),
+Ortsangabe nur dann Pflicht, wenn „Ja" gewählt ist. Beides — Client und
+Server — prüft dieselben Regeln.
+
+Nebenbei repariert: Feldfehler **vom Server** wurden im Browser alle als
+„Dieses Feld ist ein Pflichtfeld" angezeigt, weil die Codes (`email`, `url`,
+`date` …) gegen die Tabelle der *Formular*-Codes geprüft wurden. Dafür gibt es
+jetzt `FIELD_ERRORS`. Sichtbar wurde das praktisch nie, weil der Client
+dieselben Regeln vorher prüft.
+
+Die Reiterleiste hat jetzt drei Spalten. Auf einem 375-px-Display bleiben ~103 px
+je Reiter; „Transmisión" und „Transmissão" passen dort nicht in eine Zeile und
+wurden abgeschnitten. Kleinere Schrift, engere Innenabstände und automatische
+Silbentrennung (`hyphens-auto`, Sprache kommt aus dem Dokument) lösen das —
+in allen sechs Sprachen gemessen, nichts wird beschnitten.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
