@@ -1205,6 +1205,39 @@ wurden abgeschnitten. Kleinere Schrift, engere Innenabstände und automatische
 Silbentrennung (`hyphens-auto`, Sprache kommt aus dem Dokument) lösen das —
 in allen sechs Sprachen gemessen, nichts wird beschnitten.
 
+## 7m. Aufzeichnungen fehlten einen Tag lang — behoben 2026-09-21
+
+**Meldung**: Im Kalender stand bei den Streams von gestern und von heute früh
+kein Replay, obwohl es die Aufzeichnungen gibt.
+
+**Befund**: Kein Fehler in der Zuordnung. Alle drei Sendungen lagen auf YouTube
+mit Start binnen sechs Minuten am Zeitplan — weit innerhalb des
+Drei-Stunden-Fensters. Der Replay-Index selbst war 35 Stunden alt: Er kannte
+den Britcar-Stream, der am 19.09. um 18:36 UTC endete, aber nichts danach.
+`getReplayIndex` lag hinter **einem** `unstable_cache`-Eintrag mit 24 Stunden
+Laufzeit, und alles darin alterte gemeinsam.
+
+Das traf drei Dinge gleichzeitig: Aufzeichnungen entstehen erst beim Ende eines
+Streams, angekündigte Streams (die Glocke) erscheinen erst beim Ansetzen, und
+beides sind genau die Einträge, die sich ständig ändern.
+
+**Umbau** (`src/lib/replays.ts`): `unstable_cache` raus, stattdessen trägt jede
+Anfrage an YouTube ihre eigene Lebensdauer im Next-Fetch-Cache. Die neueste
+Seite der Uploads (50 Videos, reicht rund 45 Tage zurück) wird alle **10
+Minuten** erneuert, jede ältere Seite einmal am Tag. Pro Seite genau ein
+`videos.list`, damit Charge und Seite dieselbe Lebensdauer haben.
+
+**Kosten**: 2 Einheiten alle 10 Minuten ≈ 300 pro Tag, plus 16 für das Archiv,
+gegen ein Kontingent von 10.000. Vorher ~16 pro Tag, aber einen Tag zu spät.
+
+**Zwei Datenpunkte, kein Code-Thema** (für Jürgen):
+- Britcar 24 steht als **eine** Zeile im Master Schedule, liegt auf YouTube
+  aber als vier Teile. Verknüpft wird Teil 1. Mehrteilige Übertragungen kennt
+  das Schema nicht.
+- Die **British F4 Esports Championship 2026** (ab 23.09., acht Runden) steht
+  im Master Schedule auf `Public = No`, wird auf YouTube aber öffentlich
+  angekündigt. Deshalb fehlt sie im Kalender. Die Saison 2025 stand auf `Yes`.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
