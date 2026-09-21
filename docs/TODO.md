@@ -1232,11 +1232,39 @@ gegen ein Kontingent von 10.000. Vorher ~16 pro Tag, aber einen Tag zu spät.
 
 **Zwei Datenpunkte, kein Code-Thema** (für Jürgen):
 - Britcar 24 steht als **eine** Zeile im Master Schedule, liegt auf YouTube
-  aber als vier Teile. Verknüpft wird Teil 1. Mehrteilige Übertragungen kennt
-  das Schema nicht.
+  aber als vier Teile. Am selben Tag nachgezogen — siehe 7n.
 - Die **British F4 Esports Championship 2026** (ab 23.09., acht Runden) steht
   im Master Schedule auf `Public = No`, wird auf YouTube aber öffentlich
   angekündigt. Deshalb fehlt sie im Kalender. Die Saison 2025 stand auf `Yes`.
+
+## 7n. Mehrteilige Übertragungen — 2026-09-21
+
+Eine 24-Stunden-Übertragung geht als vier Streams à sechs Stunden raus, der
+Zeitplan hat dafür **eine** Zeile. Bisher hing daran nur Teil 1.
+
+**Erkennung** (`src/lib/replays.ts`): Ein Teil beginnt, sobald der vorige
+endet — bei Britcar 24 mit Lücken von 20, 37 und 27 Sekunden — und trägt
+praktisch denselben Titel. Die Kette läuft also über `actualEndTime` des
+vorigen Teils, ein Fenster von 20 Minuten und mindestens 75 % Titelüberlappung.
+
+**Zwei Durchgänge, und die Reihenfolge ist der Punkt.** Erst holt sich jeder
+Termin den Stream, der seinem Startzeitpunkt am nächsten liegt. Erst danach
+greift ein Termin nach den Fortsetzungen. In einem Durchgang würde eine lange
+Sendung den Stream der Zeile danach schlucken: Zwei Klassen derselben Serie
+laufen direkt hintereinander unter fast identischem Titel, und die Aufzeichnung
+der zweiten würde als Teil 2 der ersten gelesen. Nach Durchgang eins ist sie
+bereits vergeben.
+
+**Wiedergabe**: `videoParts` trägt alle IDs in Reihenfolge, der Player hängt sie
+über YouTubes eigenen `playlist`-Parameter aneinander — ein Klick, vier Teile
+nacheinander, mit den Weiter-Knöpfen des Players. Das Replay-Abzeichen zeigt die
+Anzahl (`Replay · 4`), der Hover-Text nennt sie im Satz.
+
+**Gegen die echten Daten geprüft** (503 Termine im Kalenderjahr, 379 mit Video):
+genau 7 mehrteilige Sendungen, alle Langstrecke — Britcar 24, Spa 24,
+Nürburgring 24, MSUK 24 Hours of Silverstone, Race for a Cause 24, VCO Infinity,
+Porsche Carrera Cup Onboard. Kein Video doppelt vergeben, keine Zuordnung
+verloren.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 

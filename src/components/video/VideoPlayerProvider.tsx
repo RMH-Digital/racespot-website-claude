@@ -17,7 +17,8 @@ import { FollowUs } from '@/components/ui/FollowUs'
  * back to whatever opened the player, and the page behind stops scrolling.
  */
 export type PlayerMedia =
-  | { kind: 'video'; id: string; title: string }
+  /** `parts` lists every id of a broadcast that went out in several streams, `id` being the first */
+  | { kind: 'video'; id: string; title: string; parts?: string[] }
   | { kind: 'playlist'; id: string; title: string }
 
 const PlayerContext = createContext<{ play: (m: PlayerMedia) => void } | null>(null)
@@ -34,9 +35,13 @@ export function youtubeWatchUrl(m: PlayerMedia): string {
 
 function embedUrl(m: PlayerMedia): string {
   const base = 'https://www.youtube-nocookie.com/embed/'
-  return m.kind === 'playlist'
-    ? `${base}videoseries?list=${encodeURIComponent(m.id)}&autoplay=1&rel=0`
-    : `${base}${encodeURIComponent(m.id)}?autoplay=1&rel=0`
+  if (m.kind === 'playlist') return `${base}videoseries?list=${encodeURIComponent(m.id)}&autoplay=1&rel=0`
+  // A broadcast in several parts: the first one plays, the rest follow in the
+  // same frame. `playlist` is YouTube's own parameter for exactly this, so
+  // the player's next and previous buttons work without us building anything.
+  const rest = m.parts && m.parts.length > 1 ? m.parts.slice(1) : []
+  const queue = rest.length ? `&playlist=${rest.map(encodeURIComponent).join(',')}` : ''
+  return `${base}${encodeURIComponent(m.id)}?autoplay=1&rel=0${queue}`
 }
 
 export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: ReactNode }) {

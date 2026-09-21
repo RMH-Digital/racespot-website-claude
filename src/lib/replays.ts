@@ -34,6 +34,14 @@ const BASE_URL = 'https://www.googleapis.com/youtube/v3'
 export const REPLAY_DAYS = 365
 /** A stream is "the" recording if it went live this close to the scheduled start. */
 const MATCH_WINDOW_MS = 3 * 60 * 60 * 1000
+/**
+ * A broadcast split across several streams: the next part goes live within
+ * minutes of the previous one ending. Britcar 24 is four parts of six hours
+ * with gaps of twenty, thirty-seven and twenty-seven seconds.
+ */
+const PART_GAP_MS = 20 * 60 * 1000
+/** …and carries almost the same title, which is what separates a part from the next broadcast. */
+const PART_TITLE_OVERLAP = 0.75
 /** How long a page of uploads counts as current while it still holds recent videos */
 const REVALIDATE_RECENT = 600
 /** …and once it holds only settled history */
@@ -48,6 +56,8 @@ export interface Replay {
   start: string
   /** true once the stream has ended and is a recording */
   finished: boolean
+  /** actualEndTime of a finished stream — where the next part picks up */
+  end?: string
 }
 
 /**
@@ -102,7 +112,7 @@ async function getReplayIndex(): Promise<Replay[]> {
             const live = v.liveStreamingDetails
             if (!live) continue // a plain upload was never a broadcast
             if (live.actualEndTime && live.actualStartTime) {
-              replays.push({ id: v.id, title: v.snippet.title, start: live.actualStartTime, finished: true })
+              replays.push({ id: v.id, title: v.snippet.title, start: live.actualStartTime, end: live.actualEndTime, finished: true })
             } else if (!live.actualStartTime && live.scheduledStartTime) {
               // Announced on YouTube but not yet live: the page where the
               // reader can set the bell.
@@ -147,6 +157,16 @@ function overlap(a: string, b: string): number {
  * past broadcast, the announced stream — where the bell lives — for an
  * upcoming one. Live events are left alone; they go to the live page. An
  * event with no stream within the window stays without `videoId`.
+ *
+ * Two passes, and the order is the point. First every event claims the one
+ * stream that starts nearest its own scheduled time. Only then does an event
+ * reach forward for the parts that continue its broadcast — a twenty-four
+ * hour race goes out as four six-hour streams, and the schedule has one row
+ * for it. Doing that in one pass would let a long event swallow the stream
+ * belonging to the row after it: two classes of the same series run
+ * back-to-back under nearly the same title, and the second one's recording
+ * would be read as the first one's part two. After pass one it is already
+ * spoken for.
  */
 export async function withReplays(events: CalendarEvent[]): Promise<CalendarEvent[]> {
   if (events.length === 0) return events
@@ -156,11 +176,12 @@ export async function withReplays(events: CalendarEvent[]): Promise<CalendarEven
   const byTime = index.map((r) => ({ ...r, t: Date.parse(r.start) })).sort((a, b) => a.t - b.t)
   const used = new Set<string>()
 
-  return events.map((e) => {
-    if (e.isLive) return e
+  // Pass one — the nearest stream, one per event.
+  const matched = events.map((e) => {
+    if (e.isLive) return { e, best: null }
     const t0 = Date.parse(e.dateISO)
     const candidates = byTime.filter((r) => !used.has(r.id) && r.finished === e.isPast && Math.abs(r.t - t0) <= MATCH_WINDOW_MS)
-    if (candidates.length === 0) return e
+    if (candidates.length === 0) return { e, best: null }
 
     let best = candidates[0]
     if (candidates.length > 1) {
@@ -172,6 +193,40 @@ export async function withReplays(events: CalendarEvent[]): Promise<CalendarEven
       })[0]
     }
     used.add(best.id)
-    return { ...e, videoId: best.id }
+    return { e, best }
   })
+
+  // Pass two — the rest of the chain, for the events that have one.
+  return matched.map(({ e, best }) => {
+    if (!best) return e
+    const parts = [best.id]
+    let current = best
+    // A dozen is far beyond anything we have broadcast, and stops a cycle.
+    for (let i = 0; i < 12; i++) {
+      const next = nextPart(current, byTime, used)
+      if (!next) break
+      used.add(next.id)
+      parts.push(next.id)
+      current = next
+    }
+    return parts.length > 1 ? { ...e, videoId: parts[0], videoParts: parts } : { ...e, videoId: parts[0] }
+  })
+}
+
+type Timed = Replay & { t: number }
+
+/** The stream that takes over where this one stopped, if there is one. */
+function nextPart(current: Timed, byTime: Timed[], used: Set<string>): Timed | null {
+  if (!current.end) return null
+  const endedAt = Date.parse(current.end)
+  if (!Number.isFinite(endedAt)) return null
+  for (const r of byTime) {
+    if (used.has(r.id) || !r.finished) continue
+    // Starts at the moment the previous part ended — a minute of slack for a
+    // stream whose recorded end runs just past the next one's start.
+    if (r.t < endedAt - 60_000) continue
+    if (r.t > endedAt + PART_GAP_MS) break // sorted by time: nothing later qualifies
+    if (overlap(current.title, r.title) >= PART_TITLE_OVERLAP) return r
+  }
+  return null
 }

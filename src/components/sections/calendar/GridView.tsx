@@ -465,7 +465,7 @@ function EventCard({ lang, event, is24h, locale, timeZone, isNext = false }: { l
       )}
       {past && event.videoId && (
         <div className="mb-1">
-          <ReplayBadge lang={lang} />
+          <ReplayBadge lang={lang} parts={event.videoParts?.length} />
         </div>
       )}
 

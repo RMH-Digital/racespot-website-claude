@@ -57,6 +57,8 @@ export interface CalendarEvent {
   isPast: boolean
   /** The YouTube video: the recording of a past broadcast, the announced stream of an upcoming one — see src/lib/replays.ts */
   videoId?: string
+  /** Every part, in order, when one broadcast was streamed in several — `videoId` is the first of them */
+  videoParts?: string[]
 }
 
 /**

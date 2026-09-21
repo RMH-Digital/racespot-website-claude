@@ -77,7 +77,7 @@ export function EventRow({ lang, event, is24h, locale, timeZone, isNext = false,
         <div className="flex items-center gap-2 flex-wrap">
           {status.live && <LiveBadge />}
           {isNext && !status.live && <UpNextBadge lang={lang} />}
-          {past && event.videoId && <ReplayBadge lang={lang} />}
+          {past && event.videoId && <ReplayBadge lang={lang} parts={event.videoParts?.length} />}
           <p className="text-rs-white font-medium text-sm truncate group-hover:text-rs-yellow transition-colors">
             {event.series}
           </p>

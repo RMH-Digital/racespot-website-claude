@@ -51,7 +51,13 @@ export function EventTipContent({ lang, event, is24h, locale, timeZone }: { lang
         <span className="text-rs-muted"> – {formatTime(event.endDateISO, is24h, locale, timeZone)}</span>
       </p>
       <p className="mt-2 text-[11px] uppercase tracking-wider font-display font-bold text-rs-muted">
-        {status.past ? t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay') : status.live ? t('calendar.tipLive') : t('calendar.eventTip')}
+        {status.past
+          ? event.videoParts && event.videoParts.length > 1
+            ? t('calendar.tipReplayParts').replace('{n}', String(event.videoParts.length))
+            : t(event.videoId ? 'calendar.tipReplay' : 'calendar.tipNoReplay')
+          : status.live
+            ? t('calendar.tipLive')
+            : t('calendar.eventTip')}
       </p>
     </>
   )
@@ -81,8 +87,9 @@ export function EventLink({ lang, event, className, onOpenMenu }: { lang: Lang; 
   }
   if (event.videoId) {
     const id = event.videoId
+    const parts = event.videoParts
     return (
-      <button type="button" onClick={() => play({ kind: 'video', id, title: event.series })} className={className} aria-label={event.series}>
+      <button type="button" onClick={() => play({ kind: 'video', id, title: event.series, parts })} className={className} aria-label={event.series}>
         {label}
       </button>
     )
@@ -104,12 +111,14 @@ export function UpNextBadge({ lang }: { lang: Lang }) {
   )
 }
 
-export function ReplayBadge({ lang }: { lang: Lang }) {
+/** `parts` is the number of streams the broadcast went out in — shown only when it is more than one. */
+export function ReplayBadge({ lang, parts }: { lang: Lang; parts?: number }) {
   const t = getT(lang)
   return (
     <span className="inline-flex items-center gap-1 rounded-sm bg-white/10 px-1.5 py-0.5 text-[11px] font-bold uppercase text-white">
       <PlayIcon size={9} />
       {t('calendar.replay')}
+      {parts && parts > 1 ? <span className="text-white/70">· {parts}</span> : null}
     </span>
   )
 }
