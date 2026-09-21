@@ -134,7 +134,7 @@ async function getUploadsFromApi(maxResults = 15): Promise<RSSVideoData[]> {
     const url = `${BASE_URL}/playlistItems?part=snippet&playlistId=${uploads}&maxResults=${maxResults}&key=${API_KEY}`
     const res = await fetch(url, { next: { revalidate: CACHE_1H } })
     if (!res.ok) {
-      console.error('YouTube uploads API error:', res.status)
+      console.error('YouTube uploads API error:', await apiError(res))
       return []
     }
     const data = await res.json()
@@ -203,7 +203,7 @@ async function getVideoDetails(videoIds: string[], revalidate = CACHE_24H): Prom
     const res = await fetch(url, { next: { revalidate } })
 
     if (!res.ok) {
-      console.error('YouTube videos API error:', res.status)
+      console.error('YouTube videos API error:', await apiError(res))
       return [] // Caller (getLatestVideos/getCompletedBroadcasts) falls back to RSS
     }
 
@@ -489,22 +489,49 @@ export const getLiveStreamsViaSearch = unstable_cache(
   { revalidate: 300 },
 )
 
+/**
+ * What Google actually objected to.
+ *
+ * A bare status is not enough to act on: 403 is `quotaExceeded` when the day's
+ * units are gone, `keyInvalid` when a key was rotated and `accessNotConfigured`
+ * when the API was switched off in the project — three different problems, one
+ * number. On 2026-09-22 the whole site lost its recordings for hours and the
+ * log said "403" and nothing else.
+ */
+async function apiError(res: Response): Promise<string> {
+  try {
+    const body = await res.clone().json()
+    const first = body?.error?.errors?.[0]
+    return `${res.status} ${first?.reason ?? ''} ${body?.error?.message ?? ''}`.trim()
+  } catch {
+    return String(res.status)
+  }
+}
+
+/**
+ * Live detection's last resort: one search.list, a hundred quota units.
+ *
+ * It runs on YOUTUBE_LIVE_API_KEY and, since 2026-09-22, on nothing else.
+ * Until then it fell back to the main key when the live key was spent — and
+ * the main key is what fetches the uploads, the playlists, the thumbnails and
+ * the replay index for the whole site. A hundred units every five minutes
+ * through a broadcast window emptied it, and the calendar lost every replay
+ * and every bell while the search found nothing anyway. Detecting a live
+ * stream is worth one unit through the uploads list, not the site's day.
+ */
 async function searchLiveStreams(): Promise<YouTubeLiveStream[]> {
   if (!LIVE_API_KEY || !CHANNEL_ID) return []
 
   try {
-    // Uses LIVE_API_KEY — separate quota from main API key
+    // The live key has its own quota, and this call costs a hundred units of it.
     const searchBaseUrl = `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&maxResults=10`
-    let searchRes = await fetch(`${searchBaseUrl}&key=${LIVE_API_KEY}`, { next: { revalidate: CACHE_LIVE } })
-
-    // Fallback to main API key if live key quota is exhausted
-    if (!searchRes.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
-      console.warn(`[Live] LIVE_API_KEY failed in getLiveStreamsViaSearch (${searchRes.status}), falling back to main API_KEY`)
-      searchRes = await fetch(`${searchBaseUrl}&key=${API_KEY}`, { next: { revalidate: CACHE_LIVE } })
-    }
+    const searchRes = await fetch(`${searchBaseUrl}&key=${LIVE_API_KEY}`, { next: { revalidate: CACHE_LIVE } })
 
     if (!searchRes.ok) {
-      console.warn('[Live] Search API fallback failed:', searchRes.status)
+      // Deliberately no fallback to the main key — see the note on this
+      // function. Live detection loses its last resort for the rest of the
+      // day; the site keeps its recordings.
+      console.warn('[Live] Search skipped, live key refused it:', await apiError(searchRes))
       return []
     }
 
@@ -551,7 +578,7 @@ export async function getChannelPlaylists(maxResults = 50): Promise<YouTubePlayl
     const res = await fetch(url, { next: { revalidate: CACHE_24H } })
 
     if (!res.ok) {
-      console.error('YouTube playlists API error:', res.status)
+      console.error('YouTube playlists API error:', await apiError(res))
       return []
     }
 

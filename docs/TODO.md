@@ -1452,6 +1452,47 @@ erzwungen.
 Zahl der `?_rsc=`-Adressen in der Search Console sollte gegen null gehen, ohne
 dass die Impressionen der echten Seiten sinken.
 
+## 7r. Der Hauptschlüssel war leer, und die Seite schwieg — 2026-09-22
+
+**Symptom**: Nach dem Deploy der Abkürzungstabelle trug der Kalender live
+**kein einziges** Video mehr — weder die Aufzeichnungen von gestern noch die
+Glocken der kommenden Woche. Lokal, mit demselben Code und einem
+Produktions-Build, waren alle 388 da.
+
+**Befund aus dem Container-Log**:
+
+```
+[Live] LIVE_API_KEY failed in getLiveStreamsViaSearch (429), falling back to main API_KEY
+[Live] Search API fallback failed: 403
+YouTube videos API error: 403
+```
+
+Der Live-Schlüssel war aufgebraucht, und daraufhin lief die Suche auf den
+**Hauptschlüssel** — den, der Uploads, Playlists, Vorschaubilder und den
+Replay-Index der ganzen Seite holt. `search.list` kostet **100 Einheiten**;
+alle fünf Minuten durch ein Sendefenster leert das ein Tageskontingent von
+10.000. Danach antwortete auch der Hauptschlüssel mit 403, `getReplayIndex`
+bekam auf Seite 1 einen Fehler, gab `[]` zurück — und der Kalender rendert
+ohne Videos völlig fehlerfrei. Deshalb fiel es nur beim Nachmessen auf.
+
+**Zwei Änderungen**:
+
+1. **Die Suche fällt nicht mehr auf den Hauptschlüssel zurück.** Ist der
+   Live-Schlüssel leer, entfällt die letzte Stufe der Live-Erkennung für den
+   Rest des Tages. Die Erkennung über die Uploads-Liste (1 Einheit) läuft
+   weiter. Eine Live-Erkennung ist eine Einheit wert, nicht den Tag der
+   Website.
+2. **Fehler nennen ihren Grund.** `apiError()` liest `error.errors[0].reason`
+   aus der Antwort. „403" allein kann `quotaExceeded`, `keyInvalid` oder
+   `accessNotConfigured` heißen — drei verschiedene Probleme, eine Zahl. Dazu
+   eine Warnung in `replays.ts`, wenn der Index leer bleibt.
+
+**Für Jürgen, in der Cloud Console zu prüfen**: Tagesverbrauch der YouTube
+Data API v3 je Schlüssel, und ob sich an den Einschränkungen der Schlüssel
+heute etwas geändert hat. Ist es reines Kontingent, erholt sich alles um
+Mitternacht Pacific Time von selbst. Steht dort `keyInvalid`, wurde der
+Schlüssel ausgetauscht und muss in Coolify nachgezogen werden.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
