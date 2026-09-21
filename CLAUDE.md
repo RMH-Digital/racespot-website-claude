@@ -169,10 +169,24 @@ reviewer approves is what a reader gets:
 | `p` | unchanged from before |
 
 `sources` is carried but **not rendered**: RaceSpot keeps the origin as an
-editorial record and in the Press Tool review panel, not under the article. Same
-for the AI notice, which is why you will not find one here. Do not "helpfully"
-add either to the page — see `editorial.link_sources_in_body` and
-`editorial.ai_notice_enabled` in the pipeline's project config.
+editorial record and in the Press Tool review panel, not under the article. Do
+not "helpfully" link them in the body — see `editorial.link_sources_in_body` in
+the pipeline's project config.
+
+**The AI notice is different since 2026-09-21.** The pipeline now writes it
+itself, as the last `p` of the article text: one italic line naming the source
+where there is one, and saying the piece was written with AI assistance and
+reviewed by the editorial team. It is content, not chrome — the site neither
+adds nor removes it, and it exists in every language of an article. The four
+articles published before that change were given the line by hand; the five
+written by hand must never get it, and do not have it.
+
+A paragraph that is **entirely one italic run** (`*…*`, nothing else) in the
+last two blocks is rendered as small print — 13px, italic, muted — instead of
+the yellow `<em>` an emphasis inside a sentence gets. That is `footerNote()` in
+`articleContent.tsx`. Two sentences of yellow italics under every article was
+too loud. The translation footer, where an article has one, stays last and
+unchanged.
 
 ## YouTube Watch Time
 

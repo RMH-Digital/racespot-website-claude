@@ -20,6 +20,23 @@ import { LANGS, type Lang } from './i18n'
 const INLINE_SOURCE = '(\\*\\*[^*]+?\\*\\*|\\*[^*]+?\\*|\\[[^\\]]+?\\]\\([^)]+?\\))'
 const LINK = /^\[([^\]]+)\]\(([^)]+)\)$/
 
+/**
+ * A paragraph that is nothing but one italic run: the credit and the AI
+ * notice the Press Tool writes under an article.
+ *
+ * Returns what is inside the markers, or null when the paragraph is anything
+ * else. `renderInline` paints an `<em>` yellow, which is right for a word of
+ * emphasis inside a sentence and far too loud for two sentences of small
+ * print at the foot of every article. A wholly **bold** paragraph is not one
+ * of these — its inner text still carries a marker, so it falls through.
+ */
+export function footerNote(text: string): string | null {
+  const t = text.trim()
+  if (t.length < 4 || !t.startsWith('*') || !t.endsWith('*')) return null
+  const inner = t.slice(1, -1)
+  return inner.includes('*') ? null : inner
+}
+
 export function renderInline(text: string): ReactNode[] {
   const out: ReactNode[] = []
   // a fresh regex per call: a shared /g/ object carries lastIndex between calls,

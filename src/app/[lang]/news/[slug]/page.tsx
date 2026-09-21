@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ARTICLES, sortedArticles, CATEGORY_COLORS } from '@/lib/articles'
-import { articleLangs, localizeArticle, renderInline } from '@/lib/articleContent'
+import { articleLangs, localizeArticle, renderInline, footerNote } from '@/lib/articleContent'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
 import { absoluteUrl, clampDescription, pageMetadata, titleWithBrand } from '@/lib/i18n/seo'
@@ -195,6 +195,18 @@ export default async function ArticlePage({ params }: Props) {
                       </figcaption>
                     )}
                   </figure>
+                )
+              }
+              // The credit and AI notice under the article: small print, set
+              // quietly, rather than the yellow italics an `<em>` gets inside
+              // a sentence. Only at the very end — the translation footer may
+              // follow it — so an italic line mid-article keeps its emphasis.
+              const note = i >= loc.blocks.length - 2 ? footerNote(block.text) : null
+              if (note !== null) {
+                return (
+                  <p key={i} className="text-[13px] italic leading-relaxed text-rs-muted/75">
+                    {renderInline(note)}
+                  </p>
                 )
               }
               return (

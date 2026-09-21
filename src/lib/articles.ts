@@ -166,7 +166,7 @@ export const ARTICLES: Article[] = [
       { kind: "p", text: "The booth also carried MOZA's wider 2026 range for hands-on demos — the R16 Ultra, R5 Pro, AY90 and MFY Pro, plus the Farming Control System — and MOZA hardware was on show at four partner booths: Newegg, DOF Reality, PIMAX and SIMGASM B.V." },
       { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "MOZA's current wheel, pedal, shifter and yoke range", credit: "MOZA Racing" },
       { kind: "p", text: "Four licensed wheels, an AI coach, a console range and a motion system have arrived inside three weeks. The next dates are the Mustang GTD wheel's launch on 17 September and the pricing MOZA has promised for the PS5 lineup." },
-      { kind: "p", text: "*Based on a press release from MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+      { kind: "p", text: "*Based on a press release from MOZA Racing. This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -199,7 +199,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Am Stand war außerdem MOZAs breiteres 2026er-Sortiment zum Anfassen vertreten – der R16 Ultra, R5 Pro, AY90 und MFY Pro sowie das Farming Control System – und MOZA-Hardware war an vier Partnerständen zu sehen: Newegg, DOF Reality, PIMAX und SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "MOZAs aktuelles Sortiment an Lenkrädern, Pedalen, Shiftern und Yokes", credit: "MOZA Racing" },
           { kind: "p", text: "Vier lizenzierte Lenkräder, ein KI-Coach, eine Konsolen-Reihe und ein Motion-System sind innerhalb von drei Wochen erschienen. Die nächsten Termine sind der Marktstart des Mustang-GTD-Lenkrads am 17. September und die Preisangaben, die MOZA für das PS5-Lineup versprochen hat." },
-          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing. Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
           { kind: "p", text: "Dies ist eine automatische Übersetzung aus dem Englischen. [Zum Originalartikel](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -233,7 +233,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "El stand también exhibió la gama más amplia de **MOZA** para 2026 en demostraciones prácticas —el R16 Ultra, el R5 Pro, el AY90 y el MFY Pro, además del Farming Control System— y hardware de **MOZA** estuvo presente en otros cuatro stands asociados: Newegg, DOF Reality, PIMAX y SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gama actual de volantes, pedales, shifters y yokes de MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Cuatro volantes con licencia, un entrenador de IA, una gama para consolas y un sistema de movimiento han llegado en apenas tres semanas. Las próximas fechas son el lanzamiento del volante Mustang GTD el 17 de septiembre y los precios que **MOZA** ha prometido para la gama de PS5." },
-          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing. Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
           { kind: "p", text: "Esta es una traducción automática del inglés. [Leer el artículo original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -267,7 +267,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Le stand présentait également la gamme 2026 plus large de **MOZA** en démonstration — le R16 Ultra, le R5 Pro, l'AY90 et le MFY Pro, ainsi que le Farming Control System — et du matériel **MOZA** était exposé sur quatre stands partenaires : Newegg, DOF Reality, PIMAX et SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gamme actuelle de volants, pédales, shifters et yokes de MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quatre volants sous licence, un coach IA, une gamme console et un système de mouvement sont arrivés en l'espace de trois semaines. Les prochaines dates sont le lancement du volant Mustang GTD le 17 septembre et les prix promis par **MOZA** pour la gamme PS5." },
-          { kind: "p", text: "*D'après un communiqué de presse de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*D'après un communiqué de presse de MOZA Racing. Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
           { kind: "p", text: "Ceci est une traduction automatique de l'anglais. [Lire l'article original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -301,7 +301,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Lo stand ospitava anche la più ampia gamma 2026 di **MOZA** per prove pratiche — l'R16 Ultra, l'R5 Pro, l'AY90 e l'MFY Pro, oltre al Farming Control System — e hardware **MOZA** era esposto in quattro stand partner: Newegg, DOF Reality, PIMAX e SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gamma attuale di volanti, pedaliere, shifter e yoke di MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quattro volanti su licenza, un coach IA, una gamma per console e un sistema di movimento sono arrivati nel giro di tre settimane. Le prossime date sono il lancio del volante Mustang GTD il 17 settembre e i prezzi che MOZA ha promesso per la gamma PS5." },
-          { kind: "p", text: "*Basato su un comunicato stampa di MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basato su un comunicato stampa di MOZA Racing. Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
           { kind: "p", text: "Questa è una traduzione automatica dall'inglese. [Leggi l'articolo originale](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -335,7 +335,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "O estande também trouxe a linha mais ampla da **MOZA** para 2026 em demonstrações práticas — o R16 Ultra, o R5 Pro, o AY90 e o MFY Pro, além do Farming Control System — e hardware da **MOZA** foi exibido em quatro estandes parceiros: Newegg, DOF Reality, PIMAX e SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Linha atual de volantes, pedais, shifters e yokes da MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quatro volantes licenciados, um treinador de IA, uma linha para consoles e um sistema de movimento chegaram em apenas três semanas. As próximas datas são o lançamento do volante Mustang GTD em 17 de setembro e os preços que a **MOZA** prometeu para a linha de PS5." },
-          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing. Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
           { kind: "p", text: "Esta é uma tradução automática do inglês. [Ler o artigo original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -367,6 +367,7 @@ export const ARTICLES: Article[] = [
       { kind: "p", text: "The Global Championship format doesn't change: qualifying, a 15-minute sprint and a 30-minute main, with a top-eight invert setting the main-race grid off the back of the sprint. Eighty-five points are up for grabs each raceday, split 10/25/50 across qualifying, sprint and main." },
       { kind: "p", text: "Five rounds, five proper venues — Spa-Francorchamps on the 19th, then *Silverstone*, *Suzuka*, *Interlagos* and *Monza* through late October. Whoever comes out on top takes $10,000 and, more interestingly, a shot at a real-world seat through the Porsche Shootout — the kind of prize that turns a sim championship into an actual career step." },
       { kind: "p", text: "Races go out live on the Porsche Twitch channel and on iRacing's own Twitch, YouTube and Facebook feeds, starting at 3:00 p.m. ET. With Warren's regional form, Job's third title bid and a Europe field that clearly doesn't fear Collins, Spa on the 19th should tell us a lot about how this one plays out." },
+      { kind: "p", text: "*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -385,6 +386,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Das Format der Global Championship ändert sich nicht: Qualifying, ein 15-minütiger Sprint und ein 30-minütiges Hauptrennen, wobei die besten acht aus dem Sprint invertiert die Startaufstellung fürs Hauptrennen bilden. An jedem Renntag stehen fünfundachtzig Punkte zur Verfügung, aufgeteilt in 10/25/50 auf Qualifying, Sprint und Hauptrennen." },
           { kind: "p", text: "Fünf Runden, fünf echte Schauplätze – Spa-Francorchamps am 19., danach *Silverstone*, *Suzuka*, *Interlagos* und *Monza* bis Ende Oktober. Wer am Ende vorne liegt, nimmt 10.000 $ mit und, was noch interessanter ist, eine Chance auf einen echten Renneinsatz über das Porsche Shootout – die Art von Preis, die aus einer Sim-Meisterschaft einen echten Karriereschritt macht." },
           { kind: "p", text: "Die Rennen laufen live auf dem Porsche-Twitch-Kanal sowie auf iRacings eigenen Twitch-, YouTube- und Facebook-Kanälen, Start ist um 3:00 p.m. ET. Mit Warrens Form aus der Regionalphase, Jobs Anlauf auf den dritten Titel und einem Europa-Feld, das Collins offensichtlich nicht fürchtet, sollte Spa am 19. viel darüber verraten, wie das hier ausgeht." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
           { kind: "p", text: "Dies ist eine automatische Übersetzung aus dem Englischen. [Zum Originalartikel](https://racespot.tv/en/news/porsche-esports-supercup-world-championship-kicks-off-septem)" },
         ],
       },
@@ -404,6 +406,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "El formato del Global Championship no cambia: clasificación, un sprint de 15 minutos y una carrera principal de 30 minutos, con una inversión del top ocho que fija la parrilla de la carrera principal a partir del sprint. Cada jornada se reparten ochenta y cinco puntos, divididos 10/25/50 entre clasificación, sprint y carrera principal." },
           { kind: "p", text: "Cinco rondas, cinco circuitos de verdad: Spa-Francorchamps el 19, y luego *Silverstone*, *Suzuka*, *Interlagos* y *Monza* hasta finales de octubre. Quien acabe arriba se lleva 10.000 $ y, más interesante aún, una oportunidad de plaza real a través del Porsche Shootout – el tipo de premio que convierte un campeonato de simulación en un paso real hacia una carrera profesional." },
           { kind: "p", text: "Las carreras se emiten en directo por el canal de Twitch de Porsche y por los canales propios de iRacing en Twitch, YouTube y Facebook, con inicio a las 3:00 p.m. ET. Con la forma regional de Warren, el tercer intento de título de Job y una parrilla europea que claramente no le teme a Collins, Spa el 19 debería decirnos mucho sobre cómo va a terminar todo esto." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
           { kind: "p", text: "Esta es una traducción automática del inglés. [Leer el artículo original](https://racespot.tv/en/news/porsche-esports-supercup-world-championship-kicks-off-septem)" },
         ],
       },
@@ -423,6 +426,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Le format du Global Championship ne change pas : qualifications, un sprint de 15 minutes et une course principale de 30 minutes, avec une inversion du top huit qui fixe la grille de la course principale à partir du sprint. Chaque journée de course distribue quatre-vingt-cinq points, répartis en 10/25/50 entre qualifications, sprint et course principale." },
           { kind: "p", text: "Cinq manches, cinq vrais circuits – Spa-Francorchamps le 19, puis *Silverstone*, *Suzuka*, *Interlagos* et *Monza* jusqu'à fin octobre. Le vainqueur final empoche 10 000 $ et, plus intéressant encore, une chance de volant bien réel via le Porsche Shootout – le genre de récompense qui transforme un championnat de simulation en véritable tremplin de carrière." },
           { kind: "p", text: "Les courses sont diffusées en direct sur la chaîne Twitch de Porsche ainsi que sur les propres chaînes Twitch, YouTube et Facebook d'iRacing, avec un départ à 3:00 p.m. ET. Avec la forme régionale de Warren, la quête d'un troisième titre pour Job et un plateau européen qui ne craint visiblement pas Collins, Spa le 19 devrait nous en dire long sur la suite des événements." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
           { kind: "p", text: "Ceci est une traduction automatique de l'anglais. [Lire l'article original](https://racespot.tv/en/news/porsche-esports-supercup-world-championship-kicks-off-septem)" },
         ],
       },
@@ -442,6 +446,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Il formato della Global Championship non cambia: qualifiche, uno sprint da 15 minuti e una gara principale da 30 minuti, con un'inversione della top otto che stabilisce la griglia della gara principale a partire dallo sprint. Ogni giornata di gara mette in palio ottantacinque punti, divisi 10/25/50 tra qualifiche, sprint e gara principale." },
           { kind: "p", text: "Cinque round, cinque sedi vere e proprie – Spa-Francorchamps il 19, poi *Silverstone*, *Suzuka*, *Interlagos* e *Monza* fino a fine ottobre. Chi finirà in testa si porta a casa 10.000 $ e, ancora più interessante, una chance di volante vero tramite il Porsche Shootout – il tipo di premio che trasforma un campionato sim in un vero passo di carriera." },
           { kind: "p", text: "Le gare vanno in diretta sul canale Twitch di Porsche e sui canali Twitch, YouTube e Facebook di iRacing, con partenza alle 3:00 p.m. ET. Con la forma regionale di Warren, il tentativo di Job per il terzo titolo e un gruppo europeo che chiaramente non teme Collins, Spa il 19 dovrebbe dirci molto su come andrà a finire tutto questo." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
           { kind: "p", text: "Questa è una traduzione automatica dall'inglese. [Leggi l'articolo originale](https://racespot.tv/en/news/porsche-esports-supercup-world-championship-kicks-off-septem)" },
         ],
       },
@@ -461,6 +466,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "O formato do Global Championship não muda: classificação, um sprint de 15 minutos e uma corrida principal de 30 minutos, com uma inversão do top oito definindo o grid da corrida principal a partir do sprint. A cada rodada, oitenta e cinco pontos estão em disputa, divididos em 10/25/50 entre classificação, sprint e corrida principal." },
           { kind: "p", text: "Cinco etapas, cinco palcos de verdade – Spa-Francorchamps no dia 19, depois *Silverstone*, *Suzuka*, *Interlagos* e *Monza* até o fim de outubro. Quem terminar na frente leva US$ 10.000 e, mais interessante ainda, uma chance de vaga real por meio do Porsche Shootout – o tipo de prêmio que transforma um campeonato de simulação em um passo real de carreira." },
           { kind: "p", text: "As corridas vão ao ar em tempo real no canal da Porsche na Twitch e nos canais próprios da iRacing na Twitch, YouTube e Facebook, com início às 3:00 p.m. ET. Com a boa fase de Warren nas regionais, a busca de Job pelo terceiro título e uma Europa que claramente não teme Collins, Spa no dia 19 deveria dizer muito sobre como tudo isso vai terminar." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
           { kind: "p", text: "Esta é uma tradução automática do inglês. [Ler o artigo original](https://racespot.tv/en/news/porsche-esports-supercup-world-championship-kicks-off-septem)" },
         ],
       },
@@ -521,6 +527,7 @@ export const ARTICLES: Article[] = [
       { kind: "p", text: "The R1 final is what turns three days of hardware browsing into something to watch. Qualifying shootouts ran 21–23 August, four online rounds broadcast live come next, and the decider is played out in Frankfurt with €10,000 on the table." },
       { kind: "h2", text: "What we will keep adding" },
       { kind: "p", text: "At the current rate, packing all of this into three days looks like the real challenge. This list is updated as names come in, so if your favourite brand is missing, it is either not confirmed yet or we are a day behind. Tickets are on sale now." },
+      { kind: "p", text: "*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -558,6 +565,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Das R1-Finale ist es, was drei Tage Hardware-Schauen zu etwas macht, das man sich ansehen sollte. Die Qualifikations-Shootouts liefen vom 21. bis 23. August, als Nächstes folgen vier live übertragene Online-Runden, und die Entscheidung fällt in Frankfurt mit 10.000 € auf dem Tisch." },
           { kind: "h2", text: "Was wir weiter ergänzen werden" },
           { kind: "p", text: "Beim aktuellen Tempo sieht es so aus, als wäre die eigentliche Herausforderung, all das in drei Tage zu packen. Diese Liste wird aktualisiert, sobald Namen eintreffen – fehlt also Ihre Lieblingsmarke, ist sie entweder noch nicht bestätigt, oder wir hinken einen Tag hinterher. Tickets sind ab sofort erhältlich." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -595,6 +603,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La final de la R1 es lo que convierte tres días de mirar hardware en algo que merece la pena seguir. Las eliminatorias de clasificación se disputaron del 21 al 23 de agosto, a continuación llegan cuatro rondas online retransmitidas en directo, y la decisión se juega en Frankfurt con 10.000 € sobre la mesa." },
           { kind: "h2", text: "Lo que seguiremos añadiendo" },
           { kind: "p", text: "Al ritmo actual, meter todo esto en tres días parece el verdadero reto. Esta lista se actualiza a medida que llegan nombres, así que si falta tu marca favorita, o aún no se ha confirmado o vamos un día por detrás. Las entradas ya están a la venta." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       fr: {
@@ -632,6 +641,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La finale de la R1 est ce qui transforme trois jours de découverte de matériel en quelque chose à suivre. Les phases qualificatives se sont déroulées du 21 au 23 août, quatre rounds en ligne diffusés en direct suivent ensuite, et la décision se joue à Francfort avec 10 000 € en jeu." },
           { kind: "h2", text: "Ce que nous continuerons d'ajouter" },
           { kind: "p", text: "Au rythme actuel, faire tenir tout cela en trois jours ressemble au vrai défi. Cette liste est mise à jour au fil de l'arrivée des noms, donc si votre marque préférée manque à l'appel, soit elle n'est pas encore confirmée, soit nous avons un jour de retard. Les billets sont en vente dès maintenant." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -669,6 +679,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La finale della R1 è ciò che trasforma tre giorni passati a guardare hardware in qualcosa da seguire. Le qualificazioni si sono svolte dal 21 al 23 agosto, seguono quattro round online trasmessi in diretta, e la decisione si gioca a Francoforte con 10.000 € sul tavolo." },
           { kind: "h2", text: "Cosa continueremo ad aggiungere" },
           { kind: "p", text: "Al ritmo attuale, far entrare tutto questo in tre giorni sembra essere la vera sfida. Questa lista viene aggiornata man mano che arrivano i nomi, quindi se manca il vostro marchio preferito, o non è ancora stato confermato, oppure siamo indietro di un giorno. I biglietti sono già in vendita." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
       pt: {
@@ -706,6 +717,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "A final da R1 é o que transforma três dias de olhar hardware em algo que vale a pena acompanhar. As eliminatórias de classificação aconteceram de 21 a 23 de agosto, a seguir vêm quatro rodadas online transmitidas ao vivo, e a decisão é disputada em Frankfurt com € 10.000 em jogo." },
           { kind: "h2", text: "O que vamos continuar adicionando" },
           { kind: "p", text: "No ritmo atual, encaixar tudo isso em três dias parece ser o verdadeiro desafio. Esta lista é atualizada conforme os nomes chegam, então, se a sua marca favorita estiver faltando, ou ela ainda não foi confirmada, ou estamos um dia atrasados. Os ingressos já estão à venda." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
     },
@@ -736,7 +748,7 @@ export const ARTICLES: Article[] = [
       { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "MOZA F4 FIA Esports Global Championship 2026 race schedule graphic listing four dates in October and November", credit: "MOZA Racing" },
       { kind: "h2", text: "Last season's momentum" },
       { kind: "p", text: "MOZA sums up last season as delivering \"unforgettable moments on track, with intense wheel-to-wheel battles and the rise of standout talents who proved themselves on the global stage.\" The renewal, the company says, continues \"this evolving chapter of esports racing, building on a partnership that helps push the boundaries of competitive sim racing.\"" },
-      { kind: "p", text: "*Based on a press release from MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+      { kind: "p", text: "*Based on a press release from MOZA Racing. This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -754,7 +766,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "MOZA F4 FIA Esports Global Championship 2026 Rennkalender-Grafik mit vier Terminen im Oktober und November", credit: "MOZA Racing" },
           { kind: "h2", text: "Der Schwung der vergangenen Saison" },
           { kind: "p", text: "MOZA fasst die vergangene Saison als eine Saison zusammen, die „unvergessliche Momente auf der Strecke, mit intensiven Rad-an-Rad-Duellen und dem Aufstieg herausragender Talente, die sich auf der Weltbühne bewiesen haben\" lieferte. Die Verlängerung, so das Unternehmen, setze „dieses sich weiterentwickelnde Kapitel des Esports-Rennsports fort und baue auf einer Partnerschaft auf, die hilft, die Grenzen des kompetitiven Sim Racing zu verschieben\"." },
-          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing. Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -772,7 +784,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Gráfico del calendario de carreras del MOZA F4 FIA Esports Global Championship 2026 con cuatro fechas en octubre y noviembre", credit: "MOZA Racing" },
           { kind: "h2", text: "El impulso de la temporada pasada" },
           { kind: "p", text: "MOZA resume la temporada pasada como generadora de «momentos inolvidables en pista, con intensas batallas rueda a rueda y el ascenso de talentos destacados que se demostraron a sí mismos en el escenario global». La renovación, según la compañía, continúa «este capítulo en evolución de las carreras de esports, construyendo sobre una asociación que ayuda a superar los límites del sim racing competitivo»." },
-          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing. Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       fr: {
@@ -790,7 +802,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Graphique du calendrier de courses du MOZA F4 FIA Esports Global Championship 2026 listant quatre dates en octobre et novembre", credit: "MOZA Racing" },
           { kind: "h2", text: "L'élan de la saison dernière" },
           { kind: "p", text: "MOZA résume la saison dernière comme ayant offert « des moments inoubliables sur la piste, avec des duels roue contre roue intenses et l'émergence de talents qui ont fait leurs preuves sur la scène mondiale ». Ce renouvellement, selon l'entreprise, prolonge « ce chapitre en constante évolution de l'esports racing, en s'appuyant sur un partenariat qui aide à repousser les limites du sim racing compétitif »." },
-          { kind: "p", text: "*D'après un communiqué de presse de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*D'après un communiqué de presse de MOZA Racing. Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -808,7 +820,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Grafica del calendario gare del MOZA F4 FIA Esports Global Championship 2026 con quattro date tra ottobre e novembre", credit: "MOZA Racing" },
           { kind: "h2", text: "Lo slancio della scorsa stagione" },
           { kind: "p", text: "MOZA riassume la scorsa stagione come portatrice di «momenti indimenticabili in pista, con intense battaglie ruota a ruota e l'emergere di talenti che si sono messi in mostra sul palcoscenico globale». Il rinnovo, afferma l'azienda, prosegue «questo capitolo in evoluzione delle corse esports, costruendo su una partnership che aiuta a spingere i confini del sim racing competitivo»." },
-          { kind: "p", text: "*Sulla base di un comunicato stampa di MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Basato su un comunicato stampa di MOZA Racing. Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
       pt: {
@@ -826,7 +838,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Gráfico do calendário de corridas do MOZA F4 FIA Esports Global Championship 2026 listando quatro datas em outubro e novembro", credit: "MOZA Racing" },
           { kind: "h2", text: "O embalo da temporada passada" },
           { kind: "p", text: "A MOZA resume a temporada passada como geradora de «momentos inesquecíveis na pista, com batalhas roda a roda intensas e a ascensão de talentos de destaque que se provaram no palco global». A renovação, diz a empresa, dá continuidade a «este capítulo em evolução das corridas de esports, construindo sobre uma parceria que ajuda a expandir os limites do sim racing competitivo»." },
-          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing. Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
     },

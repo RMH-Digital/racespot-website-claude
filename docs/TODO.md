@@ -1330,6 +1330,36 @@ Abkürzungstabelle (PCA = Porsche Club of America) oder einer Gewichtung
 seltener Wörter. Nicht gebaut; der Fall ist selten und kostet eine Glocke,
 keine Aufzeichnung.
 
+## 7p. KI-Hinweis unter den Press-Tool-Artikeln — 2026-09-21
+
+Das Press Tool schreibt den Hinweis künftig selbst ans Ende jedes Artikels.
+Vier bereits veröffentlichte Artikel haben ihn von Hand bekommen, in allen
+sechs Sprachen: beide MOZA-Artikel durch **Ersetzen** der bestehenden
+Quellenzeile (die Links verschwinden aus dem Text, sie stehen weiter in
+`sources`), Porsche Supercup und SimRacing Expo als **neuer** letzter Block.
+Die fünf handgeschriebenen Artikel bleiben ohne — bei ihnen wäre der Satz eine
+falsche Aussage über fremde Arbeit.
+
+Nichts an `date`, `publishedAt`, `updatedAt`, `readTime` oder der
+Array-Reihenfolge angefasst. Gegengeprüft: Die Ausgabe von `sortedArticles()`
+ist Zeile für Zeile identisch mit der vor der Änderung, kein Artikel hat ein
+`updatedAt` bekommen, und die Blockzahlen je Sprache sind um genau denselben
+Betrag gewachsen wie im Englischen.
+
+**Zur Vorlage**: Die Annahme „Blockzahlen sind heute über alle Sprachen gleich"
+stimmte schon vorher nicht. Zwei der vier Artikel tragen in den Übersetzungen
+einen zusätzlichen Absatz („Dies ist eine automatische Übersetzung …"), die
+beiden anderen nicht. Der Hinweis steht deshalb dort jeweils **vor** diesem
+Absatz und sonst als letzter Block; die Differenz je Sprache ist unverändert.
+
+**Gestaltung** (die offene Frage aus der Vorlage): Ein Absatz, der komplett aus
+einer Kursivstelle besteht und unter den letzten beiden Blöcken steht, wird
+jetzt als Kleingedrucktes gesetzt — 13 px, kursiv, gedämpftes Grau — statt als
+gelbes `<em>`. `footerNote()` in `articleContent.tsx`. Zwei Sätze gelbe
+Kursivschrift unter jedem Artikel waren zu laut. Geprüft: Genau die vier
+Press-Tool-Artikel haben so einen Absatz, immer als letzten; kein
+handgeschriebener Artikel ist betroffen.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
