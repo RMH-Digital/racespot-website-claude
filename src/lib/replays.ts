@@ -1,4 +1,5 @@
 import type { CalendarEvent } from './sheets'
+import { apiError } from './youtube'
 
 /**
  * Which YouTube recording belongs to which past broadcast.
@@ -159,7 +160,7 @@ async function channelStreams(channelId: string, recentTtl: number): Promise<Rep
         // Worth saying out loud: an empty index means every past broadcast
         // loses its recording and every announced one its bell, and the page
         // itself renders perfectly well without either.
-        console.warn(`[replays] uploads page ${page + 1} of ${channelId} failed: ${res.status}`)
+        console.warn(`[replays] uploads page ${page + 1} of ${channelId} failed: ${await apiError(res)}`)
         break
       }
       const data = await res.json()

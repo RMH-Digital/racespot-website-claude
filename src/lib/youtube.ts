@@ -498,7 +498,7 @@ export const getLiveStreamsViaSearch = unstable_cache(
  * number. On 2026-09-22 the whole site lost its recordings for hours and the
  * log said "403" and nothing else.
  */
-async function apiError(res: Response): Promise<string> {
+export async function apiError(res: Response): Promise<string> {
   try {
     const body = await res.clone().json()
     const first = body?.error?.errors?.[0]

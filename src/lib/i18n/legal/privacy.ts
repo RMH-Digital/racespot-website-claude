@@ -71,6 +71,7 @@ const en: LegalDoc = {
       body: [
         p('To find out how many people read our pages, we use **Umami**, an open-source analytics tool that we host ourselves on the same German server as this website. No data leaves our infrastructure and no third party is involved.'),
         p('Umami works **without cookies** and stores **no personal data**. Your IP address is not retained; visitors are counted using an anonymous hash that is regenerated daily and cannot be traced back to a person or linked across days. What we see is aggregated: page views, referring sites, country, browser and device type.'),
+        p('We also record **how fast the page loaded for you** — the standard web performance measurements (loading, responsiveness, layout stability). These are timings in milliseconds, measured by your own browser and sent along with the page view. They say something about our pages, not about you, and are stored in the same aggregated, non-personal form.'),
         p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in understanding how our site is used). Because no personal data is processed, there is nothing to object to and nothing to erase. More about the tool: [umami.is](https://umami.is/)'),
       ],
     },
@@ -213,6 +214,7 @@ const de: LegalDoc = {
       body: [
         p('Um zu erfahren, wie viele Menschen unsere Seiten lesen, nutzen wir **Umami**, ein quelloffenes Statistikwerkzeug, das wir selbst auf demselben deutschen Server betreiben wie diese Website. Es verlässt kein Datum unsere Infrastruktur, ein Dritter ist nicht beteiligt.'),
         p('Umami arbeitet **ohne Cookies** und speichert **keine personenbezogenen Daten**. Ihre IP-Adresse wird nicht aufbewahrt; Besucher werden über einen anonymen Hash gezählt, der täglich neu gebildet wird und sich weder einer Person zuordnen noch über Tage hinweg verknüpfen lässt. Wir sehen aggregierte Werte: Seitenaufrufe, verweisende Seiten, Land, Browser- und Gerätetyp.'),
+        p('Zusätzlich erfassen wir, **wie schnell die Seite bei Ihnen geladen hat** — die üblichen Messwerte zur Webleistung (Ladezeit, Reaktionsfähigkeit, Stabilität des Layouts). Das sind Zeitangaben in Millisekunden, die Ihr eigener Browser misst und zusammen mit dem Seitenaufruf übermittelt. Sie sagen etwas über unsere Seiten aus, nicht über Sie, und werden in derselben aggregierten, nicht personenbezogenen Form gespeichert.'),
         p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, die Nutzung unserer Seite zu verstehen). Da keine personenbezogenen Daten verarbeitet werden, gibt es dem nichts zu widersprechen und nichts zu löschen. Mehr zum Werkzeug: [umami.is](https://umami.is/)'),
       ],
     },
