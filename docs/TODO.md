@@ -146,6 +146,55 @@ erscheinen in Umami als Quelle.
 Rest: Der alte DNS-Eintrag `stats.racespot.tv → 178.104.72.17` zeigt ins Leere
 (503) und kann bei All-Inkl gelöscht werden.
 
+## 3b. Web Vitals — eingeschaltet 2026-09-22
+
+`data-performance="true"` am Umami-Tag in `src/components/seo/Analytics.tsx`.
+Damit misst der Browser jedes Besuchers die Core Web Vitals (LCP, INP, CLS,
+FCP, TTFB) und schickt sie mit dem Seitenaufruf mit. Ohne das Attribut sammelt
+Umami nichts, auch auf einer Version, die es könnte. Voraussetzung ist Umami
+≥ 3.1; die Instanz wurde dafür am 2026-09-21 von 3.0.3 auf **3.4.0** gehoben
+(gemessen vorher und nachher, Sicherung unter `/root/backups/`, Daten
+unversehrt: 1.409 → 1.412 Ereignisse).
+
+**Warum überhaupt:** Googles CrUX meldet erst ab einer Verkehrsschwelle, die
+diese Seite nicht erreicht — Felddaten gäbe es sonst gar nicht. Lighthouse
+füllt die Lücke mit einem synthetischen Einzellauf, also einem Laborwert, nicht
+dem, was Besucher erleben.
+
+**Datenschutz mitgezogen**, wie es die Hausregel verlangt: je ein Absatz in
+Abschnitt 5 auf Deutsch und Englisch (`src/lib/i18n/legal/privacy.ts`). Er sagt,
+dass Zeitangaben in Millisekunden erhoben werden, dass der Browser sie misst,
+und dass sie etwas über die Seiten aussagen, nicht über die Person. Keine neuen
+personenbezogenen Daten, weiterhin ohne Cookies und ohne IP.
+
+### Der Commit heißt anders, als er ist
+
+Beides steckt in **`4b7ab0d` „Say why the replay index came back empty"**. Eine
+parallel laufende Sitzung hat `git add -A` benutzt und die beiden noch nicht
+festgeschriebenen Dateien mit eingesammelt. Der Commit enthält vier Dateien:
+
+| Datei | Inhalt |
+|---|---|
+| `src/lib/replays.ts` | worum es in der Nachricht geht |
+| `src/lib/youtube.ts` | etwas Drittes |
+| `src/components/seo/Analytics.tsx` | Web Vitals eingeschaltet |
+| `src/lib/i18n/legal/privacy.ts` | Datenschutzerklärung erweitert |
+
+Die Historie wurde bewusst **nicht** umgeschrieben: der Commit war bereits
+gepusht und ausgeliefert, ein Force-Push hätte einen weiteren Deploy ausgelöst.
+Dieser Abschnitt ist der Ersatz — wer wissen will, seit wann und warum
+Ladezeiten erhoben werden, findet es hier statt im Git-Log.
+
+**Lehre:** Laufen zwei Sitzungen im selben Repo, fasst `git add -A` fremde
+Arbeit mit an. Dateien einzeln hinzufügen, oder vor dem Commit `git status`
+lesen. Bei einer Datenschutzerklärung ist die Nachvollziehbarkeit kein
+Schönheitsfehler, sondern Teil des Dokuments.
+
+**Offen:** Die Werte erscheinen erst mit echten Besuchen, und die Startseite
+liefert bis zu fünf Minuten die vorgerenderte Fassung (`revalidate = 300`).
+Nach ein bis zwei Tagen ist genug da, um sie im Analytics-Hub
+(`~/Racespot Analytics`) auszuwerten.
+
 ## 4. Datenschutzerklärung — neu geschrieben 2026-09-14
 
 Der alte Text war eine Webshop-Vorlage: Er nannte PayPal, Stripe, Mailchimp,
