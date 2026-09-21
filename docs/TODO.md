@@ -1266,6 +1266,70 @@ Nürburgring 24, MSUK 24 Hours of Silverstone, Race for a Cause 24, VCO Infinity
 Porsche Carrera Cup Onboard. Kein Video doppelt vergeben, keine Zuordnung
 verloren.
 
+## 7o. Replay-Zuordnung komplett durchgesehen — 2026-09-21
+
+**Meldung**: eNASCAR BS+ Team Stream Runde 10 hat kein Replay.
+
+**Ursache**: Die Sendung liegt gar nicht auf unserem Kanal. Die eNASCAR
+Coca-Cola iRacing Series geht auf **BSCOMPETITION** raus
+(`UCShyEtI5TtHi5y_4G3owN6A`), der Zeitplan schreibt in der Ziel-Spalte
+trotzdem „RaceSpot's YT" — wie bei 495 von 502 öffentlichen Zeilen des
+Jahres. Der Index las nur unsere eigenen Uploads, also konnte keine der
+zwölf eNASCAR-Zeilen jemals eine Aufzeichnung finden.
+
+**Partnerkanäle** (`PARTNER_CHANNELS` in `src/lib/replays.ts`): Die Kanal-ID
+steht im Repo statt in der Umgebung, damit das Hinzufügen eine
+nachvollziehbare Änderung mit Begründung daneben ist. Was so ein Kanal sonst
+noch sendet — Interviews, Rocket League, Clips — kann nicht versehentlich
+zugeordnet werden: In den Index kommen nur Live-Streams, und ein Stream von
+dort muss zusätzlich die Hälfte seines Titels mit dem Seriennamen teilen
+(`PARTNER_TITLE_OVERLAP`). Aktualisierung alle 30 statt 10 Minuten: Ein
+Partnerkanal trägt eine unserer Runden alle zwei Wochen.
+
+Ergebnis: alle elf vergangenen eNASCAR-Runden verknüpft, Runde 10 (Michigan)
+mit `YbYafUGRujE`.
+
+### Beim Durchsehen gefunden und mitbehoben
+
+**Fremde Langstrecken-Sendungen wurden eingesammelt.** Eine Zeile, deren
+eigene Übertragung nie aufgezeichnet wurde, griff sich, was sonst gerade lief:
+„Porsche Carrera Cup Deutschland Onboard" bekam „iRacing Petit Le Mans",
+„VCO ERC" bekam „iRacing Daytona 24", „iRacing Special Event: IMSA Classic
+500" bekam „IVRA 6H São Paulo". Langstrecken laufen stundenlang, also liegt
+fast immer irgendetwas im Drei-Stunden-Fenster. Jetzt entscheidet die Uhr nur
+noch innerhalb **einer Stunde** allein; darüber hinaus müssen Zeitplanname und
+Streamtitel mindestens ein echtes Wort teilen — eine nackte Zahl zählt nicht
+(„Rennsport Summit #2" und „iRacing Bathurst 12 | Part 2" teilen nur die 2).
+
+Die Stunde ist bewusst großzügig: Über lange Strecken des Bestands weichen
+Zeitplan und Kanal systematisch um gut fünfzig Minuten voneinander ab — jede
+Porsche-Club-Runde der Saison 14, jeder Svensk-eRacingLigan-Abend, jede
+British-F4-Runde 2025. Das sind die richtigen Aufzeichnungen unter der
+falschen Uhr.
+
+**Die frühere Zeile war im Vorteil.** Durchgang eins lief chronologisch, also
+konnte eine früh angesetzte Zeile eine Aufzeichnung wegnehmen, die eine andere
+Zeile besser benennt. Jetzt werden alle möglichen Paarungen bewertet und die
+beste zuerst vergeben: stärkste Übereinstimmung der Namen, bei Gleichstand der
+nähere Start.
+
+**Gemessen** (503 Termine, davon 414 vergangen): 384 vergangene mit
+Aufzeichnung statt vorher 379, kein Video doppelt vergeben. Acht Zuordnungen
+haben sich geändert: vier falsche entfernt, drei Aufzeichnungen auf die
+richtige Zeile verschoben (Petit Le Mans, IVRA São Paulo, IVRA Monza), eine
+alte eNASCAR-Zeile gab Operation eMotorsport zurück.
+
+### Bekannte Grenze
+
+Wo zwei Zeilen denselben Stream gleich gut benennen, gewinnt die zeitlich
+nähere. Am 24.09. trägt „iRacing Short Course Pro 2 National Series" (01:00)
+denselben Trefferwert wie „Porsche Club of America S16 - Pro" (01:20) für den
+Stream „PCA … Pro Class at Sonoma" — beide teilen genau das Wort „Pro" —, und
+die frühere Zeile bekommt ihn. Auflösen ließe sich das nur mit einer
+Abkürzungstabelle (PCA = Porsche Club of America) oder einer Gewichtung
+seltener Wörter. Nicht gebaut; der Fall ist selten und kostet eine Glocke,
+keine Aufzeichnung.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
