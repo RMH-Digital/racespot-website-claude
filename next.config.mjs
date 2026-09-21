@@ -42,7 +42,34 @@ const nextConfig = {
     optimizePackageImports: ['framer-motion'],
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      /**
+       * Next's own prefetches, kept out of the index.
+       *
+       * The App Router appends `?_rsc=<hash>` when it fetches a route ahead of
+       * a click. Googlebot renders the page, sees those requests and files
+       * them as URLs of their own — 23 of them by 2026-09-22, 13.6 % of all
+       * impressions and not one click in seven days. The hash changes with
+       * every deploy, so the set grows forever.
+       *
+       * `noindex` on the response is what removes a URL that is already
+       * indexed; a `Disallow` in robots.txt would only stop the next crawl and
+       * leave what is in there. It has to live here rather than in the proxy:
+       * Next strips `_rsc` from the request before middleware runs, so
+       * `nextUrl.searchParams` and even the raw `request.url` no longer carry
+       * it (measured 2026-09-22). The `has` condition in this config is
+       * evaluated earlier, and does see it — on the 200 for `/en/events?_rsc=…`
+       * as well as on the 301 that `/events?_rsc=…` gets.
+       *
+       * A page without the parameter is untouched, which is the whole point.
+       */
+      {
+        source: '/:path*',
+        has: [{ type: 'query', key: '_rsc' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
+    ]
   },
 }
 

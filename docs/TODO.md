@@ -1393,6 +1393,42 @@ gelbes `<em>`. `footerNote()` in `articleContent.tsx`. Zwei Sätze gelbe
 Kursivschrift unter jedem Artikel waren zu laut. Es trifft genau diese
 Hinweiszeilen: Kursives mitten im Text behält sein Gelb.
 
+## 7q. Google indexierte Next-eigene Prefetch-Adressen — 2026-09-22
+
+**Befund aus der Analytics-Session**: 23 Adressen mit `?_rsc=…` in der Search
+Console, 13,6 % aller Impressionen, in sieben Tagen kein einziger Klick. Der
+Hash wechselt mit jedem Deploy, der Vorrat wächst also endlos.
+
+Das sind die Prefetch-Anfragen des App Routers: Beim Überfahren eines Links
+holt der Client die Route vorab unter `?_rsc=<hash>`. Googlebot rendert die
+Seite, sieht diese Anfragen und legt sie als eigene Adressen ab. Im Browser
+nachgestellt: Ein Klick auf „Kalender" erzeugt
+`/de/calendar?_rsc=ZaRqeOm9pBfQmJ-M`.
+
+**Umsetzung**: `X-Robots-Tag: noindex` für jede Adresse mit diesem Parameter —
+in `next.config.mjs`, nicht im Proxy. Der Vorschlag lautete auf `src/proxy.ts`,
+und genau dort geht es nicht: **Next entfernt `_rsc` aus der Anfrage, bevor die
+Middleware läuft.** Gemessen mit einem Diagnose-Header —
+`nextUrl.searchParams.has('_rsc')` ist `false`, und auch das rohe `request.url`
+trägt den Parameter nicht mehr. Die `has`-Bedingung in `headers()` wird früher
+ausgewertet und sieht ihn: sowohl bei der 200 auf `/en/events?_rsc=…` als auch
+bei der 301, die `/events?_rsc=…` bekommt.
+
+**Kein `Disallow` in der robots.txt.** Das verhindert nur den nächsten Besuch
+und lässt stehen, was schon drin ist — der Crawler müsste die Seite abrufen
+dürfen, um das `noindex` überhaupt zu sehen. Nachträglich sperren könnte man,
+wenn Google die Adressen fallen gelassen hat; Crawl-Budget ist bei dieser
+Seitengröße kein Thema, also bleibt es beim `noindex`.
+
+Geprüft: Header erscheint nur mit Parameter, nicht auf `/en/events`,
+`/de/calendar`, `/sitemap.xml` oder `/robots.txt`. Der Canonical-Tag zeigte
+schon vorher auf die saubere Adresse; er allein hat die Konsolidierung nicht
+erzwungen.
+
+**Wirkung abwarten**: Google braucht für das Fallenlassen einige Wochen. Die
+Zahl der `?_rsc=`-Adressen in der Search Console sollte gegen null gehen, ohne
+dass die Impressionen der echten Seiten sinken.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
