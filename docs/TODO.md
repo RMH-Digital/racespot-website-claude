@@ -170,6 +170,22 @@ selben Commit zu ändern (steht als Kommentar in `legal/privacy.ts`).
 (Anschrift, Geschäftsführer, AG Köln HRB 118561, Kontakt). Keine Änderung nötig.
 Die USt-IdNr. fehlt — falls vorhanden, gehört sie nach § 5 Abs. 1 Nr. 6 TMG dazu.
 
+### Abschnitt 7 nachgezogen — 2026-09-21
+
+Der Text beschrieb den Datenschutzmodus nur für die Events-Seite. Seit dem
+eigenen Player (7i) öffnet sich eine Aufzeichnung auf Startseite, Broadcasts,
+Events, Kalender und in Artikeln.
+
+Nachgemessen statt angenommen: Die Vorschaubilder laufen über `next/image` und
+kommen damit vom eigenen Server — auf `/broadcasts` achtzehn Stück, jedes über
+`/_next/image`. Der Browser des Besuchers erreicht vor dem Klick auf Wiedergabe
+also keinen Google-Host. Der alte Text untertrieb zu unseren Ungunsten.
+
+Deutsch und Englisch gemeinsam geändert, Stand-Datum auf den 21.09. gesetzt,
+von Jürgen freigegeben. Nebenbei die Backticks um `youtube-nocookie.com`
+entfernt: Die Rechtstexte kennen keine Code-Auszeichnung, sie standen wörtlich
+auf der Seite.
+
 ## 4b. AGB → Nutzungsbedingungen, ersetzt 2026-09-14
 
 **Entscheidung Jürgen (Variante b):** Die Webshop-AGB sind raus, an ihrer Stelle
