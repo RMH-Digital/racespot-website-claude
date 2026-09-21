@@ -1333,12 +1333,24 @@ keine Aufzeichnung.
 ## 7p. KI-Hinweis unter den Press-Tool-Artikeln — 2026-09-21
 
 Das Press Tool schreibt den Hinweis künftig selbst ans Ende jedes Artikels.
-Vier bereits veröffentlichte Artikel haben ihn von Hand bekommen, in allen
-sechs Sprachen: beide MOZA-Artikel durch **Ersetzen** der bestehenden
+Alle neun bereits veröffentlichten Artikel haben ihn von Hand bekommen, in
+allen sechs Sprachen: beide MOZA-Artikel durch **Ersetzen** der bestehenden
 Quellenzeile (die Links verschwinden aus dem Text, sie stehen weiter in
-`sources`), Porsche Supercup und SimRacing Expo als **neuer** letzter Block.
-Die fünf handgeschriebenen Artikel bleiben ohne — bei ihnen wäre der Satz eine
-falsche Aussage über fremde Arbeit.
+`sources`), die übrigen sieben als **neuer** letzter Block.
+
+**In zwei Schritten, weil die Vorlage widerrufen wurde.** Die erste Fassung
+nannte fünf Artikel ausdrücklich handgeschrieben und verbot den Hinweis dort —
+„it would be a false statement about somebody's own work". Die zweite Fassung
+vom selben Tag verlangt ihn für alle neun. Umgesetzt wie beauftragt; die
+Rücknahme ist eine redaktionelle Entscheidung und steht Jürgen zu, nicht mir.
+Rückgängig zu machen wäre sie mit einem Commit.
+
+**Zwei Datenformen.** Die fünf älteren Artikel führen ihren englischen Text als
+`content: string[]`, ihre Übersetzungen als `Block[]`. Gemischt werden darf
+nicht, also steht im Englischen ein einfacher String und überall sonst ein
+`p`-Block. Das Prüfskript der Vorlage fragt `b.kind === "p"` ab und meldet
+deshalb für diese fünf fälschlich `NO NOTICE`; mit `typeof b === "string"`
+geprüft ist alles vorhanden.
 
 Nichts an `date`, `publishedAt`, `updatedAt`, `readTime` oder der
 Array-Reihenfolge angefasst. Gegengeprüft: Die Ausgabe von `sortedArticles()`
@@ -1346,19 +1358,20 @@ ist Zeile für Zeile identisch mit der vor der Änderung, kein Artikel hat ein
 `updatedAt` bekommen, und die Blockzahlen je Sprache sind um genau denselben
 Betrag gewachsen wie im Englischen.
 
-**Zur Vorlage**: Die Annahme „Blockzahlen sind heute über alle Sprachen gleich"
-stimmte schon vorher nicht. Zwei der vier Artikel tragen in den Übersetzungen
-einen zusätzlichen Absatz („Dies ist eine automatische Übersetzung …"), die
-beiden anderen nicht. Der Hinweis steht deshalb dort jeweils **vor** diesem
-Absatz und sonst als letzter Block; die Differenz je Sprache ist unverändert.
+**Zur Vorlage**: Die Annahme „Blockzahlen sind über alle Sprachen einer Zeile
+gleich" stimmte schon vor der Änderung nicht. Zwei Artikel tragen in den
+Übersetzungen einen zusätzlichen Absatz („Dies ist eine automatische
+Übersetzung …"), die anderen sieben nicht. Der Hinweis steht dort jeweils
+**vor** diesem Absatz und sonst als letzter Block; die Differenz je Sprache ist
+unverändert. Das Prüfskript meldet für diese beiden weiterhin `MISMATCH` —
+vorher wie nachher, es ist kein Schaden dieser Änderung.
 
 **Gestaltung** (die offene Frage aus der Vorlage): Ein Absatz, der komplett aus
 einer Kursivstelle besteht und unter den letzten beiden Blöcken steht, wird
 jetzt als Kleingedrucktes gesetzt — 13 px, kursiv, gedämpftes Grau — statt als
 gelbes `<em>`. `footerNote()` in `articleContent.tsx`. Zwei Sätze gelbe
-Kursivschrift unter jedem Artikel waren zu laut. Geprüft: Genau die vier
-Press-Tool-Artikel haben so einen Absatz, immer als letzten; kein
-handgeschriebener Artikel ist betroffen.
+Kursivschrift unter jedem Artikel waren zu laut. Es trifft genau diese
+Hinweiszeilen: Kursives mitten im Text behält sein Gelb.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 

@@ -860,6 +860,7 @@ export const ARTICLES: Article[] = [
       'The ESL R1 League — the flagship esports competition built on RENNSPORT — continues to grow, with teams and drivers from around the world competing for top honors. The Summit in Munich will serve as both a showcase for upcoming features and a gathering point for the sim racing community.',
       'Racespot has been closely involved with the RENNSPORT ecosystem, providing broadcast coverage for ESL R1 events. As the platform evolves, so does the scope of production — from online streams to live arena shows.',
       'The Summit will feature hands-on demos, developer panels, and competitive showmatches. More details on the exact dates and venue will follow in the coming weeks.',
+      '*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*',
     ],
     translations: {
       de: {
@@ -872,6 +873,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Die ESL R1 League — der Esports-Wettbewerb an der Spitze von RENNSPORT — wächst weiter, mit Teams und Fahrern aus aller Welt im Kampf um die Titel. Der Summit in München ist Schaufenster für kommende Features und Treffpunkt der Simracing-Community zugleich." },
           { kind: "p", text: "Racespot ist eng mit dem RENNSPORT-Ökosystem verbunden und produziert die Broadcasts der ESL R1 Events. Mit der Plattform wächst auch der Umfang der Produktion — von Online-Streams bis zu Live-Shows in der Arena." },
           { kind: "p", text: "Der Summit bietet Hands-on-Demos, Entwickler-Panels und Showmatches. Details zu Termin und Veranstaltungsort folgen in den kommenden Wochen." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -884,6 +886,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La ESL R1 League, la competición de esports insignia construida sobre RENNSPORT, sigue creciendo, con equipos y pilotos de todo el mundo luchando por los máximos honores. El Summit de Múnich servirá tanto de escaparate para las próximas funciones como de punto de encuentro para la comunidad del simracing." },
           { kind: "p", text: "Racespot ha estado estrechamente vinculada al ecosistema RENNSPORT, produciendo la cobertura en directo de los eventos de la ESL R1. A medida que evoluciona la plataforma, también lo hace el alcance de la producción: de los streams online a los espectáculos en vivo en arenas." },
           { kind: "p", text: "El Summit contará con demostraciones prácticas, mesas redondas con desarrolladores y partidos de exhibición. En las próximas semanas se darán más detalles sobre las fechas exactas y el lugar." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       pt: {
@@ -896,6 +899,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "A ESL R1 League — a principal competição de esports construída sobre o RENNSPORT — continua crescendo, com equipes e pilotos do mundo todo disputando os títulos. O Summit em Munique será vitrine dos próximos recursos e ponto de encontro da comunidade de simracing." },
           { kind: "p", text: "A Racespot está profundamente envolvida no ecossistema RENNSPORT e produz as transmissões dos eventos da ESL R1. Com a evolução da plataforma cresce também o escopo da produção — dos streams on-line aos shows ao vivo em arenas." },
           { kind: "p", text: "O Summit terá demonstrações práticas, painéis com desenvolvedores e showmatches competitivos. Mais detalhes sobre datas e local serão divulgados nas próximas semanas." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
       fr: {
@@ -909,6 +913,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La ESL R1 League — la compétition esport phare bâtie sur RENNSPORT — continue de grandir, avec des équipes et des pilotes du monde entier qui se disputent les titres. Le Summit de Munich servira à la fois de vitrine pour les fonctionnalités à venir et de point de rencontre pour la communauté du simracing." },
           { kind: "p", text: "Racespot est étroitement impliqué dans l’écosystème RENNSPORT et assure la diffusion des événements de la ESL R1. À mesure que la plateforme évolue, la production prend de l’ampleur — des streams en ligne aux shows live en arène." },
           { kind: "p", text: "Le Summit proposera des démonstrations pratiques, des tables rondes avec les développeurs et des matchs d’exhibition. Les dates exactes et le lieu seront précisés dans les prochaines semaines." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -922,6 +927,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La ESL R1 League — la competizione esports di punta costruita su RENNSPORT — continua a crescere, con team e piloti da tutto il mondo in lotta per i titoli. Il Summit di Monaco sarà al tempo stesso vetrina delle prossime funzionalità e punto d’incontro per la community del simracing." },
           { kind: "p", text: "Racespot è profondamente coinvolta nell’ecosistema RENNSPORT e produce le trasmissioni degli eventi ESL R1. Con l’evoluzione della piattaforma cresce anche la portata della produzione — dagli stream online agli show dal vivo nelle arene." },
           { kind: "p", text: "Il Summit offrirà demo hands-on, panel con gli sviluppatori e showmatch competitivi. Maggiori dettagli su date e sede seguiranno nelle prossime settimane." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
     },
@@ -943,6 +949,7 @@ export const ARTICLES: Article[] = [
       'The prize pool of over $5,000 added a competitive edge, but the real draw was the format itself. Teams had to manage driver rotations, adapt strategies on the fly, and maintain concentration across diverse racing conditions — from GT3 sprints to prototype endurance stints.',
       'Racespot provided continuous broadcast coverage throughout the 24-hour window, with rotating commentary teams keeping viewers engaged through every session. The production featured live timing integration, onboard cameras, and real-time standings across all race sessions.',
       'VCO Infinity represents a growing trend in sim racing: events designed specifically for the digital medium, rather than trying to replicate real-world formats. It\'s this kind of innovation that keeps the community engaged and pushes the boundaries of what esports competitions can be.',
+      '*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*',
     ],
     translations: {
       de: {
@@ -955,6 +962,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Der Preispool von über 5.000 US-Dollar sorgte für zusätzlichen Wettbewerb, doch der eigentliche Reiz war das Format selbst. Die Teams mussten Fahrerwechsel managen, Strategien spontan anpassen und die Konzentration über völlig unterschiedliche Rennbedingungen halten — vom GT3-Sprint bis zum Prototypen-Stint." },
           { kind: "p", text: "Racespot lieferte durchgehend Broadcast-Berichterstattung über das gesamte 24-Stunden-Fenster, mit wechselnden Kommentatorenteams, die die Zuschauer durch jede Session begleiteten. Die Produktion umfasste Live-Timing, Onboard-Kameras und Echtzeit-Stände über alle Rennsessions hinweg." },
           { kind: "p", text: "VCO Infinity steht für einen wachsenden Trend im Simracing: Events, die speziell für das digitale Medium entworfen sind, statt reale Formate nachzubilden. Genau diese Art von Innovation hält die Community bei der Stange und erweitert, was Esports-Wettbewerbe sein können." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -967,6 +975,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La bolsa de premios de más de 5.000 dólares añadía un punto competitivo, pero el verdadero atractivo era el propio formato. Los equipos tenían que gestionar las rotaciones de pilotos, adaptar la estrategia sobre la marcha y mantener la concentración en condiciones de carrera muy distintas, de los sprints GT3 a los relevos de resistencia con prototipos." },
           { kind: "p", text: "Racespot ofreció cobertura continua durante las 24 horas, con equipos de comentaristas rotando para mantener a los espectadores enganchados en cada sesión. La producción incluyó integración de tiempos en directo, cámaras a bordo y clasificaciones en tiempo real de todas las sesiones." },
           { kind: "p", text: "VCO Infinity refleja una tendencia creciente en el simracing: eventos diseñados específicamente para el medio digital, en lugar de intentar replicar formatos del mundo real. Es este tipo de innovación la que mantiene viva a la comunidad y amplía lo que pueden llegar a ser las competiciones de esports." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       pt: {
@@ -979,6 +988,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "A premiação de mais de US$ 5.000 acrescentou um tempero competitivo, mas o grande atrativo era o próprio formato. As equipes tinham que administrar as trocas de pilotos, adaptar a estratégia em tempo real e manter a concentração em condições de corrida bem diferentes — de sprints de GT3 a stints de endurance com protótipos." },
           { kind: "p", text: "A Racespot fez a cobertura contínua durante toda a janela de 24 horas, com equipes de comentaristas se revezando para manter os espectadores envolvidos em cada sessão. A produção contou com integração de cronometragem ao vivo, câmeras onboard e classificação em tempo real de todas as sessões." },
           { kind: "p", text: "O VCO Infinity representa uma tendência crescente no simracing: eventos criados especificamente para o meio digital, em vez de tentar replicar formatos do mundo real. É esse tipo de inovação que mantém a comunidade engajada e expande o que as competições de esports podem ser." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
       fr: {
@@ -991,6 +1001,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La dotation de plus de 5 000 dollars ajoutait du piment, mais le véritable attrait résidait dans le format lui-même. Les équipes devaient gérer les relais de pilotes, adapter leur stratégie en direct et garder leur concentration dans des conditions de course très variées — des sprints GT3 aux relais d’endurance en prototype." },
           { kind: "p", text: "Racespot a assuré une diffusion continue pendant toute la fenêtre de 24 heures, avec des équipes de commentateurs en rotation pour tenir les spectateurs en haleine à chaque session. La production intégrait le chronométrage en direct, des caméras embarquées et des classements en temps réel sur l’ensemble des sessions." },
           { kind: "p", text: "VCO Infinity illustre une tendance croissante du simracing : des événements conçus spécifiquement pour le support numérique, plutôt que de reproduire les formats du monde réel. C’est ce type d’innovation qui garde la communauté mobilisée et repousse les limites de ce que peuvent être les compétitions esport." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -1003,6 +1014,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Il montepremi di oltre 5.000 dollari aggiungeva un tocco competitivo, ma la vera attrazione era il formato in sé. I team dovevano gestire le rotazioni dei piloti, adattare le strategie al volo e mantenere la concentrazione in condizioni di gara molto diverse — dagli sprint GT3 agli stint endurance con i prototipi." },
           { kind: "p", text: "Racespot ha garantito una copertura continua per tutte le 24 ore, con team di commentatori a rotazione per tenere gli spettatori coinvolti in ogni sessione. La produzione comprendeva l’integrazione del cronometraggio live, camere onboard e classifiche in tempo reale su tutte le sessioni di gara." },
           { kind: "p", text: "VCO Infinity rappresenta una tendenza in crescita nel simracing: eventi pensati appositamente per il mezzo digitale, anziché tentare di replicare i formati del mondo reale. È questo tipo di innovazione a tenere viva la community e ad ampliare ciò che le competizioni esports possono essere." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
     },
@@ -1025,6 +1037,7 @@ export const ARTICLES: Article[] = [
       'The season culminated in the Final4, held live at the Sim Formula Europe event in Maastricht. Four surviving teams went head-to-head in a pressure-cooker format, with live crowds and broadcast cameras capturing every overtake and strategic gamble.',
       'Racespot has been the broadcast partner for the ERL since its inception, producing coverage that spans multiple sim titles within a single broadcast. It\'s a production challenge unlike any other — different game engines, different graphical fidelity, different replay systems — all woven into a cohesive viewing experience.',
       'The ERL continues to grow, and its multi-title approach may well be the future of sim racing esports. As the lines between platforms blur, competitions that reward all-round skill will only become more relevant.',
+      '*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*',
     ],
     translations: {
       de: {
@@ -1038,6 +1051,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Höhepunkt der Saison war das Final4, live ausgetragen bei der Sim Formula Europe in Maastricht. Vier verbliebene Teams trafen in einem Format unter Hochdruck aufeinander, mit Publikum vor Ort und Broadcast-Kameras, die jedes Überholmanöver und jedes strategische Risiko einfingen." },
           { kind: "p", text: "Racespot ist seit dem ersten Tag Broadcast-Partner der ERL und produziert eine Berichterstattung, die mehrere Sim-Titel in einer einzigen Übertragung vereint. Eine Produktionsaufgabe wie keine andere — verschiedene Engines, verschiedene Grafikqualität, verschiedene Replay-Systeme — zusammengefügt zu einem stimmigen Zuschauererlebnis." },
           { kind: "p", text: "Die ERL wächst weiter, und ihr Multi-Titel-Ansatz könnte die Zukunft des Simracing-Esports sein. Je mehr die Grenzen zwischen den Plattformen verschwimmen, desto relevanter werden Wettbewerbe, die Allround-Können belohnen." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -1051,6 +1065,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La temporada culminó en la Final4, celebrada en directo en el evento Sim Formula Europe de Maastricht. Los cuatro equipos supervivientes se enfrentaron en un formato de máxima presión, con público en vivo y cámaras de retransmisión captando cada adelantamiento y cada apuesta estratégica." },
           { kind: "p", text: "Racespot ha sido el socio de retransmisión de la ERL desde sus inicios, produciendo una cobertura que abarca varios simuladores dentro de una misma emisión. Es un reto de producción sin igual: distintos motores gráficos, distinta fidelidad visual, distintos sistemas de repetición, todo integrado en una experiencia coherente para el espectador." },
           { kind: "p", text: "La ERL sigue creciendo, y su enfoque multititulo bien podría ser el futuro de los esports de simracing. A medida que se difuminan las fronteras entre plataformas, las competiciones que premian la habilidad integral serán cada vez más relevantes." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       pt: {
@@ -1064,6 +1079,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "A temporada culminou no Final4, realizado ao vivo no evento Sim Formula Europe, em Maastricht. As quatro equipes sobreviventes se enfrentaram em um formato de altíssima pressão, com público presente e câmeras de transmissão capturando cada ultrapassagem e cada aposta estratégica." },
           { kind: "p", text: "A Racespot é parceira de transmissão da ERL desde o início, produzindo uma cobertura que reúne vários simuladores em uma única transmissão. É um desafio de produção único — motores gráficos diferentes, fidelidade visual diferente, sistemas de replay diferentes — tudo costurado em uma experiência coesa para o espectador." },
           { kind: "p", text: "A ERL continua crescendo, e sua abordagem multi-título pode muito bem ser o futuro dos esports de simracing. À medida que as fronteiras entre as plataformas se diluem, competições que premiam a habilidade completa só vão ganhar relevância." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
       fr: {
@@ -1077,6 +1093,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La saison s’est conclue par le Final4, disputé en direct lors du Sim Formula Europe à Maastricht. Les quatre équipes rescapées se sont affrontées dans un format sous haute pression, avec un public sur place et des caméras de diffusion captant chaque dépassement et chaque pari stratégique." },
           { kind: "p", text: "Racespot est le partenaire de diffusion de l’ERL depuis ses débuts et produit une couverture qui réunit plusieurs simulations au sein d’une même émission. Un défi de production sans équivalent — moteurs différents, fidélité graphique différente, systèmes de replay différents — le tout fondu en une expérience cohérente pour le spectateur." },
           { kind: "p", text: "L’ERL continue de grandir, et son approche multi-titres pourrait bien être l’avenir de l’esport simracing. À mesure que les frontières entre plateformes s’estompent, les compétitions qui récompensent la polyvalence n’en seront que plus pertinentes." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -1090,6 +1107,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "La stagione è culminata nel Final4, disputato dal vivo alla Sim Formula Europe di Maastricht. I quattro team sopravvissuti si sono affrontati in un formato ad altissima pressione, con pubblico presente e telecamere che catturavano ogni sorpasso e ogni azzardo strategico." },
           { kind: "p", text: "Racespot è partner di trasmissione della ERL fin dalla nascita e produce una copertura che unisce più simulatori in un’unica diretta. Una sfida produttiva senza pari — motori diversi, fedeltà grafica diversa, sistemi di replay diversi — fusi in un’esperienza di visione coerente." },
           { kind: "p", text: "La ERL continua a crescere, e il suo approccio multi-titolo potrebbe essere il futuro degli esports di simracing. Man mano che i confini tra le piattaforme si assottigliano, le competizioni che premiano la completezza diventeranno sempre più rilevanti." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
     },
@@ -1112,6 +1130,7 @@ export const ARTICLES: Article[] = [
       'Beyond the expo floor, the event featured live competitions, hardware showcases from major peripheral manufacturers, and meet-and-greets with sim racing personalities including content creator Misha Charoudin. The Super GT experience — letting visitors drive the Japanese touring car series in a full-motion simulator — was another crowd favorite.',
       'Racespot was on-site providing broadcast production for the competitive segments of the expo, capturing the energy of live sim racing in front of enthusiastic crowds. The combination of trade show, competition, and community gathering makes the Sim Racing Expo a unique fixture on the calendar.',
       'With the sim racing industry continuing to grow rapidly, the 2026 edition is expected to be even bigger. For hardware makers, software developers, and esports organizations alike, the Nürburgring weekend in October has become unmissable.',
+      '*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*',
     ],
     translations: {
       de: {
@@ -1125,6 +1144,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Neben der Ausstellungsfläche gab es Live-Wettbewerbe, Hardware-Präsentationen der großen Peripheriehersteller und Meet-and-Greets mit Simracing-Persönlichkeiten wie Content Creator Misha Charoudin. Die Super-GT-Experience — die Besucher die japanische Tourenwagenserie in einem Full-Motion-Simulator fahren ließ — war ein weiterer Publikumsliebling." },
           { kind: "p", text: "Racespot war vor Ort und produzierte die Broadcasts der Wettbewerbssegmente der Messe, um die Energie des Live-Simracings vor begeistertem Publikum einzufangen. Die Kombination aus Messe, Wettbewerb und Community-Treffen macht die Sim Racing Expo zu einem einzigartigen Fixpunkt im Kalender." },
           { kind: "p", text: "Da die Simracing-Branche weiter rasant wächst, dürfte die Ausgabe 2026 noch größer werden. Für Hardware-Hersteller, Software-Entwickler und Esports-Organisationen gleichermaßen ist das Nürburgring-Wochenende im Oktober zum Pflichttermin geworden." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -1138,6 +1158,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Más allá de la zona de exposición, el evento ofreció competiciones en directo, exhibiciones de hardware de los grandes fabricantes de periféricos y encuentros con personalidades del simracing, entre ellas el creador de contenido Misha Charoudin. La experiencia Super GT, que permitía a los visitantes pilotar la serie japonesa de turismos en un simulador de movimiento completo, fue otra de las favoritas del público." },
           { kind: "p", text: "Racespot estuvo in situ produciendo la retransmisión de los segmentos competitivos de la feria, captando la energía del simracing en vivo ante un público entusiasta. La combinación de feria, competición y encuentro de la comunidad convierte a la Sim Racing Expo en una cita única en el calendario." },
           { kind: "p", text: "Con la industria del simracing creciendo a gran velocidad, se espera que la edición de 2026 sea aún mayor. Para fabricantes de hardware, desarrolladores de software y organizaciones de esports por igual, el fin de semana de octubre en Nürburgring se ha convertido en una cita ineludible." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       pt: {
@@ -1151,6 +1172,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Além da área de exposição, o evento teve competições ao vivo, mostras de hardware dos grandes fabricantes de periféricos e encontros com personalidades do simracing, incluindo o criador de conteúdo Misha Charoudin. A experiência Super GT — que permitia aos visitantes pilotar a série japonesa de turismo em um simulador de movimento completo — foi outro favorito do público." },
           { kind: "p", text: "A Racespot esteve no local produzindo a transmissão dos segmentos competitivos da feira, capturando a energia do simracing ao vivo diante de um público entusiasmado. A combinação de feira, competição e encontro da comunidade faz da Sim Racing Expo um marco único no calendário." },
           { kind: "p", text: "Com a indústria do simracing crescendo rapidamente, a edição de 2026 deve ser ainda maior. Para fabricantes de hardware, desenvolvedores de software e organizações de esports, o fim de semana de outubro em Nürburgring tornou-se imperdível." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
       fr: {
@@ -1164,6 +1186,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Au-delà des allées du salon, l’événement proposait des compétitions en direct, des présentations de matériel des grands fabricants de périphériques et des rencontres avec des personnalités du simracing, dont le créateur de contenu Misha Charoudin. L’expérience Super GT — qui permettait aux visiteurs de piloter la série japonaise de voitures de tourisme dans un simulateur dynamique — a été un autre grand succès." },
           { kind: "p", text: "Racespot était sur place pour produire la diffusion des segments compétitifs du salon et capter l’énergie du simracing en direct devant un public enthousiaste. La combinaison salon, compétition et rassemblement de la communauté fait de la Sim Racing Expo un rendez-vous unique du calendrier." },
           { kind: "p", text: "Avec une industrie du simracing en forte croissance, l’édition 2026 devrait être encore plus grande. Pour les fabricants de matériel, les développeurs de logiciels comme les organisations esport, le week-end d’octobre au Nürburgring est devenu incontournable." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -1177,6 +1200,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Oltre all’area espositiva, l’evento ha proposto competizioni dal vivo, esposizioni hardware dei grandi produttori di periferiche e incontri con personalità del simracing, tra cui il content creator Misha Charoudin. L’esperienza Super GT — che permetteva ai visitatori di guidare la serie turismo giapponese in un simulatore full-motion — è stata un altro grande successo di pubblico." },
           { kind: "p", text: "Racespot era sul posto per produrre la trasmissione dei segmenti competitivi della fiera, catturando l’energia del simracing dal vivo davanti a un pubblico entusiasta. L’unione di fiera, competizione e ritrovo della community rende la Sim Racing Expo un appuntamento unico nel calendario." },
           { kind: "p", text: "Con l’industria del simracing in rapida crescita, l’edizione 2026 si preannuncia ancora più grande. Per produttori di hardware, sviluppatori di software e organizzazioni esports, il weekend di ottobre al Nürburgring è diventato imperdibile." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
     },
@@ -1199,6 +1223,7 @@ export const ARTICLES: Article[] = [
       'Racespot produces the complete broadcast for the IMSA Esports series, with multi-camera coverage, expert commentary, and real-time timing integration. Night races at Daytona, with headlights cutting through the darkness and prototype battles unfolding under the floodlights, are a particular visual highlight.',
       'The series attracts drivers from professional esports teams as well as real-world racers looking to hone their skills between physical race weekends. This crossover between virtual and real motorsport is exactly what makes IMSA Esports stand out in the crowded esports landscape.',
       'As IMSA expands its digital presence, the esports series continues to serve as both a competition platform and a gateway for new fans to discover endurance racing. The combination of prestige, authenticity, and world-class broadcast production makes it one of the most polished esports products in sim racing.',
+      '*This article was created with AI assistance and reviewed by the RaceSpot editorial team.*',
     ],
     translations: {
       de: {
@@ -1212,6 +1237,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Racespot produziert den kompletten Broadcast der IMSA-Esports-Serie, mit Multi-Kamera-Regie, fachkundigem Kommentar und Live-Timing-Integration. Nachtrennen in Daytona, wenn Scheinwerfer die Dunkelheit durchschneiden und Prototypen-Duelle unter Flutlicht ausgetragen werden, sind ein besonderes visuelles Highlight." },
           { kind: "p", text: "Die Serie zieht Fahrer professioneller Esports-Teams ebenso an wie Rennfahrer aus dem realen Motorsport, die zwischen den Rennwochenenden ihre Fähigkeiten schärfen wollen. Genau dieses Zusammenspiel von virtuellem und realem Motorsport hebt IMSA Esports aus der dichten Esports-Landschaft heraus." },
           { kind: "p", text: "Während IMSA seine digitale Präsenz ausbaut, bleibt die Esports-Serie sowohl Wettkampfplattform als auch Einstieg für neue Fans in den Langstreckensport. Die Kombination aus Prestige, Authentizität und Broadcast-Produktion auf Weltklasseniveau macht sie zu einem der ausgereiftesten Esports-Produkte im Simracing." },
+          { kind: "p", text: "*Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
         ],
       },
       es: {
@@ -1225,6 +1251,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Racespot produce la retransmisión completa de la serie IMSA Esports, con cobertura multicámara, comentarios expertos e integración de tiempos en directo. Las carreras nocturnas en Daytona, con los faros atravesando la oscuridad y las batallas entre prototipos bajo los focos, son un momento visual especialmente destacado." },
           { kind: "p", text: "La serie atrae tanto a pilotos de equipos profesionales de esports como a pilotos reales que buscan afinar sus habilidades entre fines de semana de carrera. Este cruce entre el automovilismo virtual y el real es precisamente lo que hace que IMSA Esports destaque en el saturado panorama de los esports." },
           { kind: "p", text: "Mientras IMSA amplía su presencia digital, la serie de esports sigue siendo tanto una plataforma de competición como una puerta de entrada para que nuevos aficionados descubran las carreras de resistencia. La combinación de prestigio, autenticidad y producción de primer nivel la convierte en uno de los productos de esports más pulidos del simracing." },
+          { kind: "p", text: "*Este artículo se creó con asistencia de IA y fue revisado por el equipo editorial de RaceSpot.*" },
         ],
       },
       pt: {
@@ -1238,6 +1265,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "A Racespot produz a transmissão completa da série IMSA Esports, com cobertura multicâmera, comentários especializados e integração de cronometragem em tempo real. As corridas noturnas em Daytona, com faróis cortando a escuridão e duelos de protótipos sob os holofotes, são um destaque visual especial." },
           { kind: "p", text: "A série atrai pilotos de equipes profissionais de esports e também pilotos do automobilismo real que querem afiar as habilidades entre os fins de semana de corrida. É justamente esse cruzamento entre o virtual e o real que faz o IMSA Esports se destacar no concorrido cenário dos esports." },
           { kind: "p", text: "Enquanto a IMSA expande sua presença digital, a série de esports segue sendo plataforma de competição e porta de entrada para novos fãs descobrirem o endurance. A combinação de prestígio, autenticidade e produção de nível mundial faz dela um dos produtos de esports mais refinados do simracing." },
+          { kind: "p", text: "*Este artigo foi criado com assistência de IA e revisado pela equipe editorial da RaceSpot.*" },
         ],
       },
       fr: {
@@ -1251,6 +1279,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Racespot produit l’intégralité de la diffusion de la série IMSA Esports, avec une réalisation multicaméras, des commentaires d’experts et l’intégration du chronométrage en direct. Les courses de nuit à Daytona, avec les phares qui percent l’obscurité et les duels de prototypes sous les projecteurs, constituent un temps fort visuel." },
           { kind: "p", text: "La série attire aussi bien des pilotes d’équipes esport professionnelles que des pilotes du sport automobile réel venus affûter leurs compétences entre deux week-ends de course. C’est précisément ce croisement entre virtuel et réel qui distingue IMSA Esports dans un paysage esport très dense." },
           { kind: "p", text: "Alors que l’IMSA développe sa présence numérique, la série esport reste à la fois une plateforme de compétition et une porte d’entrée pour que de nouveaux fans découvrent l’endurance. L’alliance de prestige, d’authenticité et d’une production de niveau mondial en fait l’un des produits esport les plus aboutis du simracing." },
+          { kind: "p", text: "*Cet article a été créé avec l'aide de l'IA et relu par la rédaction de RaceSpot.*" },
         ],
       },
       it: {
@@ -1264,6 +1293,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Racespot produce l’intera trasmissione della serie IMSA Esports, con regia multicamera, commento esperto e integrazione del cronometraggio in tempo reale. Le gare notturne a Daytona, con i fari che tagliano l’oscurità e i duelli tra prototipi sotto i riflettori, sono un momento visivo di particolare impatto." },
           { kind: "p", text: "La serie attira piloti di team esports professionistici così come piloti del motorsport reale che vogliono affinare le proprie abilità tra un weekend di gara e l’altro. È proprio questo incrocio tra motorsport virtuale e reale a far spiccare IMSA Esports nell’affollato panorama degli esports." },
           { kind: "p", text: "Mentre IMSA espande la propria presenza digitale, la serie esports resta sia piattaforma competitiva sia porta d’ingresso per nuovi fan alla scoperta dell’endurance. La combinazione di prestigio, autenticità e produzione broadcast di livello mondiale la rende uno dei prodotti esports più raffinati del simracing." },
+          { kind: "p", text: "*Questo articolo è stato creato con l'assistenza dell'IA ed è stato rivisto dalla redazione di RaceSpot.*" },
         ],
       },
     },

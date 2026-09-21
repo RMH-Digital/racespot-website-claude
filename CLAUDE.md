@@ -174,12 +174,19 @@ not "helpfully" link them in the body — see `editorial.link_sources_in_body` i
 the pipeline's project config.
 
 **The AI notice is different since 2026-09-21.** The pipeline now writes it
-itself, as the last `p` of the article text: one italic line naming the source
-where there is one, and saying the piece was written with AI assistance and
-reviewed by the editorial team. It is content, not chrome — the site neither
-adds nor removes it, and it exists in every language of an article. The four
-articles published before that change were given the line by hand; the five
-written by hand must never get it, and do not have it.
+itself, as the last paragraph of the article text: one italic line naming the
+source where there is one, and saying the piece was written with AI assistance
+and reviewed by the editorial team. It is content, not chrome — the site
+neither adds nor removes it. **Every article carries it, in every language**
+(all nine were given the line by hand on 2026-09-21, after a first pass that
+day had covered only the four the Press Tool wrote; the second instruction
+from the pipeline superseded the first). If an article ever appears without
+it, that is the pipeline's decision to make, not the site's.
+
+Mind the two content shapes when adding one: the older articles keep
+`content: string[]` in English and `Block[]` in their translations, and the
+two cannot be mixed in one array — append a plain string there, a `p` block
+everywhere else.
 
 A paragraph that is **entirely one italic run** (`*…*`, nothing else) in the
 last two blocks is rendered as small print — 13px, italic, muted — instead of
