@@ -1335,16 +1335,39 @@ haben sich geändert: vier falsche entfernt, drei Aufzeichnungen auf die
 richtige Zeile verschoben (Petit Le Mans, IVRA São Paulo, IVRA Monza), eine
 alte eNASCAR-Zeile gab Operation eMotorsport zurück.
 
-### Bekannte Grenze
+### Abkürzungstabelle — nachgezogen 2026-09-22
 
-Wo zwei Zeilen denselben Stream gleich gut benennen, gewinnt die zeitlich
-nähere. Am 24.09. trägt „iRacing Short Course Pro 2 National Series" (01:00)
-denselben Trefferwert wie „Porsche Club of America S16 - Pro" (01:20) für den
-Stream „PCA … Pro Class at Sonoma" — beide teilen genau das Wort „Pro" —, und
-die frühere Zeile bekommt ihn. Auflösen ließe sich das nur mit einer
-Abkürzungstabelle (PCA = Porsche Club of America) oder einer Gewichtung
-seltener Wörter. Nicht gebaut; der Fall ist selten und kostet eine Glocke,
-keine Aufzeichnung.
+Die bekannte Grenze war: Wo zwei Zeilen denselben Stream gleich gut benennen,
+gewinnt die zeitlich nähere. Am 24.09. trug „iRacing Short Course Pro 2
+National Series" (01:00) denselben Trefferwert wie „Porsche Club of America
+S16 - Pro" (01:20) für „PCA … Pro Class at Sonoma" — beide teilen genau das
+Wort „Pro" — und die frühere Zeile bekam ihn.
+
+**Aus den Daten abgeleitet, nicht geraten.** Über alle Zuordnungen des Jahres
+den Wortüberlapp zwischen Zeitplanname und Streamtitel gemessen und die
+schwächsten angesehen. Es sind sechs systematische Fälle, und wo sie
+auftreten, treten sie jedes Mal auf:
+
+| Zeitplan | Kanal |
+|---|---|
+| Porsche Club of America | PCA |
+| VCO ERL | Esports Racing League |
+| Racecraft Rallycross | (Sponsor) iRX Championship |
+| Next Level Racing / Channel 199 | NLR / Channel199 |
+| SimGamingExpo | Sim Gaming Expo |
+| Svensk eRacingLigan | Svenska Eracingligan |
+
+`ALIASES` in `src/lib/replays.ts` bildet jede Schreibweise auf ein Token ab,
+angewandt auf beide Seiten **vor** dem Zerlegen in Wörter — deshalb überlebt
+„sim gaming expo", obwohl „sim" allein auf der Stoppwortliste steht.
+
+**Wirkung, gegen die echten Daten gemessen**: genau zwei geänderte Zuordnungen.
+Die Porsche-Zeile bekommt ihren angekündigten Stream (und damit die Glocke),
+die Short-Course-Zeile keinen — ihr eigener ist noch nicht angesetzt. Sonst
+bewegt sich nichts, kein Video doppelt vergeben.
+
+Die Tabelle nimmt nur auf, was nachweislich dieselbe Serie meint. Alles andere
+würde zwei verschiedene Übertragungen gleich aussehen lassen.
 
 ## 7p. KI-Hinweis unter den Press-Tool-Artikeln — 2026-09-21
 
