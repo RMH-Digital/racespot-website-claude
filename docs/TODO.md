@@ -1341,9 +1341,13 @@ Quellenzeile (die Links verschwinden aus dem Text, sie stehen weiter in
 **In zwei Schritten, weil die Vorlage widerrufen wurde.** Die erste Fassung
 nannte fünf Artikel ausdrücklich handgeschrieben und verbot den Hinweis dort —
 „it would be a false statement about somebody's own work". Die zweite Fassung
-vom selben Tag verlangt ihn für alle neun. Umgesetzt wie beauftragt; die
-Rücknahme ist eine redaktionelle Entscheidung und steht Jürgen zu, nicht mir.
-Rückgängig zu machen wäre sie mit einem Commit.
+vom selben Tag verlangt ihn für alle neun.
+
+**Von Jürgen bestätigt (2026-09-21)**: „der hinweis ist alt. Bitte schreibe
+jetzt immer den hinweis, das AI dabei geholfen hat. auch für die alten." Damit
+ist es keine Auslegungsfrage mehr, sondern die Hausregel: Jeder Artikel trägt
+die Zeile, in allen sechs Sprachen, auch jeder ältere. Steht so in `CLAUDE.md`,
+damit keine spätere Sitzung sie wieder entfernt.
 
 **Zwei Datenformen.** Die fünf älteren Artikel führen ihren englischen Text als
 `content: string[]`, ihre Übersetzungen als `Block[]`. Gemischt werden darf

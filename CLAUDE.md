@@ -173,15 +173,19 @@ editorial record and in the Press Tool review panel, not under the article. Do
 not "helpfully" link them in the body — see `editorial.link_sources_in_body` in
 the pipeline's project config.
 
-**The AI notice is different since 2026-09-21.** The pipeline now writes it
-itself, as the last paragraph of the article text: one italic line naming the
-source where there is one, and saying the piece was written with AI assistance
-and reviewed by the editorial team. It is content, not chrome — the site
-neither adds nor removes it. **Every article carries it, in every language**
-(all nine were given the line by hand on 2026-09-21, after a first pass that
-day had covered only the four the Press Tool wrote; the second instruction
-from the pipeline superseded the first). If an article ever appears without
-it, that is the pipeline's decision to make, not the site's.
+**Every article says that AI helped write it. No exceptions** (Jürgen,
+2026-09-21). One italic line as the last paragraph of the article text,
+naming the source where there is one and stating that the piece was created
+with AI assistance and reviewed by the RaceSpot editorial team. It is content,
+not chrome: it lives in `content`, in every language, and is written in the
+article's own language.
+
+The Press Tool now emits it with everything it produces. Anything that arrives
+without one — an older piece, a hand-written piece, an import — **gets the
+line added**, in all six languages, before it goes live. The wording is in
+`docs/TODO.md` 7p. An earlier instruction that day excluded the five articles
+written by hand; it was withdrawn, and all nine carry the line. Do not remove
+one, and do not reopen the question for an article that predates the pipeline.
 
 Mind the two content shapes when adding one: the older articles keep
 `content: string[]` in English and `Block[]` in their translations, and the
