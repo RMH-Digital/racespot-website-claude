@@ -9,16 +9,23 @@ export const dynamic = 'force-dynamic'
  * The /live page polls this every 30 seconds to detect new/ended streams.
  *
  * Detection chain:
- *   1. getLiveStreams() — RSS+videos.list (1 unit), then scraping (0 units), then Search API (100 units)
- *   2. If empty + Sheets says live → try Search API as last resort (handles edge cases
- *      where stream isn't in RSS yet or was just created)
+ *   1. RSS + videos.list (1 unit), then a free scrape of the channel page
+ *   2. Only if the Master Schedule says a broadcast is on: the Search API
+ *      (100 units), for the case where the stream is too new to be in the
+ *      uploads list. What that may cost is decided in youtube.ts — see
+ *      MAX_SEARCHES_PER_BROADCAST.
+ *
+ * The schedule is read first, because it decides whether the expensive tier
+ * is allowed to run at all.
  */
 export async function GET() {
   try {
-    const [liveStreams, events] = await Promise.all([
-      getLiveStreams(),
-      getUpcomingEvents(3),
-    ])
+    const events = await getUpcomingEvents(3)
+    // The row the schedule says is on air. Its id keys the search budget, so
+    // one broadcast cannot spend more than its share however long it runs.
+    const onAir = events.find((e) => e.isLive)
+    const scheduled = onAir ? { key: onAir.id } : undefined
+    const liveStreams = await getLiveStreams(scheduled)
 
     const headers = {
       'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
@@ -29,16 +36,12 @@ export async function GET() {
       return Response.json({ streams: liveStreams }, { headers })
     }
 
-    // Fallback: Sheets says we should be live but primary detection failed.
-    // Only within the first half hour after a scheduled start — that is the
-    // window in which a brand-new stream may not be in the upload list yet.
-    // Later, "not found" means "not on air" (streams end early far more often
-    // than they start late), and a 100-unit search every five minutes for
-    // ninety minutes after every broadcast would be quota spent on nothing.
-    const recentlyStarted = events.filter((e) => e.isLive && Date.now() - e.date.getTime() < 30 * 60 * 1000)
-    if (recentlyStarted.length > 0) {
-      console.log('[Live API] Primary detection empty but Sheets shows live event — trying Search API')
-      const searchResults = await getLiveStreamsViaSearch()
+    // Nothing found, but the schedule says a broadcast is on and started
+    // less than half an hour ago — the window in which a brand-new stream may
+    // not be in the upload list yet. Later, "not found" means "not on air":
+    // streams end early far more often than they start late.
+    if (onAir && Date.now() - onAir.date.getTime() < 30 * 60 * 1000) {
+      const searchResults = await getLiveStreamsViaSearch(scheduled)
       return Response.json({ streams: searchResults }, { headers })
     }
 

@@ -1026,6 +1026,12 @@ Player unter dem Video.
 
 ## 7j. UI-Durchgang über alle Seiten — 2026-09-16
 
+**Abschluss iPhone-Banner, 2026-09-22.** Jürgen: „aufm iphone läuft es nicht
+wie im banner, aber dein workaround klappt super". Der Durchlauf bleibt auf
+iOS Safari also aus; die Ersatzdarstellung bei reduzierter Bewegung — ein
+Eintrag alle sechs Sekunden statt der Laufschrift — trägt den Fall. Damit ist
+der Punkt geschlossen, ohne die Ursache auf iOS je gefunden zu haben.
+
 Auf Jürgens Wunsch alle zwölf Seiten in 1280 und 375 px per DOM-Prüfung
 durchgesehen (Überlauf, Überschriften, Alt-Texte, unbenannte Bedienelemente,
 Ziele unter 24 px, Text unter 11 px, unbeschriftete Eingabefelder, englische
@@ -1541,6 +1547,45 @@ Data API v3 je Schlüssel, und ob sich an den Einschränkungen der Schlüssel
 heute etwas geändert hat. Ist es reines Kontingent, erholt sich alles um
 Mitternacht Pacific Time von selbst. Steht dort `keyInvalid`, wurde der
 Schlüssel ausgetauscht und muss in Coolify nachgezogen werden.
+
+## 7s. Die Suche folgt jetzt dem Zeitplan — 2026-09-22
+
+**Entscheidung Jürgen**: „Nur suchen und updaten, wenn es wirklich einen
+Broadcast gibt, und ansonsten reicht auch einmal täglich."
+
+**Warum das nötig war**: Die Suche (`search.list`, **100 Einheiten**) war die
+dritte Stufe der Live-Erkennung und lief, sobald die beiden billigen Stufen
+nichts fanden — also die meiste Zeit des Tages, weil meistens nichts läuft.
+Jede Besucher-Seite fragt `/api/live-streams` im Minutentakt ab, der Fünf-
+Minuten-Cache deckelte das auf 288 Aufrufe am Tag: **28.800 Einheiten gegen ein
+Kontingent von 10.000**. Der Live-Schlüssel war leer, der Rückfall räumte den
+Hauptschlüssel leer, und die ganze Seite verlor ihre Aufzeichnungen (7r).
+
+**Neue Regel** (`maySearch()` in `src/lib/youtube.ts`):
+
+- Sagt das Master Schedule, dass gerade gesendet wird: **höchstens zweimal pro
+  Sendung, zehn Minuten auseinander**. Der erste Aufruf findet einen Stream,
+  der schon läuft, der zweite einen verspäteten Start.
+- Sonst: **einmal in 24 Stunden**. Das ist der einzige Weg, einen gar nicht
+  angekündigten Stream zu finden, und mehr braucht es dafür nicht.
+- Dazu ein Kurzgedächtnis von fünf Minuten für die letzte Antwort.
+
+Worst Case rund 2.500 Einheiten am Tag, im Normalfall nahe null — ein
+Live-Stream steht binnen ein, zwei Minuten in der Uploads-Liste, und Stufe 1
+kostet eine Einheit.
+
+Der Zeitplan wird dafür **zuerst** gelesen, in der API-Route wie auf der
+Live-Seite, und die Zeilen-ID der laufenden Sendung ist der Schlüssel des
+Budgets. Damit kann eine einzelne Sendung ihr Kontingent nicht überschreiten,
+egal wie lange sie dauert.
+
+Die Zähler liegen im Arbeitsspeicher und werden bei jedem Deploy zurückgesetzt.
+Bewusst so: Ein Deploy ist selten, und der Verlust kostet höchstens eine
+zusätzliche Suche.
+
+**Gemessen** mit einem Produktions-Build, fünf Abrufe hintereinander: Der erste
+versucht eine Suche (Tagesbudget), die vier folgenden lösen keine mehr aus.
+Vorher hätte jeder davon eine auslösen können.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 

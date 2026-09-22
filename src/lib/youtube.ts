@@ -301,7 +301,7 @@ export async function getCompletedBroadcasts(maxResults = 6): Promise<YouTubeVid
  * When offline: 1 unit (RSS check, cached 60s).
  * When live: 1-102 units depending on which tier detects it.
  */
-export async function getLiveStreams(): Promise<YouTubeLiveStream[]> {
+export async function getLiveStreams(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
   if (!CHANNEL_ID) return []
 
   try {
@@ -342,9 +342,9 @@ export async function getLiveStreams(): Promise<YouTubeLiveStream[]> {
 
     if (!scrapeFoundLive) return []
 
-    // Scraping says live but the upload list did not — the Search API, through
-    // the same five-minute cache as the route's fallback (100 units a call).
-    return await getLiveStreamsViaSearch()
+    // Scraping says live but the upload list did not — the Search API, under
+    // the budget above (100 units a call).
+    return await getLiveStreamsViaSearch(scheduled)
   } catch (error) {
     console.error('YouTube live check error:', error)
     return []
@@ -475,19 +475,79 @@ export async function getLiveStream(): Promise<YouTubeLiveStream | null> {
 }
 
 /**
- * Fallback: Use YouTube Search API to find ALL live streams.
- * Cost: 100 units — only call when primary detection fails but Sheets confirms live.
- * This handles edge cases where streams aren't in RSS yet.
+/**
+ * The broadcast the Master Schedule says should be on air, if any.
+ *
+ * `key` only has to be stable for one broadcast — the row id is.
  */
-export const getLiveStreamsViaSearch = unstable_cache(
-  searchLiveStreams,
-  ['youtube-live-search'],
-  // 100 units a call. Every client tab polls /api/live-streams each minute,
-  // so without this a long "sheet says live, nothing found" window would
-  // burn the daily quota in under two hours. Five minutes between searches
-  // still finds a stream a few minutes after it goes live.
-  { revalidate: 300 },
-)
+export interface ScheduledBroadcast {
+  key: string
+}
+
+/**
+ * When a hundred-unit search is allowed to happen.
+ *
+ * Until 2026-09-22 the answer was "whenever the cheap tiers came up empty,
+ * every five minutes, all day". Every visitor's tab polls /api/live-streams
+ * once a minute and the site is quiet most of the day, so the search ran
+ * against nothing: up to 288 calls, 28,800 units against a 10,000 quota. It
+ * emptied the live key, the fallback then emptied the main key, and the whole
+ * site lost its recordings. Jürgen's rule, and it is the right one: search
+ * when the schedule actually says a broadcast is on, otherwise once a day is
+ * plenty.
+ *
+ * So: at most twice per scheduled broadcast, ten minutes apart — the first
+ * call catches a stream that is already up, the second one a late start —
+ * and once in twenty-four hours for anything unscheduled, which is the only
+ * way an unannounced stream is ever found. Worst case about 2,500 units a
+ * day, and on a normal day near zero, because a live stream turns up in the
+ * uploads list within a minute or two and tier 1 costs one unit.
+ *
+ * The counters live in memory and reset on deploy. That is the right trade:
+ * a deploy is rare, and losing the count costs at most one extra search.
+ */
+const MAX_SEARCHES_PER_BROADCAST = 2
+const SEARCH_MIN_GAP_MS = 10 * 60 * 1000
+const IDLE_SEARCH_INTERVAL_MS = 24 * 60 * 60 * 1000
+const SEARCH_MEMO_MS = 5 * 60 * 1000
+
+const searchesSpent = new Map<string, { count: number; last: number }>()
+let lastIdleSearch = 0
+let memo: { at: number; streams: YouTubeLiveStream[] } | null = null
+
+function maySearch(scheduled?: ScheduledBroadcast): boolean {
+  const now = Date.now()
+  if (scheduled) {
+    const spent = searchesSpent.get(scheduled.key) ?? { count: 0, last: 0 }
+    if (spent.count >= MAX_SEARCHES_PER_BROADCAST || now - spent.last < SEARCH_MIN_GAP_MS) return false
+    searchesSpent.set(scheduled.key, { count: spent.count + 1, last: now })
+    // One entry per broadcast, and broadcasts do not repeat their row id.
+    if (searchesSpent.size > 50) for (const [k, v] of searchesSpent) if (now - v.last > 6 * 60 * 60 * 1000) searchesSpent.delete(k)
+    return true
+  }
+  if (now - lastIdleSearch < IDLE_SEARCH_INTERVAL_MS) return false
+  lastIdleSearch = now
+  return true
+}
+
+/**
+ * Find a live stream through the Search API — the last resort, 100 units.
+ *
+ * Returns the previous answer while it is fresh, and an empty list when the
+ * budget above says no. Not wrapped in `unstable_cache` any more: the cache
+ * could not tell a real call from a cached one, so counting the cost was
+ * impossible from outside it.
+ */
+export async function getLiveStreamsViaSearch(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
+  if (memo && Date.now() - memo.at < SEARCH_MEMO_MS) return memo.streams
+  if (!maySearch(scheduled)) {
+    console.log(`[Live] Search not spent — ${scheduled ? 'this broadcast has had its two' : 'nothing scheduled and today\'s one is used'}`)
+    return []
+  }
+  const streams = await searchLiveStreams()
+  memo = { at: Date.now(), streams }
+  return streams
+}
 
 /**
  * What Google actually objected to.

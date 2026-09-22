@@ -17,13 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 
 export default async function LivePage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
-  const [liveStreams, events] = await Promise.all([
-    getLiveStreams(),
-    getUpcomingEvents(10),
-  ])
-
-  // Check if Google Sheets shows any live events
+  // The schedule first: whether a broadcast is on decides whether the
+  // hundred-unit search may run at all — see getLiveStreamsViaSearch.
+  const events = await getUpcomingEvents(10)
   const liveEvents = events.filter((e) => e.isLive)
+  const liveStreams = await getLiveStreams(liveEvents[0] ? { key: liveEvents[0].id } : undefined)
 
   // Build upcoming events list (used in both live and offline states)
   const upcomingEvents = events
