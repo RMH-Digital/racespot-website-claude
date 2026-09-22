@@ -17,17 +17,13 @@ import { unstable_cache } from 'next/cache'
  * so the band never shows a zero.
  */
 import 'server-only'
+import { getSchedule } from './sheets'
 
-const SHEET_ID = process.env.GOOGLE_SHEETS_ID
-const SHEET_KEY = process.env.GOOGLE_SHEETS_API_KEY
 const YT_KEY = process.env.YOUTUBE_API_KEY
 const YT_CHANNEL = process.env.YOUTUBE_CHANNEL_ID
 const OAUTH_CLIENT_ID = process.env.YOUTUBE_OAUTH_CLIENT_ID
 const OAUTH_CLIENT_SECRET = process.env.YOUTUBE_OAUTH_CLIENT_SECRET
 const OAUTH_REFRESH_TOKEN = process.env.YOUTUBE_OAUTH_REFRESH_TOKEN
-
-/** Twelve hours: the schedule moves slowly, and the API has a quota worth protecting. */
-const REVALIDATE = 60 * 60 * 12
 
 /**
  * Six hours for YouTube. Subscribers are the one number in the band that moves
@@ -104,42 +100,35 @@ const SOCIAL_FOLLOWERS: Record<string, number> = {
 /** Fallback for the YouTube share when the API is unreachable (measured 34,200). */
 const YOUTUBE_SUBSCRIBERS_FALLBACK = 34_000
 
-const EXCEL_EPOCH = Date.UTC(1899, 11, 30)
-
+/**
+ * Counted from the same parse of the Master Schedule that the calendar and
+ * the ticker use (sheets.ts). Until 2026-09-22 this fetched and parsed the
+ * whole sheet a second time for itself. Hours come from start and end, which
+ * is the duration column to the millisecond; nothing here is rounded before
+ * the band rounds down.
+ */
 async function scheduleStats(): Promise<Pick<SiteStats, 'broadcasts' | 'hours' | 'series'> | null> {
-  if (!SHEET_ID || !SHEET_KEY) return null
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Master%20Schedule!A2:R?key=${SHEET_KEY}&valueRenderOption=UNFORMATTED_VALUE`
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } })
-    if (!res.ok) return null
+  const events = await getSchedule()
+  if (events.length === 0) return null
 
-    const rows: (string | number)[][] = (await res.json()).values || []
-    const now = Date.now()
-    const yearAgo = now - 365 * 86400000
+  const now = Date.now()
+  const yearAgo = now - 365 * 86400000
 
-    let broadcasts = 0
-    let hours = 0
-    const series = new Set<string>()
+  let broadcasts = 0
+  let hours = 0
+  const series = new Set<string>()
 
-    for (const row of rows) {
-      const serial = Number(row[1])
-      if (!serial || Number.isNaN(serial)) continue
-      const when = EXCEL_EPOCH + serial * 86400000
-      if (when < yearAgo || when > now) continue          // last 12 months only
-      if (String(row[6]).toLowerCase() !== 'yes') continue // public broadcasts only
-      const name = String(row[10] || '').trim()
-      if (!name) continue
-
-      broadcasts++
-      hours += (Number(row[3]) || 0) * 24 // sheet stores duration as a day fraction
-      series.add(name)
-    }
-
-    if (broadcasts === 0) return null
-    return { broadcasts, hours: Math.round(hours), series: series.size }
-  } catch {
-    return null
+  for (const e of events) {
+    const when = e.date.getTime()
+    if (when < yearAgo || when > now) continue // last 12 months only
+    if (!e.isPublic) continue                   // public broadcasts only
+    broadcasts++
+    hours += (e.endDate.getTime() - when) / 3_600_000
+    series.add(e.series)
   }
+
+  if (broadcasts === 0) return null
+  return { broadcasts, hours: Math.round(hours), series: series.size }
 }
 
 async function youtubeChannel(): Promise<{ views: number; subscribers: number } | null> {

@@ -1692,6 +1692,15 @@ Live-Logik mit gestellter Uhr und gestelltem `fetch`: fünf Minuten Leerlauf →
 Suchen; eine Sendung 45 Minuten nach Start → keine Suche; Stream in der
 Upload-Liste → gefunden ohne Suche; 30 Sekunden später → Speichertreffer.
 
+**Nachgezogen am Abend — Kennzahlenleiste**: `stats.ts` holte und parste das
+Sheet ein zweites Mal für sich (unter dem Etikett „zwölf Stunden Cache", das
+nie galt: gleiche URL, gleicher Cache-Eintrag, alle fünf Minuten erneuert). Es
+zählt jetzt aus demselben Parse wie Kalender und Ticker (`getSchedule()`).
+Stunden kommen aus Ende minus Start, was die Dauerspalte auf die Millisekunde
+ist. Verglichen gegen die alte Formel am selben Sheet: 411 → 412 Sendungen,
+1.094 → 1.096 Stunden, 107 → 107 Serien — der Unterschied ist die Uhrzeit an
+der Jahresgrenze, die die alte Rechnung wegließ. Die Leiste rundet ohnehin ab.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

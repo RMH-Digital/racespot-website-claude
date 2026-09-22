@@ -188,10 +188,18 @@ function withStatus(e: ParsedRow, now: number): ScheduleEvent {
  *
  * When the sheet cannot be read, the last parse stands: a minute-old schedule
  * beats an empty calendar, and the error is in the log either way.
+ *
+ * getSchedule() is the raw view — every row, public or not, status stamped —
+ * for callers that count rather than display (stats.ts). Everything that
+ * renders goes through the filtered exports below.
  */
 const PARSE_MEMO_MS = 60_000
 let parsed: { at: number; rows: ParsedRow[] } | null = null
 let parsing: Promise<ParsedRow[] | null> | null = null
+
+export async function getSchedule(): Promise<ScheduleEvent[]> {
+  return readSchedule()
+}
 
 async function readSchedule(): Promise<ScheduleEvent[]> {
   if (!API_KEY || !SHEET_ID) {
