@@ -1,12 +1,25 @@
 /**
  * YouTube integration for Racespot.tv (SERVER-ONLY)
  *
- * QUOTA OPTIMIZATION STRATEGY:
- *   1. RSS feed (0 units) for video data — includes title, thumbnail, views, date
- *   2. videos.list (1 unit) only when API available — adds duration, stats
- *   3. Scraping (0 units) for live stream pre-check — replaces search.list (100 units!)
- *   4. playlists.list (1 unit) cached for 24h
- *   5. Live stream details (1 unit) only when scraping confirms live
+ * What it costs, and why — the quota is 10,000 units a day per key:
+ *
+ *   - Recent videos: the channel's RSS feed, 0 units, kept five minutes. The
+ *     uploads playlist (1 unit, an hour) only when the feed is down.
+ *   - Details for the broadcasts sections: one videos.list, 1 unit, an hour.
+ *   - Live detection (getLiveStreams): one videos.list over the recent ids on
+ *     the live key — every minute while the schedule has a broadcast on or
+ *     about to start, every five minutes while it has not. search.list, a
+ *     hundred units, only in the first half hour of a scheduled broadcast
+ *     whose stream is not in the uploads list yet, at most twice per
+ *     broadcast. No scraping: the channel page said "live" for every
+ *     *announced* stream, which is nearly always, and sent the search off
+ *     every five minutes for nothing (2026-09-22).
+ *   - Playlists: 1 unit a day. The events-page poster: 1 unit a day.
+ *
+ * The live answer is memoised in the process, so a hundred open tabs cost
+ * what one does. The main key (YOUTUBE_API_KEY) carries the site, the live
+ * key (YOUTUBE_LIVE_API_KEY) the detection; the search never falls back to
+ * the main key.
  *
  * For client-side imports (types, formatViewCount, etc.), use '@/lib/youtube-utils'.
  */
@@ -15,7 +28,6 @@
 export type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
 export { formatViewCount, formatDate, formatDuration } from './youtube-utils'
 
-import { unstable_cache } from 'next/cache'
 import type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
 
 const API_KEY = process.env.YOUTUBE_API_KEY
@@ -29,8 +41,13 @@ const LIVE_API_KEY = process.env.YOUTUBE_LIVE_API_KEY || API_KEY
 // ─── Cache durations ────────────────────────────────────────
 const CACHE_24H = 86400       // 24 hours — playlists, video details
 const CACHE_1H = 3600         // 1 hour — latest videos, broadcasts
-const CACHE_LIVE = 60         // 1 min — live stream check (lightweight scrape)
-const CACHE_LIVE_DETAILS = 60 // 1 min — live stream details (only when live)
+/**
+ * Five minutes for the RSS feed. It costs nothing, YouTube itself caches it
+ * for fifteen minutes (max-age=900), and it is where live detection gets its
+ * ids from: at the old hour, a stream that was not announced ahead was
+ * invisible to the cheap tier for up to an hour.
+ */
+const CACHE_RSS = 300
 
 interface YouTubeVideoItem {
   id: string
@@ -84,7 +101,7 @@ async function getVideosFromRSS(): Promise<RSSVideoData[]> {
 
   try {
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`
-    const res = await fetch(url, { next: { revalidate: CACHE_1H } })
+    const res = await fetch(url, { next: { revalidate: CACHE_RSS } })
 
     if (!res.ok) {
       console.error('YouTube RSS feed error:', res.status)
@@ -204,7 +221,7 @@ async function getVideoDetails(videoIds: string[], revalidate = CACHE_24H): Prom
 
     if (!res.ok) {
       console.error('YouTube videos API error:', await apiError(res))
-      return [] // Caller (getLatestVideos/getCompletedBroadcasts) falls back to RSS
+      return [] // Caller (getCompletedBroadcasts) falls back to RSS
     }
 
     const data = await res.json()
@@ -218,37 +235,6 @@ async function getVideoDetails(videoIds: string[], revalidate = CACHE_24H): Prom
 }
 
 // ─── Public API ─────────────────────────────────────────────
-
-/**
- * Fetch latest videos from the channel.
- * Cost: 0 units (RSS) + 1 unit (video details) = 1 unit total.
- * Fallback: RSS-only data when API quota is exceeded (no duration).
- * Cached for 1 hour.
- */
-export async function getLatestVideos(maxResults = 6): Promise<YouTubeVideo[]> {
-  if (!CHANNEL_ID) {
-    console.warn('YouTube Channel ID not configured')
-    return []
-  }
-
-  try {
-    const rssVideos = await getRecentVideos()
-    if (!rssVideos.length) return []
-
-    const subset = rssVideos.slice(0, maxResults)
-    const ids = subset.map((v) => v.id)
-
-    // Try API for full details (duration, stats)
-    const apiVideos = await getVideoDetails(ids, CACHE_1H)
-
-    // If API returned data, use it; otherwise fall back to RSS
-    if (apiVideos.length > 0) return apiVideos
-    return subset.map(rssToYouTubeVideo)
-  } catch (error) {
-    console.error('YouTube latest videos error:', error)
-    return []
-  }
-}
 
 /**
  * Fetch recent broadcasts (videos > 10 min duration).
@@ -288,200 +274,171 @@ export async function getCompletedBroadcasts(maxResults = 6): Promise<YouTubeVid
   }
 }
 
+// ─── Live detection ─────────────────────────────────────────
+
 /**
- * Check if channel is currently live streaming and return ALL live streams.
+ * The broadcast the Master Schedule says is on air or about to be, if any —
+ * sheets.ts derives it with watchedBroadcast().
  *
- * Four-tier approach for reliable multi-stream detection:
- *   Tier 1 (1 unit):   RSS + videos.list — check recent video IDs for liveBroadcastContent
- *                       Works from ANY server (no IP blocking), most reliable method.
- *   Tier 2 (0 units):  Scrape channel page for live indicator (fails on cloud IPs)
- *   Tier 3 (100 units): Search API to find ALL concurrent live streams
- *   Tier 4 (1 unit):   videos.list for details on found streams
+ * `key` only has to be stable for one broadcast — the row id is. `start` is
+ * the scheduled start, ms since epoch.
+ */
+export interface ScheduledBroadcast {
+  key: string
+  start: number
+}
+
+/** How often YouTube is asked while the schedule has a broadcast on or imminent… */
+const LIVE_CHECK_ON_AIR_MS = 60_000
+/** …and while it has not. An unannounced stream is still found within this. */
+const LIVE_CHECK_IDLE_MS = 5 * 60_000
+/**
+ * The search window: from this long before a scheduled start until
+ * SEARCH_AFTER_MS after it, a stream missing from the uploads list may be too
+ * new to be listed, and the search is the only way to find it. Later, "not
+ * listed" means "not on air" — streams end early far more often than they
+ * start late.
+ */
+const SEARCH_BEFORE_MS = 5 * 60_000
+const SEARCH_AFTER_MS = 30 * 60_000
+
+let liveMemo: { at: number; streams: YouTubeLiveStream[] } | null = null
+let liveCheck: Promise<YouTubeLiveStream[]> | null = null
+
+/**
+ * Every live stream on the channel right now.
  *
- * When offline: 1 unit (RSS check, cached 60s).
- * When live: 1-102 units depending on which tier detects it.
+ * Two tiers, both keyed to the schedule the caller hands in:
+ *
+ *   1. videos.list over the recent upload ids (1 unit, live key). A stream
+ *      appears in the uploads list the moment it exists — announced ahead as
+ *      "upcoming", or when it goes live — so this finds nearly everything,
+ *      the unannounced ones included, within the RSS feed's delay.
+ *   2. search.list (100 units), only inside the search window of a scheduled
+ *      broadcast whose stream tier 1 could not see, and under the budget in
+ *      maySearch().
+ *
+ * The answer is kept in memory: a minute while a broadcast is on or about to
+ * start, five minutes while nothing is. Every tab polls /api/live-streams once
+ * a minute, and until 2026-09-22 each poll cost a unit and re-read a megabyte
+ * of channel page from the fetch cache; now the process asks YouTube once and
+ * answers everyone from the same result — about 500 units a day on the live
+ * key against 1,440 before, and no more per visitor.
  */
 export async function getLiveStreams(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
   if (!CHANNEL_ID) return []
+  const now = Date.now()
+  const ttl = scheduled ? LIVE_CHECK_ON_AIR_MS : LIVE_CHECK_IDLE_MS
+  if (liveMemo && now - liveMemo.at < ttl) return liveMemo.streams
+  // One check for everyone who asks while it runs.
+  liveCheck ??= checkLive(scheduled).finally(() => { liveCheck = null })
+  return liveCheck
+}
 
+async function checkLive(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
   try {
-    // ── Tier 1: RSS + videos.list (1 unit, works from any IP) ──
-    // Get recent video IDs from free RSS feed, then check liveBroadcastContent
-    const rssLiveStreams = await detectLiveViaRSS()
-    if (rssLiveStreams.length > 0) {
-      console.log(`[Live] Tier 1 (RSS): Found ${rssLiveStreams.length} live stream(s)`)
-      return rssLiveStreams
+    let streams = await detectLiveViaUploads()
+    if (streams.length === 0 && scheduled) {
+      const sinceStart = Date.now() - scheduled.start
+      if (sinceStart >= -SEARCH_BEFORE_MS && sinceStart < SEARCH_AFTER_MS) streams = await searchIfAllowed(scheduled)
     }
-
-    // ── Tier 2: Free scrape check (0 units, blocked on some cloud IPs) ──
-    const channelUrl = `https://www.youtube.com/channel/${CHANNEL_ID}/live`
-    let scrapeFoundLive = false
-    try {
-      const scrapeRes = await fetch(channelUrl, {
-        // Was `cache: 'no-store'`, which meant every single request to /live
-        // downloaded YouTube's whole channel page — about a second of TTFB on
-        // the common case, when nothing is live. One minute of cache matches
-        // CACHE_LIVE elsewhere and costs nothing in practice: the client polls
-        // /api/live-streams every 60s, so a stream going live still surfaces
-        // within a minute either way.
-        next: { revalidate: CACHE_LIVE },
-        // And never let a slow YouTube hold the page hostage.
-        signal: AbortSignal.timeout(4000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        },
-      })
-
-      if (scrapeRes.ok) {
-        const html = await scrapeRes.text()
-        scrapeFoundLive = html.includes('"isLive":true') || html.includes('"style":"LIVE"')
-      }
-    } catch {
-      // Scraping blocked — continue to next tier
-    }
-
-    if (!scrapeFoundLive) return []
-
-    // Scraping says live but the upload list did not — the Search API, under
-    // the budget above (100 units a call).
-    return await getLiveStreamsViaSearch(scheduled)
+    liveMemo = { at: Date.now(), streams }
+    return streams
   } catch (error) {
     console.error('YouTube live check error:', error)
-    return []
+    // The last answer beats none, and the next call retries.
+    return liveMemo?.streams ?? []
   }
 }
 
 /**
- * Detect live streams via RSS feed + videos.list API.
- * Cost: 1 API unit (videos.list for up to 15 IDs).
- * This works from ANY server — no scraping, no IP blocking issues.
+ * Tier 1: the recent upload ids, then their broadcast state.
+ * Cost: 1 unit (videos.list for up to 15 ids), live key.
+ * Works from any server — no scraping, no IP blocking issues.
+ *
+ * `cache: 'no-store'` on purpose: getLiveStreams() is the cache, and a fetch
+ * cache of its own underneath would have served a stale entry into the memo
+ * and doubled the delay.
  */
-async function detectLiveViaRSS(): Promise<YouTubeLiveStream[]> {
+async function detectLiveViaUploads(): Promise<YouTubeLiveStream[]> {
   if (!LIVE_API_KEY || !CHANNEL_ID) {
-    console.warn('[Live] detectLiveViaRSS: missing LIVE_API_KEY or CHANNEL_ID')
+    console.warn('[Live] detectLiveViaUploads: missing LIVE_API_KEY or CHANNEL_ID')
     return []
   }
 
   try {
-    // Step 1: Get recent video IDs — free RSS feed, uploads playlist when RSS is down
-    const rssVideos = await getRecentVideos()
-    console.log(`[Live] RSS feed returned ${rssVideos.length} videos: ${rssVideos.map(v => v.id).join(',')}`)
-    if (rssVideos.length === 0) return []
+    const recent = await getRecentVideos()
+    if (recent.length === 0) return []
 
-    // Step 2: Check liveBroadcastContent via videos.list (1 unit for all IDs)
-    // Uses LIVE_API_KEY — separate quota from main API key
-    const ids = rssVideos.map((v) => v.id).join(',')
+    const ids = recent.map((v) => v.id).join(',')
     const baseUrl = `${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids}`
-    let res = await fetch(`${baseUrl}&key=${LIVE_API_KEY}`, { next: { revalidate: CACHE_LIVE } })
+    let res = await fetch(`${baseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
 
-    // Fallback to main API key if live key quota is exhausted
+    // A unit on the main key when the live key is spent — cheap, and it keeps
+    // the live page honest for the rest of the day.
     if (!res.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
-      console.warn(`[Live] LIVE_API_KEY failed (${res.status}), falling back to main API_KEY`)
-      res = await fetch(`${baseUrl}&key=${API_KEY}`, { next: { revalidate: CACHE_LIVE } })
+      console.warn(`[Live] live key refused videos.list (${await apiError(res)}), using the main key`)
+      res = await fetch(`${baseUrl}&key=${API_KEY}`, { cache: 'no-store' })
     }
 
     if (!res.ok) {
-      console.warn(`[Live] RSS videos.list check failed: ${res.status} ${res.statusText}`)
+      console.warn(`[Live] videos.list failed: ${await apiError(res)}`)
       return []
     }
 
-    const data = await res.json()
-    const items = data.items || []
-    console.log(`[Live] videos.list returned ${items.length} items, broadcast states: ${items.map((i: { id: string; snippet: { liveBroadcastContent: string } }) => `${i.id}=${i.snippet.liveBroadcastContent}`).join(', ')}`)
-
-    // Step 3: Filter to currently live streams
-    const liveItems = items.filter(
-      (item: { snippet: { liveBroadcastContent: string } }) =>
-        item.snippet.liveBroadcastContent === 'live'
-    )
-
-    if (liveItems.length === 0) {
-      console.log('[Live] No live streams found in RSS videos')
-      return []
-    }
-
-    // Step 4: Map to YouTubeLiveStream format
-    return liveItems.map((item: {
-      id: string
-      snippet: {
-        title: string
-        description: string
-        thumbnails: { high?: { url: string }; medium?: { url: string } }
-      }
-      liveStreamingDetails?: { concurrentViewers?: string }
-    }) => ({
-      id: item.id,
-      title: item.snippet.title,
-      description: item.snippet.description,
-      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url || '',
-      concurrentViewers: item.liveStreamingDetails?.concurrentViewers || '0',
-    }))
+    const items: LiveVideoItem[] = (await res.json()).items || []
+    const live = items.filter((item) => item.snippet.liveBroadcastContent === 'live')
+    console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${live.map((i) => i.id).join(', ')})` : ''}`)
+    return live.map(toLiveStream)
   } catch (error) {
-    console.error('[Live] RSS-based detection error:', error)
+    console.error('[Live] uploads-based detection error:', error)
     return []
   }
 }
 
+interface LiveVideoItem {
+  id: string
+  snippet: {
+    title: string
+    description: string
+    thumbnails: { high?: { url: string }; medium?: { url: string } }
+    liveBroadcastContent: string
+    channelId?: string
+  }
+  liveStreamingDetails?: { concurrentViewers?: string }
+}
+
+function toLiveStream(item: LiveVideoItem): YouTubeLiveStream {
+  return {
+    id: item.id,
+    title: item.snippet.title,
+    description: item.snippet.description,
+    thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url || '',
+    concurrentViewers: item.liveStreamingDetails?.concurrentViewers || '0',
+  }
+}
+
 /**
- * Fetch live stream details for given video IDs.
- * Cost: 1 API unit. Shared by multiple detection tiers.
+ * Live details for the ids a search returned — the ones actually live and
+ * actually ours. Cost: 1 unit, live key.
  */
 async function fetchLiveStreamDetails(videoIds: string[]): Promise<YouTubeLiveStream[]> {
   if (!LIVE_API_KEY || videoIds.length === 0) return []
 
-  // Uses LIVE_API_KEY — separate quota from main API key
   const detailBaseUrl = `${BASE_URL}/videos?part=liveStreamingDetails,snippet&id=${videoIds.join(',')}`
-  let detailRes = await fetch(`${detailBaseUrl}&key=${LIVE_API_KEY}`, { next: { revalidate: CACHE_LIVE_DETAILS } })
+  let detailRes = await fetch(`${detailBaseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
 
-  // Fallback to main API key if live key quota is exhausted
   if (!detailRes.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
-    console.warn(`[Live] LIVE_API_KEY failed in fetchLiveStreamDetails (${detailRes.status}), falling back to main API_KEY`)
-    detailRes = await fetch(`${detailBaseUrl}&key=${API_KEY}`, { next: { revalidate: CACHE_LIVE_DETAILS } })
+    console.warn(`[Live] live key refused the details call (${await apiError(detailRes)}), using the main key`)
+    detailRes = await fetch(`${detailBaseUrl}&key=${API_KEY}`, { cache: 'no-store' })
   }
 
   if (!detailRes.ok) return []
 
-  const detailData = await detailRes.json()
-  const details = detailData.items || []
-
+  const details: LiveVideoItem[] = (await detailRes.json()).items || []
   return details
-    .filter((detail: { snippet: { liveBroadcastContent: string; channelId: string } }) =>
-      detail.snippet.liveBroadcastContent === 'live' && detail.snippet.channelId === CHANNEL_ID
-    )
-    .map((detail: {
-      id: string
-      snippet: {
-        title: string
-        description: string
-        thumbnails: { high?: { url: string }; medium?: { url: string } }
-      }
-      liveStreamingDetails?: { concurrentViewers?: string }
-    }) => ({
-      id: detail.id,
-      title: detail.snippet.title,
-      description: detail.snippet.description,
-      thumbnail: detail.snippet.thumbnails.high?.url || detail.snippet.thumbnails.medium?.url || '',
-      concurrentViewers: detail.liveStreamingDetails?.concurrentViewers || '0',
-    }))
-}
-
-/**
- * Convenience wrapper — returns first live stream or null.
- * Used by components that only need to know "is anything live?"
- */
-export async function getLiveStream(): Promise<YouTubeLiveStream | null> {
-  const streams = await getLiveStreams()
-  return streams[0] ?? null
-}
-
-/**
-/**
- * The broadcast the Master Schedule says should be on air, if any.
- *
- * `key` only has to be stable for one broadcast — the row id is.
- */
-export interface ScheduledBroadcast {
-  key: string
+    .filter((d) => d.snippet.liveBroadcastContent === 'live' && d.snippet.channelId === CHANNEL_ID)
+    .map(toLiveStream)
 }
 
 /**
@@ -493,60 +450,42 @@ export interface ScheduledBroadcast {
  * against nothing: up to 288 calls, 28,800 units against a 10,000 quota. It
  * emptied the live key, the fallback then emptied the main key, and the whole
  * site lost its recordings. Jürgen's rule, and it is the right one: search
- * when the schedule actually says a broadcast is on, otherwise once a day is
- * plenty.
+ * when the schedule actually says a broadcast is on.
  *
  * So: at most twice per scheduled broadcast, ten minutes apart — the first
  * call catches a stream that is already up, the second one a late start —
- * and once in twenty-four hours for anything unscheduled, which is the only
- * way an unannounced stream is ever found. Worst case about 2,500 units a
- * day, and on a normal day near zero, because a live stream turns up in the
- * uploads list within a minute or two and tier 1 costs one unit.
+ * and never outside a broadcast's search window (see getLiveStreams). The
+ * once-a-day search for unscheduled streams that this rule first allowed is
+ * gone too: tier 1 finds those on its own, for free, within a few minutes,
+ * and the channel-page scrape that was meant to trigger it said "live" for
+ * every announced stream. Worst case about 200 units per broadcast, and on
+ * a normal day none at all.
  *
  * The counters live in memory and reset on deploy. That is the right trade:
  * a deploy is rare, and losing the count costs at most one extra search.
  */
 const MAX_SEARCHES_PER_BROADCAST = 2
 const SEARCH_MIN_GAP_MS = 10 * 60 * 1000
-const IDLE_SEARCH_INTERVAL_MS = 24 * 60 * 60 * 1000
-const SEARCH_MEMO_MS = 5 * 60 * 1000
 
 const searchesSpent = new Map<string, { count: number; last: number }>()
-let lastIdleSearch = 0
-let memo: { at: number; streams: YouTubeLiveStream[] } | null = null
 
-function maySearch(scheduled?: ScheduledBroadcast): boolean {
+function maySearch(scheduled: ScheduledBroadcast): boolean {
   const now = Date.now()
-  if (scheduled) {
-    const spent = searchesSpent.get(scheduled.key) ?? { count: 0, last: 0 }
-    if (spent.count >= MAX_SEARCHES_PER_BROADCAST || now - spent.last < SEARCH_MIN_GAP_MS) return false
-    searchesSpent.set(scheduled.key, { count: spent.count + 1, last: now })
-    // One entry per broadcast, and broadcasts do not repeat their row id.
-    if (searchesSpent.size > 50) for (const [k, v] of searchesSpent) if (now - v.last > 6 * 60 * 60 * 1000) searchesSpent.delete(k)
-    return true
-  }
-  if (now - lastIdleSearch < IDLE_SEARCH_INTERVAL_MS) return false
-  lastIdleSearch = now
+  const spent = searchesSpent.get(scheduled.key) ?? { count: 0, last: 0 }
+  if (spent.count >= MAX_SEARCHES_PER_BROADCAST || now - spent.last < SEARCH_MIN_GAP_MS) return false
+  searchesSpent.set(scheduled.key, { count: spent.count + 1, last: now })
+  // One entry per broadcast, and broadcasts do not repeat their row id.
+  if (searchesSpent.size > 50) for (const [k, v] of searchesSpent) if (now - v.last > 6 * 60 * 60 * 1000) searchesSpent.delete(k)
   return true
 }
 
-/**
- * Find a live stream through the Search API — the last resort, 100 units.
- *
- * Returns the previous answer while it is fresh, and an empty list when the
- * budget above says no. Not wrapped in `unstable_cache` any more: the cache
- * could not tell a real call from a cached one, so counting the cost was
- * impossible from outside it.
- */
-export async function getLiveStreamsViaSearch(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
-  if (memo && Date.now() - memo.at < SEARCH_MEMO_MS) return memo.streams
+/** Tier 2, under the budget above. Empty when the budget says no. */
+async function searchIfAllowed(scheduled: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
   if (!maySearch(scheduled)) {
-    console.log(`[Live] Search not spent — ${scheduled ? 'this broadcast has had its two' : 'nothing scheduled and today\'s one is used'}`)
+    console.log('[Live] Search not spent — this broadcast has had its two')
     return []
   }
-  const streams = await searchLiveStreams()
-  memo = { at: Date.now(), streams }
-  return streams
+  return searchLiveStreams()
 }
 
 /**
@@ -583,9 +522,8 @@ async function searchLiveStreams(): Promise<YouTubeLiveStream[]> {
   if (!LIVE_API_KEY || !CHANNEL_ID) return []
 
   try {
-    // The live key has its own quota, and this call costs a hundred units of it.
     const searchBaseUrl = `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&maxResults=10`
-    const searchRes = await fetch(`${searchBaseUrl}&key=${LIVE_API_KEY}`, { next: { revalidate: CACHE_LIVE } })
+    const searchRes = await fetch(`${searchBaseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
 
     if (!searchRes.ok) {
       // Deliberately no fallback to the main key — see the note on this
@@ -595,30 +533,19 @@ async function searchLiveStreams(): Promise<YouTubeLiveStream[]> {
       return []
     }
 
-    const searchData = await searchRes.json()
-    const searchItems = searchData.items || []
-
-    if (searchItems.length === 0) {
-      console.log('[Live] Search API found no live streams')
-      return []
-    }
+    const searchItems: { id: { videoId: string } }[] = (await searchRes.json()).items || []
+    console.log(`[Live] Search found ${searchItems.length} live stream(s)`)
+    if (searchItems.length === 0) return []
 
     // Get live details for all found streams (1 unit)
-    const videoIds = searchItems.map((item: { id: { videoId: string } }) => item.id.videoId)
-    return await fetchLiveStreamDetails(videoIds)
+    return await fetchLiveStreamDetails(searchItems.map((item) => item.id.videoId))
   } catch (error) {
     console.error('[Live] Search API fallback error:', error)
     return []
   }
 }
 
-/**
- * @deprecated Use getLiveStreamsViaSearch() instead
- */
-export async function getLiveStreamViaSearch(): Promise<YouTubeLiveStream | null> {
-  const streams = await getLiveStreamsViaSearch()
-  return streams[0] ?? null
-}
+// ─── Playlists ──────────────────────────────────────────────
 
 /**
  * Fetch all public playlists from the channel.
@@ -670,9 +597,6 @@ export async function getChannelPlaylists(maxResults = 50): Promise<YouTubePlayl
     return []
   }
 }
-
-// ─── Formatting utilities ────────────────────────────────────
-
 
 /**
  * The largest still YouTube actually has for a video. Not every video has a

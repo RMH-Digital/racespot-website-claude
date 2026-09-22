@@ -199,6 +199,27 @@ the yellow `<em>` an emphasis inside a sentence gets. That is `footerNote()` in
 too loud. The translation footer, where an article has one, stays last and
 unchanged.
 
+## Datenquellen und Quota
+
+`src/lib/sheets.ts` (Master Schedule), `src/lib/youtube.ts` (Videos, Live),
+`src/lib/replays.ts` (welche Aufzeichnung zu welcher Zeile gehört). Die
+Kostenrechnung steht im Kopf von `youtube.ts`, die Geschichte in
+`docs/TODO.md` 7r–7t. Die Regeln, die leicht zu brechen sind:
+
+- **Der Zeitplan steuert die Live-Erkennung.** `watchedBroadcast()` sagt, ob
+  gesendet wird oder in 15 Minuten begonnen wird; nur dann fragt
+  `getLiveStreams()` YouTube jede Minute, sonst alle fünf. `search.list`
+  (100 Einheiten) läuft nur im Startfenster einer geplanten Sendung, höchstens
+  zweimal. **Keine Kanalseiten-Abfrage** — sie meldete „live", sobald ein
+  Stream *angekündigt* war, und das ist fast immer.
+- **Einmal pro Prozess, nicht pro Aufruf.** Sheet-Parse, Live-Status und
+  Replay-Index liegen in Modul-Memos (ein Container). Hundert offene Tabs
+  kosten, was einer kostet. Wer eine neue Datenquelle anschließt, hängt sie
+  an dieselbe Stelle, nicht an den Aufrufer.
+- Der Hauptschlüssel (`YOUTUBE_API_KEY`) trägt die Seite, der Live-Schlüssel
+  (`YOUTUBE_LIVE_API_KEY`) die Erkennung. Die Suche fällt **nie** auf den
+  Hauptschlüssel zurück.
+
 ## YouTube Watch Time
 
 Optional, per OAuth des Brand-Kontos: `docs/YOUTUBE-ANALYTICS.md`. Ohne die drei

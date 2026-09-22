@@ -1587,6 +1587,111 @@ zusätzliche Suche.
 versucht eine Suche (Tagesbudget), die vier folgenden lösen keine mehr aus.
 Vorher hätte jeder davon eine auslösen können.
 
+**Ergänzt am selben Abend (7t)**: Die tägliche Suche ohne Zeitplan ist wieder
+entfallen. Stufe 1 findet einen nicht angekündigten Stream von selbst, kostenlos
+und binnen Minuten; die Kanalseiten-Abfrage, die die Suche auslösen sollte, war
+ein Fehlsignal. Übrig bleibt: Suche nur im Startfenster einer geplanten Sendung.
+
+## 7t. Die ganze API-Logik durchgesehen — 2026-09-22
+
+**Auftrag Jürgen**: „Schaue nochmal genau über die gesamte API-Logik und mache
+sie so effizient wie möglich."
+
+Gelesen wurde alles, was Google fragt — `youtube.ts`, `sheets.ts`, `replays.ts`,
+`stats.ts`, die Routen und jeder Aufrufer — und dazu 400 Zeilen Produktionslog.
+Das Log bestand zu 99 % aus denselben vier Zeilen, **jede Minute**, seit Tagen
+ohne eine Sendung. Das war die Spur.
+
+### Was gefunden wurde
+
+1. **Die billige Stufe lief im Minutentakt, egal was der Zeitplan sagte.**
+   Ein `videos.list` mit dem Live-Schlüssel pro Minute, rund um die Uhr —
+   1.440 Einheiten am Tag für die Auskunft, dass nichts läuft. Der größte
+   laufende Posten überhaupt.
+
+2. **Die Kanalseiten-Abfrage („Stufe 2, 0 Einheiten") war ein Fehlsignal.**
+   `youtube.com/channel/…/live` leitet auf den *nächsten angekündigten* Stream
+   weiter, und dessen Seite trägt `"isLive":true` — für einen Stream, auf den
+   „1 wartet". Gemessen am 22.09. abends: nichts lief, die Abfrage meldete
+   live, 1,28 MB HTML pro Aufruf. Bei RaceSpot ist fast immer etwas
+   angekündigt, also sagte die Stufe fast immer „live" und schickte die
+   Hundert-Einheiten-Suche los. **Das ist der eigentliche Grund für 7r**, die
+   fehlende Deckelung war nur der Verstärker.
+
+3. **`/api/live-streams` rechnete für jeden Tab neu.** Sheet lesen und 3.500
+   Zeilen parsen, Cache-Einträge lesen, 1 MB HTML durchsuchen — pro Abruf, pro
+   Besucher, pro Minute. Zehn offene Tabs, zehnfache Arbeit.
+
+4. **Der Replay-Index wurde pro Seite zwei- bis dreimal gebaut**: einmal für
+   den Ticker im Layout, einmal für die Seite, auf der Live-Seite bei jedem
+   einzelnen Aufruf. Bauen heißt 24 gecachte Antworten lesen (12 Upload-Seiten
+   unseres Kanals, eine des Partners, je ein `videos.list`), à ~100 KB.
+
+5. **Das Master Schedule wurde unter zwei URLs geholt** (`A2:R` und `A2:K` für
+   die Playlist-Tiers) — zwei Cache-Einträge, zwei Anfragen, dieselben Daten.
+   Und jeder Aufrufer parste die Antwort für sich.
+
+6. **Die RSS-Liste war eine Stunde alt.** Die Live-Erkennung prüft die IDs aus
+   dem RSS-Feed; bei einer Stunde Cache war ein nicht vorab angelegter Stream
+   bis zu eine Stunde unsichtbar — und genau dann griff die Suche.
+
+7. **Toter Code**: `getLatestVideos`, `getLiveStream`, `getLiveStreamViaSearch`,
+   `getEventsForMonth`, `formatEventDate`, `extractSim`, ein ungenutzter
+   `unstable_cache`-Import. Und `LiveOffline` lud die ganze Seite in den ersten
+   drei Minuten nach Sendebeginn alle 30 Sekunden neu — und sonst nie, ein
+   früher oder später Start wurde nicht bemerkt.
+
+### Was geändert wurde
+
+- **Der Zeitplan steuert die Taktung.** `watchedBroadcast()` in `sheets.ts`
+  liefert die Sendung, die läuft oder in 15 Minuten beginnt. Gibt es eine,
+  fragt `getLiveStreams()` YouTube **jede Minute**; gibt es keine, **alle fünf**.
+  Die Antwort liegt im Prozess-Speicher; jeder weitere Abruf in der Zeit ist
+  ein Speicherzugriff. Ein Container, ein Memo — dieselbe Abwägung wie beim
+  Rate-Limiter des Kontaktformulars.
+- **Stufe 2 (Scrape) ist weg.** Die Suche läuft nur noch im Startfenster einer
+  geplanten Sendung (5 Minuten vor bis 30 Minuten nach Start), wenn Stufe 1
+  den Stream nicht sieht, höchstens zweimal, zehn Minuten auseinander (7s). Die
+  tägliche Suche ohne Zeitplan entfällt: Stufe 1 findet einen unangekündigten
+  Stream innerhalb weniger Minuten, weil er im Moment seines Entstehens in der
+  Upload-Liste steht.
+- **RSS auf fünf Minuten** (kostet nichts; YouTube cached ihn selbst 15 Minuten).
+- **Sheet: eine URL, ein Parse pro Minute.** `readSchedule()` parst einmal, alle
+  Exporte sind Sichten darauf. Der Status (live/kommend/vorbei) wird beim Lesen
+  gestempelt, nicht gespeichert — „live" muss in der Sekunde stimmen, in der
+  eine Sendung beginnt. Fällt das Sheet aus, bleibt der letzte Parse stehen.
+  Kleine Nebenwirkung: Zeilen ohne Tier zählen bei den Playlist-Tiers jetzt als
+  Tier 4 statt gar nicht.
+- **Replay-Index zwei Minuten im Speicher**, fertig sortiert; die Wortlisten
+  der Titel werden einmal geschnitten und wiederverwendet. Kommt der Index
+  leer zurück, bleibt der letzte stehen und der nächste Aufruf nach 30
+  Sekunden versucht es erneut.
+- **`LiveOffline` hört auf den Poll des Headers** und lädt genau einmal neu,
+  wenn der live meldet — zu jeder Zeit, nicht nur drei Minuten lang.
+- Toter Code entfernt.
+
+### Was das kostet, vorher und nachher
+
+| | vorher | nachher |
+|---|---|---|
+| Live-Schlüssel, `videos.list` pro Tag | 1.440 | ~290 ohne Sendung, +60 je Sendestunde |
+| Live-Schlüssel, Suche | bis 2.500 (7s), davor 28.800 | 0 an einem Tag ohne Sendung, ≤ 200 je Sendung |
+| Kanalseite laden | 1,28 MB alle 5 Minuten | — |
+| Hauptschlüssel pro Tag | ~430 | ~430, unverändert |
+| `/api/live-streams` pro Abruf | Sheet-Parse + Cache-Reads + HTML-Suche | ein Speicherzugriff |
+| Sheets-Anfragen | 2 URLs | 1 URL, 1 Parse/Minute |
+
+Der Hauptschlüssel bleibt, wo er war: Die zwei Einheiten alle zehn Minuten für
+die neueste Upload-Seite sind die Frische, die Jürgen in 7m wollte.
+
+**Gemessen** mit dem Produktions-Build: sechs Abrufe von `/api/live-streams`
+hintereinander → **ein** `videos.list`; Kalender unverändert **388 Video-IDs**;
+Startseite und Live-Seite je drei (die Glocken). Dazu ein Testlauf der
+Live-Logik mit gestellter Uhr und gestelltem `fetch`: fünf Minuten Leerlauf →
+1 Aufruf; 40 Minuten Sendung ohne gelisteten Stream → 40 Aufrufe und **genau 2**
+Suchen; eine Sendung 45 Minuten nach Start → keine Suche; Stream in der
+Upload-Liste → gefunden ohne Suche; 30 Sekunden später → Speichertreffer.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

@@ -119,23 +119,51 @@ export interface Replay {
   channel: string
 }
 
+type Timed = Replay & { t: number }
+
 /**
- * Every channel's live streams of the past year, newest first.
+ * Every channel's live streams of the past year, sorted by start.
  *
  * Not wrapped in `unstable_cache` any more: that cached the finished list
  * behind one expiry for everything in it, so the fresh half aged at the speed
- * of the stale half. Each request to YouTube now carries its own lifetime and
+ * of the stale half. Each request to YouTube carries its own lifetime and
  * Next's fetch cache keeps it, which is both simpler and per-page correct.
- * Rebuilding the array on every render costs nothing — the calls behind it
- * are served from that cache.
+ *
+ * The assembled index is then kept in memory for two minutes. Assembling it
+ * means reading twenty-four cached responses — twelve pages of uploads, a
+ * videos.list for each — of about a hundred kilobytes apiece, and until
+ * 2026-09-22 that happened for every caller on every render: the ticker in
+ * the layout, the page beside it, the live page on every single view. Two
+ * minutes on top of the ten-minute lifetime of the newest page changes
+ * nothing anyone can see; it just makes the second reader of a minute free.
+ *
+ * A read that comes back empty is a failed read, not an empty channel: the
+ * last index stands and the next call, half a minute later, tries again.
  */
-async function getReplayIndex(): Promise<Replay[]> {
+const INDEX_MEMO_MS = 2 * 60_000
+const INDEX_RETRY_MS = 30_000
+let indexMemo: { at: number; index: Timed[] } | null = null
+let indexing: Promise<Timed[]> | null = null
+
+async function getReplayIndex(): Promise<Timed[]> {
   if (!API_KEY || !CHANNEL_ID) return []
+  if (indexMemo && Date.now() - indexMemo.at < INDEX_MEMO_MS) return indexMemo.index
+  indexing ??= buildReplayIndex().finally(() => { indexing = null })
+  return indexing
+}
+
+async function buildReplayIndex(): Promise<Timed[]> {
   const lists = await Promise.all([
-    channelStreams(CHANNEL_ID, REVALIDATE_RECENT),
+    channelStreams(CHANNEL_ID!, REVALIDATE_RECENT),
     ...PARTNER_CHANNELS.map((c) => channelStreams(c.id, REVALIDATE_PARTNER_RECENT)),
   ])
-  return lists.flat()
+  const index = lists.flat().map((r) => ({ ...r, t: Date.parse(r.start) })).sort((a, b) => a.t - b.t)
+  if (index.length === 0 && indexMemo) {
+    indexMemo = { at: Date.now() - INDEX_MEMO_MS + INDEX_RETRY_MS, index: indexMemo.index }
+    return indexMemo.index
+  }
+  indexMemo = { at: Date.now(), index }
+  return index
 }
 
 /** One channel's uploads, read back to the cutoff and reduced to its live streams. */
@@ -243,10 +271,23 @@ const ALIASES: [RegExp, string][] = [
 
 const STOP = new Set(['the', 'of', 'and', 'at', 'in', 'on', 'de', 'la', 'le', 'a', 'series', 'season', 'round', 'event', 'class', 'sim', 'racing', 'esports', 'championship', 'cup', 'league'])
 
+/**
+ * Cut once, reused. The calendar scores eight hundred rows against eight
+ * hundred streams, and the same series name and the same title come up in
+ * every pairing they are part of. A few thousand distinct strings at most;
+ * the map is cleared rather than trimmed when it grows past that.
+ */
+const tokenMemo = new Map<string, Set<string>>()
+
 function tokens(s: string): Set<string> {
+  const hit = tokenMemo.get(s)
+  if (hit) return hit
   let t = s.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ')
   for (const [pattern, canonical] of ALIASES) t = t.replace(pattern, canonical)
-  return new Set(t.split(/\s+/).filter((w) => w.length > 1 && !STOP.has(w)))
+  const set = new Set(t.split(/\s+/).filter((w) => w.length > 1 && !STOP.has(w)))
+  if (tokenMemo.size >= 5000) tokenMemo.clear()
+  tokenMemo.set(s, set)
+  return set
 }
 
 /** Do these two share a word that is not a bare number? */
@@ -285,10 +326,9 @@ function overlap(a: string, b: string): number {
  */
 export async function withReplays(events: CalendarEvent[]): Promise<CalendarEvent[]> {
   if (events.length === 0) return events
-  const index = await getReplayIndex()
-  if (index.length === 0) return events
+  const byTime = await getReplayIndex()
+  if (byTime.length === 0) return events
 
-  const byTime = index.map((r) => ({ ...r, t: Date.parse(r.start) })).sort((a, b) => a.t - b.t)
   const used = new Set<string>()
 
   // Pass one — every event against every stream it could be, best pairing
@@ -333,7 +373,6 @@ export async function withReplays(events: CalendarEvent[]): Promise<CalendarEven
   })
 }
 
-type Timed = Replay & { t: number }
 
 /** The stream that takes over where this one stopped, if there is one. */
 function nextPart(current: Timed, byTime: Timed[], used: Set<string>): Timed | null {

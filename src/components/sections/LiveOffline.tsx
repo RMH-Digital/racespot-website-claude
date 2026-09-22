@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useCountdown } from '@/lib/hooks/useCountdown'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { FollowUs } from '@/components/ui/FollowUs'
+import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -65,32 +66,18 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
 
   const hasCountdown = nextEvent && (countdown.days > 0 || countdown.hours > 0 || countdown.mins > 0 || countdown.secs > 0)
 
-  // Auto-refresh in the first 3 minutes after scheduled start to detect live stream
+  // The header's poll (LiveStatusProvider, once a minute) is the first to
+  // know when the stream is up; one reload then swaps this page for the
+  // player. Until 2026-09-22 this component reloaded the whole page every
+  // thirty seconds for the first three minutes after the scheduled start,
+  // and only then — a stream that began early or late was never noticed.
+  const { isLive, loaded } = useLiveStatus()
+  const reloaded = useRef(false)
   useEffect(() => {
-    if (!nextEvent?.dateISO) return
-
-    const startTime = new Date(nextEvent.dateISO).getTime()
-    const now = Date.now()
-    const msSinceStart = now - startTime
-    const THREE_MIN = 3 * 60 * 1000
-    const POLL_INTERVAL = 30 * 1000 // 30 seconds
-
-    // If we're within 3 minutes after the scheduled start, poll for live stream
-    if (msSinceStart >= 0 && msSinceStart < THREE_MIN) {
-      const interval = setInterval(() => {
-        window.location.reload()
-      }, POLL_INTERVAL)
-      return () => clearInterval(interval)
-    }
-
-    // If the start time is in the near future (< 1 min), set a timer to start polling
-    if (msSinceStart < 0 && msSinceStart > -60 * 1000) {
-      const timeout = setTimeout(() => {
-        window.location.reload()
-      }, Math.abs(msSinceStart))
-      return () => clearTimeout(timeout)
-    }
-  }, [nextEvent?.dateISO])
+    if (!loaded || !isLive || reloaded.current) return
+    reloaded.current = true
+    window.location.reload()
+  }, [isLive, loaded])
 
   return (
     <div className="pt-8 min-h-screen">

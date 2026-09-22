@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import { getLiveStreams } from '@/lib/youtube'
-import { getUpcomingEvents, toCalendarEvent } from '@/lib/sheets'
+import { getUpcomingEvents, toCalendarEvent, watchedBroadcast } from '@/lib/sheets'
 import { withReplays } from '@/lib/replays'
 import { LiveEmbed } from '@/components/sections/LiveEmbed'
 import { LiveOffline } from '@/components/sections/LiveOffline'
@@ -17,11 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 
 export default async function LivePage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
-  // The schedule first: whether a broadcast is on decides whether the
-  // hundred-unit search may run at all — see getLiveStreamsViaSearch.
+  // The schedule first: whether a broadcast is on or about to start decides
+  // how often YouTube is asked and whether the hundred-unit search may run
+  // at all — see getLiveStreams.
   const events = await getUpcomingEvents(10)
-  const liveEvents = events.filter((e) => e.isLive)
-  const liveStreams = await getLiveStreams(liveEvents[0] ? { key: liveEvents[0].id } : undefined)
+  const liveStreams = await getLiveStreams(watchedBroadcast(events))
 
   // Build upcoming events list (used in both live and offline states)
   const upcomingEvents = events

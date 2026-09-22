@@ -18,7 +18,12 @@
  *   N-P: Comm (commentators)
  *   Q: Trigger
  *   R: ID
+ *
+ * The sheet is read as one range, once, and parsed once a minute at most —
+ * see readSchedule(). Everything exported here is a view of that one parse.
  */
+
+import type { ScheduledBroadcast } from './youtube'
 
 const API_KEY = process.env.GOOGLE_SHEETS_API_KEY
 const SHEET_ID = process.env.GOOGLE_SHEETS_ID
@@ -112,10 +117,13 @@ function decimalToHours(decimal: number): number {
   return Math.round(decimal * 24 * 10) / 10 // round to 1 decimal
 }
 
+/** A row as the sheet has it — everything but what depends on the clock. */
+type ParsedRow = Omit<ScheduleEvent, 'isLive' | 'isUpcoming' | 'isPast'>
+
 /**
- * Parse a row from the sheet into a ScheduleEvent
+ * Parse a row from the sheet
  */
-function parseRow(row: (string | number)[]): ScheduleEvent | null {
+function parseRow(row: (string | number)[]): ParsedRow | null {
   const dateSerial = Number(row[1])
   const timeDecimal = Number(row[2]) || 0
   const durationDecimal = Number(row[3]) || 0
@@ -127,14 +135,6 @@ function parseRow(row: (string | number)[]): ScheduleEvent | null {
 
   const eventDate = excelSerialToDate(dateSerial, timeDecimal)
   const endDate = excelSerialToDate(dateSerial, timeDecimal + durationDecimal)
-  const now = new Date()
-
-  // Determine status
-  // Add 90-minute buffer after scheduled end — broadcasts often run overtime
-  const liveBuffer = new Date(endDate.getTime() + 90 * 60 * 1000)
-  const isLive = now >= eventDate && now <= liveBuffer
-  const isUpcoming = eventDate > now
-  const isPast = now > liveBuffer
 
   return {
     id: String(row[17] || '').trim() || stableId(series, eventDate),
@@ -160,22 +160,56 @@ function parseRow(row: (string | number)[]): ScheduleEvent | null {
       if (lower.includes('away') || lower === 'client' || lower === 'tbc' || lower === 'tba') return false
       return true
     }),
-    isLive,
-    isUpcoming,
-    isPast,
   }
 }
 
+/** Broadcasts often run overtime: a row counts as live for this long past its end. */
+const OVERTIME_MS = 90 * 60 * 1000
+
+/** Stamp a row with what the clock says about it right now. */
+function withStatus(e: ParsedRow, now: number): ScheduleEvent {
+  const start = e.date.getTime()
+  const liveUntil = e.endDate.getTime() + OVERTIME_MS
+  return { ...e, isLive: now >= start && now <= liveUntil, isUpcoming: start > now, isPast: now > liveUntil }
+}
+
 /**
- * Fetch upcoming events from the Master Schedule
- * Gets the last ~300 rows to cover several months of data
+ * The whole sheet, parsed once and kept for a minute.
+ *
+ * Next's fetch cache already answers the request itself from disk for five
+ * minutes — but the answer is a megabyte of JSON for 3,500 rows, and until
+ * 2026-09-22 every caller parsed all of it again: the ticker in the layout,
+ * the page beside it, and /api/live-streams for every open tab, once a
+ * minute. Now the parse happens once a minute at most and shared by everyone
+ * in the process; a caller only stamps the rows with the clock, because
+ * "live" has to turn true the second a broadcast starts, not up to a minute
+ * later. One container, so one memo is the whole cache — the same trade the
+ * contact form's rate limiter makes.
+ *
+ * When the sheet cannot be read, the last parse stands: a minute-old schedule
+ * beats an empty calendar, and the error is in the log either way.
  */
-export async function getUpcomingEvents(limit = 20): Promise<ScheduleEvent[]> {
+const PARSE_MEMO_MS = 60_000
+let parsed: { at: number; rows: ParsedRow[] } | null = null
+let parsing: Promise<ParsedRow[] | null> | null = null
+
+async function readSchedule(): Promise<ScheduleEvent[]> {
   if (!API_KEY || !SHEET_ID) {
     console.warn('Google Sheets API key or Sheet ID not configured')
     return []
   }
+  const now = Date.now()
+  if (!parsed || now - parsed.at > PARSE_MEMO_MS) {
+    // One fetch for everyone who asks while it runs.
+    parsing ??= fetchRows().finally(() => { parsing = null })
+    const rows = await parsing
+    if (rows) parsed = { at: now, rows }
+  }
+  return (parsed?.rows ?? []).map((r) => withStatus(r, now))
+}
 
+/** Every usable row, sorted by start. Null when the sheet did not answer. */
+async function fetchRows(): Promise<ParsedRow[] | null> {
   try {
     // Fetch all data rows (skip header row 1)
     const url = `${BASE_URL}/${SHEET_ID}/values/Master%20Schedule!A2:R?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`
@@ -183,59 +217,29 @@ export async function getUpcomingEvents(limit = 20): Promise<ScheduleEvent[]> {
 
     if (!res.ok) {
       console.error('Google Sheets API error:', res.status, await res.text())
-      return []
+      return null
     }
 
-    const data = await res.json()
-    const rows = data.values || []
-
-    const events = rows
-      .map((row: (string | number)[]) => parseRow(row))
-      .filter((e: ScheduleEvent | null): e is ScheduleEvent => {
-        if (!e) return false
-        if (!e.isPublic) return false
-        // Only upcoming or currently live events
-        return e.isUpcoming || e.isLive
-      })
-      .sort((a: ScheduleEvent, b: ScheduleEvent) => a.date.getTime() - b.date.getTime())
-      .slice(0, limit)
-
-    return events
+    const rows: (string | number)[][] = (await res.json()).values || []
+    const out: ParsedRow[] = []
+    for (const row of rows) {
+      const e = parseRow(row)
+      if (e) out.push(e)
+    }
+    out.sort((a, b) => a.date.getTime() - b.date.getTime())
+    return out
   } catch (error) {
     console.error('Google Sheets fetch error:', error)
-    return []
+    return null
   }
 }
 
 /**
- * Fetch ALL events for a specific month (for calendar view)
+ * Public broadcasts that are on air or still to come, earliest first.
  */
-export async function getEventsForMonth(year: number, month: number): Promise<ScheduleEvent[]> {
-  if (!API_KEY || !SHEET_ID) return []
-
-  try {
-    // Fetch all data rows (skip header row 1)
-    const url = `${BASE_URL}/${SHEET_ID}/values/Master%20Schedule!A2:R?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`
-    const res = await fetch(url, { next: { revalidate: 300 } })
-
-    if (!res.ok) return []
-
-    const data = await res.json()
-    const rows = data.values || []
-
-    const events = rows
-      .map((row: (string | number)[]) => parseRow(row))
-      .filter((e: ScheduleEvent | null): e is ScheduleEvent => {
-        if (!e || !e.isPublic) return false
-        return e.date.getUTCFullYear() === year && e.date.getUTCMonth() === month
-      })
-      .sort((a: ScheduleEvent, b: ScheduleEvent) => a.date.getTime() - b.date.getTime())
-
-    return events
-  } catch (error) {
-    console.error('Google Sheets fetch error:', error)
-    return []
-  }
+export async function getUpcomingEvents(limit = 20): Promise<ScheduleEvent[]> {
+  const events = await readSchedule()
+  return events.filter((e) => e.isPublic && (e.isUpcoming || e.isLive)).slice(0, limit)
 }
 
 /** Convert ScheduleEvent → CalendarEvent (JSON-safe for client) */
@@ -257,43 +261,15 @@ export function toCalendarEvent(e: ScheduleEvent): CalendarEvent {
 const CALENDAR_PAST_DAYS = 365
 
 /**
- * Fetch ALL public upcoming events (no limit) for the calendar view.
- * Returns JSON-safe CalendarEvent objects.
+ * Every public broadcast for the calendar view — all upcoming ones, and the
+ * past year. Past broadcasts stay so that the earlier months are a record with
+ * recordings behind them rather than blank pages. JSON-safe.
  */
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
-  if (!API_KEY || !SHEET_ID) {
-    console.warn('Google Sheets API key or Sheet ID not configured')
-    return []
-  }
-
-  try {
-    // Fetch all data rows (skip header row 1)
-    const url = `${BASE_URL}/${SHEET_ID}/values/Master%20Schedule!A2:R?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`
-    const res = await fetch(url, { next: { revalidate: 300 } })
-
-    if (!res.ok) {
-      console.error('Google Sheets API error:', res.status, await res.text())
-      return []
-    }
-
-    const data = await res.json()
-    const rows = data.values || []
-
-    return rows
-      .map((row: (string | number)[]) => parseRow(row))
-      .filter((e: ScheduleEvent | null): e is ScheduleEvent => {
-        if (!e) return false
-        if (!e.isPublic) return false
-        // Past broadcasts stay for a year, so the calendar's earlier months
-        // are a record with recordings behind them rather than blank pages.
-        return e.isUpcoming || e.isLive || e.date.getTime() > Date.now() - CALENDAR_PAST_DAYS * 86_400_000
-      })
-      .sort((a: ScheduleEvent, b: ScheduleEvent) => a.date.getTime() - b.date.getTime())
-      .map(toCalendarEvent)
-  } catch (error) {
-    console.error('Google Sheets fetch error:', error)
-    return []
-  }
+  const floor = Date.now() - CALENDAR_PAST_DAYS * 86_400_000
+  return (await readSchedule())
+    .filter((e) => e.isPublic && (e.isUpcoming || e.isLive || e.date.getTime() > floor))
+    .map(toCalendarEvent)
 }
 
 /**
@@ -301,65 +277,25 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
  * Used to rank YouTube playlists by tier.
  */
 export async function getSeriesTiers(): Promise<{ series: string; tier: number }[]> {
-  if (!API_KEY || !SHEET_ID) return []
-
-  try {
-    // Fetch all rows to cover all series
-    const url = `${BASE_URL}/${SHEET_ID}/values/Master%20Schedule!A2:K?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`
-    const res = await fetch(url, { next: { revalidate: 600 } }) // 10 min cache
-
-    if (!res.ok) return []
-
-    const data = await res.json()
-    const rows: (string | number)[][] = data.values || []
-
-    // Collect best tier per series
-    const tierMap = new Map<string, number>()
-    for (const row of rows) {
-      const tier = Number(row[0])
-      const series = String(row[10] || '').trim()
-      if (!series || !tier || isNaN(tier)) continue
-
-      const existing = tierMap.get(series)
-      if (existing === undefined || tier < existing) {
-        tierMap.set(series, tier)
-      }
-    }
-
-    const result: { series: string; tier: number }[] = []
-    tierMap.forEach((tier, series) => {
-      result.push({ series, tier })
-    })
-
-    return result
-  } catch (error) {
-    console.error('getSeriesTiers error:', error)
-    return []
+  const tierMap = new Map<string, number>()
+  for (const e of await readSchedule()) {
+    const existing = tierMap.get(e.series)
+    if (existing === undefined || e.tier < existing) tierMap.set(e.series, e.tier)
   }
+  return Array.from(tierMap, ([series, tier]) => ({ series, tier }))
 }
 
-/**
- * Format event date for display: "Sat 15 Mar"
- */
-export function formatEventDate(date: Date): { day: number; month: string; weekday: string } {
-  return {
-    day: date.getUTCDate(),
-    month: date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }),
-    weekday: date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
-  }
-}
+/** How early live detection starts watching a scheduled broadcast — streams open with a pre-show. */
+const WATCH_LEAD_MS = 15 * 60 * 1000
 
 /**
- * Extract sim platform from series name
- * e.g. "iRacing Short Course" -> "iRacing"
+ * The broadcast live detection should be watching: the one on air, or the
+ * one about to start. While there is one, getLiveStreams() asks YouTube once
+ * a minute; while there is none, once in five — and its id keys the search
+ * budget, so a single broadcast cannot spend more than its share however long
+ * it runs. Expects the list getUpcomingEvents() returns, earliest first.
  */
-export function extractSim(series: string): string {
-  const lower = series.toLowerCase()
-  if (lower.includes('iracing')) return 'iRacing'
-  if (lower.includes('assetto') || lower.includes('acc')) return 'ACC'
-  if (lower.includes('rfactor')) return 'rFactor 2'
-  if (lower.includes('f1') || lower.includes('ea sports')) return 'F1 24'
-  if (lower.includes('nascar')) return 'NASCAR'
-  if (lower.includes('radical')) return 'iRacing'
-  return 'Sim'
+export function watchedBroadcast(events: ScheduleEvent[], now = Date.now()): ScheduledBroadcast | undefined {
+  const e = events.find((e) => e.isLive) ?? events.find((e) => e.isUpcoming && e.date.getTime() - now <= WATCH_LEAD_MS)
+  return e ? { key: e.id, start: e.date.getTime() } : undefined
 }
