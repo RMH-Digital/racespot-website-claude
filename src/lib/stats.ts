@@ -205,22 +205,86 @@ const youtubeWatchHours = unstable_cache(
   { revalidate: YT_REVALIDATE },
 )
 
-export async function getSiteStats(): Promise<SiteStats> {
-  const [schedule, youtube, watchHours] = await Promise.all([scheduleStats(), youtubeChannel(), youtubeWatchHours()])
+/**
+ * Racespot Analytics — the archive that collects every channel through its
+ * own API (analytics.racespot.tv, repo RMH-Digital/racespot-analytics). When
+ * it answers, its figures replace the ones this file would otherwise have to
+ * guess or fetch itself: followers per platform instead of the hand-entered
+ * floors in SOCIAL_FOLLOWERS, watch hours without the OAuth trio here.
+ *
+ * Contract, served by the analytics tool (docs/ANALYTICS-SITE-STATS.md in
+ * this repo describes it for that side):
+ *
+ *   GET $ANALYTICS_STATS_URL   → 200 application/json
+ *   { asOf: string,
+ *     followers: { youtube, x, facebook, instagram, twitch, tiktok: number | null },
+ *     youtube:   { views: number | null, watchHours365: number | null } }
+ *
+ * Read-only, public figures only, cached six hours like the YouTube numbers.
+ * Unset URL, a timeout or a malformed answer all mean "not available" and
+ * the band falls back to what it did before — it never shows a zero.
+ */
+const ANALYTICS_STATS_URL = process.env.ANALYTICS_STATS_URL
 
-  const otherPlatforms = Object.values(SOCIAL_FOLLOWERS).reduce((a, b) => a + b, 0)
-  const followers = otherPlatforms + (youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK)
+const PLATFORMS = ['youtube', 'x', 'facebook', 'instagram', 'twitch', 'tiktok'] as const
+type Platform = (typeof PLATFORMS)[number]
+
+interface AnalyticsFigures {
+  followers: Partial<Record<Platform, number>>
+  views: number | null
+  watchHours365: number | null
+}
+
+const positive = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null)
+
+async function analyticsFigures(): Promise<AnalyticsFigures | null> {
+  if (!ANALYTICS_STATS_URL) return null
+  try {
+    const res = await fetch(ANALYTICS_STATS_URL, { next: { revalidate: YT_REVALIDATE }, signal: AbortSignal.timeout(4000) })
+    if (!res.ok) {
+      console.warn('[stats] analytics answered', res.status)
+      return null
+    }
+    const body = await res.json()
+    const followers: Partial<Record<Platform, number>> = {}
+    for (const p of PLATFORMS) {
+      const n = positive(body?.followers?.[p])
+      if (n !== null) followers[p] = n
+    }
+    return { followers, views: positive(body?.youtube?.views), watchHours365: positive(body?.youtube?.watchHours365) }
+  } catch (error) {
+    console.warn('[stats] analytics unreachable:', error instanceof Error ? error.message : error)
+    return null
+  }
+}
+
+export async function getSiteStats(): Promise<SiteStats> {
+  const [schedule, youtube, ownWatchHours, analytics] = await Promise.all([
+    scheduleStats(),
+    youtubeChannel(),
+    youtubeWatchHours(),
+    analyticsFigures(),
+  ])
+
+  // Subscribers: the analytics archive, then the Data API, then the floor.
+  const youtubeSubscribers = analytics?.followers.youtube ?? youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK
+  // Every other platform: the measured count where the archive has one, the
+  // hand-entered floor where it does not.
+  const otherPlatforms = Object.entries(SOCIAL_FOLLOWERS).reduce(
+    (sum, [platform, floor]) => sum + (analytics?.followers[platform as Platform] ?? floor),
+    0,
+  )
 
   return {
     broadcasts: schedule?.broadcasts ?? FALLBACK.broadcasts,
     hours: schedule?.hours ?? FALLBACK.hours,
     series: schedule?.series ?? FALLBACK.series,
-    youtubeViews: youtube?.views ?? FALLBACK.youtubeViews,
-    watchHours,
-    followers,
-    youtubeSubscribers: youtube?.subscribers ?? YOUTUBE_SUBSCRIBERS_FALLBACK,
+    youtubeViews: analytics?.views ?? youtube?.views ?? FALLBACK.youtubeViews,
+    watchHours: analytics?.watchHours365 ?? ownWatchHours,
+    followers: otherPlatforms + youtubeSubscribers,
+    youtubeSubscribers,
     languages: FALLBACK.languages,
-    live: schedule !== null && youtube !== null,
+    live: schedule !== null && (youtube !== null || analytics !== null),
   }
 }
 
