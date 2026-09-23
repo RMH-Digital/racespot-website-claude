@@ -112,11 +112,6 @@ export function toBlocks(article: Article): Block[] {
   return content as Block[]
 }
 
-/** Plain text of the body — for read-time estimates and meta descriptions. */
-export function plainText(article: Article): string {
-  return blocksToPlainText(toBlocks(article))
-}
-
 export function blocksToPlainText(blocks: Block[]): string {
   return blocks
     .map((b) => (b.kind === 'image' ? b.alt : b.text))

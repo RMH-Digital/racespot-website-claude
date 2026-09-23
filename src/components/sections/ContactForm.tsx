@@ -236,7 +236,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
       </div>
 
       <div className="container-rs py-16">
-        <div className="grid md:grid-cols-[1fr_1.4fr] gap-16">
+        <div className="grid grid-cols-[minmax(0,1fr)] md:grid-cols-[1fr_1.4fr] gap-16">
           {/* Left: Info */}
           <div>
             <h2 className="font-display font-bold text-xl uppercase text-white mb-4">

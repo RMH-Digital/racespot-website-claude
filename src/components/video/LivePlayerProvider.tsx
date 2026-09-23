@@ -1,11 +1,12 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
+import { useMediaQuery } from '@/lib/hooks/useLocalTime'
 
 /**
  * The live stream's player, owned by the layout rather than the live page.
@@ -67,20 +68,10 @@ const ORIGIN = 'https://www.youtube-nocookie.com'
 /** A pointer that hovers and a screen wide enough to spare the corner */
 const DESKTOP_QUERY = '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
 
-function subscribeDesktop(cb: () => void) {
-  const mq = window.matchMedia(DESKTOP_QUERY)
-  mq.addEventListener('change', cb)
-  return () => mq.removeEventListener('change', cb)
-}
-
-function useIsDesktop(): boolean {
-  return useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => false)
-}
-
 export function LivePlayerProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
   const t = getT(lang)
   const pathname = usePathname()
-  const isDesktop = useIsDesktop()
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const { liveStreams, loaded } = useLiveStatus()
 
   const [playing, setPlaying] = useState<LiveMedia | null>(null)

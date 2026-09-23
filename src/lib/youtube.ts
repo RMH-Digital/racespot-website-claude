@@ -24,9 +24,10 @@
  * For client-side imports (types, formatViewCount, etc.), use '@/lib/youtube-utils'.
  */
 
-// Re-export types and utils so existing server imports still work
+// The types, re-exported for server code that imports from here. The
+// formatting helpers live in youtube-utils only — client components need them
+// without pulling in this server module.
 export type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
-export { formatViewCount, formatDate, formatDuration } from './youtube-utils'
 
 import type { YouTubeVideo, YouTubeLiveStream, YouTubePlaylist } from './youtube-utils'
 
@@ -303,6 +304,8 @@ const SEARCH_BEFORE_MS = 5 * 60_000
 const SEARCH_AFTER_MS = 30 * 60_000
 
 let liveMemo: { at: number; streams: YouTubeLiveStream[] } | null = null
+/** What the last check logged, so the log only speaks when it changes */
+let lastLiveSummary: string | null = null
 let liveCheck: Promise<YouTubeLiveStream[]> | null = null
 
 /**
@@ -395,7 +398,13 @@ async function detectLiveViaUploads(): Promise<{ live: YouTubeLiveStream[]; anno
 
     const items: LiveVideoItem[] = (await res.json()).items || []
     const live = items.filter((item) => item.snippet.liveBroadcastContent === 'live')
-    console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${live.map((i) => i.id).join(', ')})` : ''}`)
+    // Once per change, not once per minute: the log said "0 live" 1,400
+    // times a day. A new line means something went on or off air.
+    const summary = live.map((i) => i.id).join(', ')
+    if (summary !== lastLiveSummary) {
+      console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${summary})` : ''}`)
+      lastLiveSummary = summary
+    }
     // Scheduled start of every stream still waiting to go live, in ms.
     const announced = items
       .filter((item) => item.snippet.liveBroadcastContent === 'upcoming')

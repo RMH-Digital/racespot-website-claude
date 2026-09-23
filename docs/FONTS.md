@@ -42,11 +42,13 @@ not a fallback.
 
 ### Traps
 
-- **Do not "fix" this by pointing at `public/fonts/eurostile.otf`.** That file
+- **Do not "fix" this by pointing at `assets/fonts/eurostile.otf`.** That file
   loads fine in browsers but it is Eurostile **Regular** — a different, much
   narrower cut. Using it would silently change the brand look.
 - Keep the `.ttf` files in the repo (source material / desktop use), but never
-  reference them from CSS.
+  reference them from CSS. They live in `assets/fonts/` since 2026-09-24 —
+  under `public/` every visitor could download the licensed originals from
+  racespot.tv/fonts/. Only the `.woff2` files are served.
 - If a font is ever replaced, verify in the browser console — a broken webfont
   fails **silently** behind the fallback stack and looks "fine" at a glance:
   ```js

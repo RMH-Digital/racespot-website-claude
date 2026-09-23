@@ -335,8 +335,6 @@ export const translations = {
   'common.videoMany': { en: '{n} videos', de: '{n} Videos', es: '{n} vídeos', pt: '{n} vídeos', fr: '{n} vidéos', it: '{n} video' },
   'common.today':      { en: 'Today', de: 'Heute', es: 'Hoy', pt: 'Hoje', fr: "Aujourd'hui", it: 'Oggi' },
   'common.yesterday':  { en: 'Yesterday', de: 'Gestern', es: 'Ayer', pt: 'Ontem', fr: 'Hier', it: 'Ieri' },
-  'common.playlists':  { en: 'playlists', de: 'Playlists', es: 'playlists', pt: 'playlists', fr: 'playlists', it: 'playlist' },
-  'common.events':     { en: 'event(s)', de: 'Event(s)', es: 'evento(s)', pt: 'evento(s)', fr: 'événement(s)', it: 'evento/i' },
   // ─── 404 ─────────────────────────────────────────────────
   'notFound.title':    { en: 'Page not found', de: 'Seite nicht gefunden', es: 'Página no encontrada', pt: 'Página não encontrada', fr: 'Page introuvable', it: 'Pagina non trovata' },
   'notFound.desc':     { en: 'The page you are looking for does not exist or has moved. Try the home page or the navigation above.', de: 'Die gesuchte Seite gibt es nicht oder sie ist umgezogen. Versuchen Sie es über die Startseite oder die Navigation oben.', es: 'La página que buscas no existe o se ha movido. Prueba la página de inicio o la navegación de arriba.', pt: 'A página que você procura não existe ou foi movida. Tente a página inicial ou a navegação acima.', fr: "La page que vous cherchez n'existe pas ou a été déplacée. Essayez la page d'accueil ou la navigation ci-dessus.", it: 'La pagina che cerchi non esiste o è stata spostata. Prova la home page o la navigazione in alto.' },

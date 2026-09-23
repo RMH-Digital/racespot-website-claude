@@ -102,7 +102,8 @@ export function Footer({ lang }: { lang: Lang }) {
           <p className="text-[13px] text-rs-muted">
             © {new Date().getFullYear()} Racespot Media House GmbH · {t('footer.location')}
           </p>
-          <p className="text-[13px] text-rs-muted flex gap-4">
+          {/* flex-wrap: in German the three links are wider than a phone */}
+          <p className="text-[13px] text-rs-muted flex flex-wrap gap-x-4 gap-y-1">
             <Link href={href('/privacy')} prefetch={false} className="py-1 hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
             <span aria-hidden="true">·</span>
             <Link href={href('/terms')} prefetch={false} className="py-1 hover:text-white transition-colors">{t('footer.terms')}</Link>

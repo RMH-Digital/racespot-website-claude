@@ -366,8 +366,7 @@ produzierte Videos (4.581), abgedeckte Serien (104).
 ## 7. Coolify-Hausmeisterei
 
 - ~~Tote zweite Website-App löschen~~ — erledigt 2026-09-09.
-- Lokaler Branch `analytics-page-views` (04.08., 1 Commit, weit hinter `main`; der
-  alte Zähl-Endpunkt-Versuch, ersetzt durch Umami) kann gelöscht werden.
+- ~~Lokaler Branch `analytics-page-views`~~ — gelöscht 2026-09-15 (siehe 8).
 - Optional, **nicht gemacht**: persistentes Volume für `/app/.next/cache/images`.
   Der Cache wird beim Start ohnehin vorgewärmt (~30–60 s nach Deploy); ein
   Volume spart genau diese Minute. Dafür einen Eingriff an der laufenden
@@ -972,10 +971,10 @@ zum Schließen-Knopf und zurück zum Auslöser, Seite dahinter scrollt nicht.
 Öffnet sich von: vergangenen Terminen im Kalender (Raster und Liste),
 `VideoCard` (Startseite, Broadcasts) und `PlaylistCard` (Broadcasts, als
 `videoseries?list=`). „Auf YouTube öffnen" bleibt im Dialog für Kommentare
-und Verlauf. **Offen: Datenschutzerklärung.** Abschnitt 7 nennt Live
-(`youtube.com`) und Events (`youtube-nocookie.com`); der Player ist derselbe
-nocookie-Modus, jetzt aber auch auf Startseite, Broadcasts und Kalender —
-ein Satz, de und en zusammen, Freigabe Jürgen.
+und Verlauf. ~~Offen: Datenschutzerklärung~~ — erledigt 2026-09-21 (4, „Abschnitt 7
+nachgezogen"): Startseite, Broadcasts, Events, Kalender und Artikel stehen
+dort, de und en. Seit 2026-09-23 startet auch der Live-Stream erst auf Klick
+(7u).
 
 **Follow-Leiste** (`src/components/ui/FollowUs.tsx`): „Auf YouTube abonnieren"
 ist ein Link mit `sub_confirmation=1` — YouTube fragt selbst „Abonnieren?",
@@ -1749,6 +1748,52 @@ und YouTube-Titel) — die Sheet-Zeile entfällt, solange YouTube live meldet.
 **Offen, bewusst nicht geändert**: Meilenstein 2021 „Racespot GmbH eingetragen"
 — die Firma heißt im Impressum Racespot Media House GmbH. War das 2021 der alte
 Name, stimmt es; sonst ändern.
+
+## 7v. Nachtrunde: Durchsicht und Aufräumen — 2026-09-24
+
+**Geprüft**: alle 118 Sitemap-Adressen und 147 internen Links gegen den
+Produktions-Build — alles 200, keine kaputten Links, keine Seite über 1,5 s
+beim ersten Aufruf, keine Fehler im Server-Log. 21 Seiten in allen Sprachen auf
+320, 375 und 768 px auf horizontales Überlaufen.
+
+**Gefunden und behoben**:
+- **Jede deutsche Seite war auf dem Handy breiter als der Bildschirm.** Die
+  Fußzeile „Datenschutz · Nutzungsbedingungen · Impressum" brach nicht um
+  (`flex-wrap` fehlte). Andere Sprachen sind kürzer, deshalb fiel es nur auf
+  Deutsch auf.
+- **Lange deutsche Wörter in Großbuchstaben** („DATENSCHUTZERKLÄRUNG",
+  „PRODUKTIONSQUALITÄT") schoben Datenschutz und Startseite um bis zu 127 px
+  zur Seite. Überschriften trennen jetzt nach Seitensprache
+  (`hyphens: auto` für h1–h3 in `globals.css`).
+- 320 px: Events-Überschriften durften nicht schrumpfen, die Kontaktspalte
+  wuchs mit dem Formular. Beides behoben. **Bewusst offen**: Cloudflares
+  Turnstile-Widget ist fest 300 px breit und ragt auf 320-px-Geräten 12 px
+  über. Anschneiden würde Cloudflares Logo verdecken; die Gerätegröße ist
+  selten.
+
+**Aufgeräumt**:
+- Die Eurostile-Originale (.ttf/.otf) lagen in `public/fonts/` und waren damit
+  unter racespot.tv/fonts/ öffentlich herunterladbar — lizenzierte Schrift im
+  Rohformat. Jetzt in `assets/fonts/`, im Repo, aber nicht ausgeliefert. Die
+  Website lädt nur die `.woff2` (FONTS.md angepasst).
+- Tot: `plainText()`, `formatDuration()`, die Wert-Re-Exporte in `youtube.ts`,
+  die Übersetzungen `common.playlists`/`common.events`. Der Live-Player nutzt
+  jetzt den vorhandenen `useMediaQuery` statt einer eigenen Kopie davon.
+- Das Live-Log schreibt nur noch bei einer Änderung, statt 1.400-mal am Tag
+  „0 live".
+- `.claude/settings.local.json`: 24 alte Einmal-Freigaben für `curl`-Befehle
+  mit Google-, YouTube- und Turnstile-Schlüsseln im Klartext entfernt (die
+  Datei ist nicht im Repo; Gegenprobe: kein Schlüssel im Repo, auch nicht in
+  der Git-Historie).
+- Lokaler Branch `static-retry` gelöscht — vollständig in `main`.
+- Next.js 16.3.5 → **16.3.6** (Patch) samt `eslint-config-next`; `npm audit`
+  0 Befunde. ESLint 10 und TypeScript 7 bleiben blockiert, die Pakete darunter
+  haben sich nicht bewegt (8, Tabelle „wartet auf").
+
+**Nicht angefasst**: `public/og-image.jpg` wird von keiner Seite mehr
+verlinkt, kann aber in alten, von Netzwerken zwischengespeicherten Vorschauen
+stecken — bleibt liegen, kostet nichts. `content Website/` (Rohmaterial, nicht
+im Repo) und der Branch `dockerfile-build` (Entscheidung Nixpacks) bleiben.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 

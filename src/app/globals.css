@@ -262,6 +262,18 @@
     box-sizing: border-box;
   }
 
+  /*
+    Long words in big type. German compounds in the uppercase display font —
+    "DATENSCHUTZERKLÄRUNG", "PRODUKTIONSQUALITÄT" — are wider than a phone,
+    and until 2026-09-24 they pushed the whole page sideways. Headings now
+    hyphenate by the page language (<html lang> is set per route), and a word
+    no dictionary knows breaks rather than overflowing.
+  */
+  h1, h2, h3 {
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;

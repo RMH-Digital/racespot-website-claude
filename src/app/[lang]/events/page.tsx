@@ -117,7 +117,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
         {/* ── After Movie ── */}
         <div className="mb-20">
           <div className="flex items-center gap-4 mb-8">
-            <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
+            <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase min-w-0">
               {t('events.afterMovie')}
             </h2>
             <div className="h-[2px] flex-1 bg-linear-to-r from-rs-yellow/60 to-transparent" />
@@ -135,7 +135,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: L
         <div>
           {/* Section heading with yellow accent */}
           <div className="flex items-center gap-4 mb-10">
-            <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase shrink-0">
+            <h2 className="text-rs-yellow font-display font-bold text-xl tracking-[0.08em] uppercase min-w-0">
               {t('events.eventHighlights')}
             </h2>
             <div className="h-[2px] flex-1 bg-linear-to-r from-rs-yellow/60 to-transparent" />
