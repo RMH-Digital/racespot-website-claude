@@ -95,6 +95,13 @@ export const translations = {
   'home.positioning.cta': { en: 'More about Racespot', de: 'Mehr über Racespot', es: 'Más sobre Racespot', pt: 'Mais sobre a Racespot', fr: 'En savoir plus sur Racespot', it: 'Scopri di più su Racespot' },
 
   // ─── Home: how working with us goes ──────────────────────
+  'home.voices.label': { en: 'Voices', de: 'Stimmen', es: 'Opiniones', pt: 'Depoimentos', fr: 'Témoignages', it: 'Testimonianze' },
+  'home.voices.title': { en: 'What people say about us', de: 'Was man über uns sagt', es: 'Lo que dicen de nosotros', pt: 'O que dizem sobre nós', fr: 'Ce qu’on dit de nous', it: 'Cosa dicono di noi' },
+  'home.voices.note': { en: 'Selected public recommendations, quoted word for word.', de: 'Ausgewählte öffentliche Empfehlungen, wörtlich zitiert.', es: 'Recomendaciones públicas seleccionadas, citadas textualmente.', pt: 'Recomendações públicas selecionadas, citadas na íntegra.', fr: 'Recommandations publiques choisies, citées mot pour mot.', it: 'Raccomandazioni pubbliche selezionate, citate alla lettera.' },
+  'home.voices.role.viewer': { en: 'Viewer', de: 'Zuschauer', es: 'Espectador', pt: 'Espectador', fr: 'Spectateur', it: 'Spettatore' },
+  'home.voices.role.organiser': { en: 'Series organiser', de: 'Serienveranstalter', es: 'Organizador de serie', pt: 'Organizador de série', fr: 'Organisateur de série', it: 'Organizzatore di serie' },
+  'home.voices.role.partner': { en: 'Partner', de: 'Partner', es: 'Socio', pt: 'Parceiro', fr: 'Partenaire', it: 'Partner' },
+  'home.voices.role.driver': { en: 'Driver', de: 'Fahrer', es: 'Piloto', pt: 'Piloto', fr: 'Pilote', it: 'Pilota' },
   'home.process.label': { en: 'Working with us', de: 'Zusammenarbeit', es: 'Trabajar con nosotros', pt: 'Trabalhar conosco', fr: 'Travailler avec nous', it: 'Lavorare con noi' },
   'home.process.title': { en: 'From first call to first lap', de: 'Vom ersten Gespräch zur ersten Runde', es: 'De la primera llamada a la primera vuelta', pt: 'Da primeira conversa à primeira volta', fr: 'Du premier échange au premier tour', it: 'Dal primo contatto al primo giro' },
   'home.process.step1.title': { en: 'Briefing', de: 'Briefing', es: 'Briefing', pt: 'Briefing', fr: 'Briefing', it: 'Briefing' },

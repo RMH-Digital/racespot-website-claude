@@ -10,6 +10,7 @@ import { Process }          from '@/components/sections/Process'
 import { PhotoGallery }     from '@/components/sections/PhotoGallery'
 import { LatestNews }       from '@/components/sections/LatestNews'
 import { ContactCTA }       from '@/components/sections/ContactCTA'
+import { Testimonials }     from '@/components/sections/Testimonials'
 import { getUpcomingEvents, toCalendarEvent } from '@/lib/sheets'
 import { withReplays } from '@/lib/replays'
 import type { Metadata } from 'next'
@@ -65,6 +66,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Lan
       <Positioning lang={lang} />
       <PartnerLogos lang={lang} />
       <PhotoGallery lang={lang} />
+      {/* Other people's words, right before we ask for the enquiry. */}
+      <Testimonials lang={lang} />
       <ContactCTA lang={lang} />
     </>
   )
