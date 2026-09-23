@@ -337,10 +337,16 @@ export async function getLiveStreams(scheduled?: ScheduledBroadcast): Promise<Yo
 
 async function checkLive(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStream[]> {
   try {
-    let streams = await detectLiveViaUploads()
+    const { live, announced } = await detectLiveViaUploads()
+    let streams = live
     if (streams.length === 0 && scheduled) {
       const sinceStart = Date.now() - scheduled.start
-      if (sinceStart >= -SEARCH_BEFORE_MS && sinceStart < SEARCH_AFTER_MS) streams = await searchIfAllowed(scheduled)
+      // A stream announced for this slot is already in the uploads list and
+      // turns "live" there the moment it starts — tier 1 will see it on the
+      // next check. Searching for it is a hundred units for nothing, which
+      // is exactly the one search British F4 spent on 2026-09-23.
+      const isAnnounced = announced.some((t) => Math.abs(t - scheduled.start) < SEARCH_AFTER_MS)
+      if (!isAnnounced && sinceStart >= -SEARCH_BEFORE_MS && sinceStart < SEARCH_AFTER_MS) streams = await searchIfAllowed(scheduled)
     }
     liveMemo = { at: Date.now(), streams }
     return streams
@@ -360,15 +366,16 @@ async function checkLive(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStr
  * cache of its own underneath would have served a stale entry into the memo
  * and doubled the delay.
  */
-async function detectLiveViaUploads(): Promise<YouTubeLiveStream[]> {
+async function detectLiveViaUploads(): Promise<{ live: YouTubeLiveStream[]; announced: number[] }> {
+  const none = { live: [], announced: [] }
   if (!LIVE_API_KEY || !CHANNEL_ID) {
     console.warn('[Live] detectLiveViaUploads: missing LIVE_API_KEY or CHANNEL_ID')
-    return []
+    return none
   }
 
   try {
     const recent = await getRecentVideos()
-    if (recent.length === 0) return []
+    if (recent.length === 0) return none
 
     const ids = recent.map((v) => v.id).join(',')
     const baseUrl = `${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids}`
@@ -383,16 +390,21 @@ async function detectLiveViaUploads(): Promise<YouTubeLiveStream[]> {
 
     if (!res.ok) {
       console.warn(`[Live] videos.list failed: ${await apiError(res)}`)
-      return []
+      return none
     }
 
     const items: LiveVideoItem[] = (await res.json()).items || []
     const live = items.filter((item) => item.snippet.liveBroadcastContent === 'live')
     console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${live.map((i) => i.id).join(', ')})` : ''}`)
-    return live.map(toLiveStream)
+    // Scheduled start of every stream still waiting to go live, in ms.
+    const announced = items
+      .filter((item) => item.snippet.liveBroadcastContent === 'upcoming')
+      .map((item) => Date.parse(item.liveStreamingDetails?.scheduledStartTime ?? ''))
+      .filter(Number.isFinite)
+    return { live: live.map(toLiveStream), announced }
   } catch (error) {
     console.error('[Live] uploads-based detection error:', error)
-    return []
+    return none
   }
 }
 
@@ -405,7 +417,7 @@ interface LiveVideoItem {
     liveBroadcastContent: string
     channelId?: string
   }
-  liveStreamingDetails?: { concurrentViewers?: string }
+  liveStreamingDetails?: { concurrentViewers?: string; scheduledStartTime?: string }
 }
 
 function toLiveStream(item: LiveVideoItem): YouTubeLiveStream {

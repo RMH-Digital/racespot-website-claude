@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { staticPageMetadata } from '@/lib/i18n/seo'
 import Image from 'next/image'
 import { Team } from '@/components/sections/Team'
-import { getT, type Lang } from '@/lib/i18n'
+import { getT, LOCALES, type Lang } from '@/lib/i18n'
+import { getSiteStats, roundedDown } from '@/lib/stats'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -20,16 +21,22 @@ const MILESTONES: { year: string; textKey: TranslationKey }[] = [
   { year: '2024', textKey: 'about.milestone.2024' },
 ]
 
-const STATS: { value: string; labelKey: TranslationKey }[] = [
-  { value: '400+', labelKey: 'about.stat.events' },
-  { value: '8', labelKey: 'about.stat.languages' },
-  { value: '100M+', labelKey: 'about.stat.impressions' },
-  { value: '6.2M+', labelKey: 'about.stat.ytViews' },
-]
-
 export default async function AboutPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
   const t = getT(lang)
+  // The same measured figures as the band on the home page (stats.ts),
+  // rounded down the same way. Until 2026-09-23 this page carried its own
+  // hardcoded set, including "100M+ impressions per year" — the figure the
+  // band dropped because nothing backs it — and "6.2M+" YouTube views
+  // against 6.18 million measured.
+  const stats = await getSiteStats()
+  const locale = LOCALES[lang]
+  const STATS: { value: string; labelKey: TranslationKey }[] = [
+    { value: roundedDown(stats.broadcasts, locale, 10), labelKey: 'about.stat.events' },
+    { value: String(stats.languages), labelKey: 'about.stat.languages' },
+    { value: roundedDown(stats.series, locale, 10), labelKey: 'about.stat.series' },
+    { value: roundedDown(stats.youtubeViews, locale), labelKey: 'about.stat.ytViews' },
+  ]
   return (
     <div>
       {/* Hero Banner */}

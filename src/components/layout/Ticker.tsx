@@ -114,10 +114,16 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     // A sheet row still inside its window but no longer on air is over — drop
     // it rather than announce a broadcast that has ended. Only once YouTube's
     // answer is in; until then the server's list stands.
+    //
+    // And a row that is live right now is dropped while YouTube reports a
+    // stream: the stream's own line above already says it, with the viewer
+    // count, and the strip carried the same broadcast twice (2026-09-23,
+    // British F4 under the sheet's name and under YouTube's).
     const current = (!items || items.length === 0) ? [] : items.filter(item => {
-      if (!item.event || !loaded) return true
+      if (!item.event) return true
+      if (!loaded) return !(liveItems.length > 0 && item.event.isLive)
       const s = eventStatus(item.event, isLive, polledAt)
-      return !s.past
+      return !s.past && !(s.live && liveItems.length > 0)
     })
     const serverItems = current.map(item => {
       if (item.dateISO && mounted) {

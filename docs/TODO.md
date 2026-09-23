@@ -1701,6 +1701,55 @@ ist. Verglichen gegen die alte Formel am selben Sheet: 411 → 412 Sendungen,
 1.094 → 1.096 Stunden, 107 → 107 Serien — der Unterschied ist die Uhrzeit an
 der Jahresgrenze, die die alte Rechnung wegließ. Die Leiste rundet ohnehin ab.
 
+## 7u. Live-Seite während British F4 durchgesehen — 2026-09-23
+
+**Erkennung**: lief wie geplant. Ab Sendestart jede Minute `videos.list: 1 live`,
+keine zweite Suche. Die eine Suche kurz vor dem Start (fand nichts) ist jetzt
+auch weg: Steht in der Upload-Liste ein Stream, der für diesen Sendeplatz
+**angekündigt** ist, wird nicht gesucht — er schaltet dort von selbst auf live.
+
+**Player** (Jürgen: „nur starten auf Klick, nur laufen, wenn man auf dem Tab
+ist, sonst klein im unteren Viertel weiter"): `LivePlayerProvider` im Layout.
+
+- Startet nur auf Klick (Standbild mit Play-Knopf, kein `autoplay` beim Laden).
+- Tab verdeckt → Pause, Tab zurück → weiter (außer man hatte selbst pausiert).
+  Gesteuert über YouTubes postMessage-Protokoll, kein Google-Skript.
+- Desktop (≥ 1024 px, Maus): weggescrollt oder andere Seite → Mini-Fenster
+  unten rechts mit Ton, „Zurück zum Stream" und Schließen. Das Iframe wird
+  dabei nie umgehängt, nur umgestylt — gemessen: dasselbe Element über
+  Live → Kalender → Live, kein Neuladen.
+- Handy/Tablet: kein Mini-Fenster (verdeckt zu viel, nicht verschiebbar).
+  Player bleibt an seinem Platz, Verlassen der Live-Seite stoppt ihn.
+- Öffnet jemand eine Aufzeichnung im Seiten-Player, pausiert der Live-Stream.
+- Frame von youtube-nocookie.com; Datenschutzerklärung (de+en) angepasst: beim
+  Öffnen lädt nur der Chat von YouTube, der Stream erst auf Klick.
+
+**Layout**: Player und Chat ab `lg` nebeneinander, Chat mitlaufend. Zuschauerzahl
+nur noch einmal. Beschreibung ohne Emoji und ohne Social-Linkblock (die Links
+stehen im „Weitere Kanäle"-Knopf daneben). Abo-Knöpfe mobil gleich breit wie auf
+der Offline-Seite. Die kommenden Sendungen hatten einen Hover-Effekt, ohne Link
+zu sein — entfernt. Im Ticker stand die laufende Sendung doppelt (Sheet-Name
+und YouTube-Titel) — die Sheet-Zeile entfällt, solange YouTube live meldet.
+
+**Texte**:
+- Über uns: „100M+ Impressionen pro Jahr" (Kachel und Fließtext, alle sechs
+  Sprachen) entfernt — dieselbe unbelegte Zahl, die die Kennzahlenleiste schon
+  verloren hatte. „6.2M+ Aufrufe" war fest eingetragen und lag über dem
+  Messwert. Die Kacheln kommen jetzt aus `getSiteStats()` wie die Leiste:
+  Sendungen, Sprachen, Serien, YouTube-Aufrufe.
+- Services: „über 200 Broadcast-Events pro Jahr" → 400, „2,5 Mio. Aufrufe" → 6 Mio.
+- Deutsch: keine englische Großschreibung in Überschriften („Was wir tun",
+  „Vertraut von", „letzte 12 Monate", „Jetzt live"), Bindestriche
+  (Live-Chat, Live-Events, Event-Support, Serien-Playlists), „Playlists" statt
+  gemischt „Playlisten", Kommas („Bereit, …"), durchgehend **Sie** (Services
+  Studio/Hardware, 404-Seite und „Weitere Kanäle" hatten „du").
+- Kalender-Einleitung in allen Sprachen: „Klick öffnet YouTube" stimmte nicht
+  mehr — vergangene spielen die Aufzeichnung, kommende setzen eine Erinnerung.
+
+**Offen, bewusst nicht geändert**: Meilenstein 2021 „Racespot GmbH eingetragen"
+— die Firma heißt im Impressum Racespot Media House GmbH. War das 2021 der alte
+Name, stimmt es; sonst ändern.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

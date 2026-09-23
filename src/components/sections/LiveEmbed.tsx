@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
@@ -8,6 +9,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import { FollowUs } from '@/components/ui/FollowUs'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
+import { useLiveDock, useLivePlayer } from '@/components/video/LivePlayerProvider'
 
 interface SerializedEvent {
   series: string
@@ -30,6 +32,9 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   // Stream updates come from LiveStatusProvider, which already polls
   // /api/live-streams every 60 s for the header and ticker — no second poll here.
   const { liveStreams: polled, loaded } = useLiveStatus()
+  const { playing, start } = useLivePlayer()
+  const slot = useRef<HTMLDivElement>(null)
+  useLiveDock(slot)
 
   useEffect(() => {
     if (!loaded) return
@@ -50,10 +55,11 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   const activeStream = liveStreams.find(s => s.id === activeId) || liveStreams[0]
   if (!activeStream) return null
 
-  const embedUrl = `https://www.youtube.com/embed/${activeStream.id}?autoplay=1&modestbranding=1&rel=0`
+  const intro = streamIntro(activeStream.description)
+  const isPlayingHere = playing?.id === activeStream.id
 
   return (
-    <div className="pt-8 min-h-screen">
+    <div className="pt-4 md:pt-8 min-h-screen">
       <div className="container-rs py-8">
         <div className="flex items-center gap-3 mb-3">
           <span className="badge-live">
@@ -71,90 +77,121 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
             </span>
           )}
         </div>
-        <h1 className="display-title mb-8">{t('live.liveNow')}</h1>
+        <h1 className="display-title mb-6 md:mb-8">{t('live.liveNow')}</h1>
 
-        {/* Stream tabs — shown directly above video for 2+ streams */}
-        {liveStreams.length > 1 && (
-          <div className="flex gap-0 border-b border-rs-border mb-0 overflow-x-auto scrollbar-hide">
-            {liveStreams.map((stream) => {
-              const isActive = stream.id === activeStream.id
-              return (
+        {/* Player and chat side by side from lg up — the layout every
+            streaming site has taught viewers, and at 1440 px the chat under
+            the player sat a full screen below it. On a phone they stack. */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="min-w-0">
+            {/* Stream tabs — shown directly above video for 2+ streams */}
+            {liveStreams.length > 1 && (
+              <div className="flex gap-0 border-b border-rs-border mb-0 overflow-x-auto scrollbar-hide">
+                {liveStreams.map((stream) => {
+                  const isActive = stream.id === activeStream.id
+                  return (
+                    <button
+                      key={stream.id}
+                      onClick={() => {
+                      setActiveId(stream.id)
+                      if (playing) start({ id: stream.id, title: stream.title })
+                    }}
+                      className={`relative flex items-center gap-2 px-4 py-3 text-xs font-display font-bold
+                        transition-colors min-w-0 flex-1
+                        ${isActive
+                          ? 'text-white'
+                          : 'text-rs-muted hover:text-white/80'
+                        }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-rs-live animate-pulse-live' : 'bg-rs-muted/50'}`} />
+                      <span className="truncate">{stream.title}</span>
+                      {parseInt(stream.concurrentViewers) > 0 && (
+                        <span className="text-[11px] text-rs-muted font-normal shrink-0">
+                          {formatViewCount(stream.concurrentViewers)}
+                        </span>
+                      )}
+                      {/* Active indicator bar */}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-rs-yellow" />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* The player's place on the page. Nothing plays until the
+                button is pressed; then the site-wide live player
+                (LivePlayerProvider) lays itself over this box, and follows
+                the viewer into a corner on a desktop when it scrolls away. */}
+            <div
+              ref={slot}
+              className={`relative aspect-video bg-rs-dark border border-rs-border overflow-hidden
+                ${liveStreams.length > 1 ? 'rounded-b-rs border-t-0' : 'rounded-rs'}`}
+            >
+              {!isPlayingHere && (
                 <button
-                  key={stream.id}
-                  onClick={() => setActiveId(stream.id)}
-                  className={`relative flex items-center gap-2 px-4 py-3 text-xs font-display font-bold
-                    transition-colors min-w-0 flex-1
-                    ${isActive
-                      ? 'text-white'
-                      : 'text-rs-muted hover:text-white/80'
-                    }`}
+                  type="button"
+                  onClick={() => start({ id: activeStream.id, title: activeStream.title })}
+                  className="group absolute inset-0 flex h-full w-full items-center justify-center"
+                  aria-label={`${t('live.playStream')}: ${activeStream.title}`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-rs-live animate-pulse-live' : 'bg-rs-muted/50'}`} />
-                  <span className="truncate">{stream.title}</span>
-                  {parseInt(stream.concurrentViewers) > 0 && (
-                    <span className="text-[11px] text-rs-muted font-normal shrink-0">
-                      {formatViewCount(stream.concurrentViewers)}
+                  {activeStream.thumbnail && (
+                    <Image
+                      src={activeStream.thumbnail}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1280px) 820px, (min-width: 1024px) 66vw, 100vw"
+                      className="object-cover opacity-70 transition-opacity group-hover:opacity-90"
+                      priority
+                    />
+                  )}
+                  <span className="relative flex flex-col items-center gap-3">
+                    <span className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-rs-yellow text-rs-black shadow-lg transition-transform group-hover:scale-105 group-active:scale-95">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="ml-1">
+                        <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" />
+                      </svg>
                     </span>
-                  )}
-                  {/* Active indicator bar */}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-rs-yellow" />
-                  )}
+                    <span className="rounded-rs bg-black/70 px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wider text-white">
+                      {t('live.playStream')}
+                    </span>
+                  </span>
                 </button>
-              )
-            })}
+              )}
+            </div>
+
+            {/* Stream info — the viewer count is in the badge row above */}
+            <div className="mt-5">
+              <h2 className="text-lg md:text-2xl font-bold text-white mb-2">
+                {activeStream.title}
+              </h2>
+              {intro && (
+                <p className="text-rs-muted text-sm max-w-2xl line-clamp-3">{intro}</p>
+              )}
+            </div>
+
+            <FollowUs lang={lang} size="md" stretch className="mt-6" />
           </div>
-        )}
 
-        {/* Main embed */}
-        <div className={`relative aspect-video bg-rs-dark border border-rs-border overflow-hidden mb-6
-          ${liveStreams.length > 1 ? 'rounded-b-rs border-t-0' : 'rounded-rs'}`}>
-          <iframe
-            key={activeStream.id}
-            src={embedUrl}
-            className="absolute inset-0 w-full h-full"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-
-        {/* Stream info */}
-        <div className="mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-            {activeStream.title}
-          </h2>
-          {parseInt(activeStream.concurrentViewers) > 0 && (
-            <p className="text-rs-muted text-sm mb-1">
-              {formatViewCount(activeStream.concurrentViewers)} {t('live.watching')}
-            </p>
-          )}
-          {activeStream.description && (
-            <p className="text-rs-muted text-sm max-w-2xl line-clamp-3">
-              {activeStream.description}
-            </p>
-          )}
-        </div>
-
-        <FollowUs lang={lang} className="mb-8" />
-
-        {/* Chat embed */}
-        <div className="border border-rs-border rounded-rs overflow-hidden">
-          <div className="bg-rs-dark px-4 py-2.5 border-b border-rs-border">
-            <p className="text-xs font-display font-bold uppercase tracking-wider text-rs-muted">
-              {t('live.liveChat')}
-            </p>
-          </div>
-          {/* dark_theme=1: YouTube's chat defaults to its light theme, a white
-              box in a black page. The dark one matches; the container is dark
-              too so the frame never flashes white while it loads. */}
-          <div className="relative h-[400px] lg:h-[500px] bg-rs-dark">
-            <iframe
-              key={`chat-${activeStream.id}`}
-              src={`https://www.youtube.com/live_chat?v=${activeStream.id}&embed_domain=racespot.tv&dark_theme=1`}
-              title={t('live.liveChat')}
-              className="absolute inset-0 w-full h-full"
-              style={{ colorScheme: 'dark' }}
-            />
+          {/* Chat embed */}
+          <div className="flex flex-col border border-rs-border rounded-rs overflow-hidden lg:self-start lg:sticky lg:top-[114px]">
+            <div className="bg-rs-dark px-4 py-2.5 border-b border-rs-border">
+              <p className="text-xs font-display font-bold uppercase tracking-wider text-rs-muted">
+                {t('live.liveChat')}
+              </p>
+            </div>
+            {/* dark_theme=1: YouTube's chat defaults to its light theme, a white
+                box in a black page. The dark one matches; the container is dark
+                too so the frame never flashes white while it loads. */}
+            <div className="relative h-[420px] lg:h-[calc(100vh-190px)] lg:max-h-[640px] bg-rs-dark">
+              <iframe
+                key={`chat-${activeStream.id}`}
+                src={`https://www.youtube.com/live_chat?v=${activeStream.id}&embed_domain=racespot.tv&dark_theme=1`}
+                title={t('live.liveChat')}
+                className="absolute inset-0 w-full h-full"
+                style={{ colorScheme: 'dark' }}
+              />
+            </div>
           </div>
         </div>
 
@@ -189,6 +226,26 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   )
 }
 
+// ─── Helpers ────────────────────────────────────────────────
+
+/**
+ * The opening of a YouTube description, fit to stand under the player.
+ *
+ * Descriptions are written for YouTube: emoji as bullet points, then a block
+ * of social links ("▶ Racespot on Social  Instagram: https://…"). Under our
+ * player that was three lines of pictographs and bare URLs, and the links
+ * are already in the "More channels" button beside it. So: everything before
+ * the first link block or URL, without the emoji.
+ */
+function streamIntro(description: string): string {
+  const cut = description.search(/▶|https?:\/\/|racespot on social/i)
+  const head = cut >= 0 ? description.slice(0, cut) : description
+  return head
+    .replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // ─── Sub-components ─────────────────────────────────────────
 
 function UpcomingEventRow({ event, lang }: { event: SerializedEvent; lang: Lang }) {
@@ -207,7 +264,7 @@ function UpcomingEventRow({ event, lang }: { event: SerializedEvent; lang: Lang 
   })()
 
   return (
-    <div className="flex items-center gap-4 p-4 rounded-rs border border-rs-border bg-rs-dark hover:border-rs-yellow/40 transition-colors">
+    <div className="flex items-center gap-4 p-4 rounded-rs border border-rs-border bg-rs-dark">
       <div className="shrink-0 text-center min-w-[60px]">
         <p className="text-[11px] uppercase text-rs-muted">
           {d.toLocaleDateString(locale, { weekday: 'short', timeZone })}

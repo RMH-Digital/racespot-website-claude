@@ -52,6 +52,8 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
   const play = useCallback((m: PlayerMedia) => {
     opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     setMedia(m)
+    // The live player pauses for it (LivePlayerProvider).
+    window.dispatchEvent(new Event('rs:video-open'))
   }, [])
 
   const close = useCallback(() => {

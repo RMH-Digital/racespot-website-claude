@@ -8,6 +8,7 @@ import { TickerServer } from '@/components/layout/TickerServer'
 import { Footer } from '@/components/layout/Footer'
 import { LiveStatusProvider } from '@/components/layout/LiveStatusProvider'
 import { VideoPlayerProvider } from '@/components/video/VideoPlayerProvider'
+import { LivePlayerProvider } from '@/components/video/LivePlayerProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { Analytics } from '@/components/seo/Analytics'
 import { DEFAULT_LANG, LANGS, OG_LOCALES, isLang, t, type Lang } from '@/lib/i18n'
@@ -113,6 +114,9 @@ export default async function RootLayout({
             and every page starts behind it. Styled in globals.css. */}
         <a href="#content" className="skip-link">{t(lang, 'a11y.skipToContent')}</a>
         <LiveStatusProvider>
+          {/* The live stream's player lives here, not on the live page, so it
+              can keep playing in a corner while the viewer browses the site. */}
+          <LivePlayerProvider lang={lang}>
           <NavigationProgress lang={lang} />
           <Header lang={lang} />
           <TickerServer lang={lang} />
@@ -121,6 +125,7 @@ export default async function RootLayout({
             <VideoPlayerProvider lang={lang}>{children}</VideoPlayerProvider>
           </main>
           <Footer lang={lang} />
+          </LivePlayerProvider>
         </LiveStatusProvider>
         <Analytics />
       </body>
