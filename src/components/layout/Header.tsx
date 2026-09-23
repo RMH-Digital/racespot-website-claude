@@ -67,12 +67,26 @@ export function Header({ lang }: { lang: Lang }) {
 
   // The open mobile menu is the page as far as the reader is concerned; let it
   // scroll on its own instead of dragging the content behind it along.
+  //
+  // `overflow: hidden` on <body> alone is not enough: Safari on the iPhone
+  // ignores it and kept scrolling the page behind the menu (reported
+  // 2026-09-24). Pinning the body with `position: fixed` at the current
+  // offset stops every browser, and the offset is restored on close so the
+  // reader lands where they were.
   useEffect(() => {
     if (!menuOpen) return
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const y = window.scrollY
+    const { body } = document
+    const previous = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow }
+    body.style.position = 'fixed'
+    body.style.top = `-${y}px`
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
     return () => {
-      document.body.style.overflow = previous
+      Object.assign(body.style, previous)
+      // Instant, not smooth: the page's smooth scrolling would animate the
+      // jump back and land the reader short of where they were.
+      window.scrollTo({ top: y, behavior: 'instant' })
     }
   }, [menuOpen])
 
@@ -189,9 +203,14 @@ export function Header({ lang }: { lang: Lang }) {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — from the header to the bottom of the screen, opaque:
+          until 2026-09-24 it was only as tall as its links, and the page
+          showed through underneath. overscroll-contain keeps a swipe past its
+          end from moving the page. An explicit height, not `bottom-0`: the
+          header's backdrop-blur makes it the containing block even for fixed
+          children, so `bottom-0` ended at the header's own bottom edge. */}
       {menuOpen && (
-        <div id="mobile-menu" className="xl:hidden bg-rs-dark border-t border-rs-border max-h-[calc(100dvh-98px)] overflow-y-auto">
+        <div id="mobile-menu" className="xl:hidden absolute inset-x-0 top-full h-[calc(100dvh-4rem)] bg-rs-dark border-t border-rs-border overflow-y-auto overscroll-contain">
           <nav className="container-rs py-6 flex flex-col gap-1">
             {NAV_LINKS.map(({ href, labelKey, isLiveLink }) => {
               const active = isActive(href)
