@@ -1,6 +1,6 @@
 import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
-import { MIN_SHOWN, TESTIMONIALS } from '@/lib/testimonials'
+import { MIN_SHOWN, getVoices } from '@/lib/testimonials'
 
 const ROLE_KEY: Record<string, TranslationKey> = {
   viewer: 'home.voices.role.viewer',
@@ -10,14 +10,15 @@ const ROLE_KEY: Record<string, TranslationKey> = {
 }
 
 /**
- * Voices of the people we broadcast for and to — see lib/testimonials.ts for
- * the rules the quotes follow. No platform logo, no star widget: a quote, a
+ * Voices of the people we broadcast for and to — chosen from the reviews
+ * archive in Racespot Analytics, rules and selection in lib/testimonials.ts.
+ * No platform logo, no star widget: a quote, a
  * name, and who they are to us.
  */
-export function Testimonials({ lang }: { lang: Lang }) {
-  if (TESTIMONIALS.length < MIN_SHOWN) return null
+export async function Testimonials({ lang }: { lang: Lang }) {
+  const shown = await getVoices()
+  if (shown.length < MIN_SHOWN) return null
   const t = getT(lang)
-  const shown = TESTIMONIALS.slice(0, 6)
 
   return (
     <section className="section" aria-labelledby="voices-title">
@@ -31,7 +32,7 @@ export function Testimonials({ lang }: { lang: Lang }) {
 
         <div className="card-grid card-grid--3">
           {shown.map((v) => (
-            <figure key={v.name + v.date} className="flex flex-col rounded-rs border border-rs-border bg-rs-dark p-6 md:p-7">
+            <figure key={v.id} className="flex flex-col rounded-rs border border-rs-border bg-rs-dark p-6 md:p-7">
               <svg width="28" height="22" viewBox="0 0 28 22" fill="currentColor" aria-hidden="true" className="mb-4 text-rs-yellow">
                 <path d="M0 22V13.2C0 5.9 4.1 1.4 11.2 0l1.3 3.1C8.4 4.6 6.5 7.3 6.4 10.6H12V22H0Zm16 0V13.2C16 5.9 20.1 1.4 27.2 0l1.3 3.1c-4.1 1.5-6 4.2-6.1 7.5H28V22H16Z" />
               </svg>
