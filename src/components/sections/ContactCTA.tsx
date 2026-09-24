@@ -14,8 +14,8 @@ export function ContactCTA({ lang }: { lang: Lang }) {
           {t('cta.subtitle')}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href={localePath(lang, '/contact')} className="btn-primary">{t('cta.requestQuote')}</Link>
-          <Link href={localePath(lang, '/broadcasts')} className="btn-outline">{t('cta.viewWork')}</Link>
+          <Link href={localePath(lang, '/contact')} data-track="cta-quote-bottom" className="btn-primary">{t('cta.requestQuote')}</Link>
+          <Link href={localePath(lang, '/broadcasts')} data-track="cta-view-work" className="btn-outline">{t('cta.viewWork')}</Link>
         </div>
       </div>
     </div>

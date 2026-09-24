@@ -363,6 +363,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
 
                   <button
                     type="submit"
+                    data-track={`contact-submit-${formType}`}
                     disabled={sending}
                     className="btn-primary w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                   >

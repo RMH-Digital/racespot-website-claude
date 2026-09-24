@@ -117,6 +117,7 @@ export function Header({ lang }: { lang: Lang }) {
               <Link
                 key={href}
                 href={localePath(lang, href)}
+                data-track={`nav-${href.slice(1)}`}
                 className={`relative flex items-center gap-1.5 px-2 2xl:px-3 py-2 whitespace-nowrap
                   font-display font-semibold text-[13px] tracking-[0.08em] uppercase
                   transition-colors duration-200
@@ -182,7 +183,7 @@ export function Header({ lang }: { lang: Lang }) {
               </div>
             )}
           </div>
-          <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm whitespace-nowrap">
+          <Link href={localePath(lang, '/contact')} data-track="cta-quote-header" className="btn-primary btn-sm whitespace-nowrap">
             {t('nav.getQuoteShort')}
           </Link>
         </div>
@@ -220,6 +221,7 @@ export function Header({ lang }: { lang: Lang }) {
                 <Link
                   key={href}
                   href={localePath(lang, href)}
+                  data-track={`menu-${href.slice(1)}`}
                   onClick={() => setMenuOpen(false)}
                   className={`flex items-center gap-2 px-3 py-3 rounded-rs
                     font-display font-semibold text-[15px] tracking-[0.06em] uppercase
@@ -254,7 +256,7 @@ export function Header({ lang }: { lang: Lang }) {
                   </Link>
                 ))}
               </div>
-              <Link href={localePath(lang, '/contact')} className="btn-primary btn-sm block text-center">{t('nav.getQuote')}</Link>
+              <Link href={localePath(lang, '/contact')} data-track="cta-quote-menu" className="btn-primary btn-sm block text-center">{t('nav.getQuote')}</Link>
             </div>
           </nav>
         </div>

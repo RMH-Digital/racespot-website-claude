@@ -50,7 +50,7 @@ export function Process({ lang }: { lang: Lang }) {
           ))}
         </ol>
 
-        <Link href={localePath(lang, '/contact')} className="btn-primary mt-12">
+        <Link href={localePath(lang, '/contact')} data-track="cta-quote-process" className="btn-primary mt-12">
           {t('home.process.cta')}
         </Link>
       </div>

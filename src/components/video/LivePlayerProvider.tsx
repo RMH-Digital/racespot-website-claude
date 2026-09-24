@@ -225,18 +225,20 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                   <button
                     type="button"
                     onClick={() => dock?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                    data-track="live-mini-back"
                     className="shrink-0 text-[11px] font-display font-bold uppercase text-rs-yellow hover:text-white"
                   >
                     {t('live.backToPlayer')}
                   </button>
                 ) : (
-                  <Link href={localePath(lang, '/live')} className="shrink-0 text-[11px] font-display font-bold uppercase text-rs-yellow hover:text-white">
+                  <Link href={localePath(lang, '/live')} data-track="live-mini-back" className="shrink-0 text-[11px] font-display font-bold uppercase text-rs-yellow hover:text-white">
                     {t('live.backToPlayer')}
                   </Link>
                 )}
                 <button
                   type="button"
                   onClick={stop}
+                  data-track="live-mini-close"
                   aria-label={t('video.close')}
                   title={t('video.close')}
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-rs text-rs-muted hover:bg-rs-gray hover:text-white"
@@ -262,9 +264,13 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                 <button
                   type="button"
                   onClick={unmute}
-                  className="absolute left-3 top-3 z-10 flex items-center gap-2 rounded-rs bg-rs-yellow px-3 py-2 text-xs font-display font-bold uppercase tracking-wider text-rs-black shadow-lg hover:bg-white"
+                  data-track="live-sound-on"
+                  // Big enough to be the first thing seen on a muted picture;
+                  // smaller in the corner player, where space is short.
+                  className={`absolute z-10 flex items-center gap-2 rounded-rs bg-rs-yellow font-display font-bold uppercase tracking-wider text-rs-black shadow-lg ring-4 ring-rs-yellow/30 transition-colors hover:bg-white
+                    ${floating ? 'left-2 top-2 px-2.5 py-1.5 text-[11px]' : 'left-4 top-4 px-4 py-3 text-sm md:left-5 md:top-5 md:px-5 md:text-base'}`}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg width={floating ? 14 : 20} height={floating ? 14 : 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M19 5a10 10 0 0 1 0 14" />
                   </svg>
                   {t('live.soundOn')}

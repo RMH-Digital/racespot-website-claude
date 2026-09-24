@@ -124,15 +124,15 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
           {/* CTA buttons */}
           <div className="flex flex-wrap gap-3 md:gap-4">
             {isLive ? (
-              <Link href={localePath(lang, '/live')} className="btn-primary">
+              <Link href={localePath(lang, '/live')} data-track="hero-watch-live" className="btn-primary">
                 <PlayIcon size={12} /> {t('hero.watchLive')}
               </Link>
             ) : (
-              <Link href={localePath(lang, '/broadcasts')} className="btn-primary">
+              <Link href={localePath(lang, '/broadcasts')} data-track="hero-broadcasts" className="btn-primary">
                 {t('hero.watchBroadcasts')}
               </Link>
             )}
-            <Link href={localePath(lang, '/calendar')} className="btn-outline">
+            <Link href={localePath(lang, '/calendar')} data-track="hero-calendar" className="btn-outline">
               {t('hero.viewSchedule')}
             </Link>
           </div>
