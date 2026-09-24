@@ -17,8 +17,8 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  *   - Own click/scroll/journey measurement (components/seo/Heatmap.tsx) →
  *     analytics.racespot.tv, no cookie, no storage, no IP (added 2026-09-24)
  *   - Cloudflare Turnstile on the contact form → cookie + IP to Cloudflare (US)
- *   - YouTube embeds: /live embeds youtube.com's live chat on load; the stream
- *     itself starts on a click (LivePlayerProvider). Everywhere else a
+ *   - YouTube embeds: /live loads the stream (nocookie) and youtube.com's live
+ *     chat on open and plays at once (LivePlayerProvider). Everywhere else a
  *     recording opens in the site's own player on a click, from
  *     youtube-nocookie.com; the still images run through next/image, so they
  *     are served from our own server and the visitor's browser reaches no
@@ -96,7 +96,7 @@ const en: LegalDoc = {
       body: [
         p('Our broadcasts run on YouTube, operated by **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Ireland.'),
         ul(
-          'On our **Live** page the YouTube live chat is embedded directly; the stream itself only starts when you click play. When you open that page, a connection to YouTube is established, your IP address is transmitted, and Google may set cookies and read existing ones. If you are signed in to a Google account, the visit can be assigned to it.',
+          'On our **Live** page the stream (in the extended data protection mode, youtube-nocookie.com) and the YouTube live chat are embedded directly and start as soon as the page opens; if you keep watching while browsing the site, the stream continues in a small player. When you open that page, a connection to YouTube is established, your IP address is transmitted, and Google may set cookies and read existing ones. If you are signed in to a Google account, the visit can be assigned to it.',
           'Everywhere else — the home page, Broadcasts, Events, the Calendar and inside articles — a recording opens in our own player when you click play, and only then, in the extended data protection mode (youtube-nocookie.com). The preview images are served from our own server, so no connection to Google is made and no cookies are set before you start a video.',
         ),
         p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in presenting our broadcasts on the site). Google also processes data in the USA on the basis of the EU-US Data Privacy Framework and standard contractual clauses. What Google does with the data is beyond our control; see [policies.google.com/privacy](https://policies.google.com/privacy).'),
@@ -240,7 +240,7 @@ const de: LegalDoc = {
       body: [
         p('Unsere Übertragungen laufen über YouTube, betrieben von **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Irland.'),
         ul(
-          'Auf unserer **Live**-Seite ist der YouTube-Livechat unmittelbar eingebunden; der Stream selbst startet erst, wenn Sie auf Wiedergabe klicken. Beim Öffnen dieser Seite wird eine Verbindung zu YouTube aufgebaut, Ihre IP-Adresse übermittelt, und Google kann Cookies setzen und vorhandene auslesen. Sind Sie bei einem Google-Konto angemeldet, kann der Besuch diesem zugeordnet werden.',
+          'Auf unserer **Live**-Seite sind der Stream (im erweiterten Datenschutzmodus, youtube-nocookie.com) und der YouTube-Livechat unmittelbar eingebunden und starten beim Öffnen der Seite; schauen Sie weiter, während Sie sich auf der Website bewegen, läuft der Stream in einem kleinen Player weiter. Beim Öffnen dieser Seite wird eine Verbindung zu YouTube aufgebaut, Ihre IP-Adresse übermittelt, und Google kann Cookies setzen und vorhandene auslesen. Sind Sie bei einem Google-Konto angemeldet, kann der Besuch diesem zugeordnet werden.',
           'Überall sonst — Startseite, Broadcasts, Events, Kalender und in den Artikeln — öffnet sich eine Aufzeichnung erst beim Klick auf Wiedergabe in unserem eigenen Player, und dann im erweiterten Datenschutzmodus (youtube-nocookie.com). Die Vorschaubilder liefert unser eigener Server; vor dem Start eines Videos entsteht also keine Verbindung zu Google, und es werden keine Cookies gesetzt.',
         ),
         p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, unsere Produktionen auf der Seite zu zeigen). Google verarbeitet Daten auch in den USA auf Grundlage des EU-US Data Privacy Framework und von Standardvertragsklauseln. Was Google mit den Daten tut, entzieht sich unserem Einfluss; siehe [policies.google.com/privacy](https://policies.google.com/privacy).'),

@@ -14,8 +14,11 @@ import { useMediaQuery } from '@/lib/hooks/useLocalTime'
  * Jürgen, 2026-09-23: the stream started on its own, sound included, and
  * kept playing in a tab nobody was looking at. Now:
  *
- * - **It starts on a click**, never by itself. The live page shows a still
- *   with a play button; `start()` is what the button calls.
+ * - **It starts when the live page opens** (Jürgen, 2026-09-24 — the day
+ *   before it waited for a click). Browsers only allow sound without a click
+ *   on the page first; someone arriving straight from a link elsewhere gets a
+ *   muted start and a "Sound on" button over the picture instead of a player
+ *   that silently refuses to start.
  * - **It runs only while the tab is visible.** Hidden, it is paused; back,
  *   it plays again — unless the viewer had paused it themselves.
  * - **On a desktop it follows the viewer.** Scroll the player out of view,
@@ -82,13 +85,18 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   /** YouTube's player state: 1 playing, 2 paused, … */
   const ytState = useRef<number>(-1)
   const pausedByUs = useRef(false)
+  /** Started without sound because the browser refused it; the button offers it back */
+  const [muted, setMuted] = useState(false)
 
-  const start = useCallback((m: LiveMedia) => setPlaying(m), [])
+  const start = useCallback((m: LiveMedia) => {
+    setMuted(false)
+    setPlaying(m)
+  }, [])
   const stop = useCallback(() => setPlaying(null), [])
 
   const registerDock = useCallback((el: HTMLElement | null) => setDock(el), [])
 
-  const command = useCallback((func: 'playVideo' | 'pauseVideo') => {
+  const command = useCallback((func: 'playVideo' | 'pauseVideo' | 'mute' | 'unMute') => {
     frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), ORIGIN)
   }, [])
 
@@ -172,13 +180,29 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   const onLivePage = /\/live\/?$/.test(pathname ?? '')
 
   const src = playing
-    ? `${ORIGIN}/embed/${encodeURIComponent(playing.id)}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(typeof window === 'undefined' ? '' : window.location.origin)}`
+    ? `${ORIGIN}/embed/${encodeURIComponent(playing.id)}?autoplay=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(typeof window === 'undefined' ? '' : window.location.origin)}`
     : ''
 
   const onFrameLoad = useCallback(() => {
     // Ask the player to report its state from now on.
     frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'rs-live', channel: 'widget' }), ORIGIN)
-  }, [])
+    // Autoplay with sound is the browser's call. If it has not started a
+    // couple of seconds in, it was refused: start muted — which every browser
+    // allows — and offer the sound on our own button.
+    ytState.current = -1
+    window.setTimeout(() => {
+      if (ytState.current === 1 || ytState.current === 3) return
+      command('mute')
+      command('playVideo')
+      setMuted(true)
+    }, 2500)
+  }, [command])
+
+  const unmute = useCallback(() => {
+    command('unMute')
+    command('playVideo')
+    setMuted(false)
+  }, [command])
 
   return (
     <LivePlayerContext.Provider value={{ playing, start, stop, registerDock }}>
@@ -234,6 +258,18 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
               />
+              {muted && (
+                <button
+                  type="button"
+                  onClick={unmute}
+                  className="absolute left-3 top-3 z-10 flex items-center gap-2 rounded-rs bg-rs-yellow px-3 py-2 text-xs font-display font-bold uppercase tracking-wider text-rs-black shadow-lg hover:bg-white"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M19 5a10 10 0 0 1 0 14" />
+                  </svg>
+                  {t('live.soundOn')}
+                </button>
+              )}
             </div>
           </div>,
           document.body,

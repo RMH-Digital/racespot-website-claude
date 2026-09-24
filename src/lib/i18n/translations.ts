@@ -444,6 +444,7 @@ export const translations = {
   'video.upcoming':    { en: 'Upcoming', de: 'Demnächst', es: 'Próximamente', pt: 'Em breve', fr: 'À venir', it: 'In arrivo' },
   'video.openOnYouTube': { en: 'Open on YouTube', de: 'Auf YouTube öffnen', es: 'Abrir en YouTube', pt: 'Abrir no YouTube', fr: 'Ouvrir sur YouTube', it: 'Apri su YouTube' },
   'live.backToPlayer': { en: 'Back to live', de: 'Zurück zum Stream', es: 'Volver al directo', pt: 'Voltar à transmissão', fr: 'Retour au direct', it: 'Torna alla diretta' },
+  'live.soundOn': { en: 'Sound on', de: 'Ton an', es: 'Activar sonido', pt: 'Ativar som', fr: 'Activer le son', it: 'Attiva audio' },
   'live.playStream': { en: 'Watch live', de: 'Live ansehen', es: 'Ver en directo', pt: 'Assistir ao vivo', fr: 'Regarder en direct', it: 'Guarda in diretta' },
   'video.close': { en: 'Close player', de: 'Player schließen', es: 'Cerrar reproductor', pt: 'Fechar o leitor', fr: 'Fermer le lecteur', it: 'Chiudi il lettore' },
   'video.playlist': { en: 'Playlist', de: 'Playlist', es: 'Lista de reproducción', pt: 'Playlist', fr: 'Playlist', it: 'Playlist' },

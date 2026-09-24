@@ -36,6 +36,17 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   const slot = useRef<HTMLDivElement>(null)
   useLiveDock(slot)
 
+  // The stream starts as soon as the page opens (Jürgen, 2026-09-24). Only
+  // when nothing is playing yet: a stream already running in the corner
+  // player is not restarted, it just docks back onto this page.
+  const autoStarted = useRef(false)
+  useEffect(() => {
+    const first = liveStreams.find((s) => s.id === activeId) ?? liveStreams[0]
+    if (autoStarted.current || playing || !first) return
+    autoStarted.current = true
+    start({ id: first.id, title: first.title })
+  }, [playing, liveStreams, activeId, start])
+
   useEffect(() => {
     if (!loaded) return
 
