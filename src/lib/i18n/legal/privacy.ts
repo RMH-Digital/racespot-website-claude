@@ -14,6 +14,8 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  * What the site really does (verified in the code on 2026-09-14):
  *   - Hetzner Cloud, Nuremberg → server log files
  *   - Umami, self-hosted on the same server → cookieless analytics
+ *   - Own click/scroll/journey measurement (components/seo/Heatmap.tsx) →
+ *     analytics.racespot.tv, no cookie, no storage, no IP (added 2026-09-24)
  *   - Cloudflare Turnstile on the contact form → cookie + IP to Cloudflare (US)
  *   - YouTube embeds: /live embeds youtube.com's live chat on load; the stream
  *     itself starts on a click (LivePlayerProvider). Everywhere else a
@@ -32,7 +34,7 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  */
 
 const en: LegalDoc = {
-  updated: 'Last updated: September 21, 2026',
+  updated: 'Last updated: September 24, 2026',
   sections: [
     {
       heading: '1. Data Controller',
@@ -73,6 +75,7 @@ const en: LegalDoc = {
         p('To find out how many people read our pages, we use **Umami**, an open-source analytics tool that we host ourselves on the same German server as this website. No data leaves our infrastructure and no third party is involved.'),
         p('Umami works **without cookies** and stores **no personal data**. Your IP address is not retained; visitors are counted using an anonymous hash that is regenerated daily and cannot be traced back to a person or linked across days. What we see is aggregated: page views, referring sites, country, browser and device type.'),
         p('We also record **how fast the page loaded for you** — the standard web performance measurements (loading, responsiveness, layout stability). These are timings in milliseconds, measured by your own browser and sent along with the page view. They say something about our pages, not about you, and are stored in the same aggregated, non-personal form.'),
+        p('In addition, our own measurement records **where on a page people click, how far they scroll and how long a page is actively in view**, and in which order pages are opened within one visit. It runs on our own server in Germany, sets **no cookie and writes nothing to your device**: the link between the pages of one visit exists only in the memory of the open browser tab and is gone when you reload or close it. We store the position of a click, the clicked element (for example a button label — never what you type into a form), the page, the scroll depth, the time on the page and the device class (mobile, tablet or desktop). We do not store your IP address or any identifier that recognises you on a later visit. If your browser sends a “Do Not Track” or “Global Privacy Control” signal, this measurement does not run.'),
         p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in understanding how our site is used). Because no personal data is processed, there is nothing to object to and nothing to erase. More about the tool: [umami.is](https://umami.is/)'),
       ],
     },
@@ -175,7 +178,7 @@ const en: LegalDoc = {
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 21. September 2026',
+  updated: 'Stand: 24. September 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
@@ -216,6 +219,7 @@ const de: LegalDoc = {
         p('Um zu erfahren, wie viele Menschen unsere Seiten lesen, nutzen wir **Umami**, ein quelloffenes Statistikwerkzeug, das wir selbst auf demselben deutschen Server betreiben wie diese Website. Es verlässt kein Datum unsere Infrastruktur, ein Dritter ist nicht beteiligt.'),
         p('Umami arbeitet **ohne Cookies** und speichert **keine personenbezogenen Daten**. Ihre IP-Adresse wird nicht aufbewahrt; Besucher werden über einen anonymen Hash gezählt, der täglich neu gebildet wird und sich weder einer Person zuordnen noch über Tage hinweg verknüpfen lässt. Wir sehen aggregierte Werte: Seitenaufrufe, verweisende Seiten, Land, Browser- und Gerätetyp.'),
         p('Zusätzlich erfassen wir, **wie schnell die Seite bei Ihnen geladen hat** — die üblichen Messwerte zur Webleistung (Ladezeit, Reaktionsfähigkeit, Stabilität des Layouts). Das sind Zeitangaben in Millisekunden, die Ihr eigener Browser misst und zusammen mit dem Seitenaufruf übermittelt. Sie sagen etwas über unsere Seiten aus, nicht über Sie, und werden in derselben aggregierten, nicht personenbezogenen Form gespeichert.'),
+        p('Außerdem erfasst eine eigene Messung, **wo auf einer Seite geklickt wird, wie weit gescrollt wird und wie lange eine Seite aktiv im Blick ist**, sowie in welcher Reihenfolge Seiten innerhalb eines Besuchs aufgerufen werden. Sie läuft auf unserem eigenen Server in Deutschland, setzt **kein Cookie und speichert nichts auf Ihrem Gerät**: Die Verbindung zwischen den Seiten eines Besuchs besteht nur im Arbeitsspeicher des geöffneten Browser-Tabs und ist beim Neuladen oder Schließen verschwunden. Wir speichern die Position eines Klicks, das angeklickte Element (etwa die Beschriftung einer Schaltfläche — nie, was Sie in ein Formular eingeben), die Seite, die Scrolltiefe, die Verweildauer und die Geräteklasse (Handy, Tablet oder Desktop). Ihre IP-Adresse und eine Kennung, die Sie bei einem späteren Besuch wiedererkennt, speichern wir nicht. Sendet Ihr Browser das Signal „Do Not Track“ oder „Global Privacy Control“, findet diese Messung nicht statt.'),
         p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, die Nutzung unserer Seite zu verstehen). Da keine personenbezogenen Daten verarbeitet werden, gibt es dem nichts zu widersprechen und nichts zu löschen. Mehr zum Werkzeug: [umami.is](https://umami.is/)'),
       ],
     },

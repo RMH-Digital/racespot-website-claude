@@ -11,6 +11,7 @@ import { VideoPlayerProvider } from '@/components/video/VideoPlayerProvider'
 import { LivePlayerProvider } from '@/components/video/LivePlayerProvider'
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { Analytics } from '@/components/seo/Analytics'
+import { Heatmap } from '@/components/seo/Heatmap'
 import { DEFAULT_LANG, LANGS, OG_LOCALES, isLang, t, type Lang } from '@/lib/i18n'
 import { SITE_URL } from '@/lib/i18n/seo'
 
@@ -128,6 +129,7 @@ export default async function RootLayout({
           </LivePlayerProvider>
         </LiveStatusProvider>
         <Analytics />
+        <Heatmap />
       </body>
     </html>
   )

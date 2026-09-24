@@ -226,6 +226,19 @@ Optional, per OAuth des Brand-Kontos: `docs/YOUTUBE-ANALYTICS.md`. Ohne die drei
 `YOUTUBE_OAUTH_*`-Variablen zeigt die Kennzahlenleiste Sendestunden statt
 angesehener Stunden — das ist kein Fehler, sondern der Zustand vor der Einrichtung.
 
+## Heatmap and journeys (own measurement)
+
+`src/components/seo/Heatmap.tsx`, mounted next to `<Analytics />` in the root
+layout. Sends one beacon per page view to `analytics.racespot.tv/api/collect`
+(contract: `~/Racespot Analytics/docs/HEATMAP.md`): click position and the
+clicked element, scroll depth, active time, and the order of pages within one
+tab. No cookie, no local/session storage — the journey id lives in module
+memory only. Never records form input. Off outside production, outside
+racespot.tv, and with Do Not Track / Global Privacy Control.
+
+It is named in `legal/privacy.ts` section 5 (en + de). Changing what it
+records means changing that text in the same commit.
+
 ## Deployment
 
 Hosting ist **Coolify** auf Philips Hetzner-Server (`178.104.72.17`), App-UUID
