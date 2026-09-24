@@ -77,13 +77,18 @@ export function VoicesCarousel({
             {/* One mark above, not quotation marks around: the quotes are in
                 their own language, the page in another, and „…“ and “…”
                 would each be wrong for half of them. */}
-            <svg width="44" height="34" viewBox="0 0 28 22" fill="currentColor" aria-hidden="true" className="mb-6 text-rs-yellow">
+            <svg width="36" height="28" viewBox="0 0 28 22" fill="currentColor" aria-hidden="true" className="mb-5 text-rs-yellow">
               <path d="M0 22V13.2C0 5.9 4.1 1.4 11.2 0l1.3 3.1C8.4 4.6 6.5 7.3 6.4 10.6H12V22H0Zm16 0V13.2C16 5.9 20.1 1.4 27.2 0l1.3 3.1c-4.1 1.5-6 4.2-6.1 7.5H28V22H16Z" />
             </svg>
-            <blockquote lang={v.lang} className="max-w-4xl">
-              <p className="whitespace-pre-line text-[19px] leading-[1.55] text-white md:text-[26px] md:leading-[1.5] lg:text-[30px]">{v.quote}</p>
+            {/* Line breaks in the original become spaces: the words are the
+                reviewer's, the returns were only how the platform's text box
+                wrapped them, and kept they made a quote of seven short lines.
+                Sized so the longest one, heading and controls fit a 13-inch
+                laptop screen (MacBook Air, 1440 × 900) in one view. */}
+            <blockquote lang={v.lang} className="max-w-3xl">
+              <p className="text-[17px] leading-[1.6] text-white md:text-[20px] lg:text-[22px] lg:leading-[1.55]">{v.quote.replace(/\s*\n+\s*/g, ' ')}</p>
             </blockquote>
-            <figcaption className="mt-8 flex items-center gap-3">
+            <figcaption className="mt-6 flex items-center gap-3">
               <span className="h-px w-8 bg-rs-yellow" aria-hidden="true" />
               <span className="font-display text-sm font-bold uppercase tracking-[0.12em] text-white">{v.name}</span>
               {v.role && <span className="text-sm text-rs-muted">{v.role}</span>}
@@ -93,7 +98,7 @@ export function VoicesCarousel({
       </div>
 
       {count > 1 && (
-        <div className="mt-10 flex items-center justify-center gap-5">
+        <div className="mt-8 flex items-center justify-center gap-4 sm:gap-5">
           <button
             type="button"
             onClick={() => go(index - 1)}

@@ -22,9 +22,9 @@ export async function Testimonials({ lang }: { lang: Lang }) {
   const t = getT(lang)
 
   return (
-    <section className="section--alt py-20 md:py-28 border-y border-rs-border" aria-labelledby="voices-title">
+    <section className="section--alt py-14 md:py-20 border-y border-rs-border" aria-labelledby="voices-title">
       <div className="container-rs-wide">
-        <div className="mb-12 text-center md:mb-16">
+        <div className="mb-8 text-center md:mb-10">
           <p className="section-label mb-2">{t('home.voices.label')}</p>
           <h2 id="voices-title" className="section-title">{t('home.voices.title')}</h2>
         </div>
@@ -39,7 +39,7 @@ export async function Testimonials({ lang }: { lang: Lang }) {
           }}
         />
 
-        <p className="mt-8 text-center text-xs text-rs-muted">{t('home.voices.note')}</p>
+        <p className="mt-6 text-center text-xs text-rs-muted">{t('home.voices.note')}</p>
       </div>
     </section>
   )

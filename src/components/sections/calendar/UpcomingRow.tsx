@@ -44,7 +44,8 @@ export function UpcomingRow({ lang, event }: { lang: Lang; event: CalendarEvent 
       <div className="w-px h-10 bg-rs-border shrink-0" />
 
       <div className="flex-1 min-w-0">
-        <p className="text-white font-semibold text-sm truncate">{event.series}</p>
+        {/* Two lines on a phone rather than "Porsche Club of A…"; one line from sm up, where there is room. */}
+        <p className="text-white font-semibold text-sm line-clamp-2 break-words sm:line-clamp-none sm:truncate">{event.series}</p>
         {event.description && <p className="text-rs-muted text-xs truncate">{event.description}</p>}
         <p className="text-rs-yellow text-xs font-display font-bold mt-1 sm:hidden">
           {fmt({ hour: '2-digit', minute: '2-digit', hour12: !is24h })}
