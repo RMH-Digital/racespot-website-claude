@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useMediaQuery } from '@/lib/hooks/useLocalTime'
+import { ExpandIcon, MinimizeIcon } from './PlayerIcons'
 
 /**
  * The live stream's player, owned by the layout rather than the live page.
@@ -25,6 +26,11 @@ import { useMediaQuery } from '@/lib/hooks/useLocalTime'
  *   or go to another page of the site, and it carries on in a small window
  *   in the bottom-right corner, with its sound. One click brings the viewer
  *   back to the live page, one closes it.
+ * - **Minimise and expand by hand** (2026-09-24): a button on the player
+ *   sends it to the corner on the live page too, the corner window's expand
+ *   button — or the empty slot — brings it back. Same icons as the
+ *   recordings player (PlayerIcons.tsx). One video at a time: opening a
+ *   recording stops the stream, starting the stream closes the recording.
  * - **On a phone or tablet it stays where it is.** A floating window on a
  *   touch screen covers the page and cannot be moved out of the way, so it is
  *   left out there: leaving the live page stops the stream.
@@ -47,6 +53,10 @@ interface LivePlayerApi {
   stop: () => void
   /** The live page's slot: the player docks onto this element while it is on screen */
   registerDock: (el: HTMLElement | null) => void
+  /** Sent to the corner by the viewer while on the live page */
+  minimized: boolean
+  /** Back from the corner onto the live page's slot */
+  expand: () => void
 }
 
 const LivePlayerContext = createContext<LivePlayerApi | null>(null)
@@ -88,13 +98,22 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   /** Started without sound because the browser refused it; the button offers it back */
   const [muted, setMuted] = useState(false)
 
+  /** Sent to the corner by the viewer, on the live page itself (desktop only) */
+  const [minimized, setMinimized] = useState(false)
+
   const start = useCallback((m: LiveMedia) => {
     setMuted(false)
     setPlaying(m)
+    // One video at a time: a recording in the site's player closes.
+    window.dispatchEvent(new Event('rs:live-start'))
   }, [])
   const stop = useCallback(() => setPlaying(null), [])
 
-  const registerDock = useCallback((el: HTMLElement | null) => setDock(el), [])
+  // Arriving on the live page docks the stream again, however it was left.
+  const registerDock = useCallback((el: HTMLElement | null) => {
+    setDock(el)
+    if (el) setMinimized(false)
+  }, [])
 
   const command = useCallback((func: 'playVideo' | 'pauseVideo' | 'mute' | 'unMute') => {
     frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), ORIGIN)
@@ -107,12 +126,14 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
     if (streamGone || leftOnTouch) setPlaying(null)
   }, [streamGone, leftOnTouch])
 
-  // Another video opened in the site's player: two soundtracks are one too many.
+  // A recording opened in the site's player: one video at a time, and never
+  // two corner windows on top of each other — the stream stops. Back on the
+  // live page it waits behind its play button.
   useEffect(() => {
-    const onOpen = () => { if (playing) command('pauseVideo') }
+    const onOpen = () => setPlaying(null)
     window.addEventListener('rs:video-open', onOpen)
     return () => window.removeEventListener('rs:video-open', onOpen)
-  }, [playing, command])
+  }, [])
 
   // Listen to the player's state, so a pause the viewer chose is respected.
   useEffect(() => {
@@ -175,7 +196,7 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
     }
   }, [dock, playing])
 
-  const docked = dock !== null && rect !== null && (dockVisible || !isDesktop)
+  const docked = dock !== null && rect !== null && (dockVisible || !isDesktop) && !(minimized && isDesktop)
   const floating = !docked && isDesktop
   const onLivePage = /\/live\/?$/.test(pathname ?? '')
 
@@ -205,7 +226,7 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   }, [command])
 
   return (
-    <LivePlayerContext.Provider value={{ playing, start, stop, registerDock }}>
+    <LivePlayerContext.Provider value={{ playing, start, stop, registerDock, minimized: minimized && isDesktop, expand: () => setMinimized(false) }}>
       {children}
       {playing && (docked || floating) &&
         createPortal(
@@ -224,15 +245,26 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                 {onLivePage ? (
                   <button
                     type="button"
-                    onClick={() => dock?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                    onClick={() => {
+                      setMinimized(false)
+                      dock?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }}
                     data-track="live-mini-back"
-                    className="shrink-0 text-[11px] font-display font-bold uppercase text-rs-yellow hover:text-white"
+                    aria-label={t('live.backToPlayer')}
+                    title={t('live.backToPlayer')}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-rs text-rs-muted hover:bg-rs-gray hover:text-white"
                   >
-                    {t('live.backToPlayer')}
+                    <ExpandIcon size={12} />
                   </button>
                 ) : (
-                  <Link href={localePath(lang, '/live')} data-track="live-mini-back" className="shrink-0 text-[11px] font-display font-bold uppercase text-rs-yellow hover:text-white">
-                    {t('live.backToPlayer')}
+                  <Link
+                    href={localePath(lang, '/live')}
+                    data-track="live-mini-back"
+                    aria-label={t('live.backToPlayer')}
+                    title={t('live.backToPlayer')}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-rs text-rs-muted hover:bg-rs-gray hover:text-white"
+                  >
+                    <ExpandIcon size={12} />
                   </Link>
                 )}
                 <button
@@ -260,6 +292,18 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
               />
+              {!floating && isDesktop && (
+                <button
+                  type="button"
+                  onClick={() => setMinimized(true)}
+                  data-track="live-minimize"
+                  aria-label={t('video.minimize')}
+                  title={t('video.minimize')}
+                  className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-rs bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+                >
+                  <MinimizeIcon size={16} />
+                </button>
+              )}
               {muted && (
                 <button
                   type="button"

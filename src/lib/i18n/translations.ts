@@ -446,6 +446,8 @@ export const translations = {
   'live.backToPlayer': { en: 'Back to live', de: 'Zurück zum Stream', es: 'Volver al directo', pt: 'Voltar à transmissão', fr: 'Retour au direct', it: 'Torna alla diretta' },
   'live.soundOn': { en: 'Sound on', de: 'Ton an', es: 'Activar sonido', pt: 'Ativar som', fr: 'Activer le son', it: 'Attiva audio' },
   'live.playStream': { en: 'Watch live', de: 'Live ansehen', es: 'Ver en directo', pt: 'Assistir ao vivo', fr: 'Regarder en direct', it: 'Guarda in diretta' },
+  'video.minimize': { en: 'Minimise player', de: 'Player verkleinern', es: 'Minimizar reproductor', pt: 'Minimizar o player', fr: 'Réduire le lecteur', it: 'Riduci il lettore' },
+  'video.expand': { en: 'Expand player', de: 'Player vergrößern', es: 'Ampliar reproductor', pt: 'Ampliar o player', fr: 'Agrandir le lecteur', it: 'Ingrandisci il lettore' },
   'video.close': { en: 'Close player', de: 'Player schließen', es: 'Cerrar reproductor', pt: 'Fechar o leitor', fr: 'Fermer le lecteur', it: 'Chiudi il lettore' },
   'video.playlist': { en: 'Playlist', de: 'Playlist', es: 'Lista de reproducción', pt: 'Playlist', fr: 'Playlist', it: 'Playlist' },
   'video.play': { en: 'Play', de: 'Abspielen', es: 'Reproducir', pt: 'Reproduzir', fr: 'Lire', it: 'Riproduci' },

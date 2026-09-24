@@ -11,6 +11,7 @@ import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { useLiveDock, useLivePlayer } from '@/components/video/LivePlayerProvider'
 import { UpcomingRow } from '@/components/sections/calendar/UpcomingRow'
+import { ExpandIcon } from '@/components/video/PlayerIcons'
 import type { CalendarEvent } from '@/lib/sheets'
 
 
@@ -28,7 +29,7 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   // Stream updates come from LiveStatusProvider, which already polls
   // /api/live-streams every 60 s for the header and ticker — no second poll here.
   const { liveStreams: polled, loaded } = useLiveStatus()
-  const { playing, start } = useLivePlayer()
+  const { playing, start, minimized, expand } = useLivePlayer()
   const slot = useRef<HTMLDivElement>(null)
   useLiveDock(slot)
 
@@ -136,6 +137,19 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
               className={`relative aspect-video bg-rs-dark border border-rs-border overflow-hidden
                 ${liveStreams.length > 1 ? 'rounded-b-rs border-t-0' : 'rounded-rs'}`}
             >
+              {/* Sent to the corner: the empty slot says where it went and
+                  brings it back. */}
+              {isPlayingHere && minimized && (
+                <button
+                  type="button"
+                  onClick={expand}
+                  data-track="live-expand-slot"
+                  className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-3 text-rs-muted hover:text-white"
+                >
+                  <ExpandIcon size={28} />
+                  <span className="text-xs font-display font-bold uppercase tracking-wider">{t('video.expand')}</span>
+                </button>
+              )}
               {!isPlayingHere && (
                 <button
                   type="button"
