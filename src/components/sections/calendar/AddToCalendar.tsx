@@ -32,6 +32,7 @@ export function AddToCalendar({
   compact = false,
   tone = 'dark',
   triggerRef,
+  labeled = false,
 }: {
   lang: Lang
   event: CalendarEvent
@@ -41,6 +42,8 @@ export function AddToCalendar({
   tone?: 'dark' | 'light'
   /** Lets a parent reach the trigger — the calendar cards open this menu from their whole surface */
   triggerRef?: React.RefObject<HTMLButtonElement | null>
+  /** A full button with the words beside the icon, for a row of large buttons (the live page's next broadcast) */
+  labeled?: boolean
 }) {
   const [rect, setRect] = useState<DOMRect | null>(null)
   const open = rect !== null
@@ -105,7 +108,9 @@ export function AddToCalendar({
         aria-controls={open ? menuId : undefined}
         aria-label={`${t('calendar.addToCalendar')}: ${event.series}`}
         title={t('calendar.addToCalendar')}
-        className={`flex items-center justify-center rounded-rs transition-colors
+        className={labeled
+          ? `btn-outline whitespace-nowrap w-full sm:w-auto ${open ? 'border-rs-yellow' : ''}`
+          : `flex items-center justify-center rounded-rs transition-colors
           ${compact
             ? // 24px: the month grid's cells are ~97px wide, so the 44px target
               // used everywhere else simply does not fit. 24 is the floor WCAG
@@ -127,6 +132,7 @@ export function AddToCalendar({
           <path d="M2 6.5h12M5.5 1.5V4M10.5 1.5V4" strokeLinecap="round" />
           <path d="M8 8.5v3.5M6.25 10.25 8 12l1.75-1.75" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
+        {labeled && <span>{t('calendar.addToCalendar')}</span>}
       </button>
 
       {rect &&

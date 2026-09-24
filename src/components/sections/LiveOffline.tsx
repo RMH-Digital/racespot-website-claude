@@ -6,23 +6,17 @@ import { useCountdown } from '@/lib/hooks/useCountdown'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { FollowUs } from '@/components/ui/FollowUs'
+import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
+import { UpcomingRow } from '@/components/sections/calendar/UpcomingRow'
+import type { CalendarEvent } from '@/lib/sheets'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 
 // ─── Types ──────────────────────────────────────────────────
 
-interface SerializedEvent {
-  series: string
-  description: string
-  dateISO: string
-  tier: number
-  /** The stream as already announced on YouTube, if any — where the bell is */
-  youtubeId?: string
-}
-
 interface LiveOfflineProps {
   lang: Lang
-  nextEvent: SerializedEvent | null
-  upcomingEvents: SerializedEvent[]
+  nextEvent: CalendarEvent | null
+  upcomingEvents: CalendarEvent[]
 }
 
 // ─── Locale helpers ─────────────────────────────────────────
@@ -147,19 +141,9 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
                   YouTube's on the right; one column of equal buttons on a phone. */}
               <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 text-left">
                 <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                  {nextEvent.youtubeId && (
-                    <a
-                      href={`https://www.youtube.com/watch?v=${nextEvent.youtubeId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline whitespace-nowrap"
-                      title={t('calendar.remindOnYouTubeHint')}
-                    >
-                      <span aria-hidden="true">🔔</span>
-                      <span className="sm:hidden">{t('calendar.remindShort')}</span>
-                      <span className="hidden sm:inline">{t('calendar.remindOnYouTube')}</span>
-                    </a>
-                  )}
+                  {/* The calendar's save menu: this broadcast, the whole
+                      series, and the YouTube bell once the stream is announced. */}
+                  <AddToCalendar lang={lang} event={nextEvent} t={t} labeled />
                   <Link href={localePath(lang, '/calendar')} className="btn-outline whitespace-nowrap">
                     {t('live.viewCalendar')}
                   </Link>
@@ -193,8 +177,8 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
             </div>
 
             <div className="space-y-3">
-              {upcomingEvents.map((event, i) => (
-                <UpcomingEventRow key={event.dateISO + event.series} event={event} fmt={fmt} />
+              {upcomingEvents.map((event) => (
+                <UpcomingRow key={event.id} lang={lang} event={event} />
               ))}
             </div>
 
@@ -206,45 +190,6 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
           </div>
         )}
       </div>
-    </div>
-  )
-}
-
-// ─── Sub-components ─────────────────────────────────────────
-
-function UpcomingEventRow({ event, fmt }: { event: SerializedEvent; fmt: Fmt }) {
-  return (
-    <div className="flex items-center gap-4 p-4 rounded-rs border border-rs-border bg-rs-dark hover:border-rs-yellow/40 transition-colors">
-      {/* Date */}
-      <div className="shrink-0 text-center min-w-[60px]">
-        <p className="text-[11px] uppercase text-rs-muted">
-          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { weekday: 'short', timeZone: fmt.timeZone })}
-        </p>
-        <p className="text-xl font-display font-bold text-white">
-          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { day: 'numeric', timeZone: fmt.timeZone })}
-        </p>
-        <p className="text-[11px] uppercase text-rs-muted">
-          {new Date(event.dateISO).toLocaleDateString(fmt.locale, { month: 'short', timeZone: fmt.timeZone })}
-        </p>
-      </div>
-
-      {/* Divider */}
-      <div className="w-px h-10 bg-rs-border shrink-0" />
-
-      {/* Event info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-white font-semibold text-sm truncate">
-          {event.series}
-        </p>
-        {event.description && (
-          <p className="text-rs-muted text-xs truncate">{event.description}</p>
-        )}
-      </div>
-
-      {/* Time */}
-      <p className="text-rs-yellow text-sm font-display font-bold shrink-0">
-        {formatLocalTime(event.dateISO, fmt)}
-      </p>
     </div>
   )
 }

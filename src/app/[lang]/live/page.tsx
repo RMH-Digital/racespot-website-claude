@@ -23,27 +23,16 @@ export default async function LivePage({ params }: { params: Promise<{ lang: Lan
   const events = await getUpcomingEvents(10)
   const liveStreams = await getLiveStreams(watchedBroadcast(events))
 
-  // Build upcoming events list (used in both live and offline states)
-  const upcomingEvents = events
-    .filter((e) => e.isUpcoming)
-    .slice(0, 5)
-    .map((e) => ({
-      series: e.series,
-      description: e.description,
-      dateISO: e.date.toISOString(),
-      tier: e.tier,
-    }))
+  // The next five, as calendar events with their announced YouTube stream
+  // attached where there is one — every row offers the same save menu as the
+  // calendar, bell included (UpcomingRow).
+  const upcomingEvents = await withReplays(events.filter((e) => e.isUpcoming).slice(0, 5).map(toCalendarEvent))
 
-  // Primary detection (RSS+videos.list → scraping) found streams
   if (liveStreams.length > 0) {
     return <LiveEmbed lang={lang} liveStreams={liveStreams} upcomingEvents={upcomingEvents} />
   }
 
-  // The next broadcast may already be announced on YouTube — then the offline
-  // page can offer the bell there, next to the calendar.
-  const nextUpcoming = events.find((e) => e.isUpcoming)
-  const [withVideo] = nextUpcoming ? await withReplays([toCalendarEvent(nextUpcoming)]) : []
-  const nextEvent = upcomingEvents.length > 0 ? { ...upcomingEvents[0], youtubeId: withVideo?.videoId } : null
+  const nextEvent = upcomingEvents[0] ?? null
 
   return (
     <LiveOffline
