@@ -1,9 +1,16 @@
 # Kennzahlen der Website aus Racespot Analytics
 
-Stand 2026-09-23. Die Website (`src/lib/stats.ts`, `analyticsFigures()`) ist
-fertig und wartet auf einen Endpunkt im Analytics-Tool
-(`~/Racespot Analytics`, `RMH-Digital/racespot-analytics`). Solange
-`ANALYTICS_STATS_URL` in Coolify nicht gesetzt ist, läuft alles wie vorher.
+**Live seit 2026-09-24.** Endpunkt im Analytics-Tool
+(`~/Racespot Analytics`, `apps/web/app/api/public/site-stats/route.ts`),
+`ANALYTICS_STATS_URL` in Coolify gesetzt (Build + Laufzeit), Redeploy 10:24 UTC.
+Erste Anzeige: 71.700+ angesehene Stunden, 57.500+ Follower.
+Ohne die Variable liefe alles wie vorher (`src/lib/stats.ts`, `analyticsFigures()`).
+
+**Ein neuer Wert erscheint erst nach dem nächsten Nachtlauf** des Analytics-Tools
+(04:30 UTC). So war `youtube.views` am ersten Abend `null`: Der Code dafür kam
+um 21:02, gesammelt wurde erst am Morgen. Ab dann 6.205.228 — die öffentliche
+Zählung, gegengeprüft mit der Data-API (6.205.355 sechs Stunden später).
+X und TikTok liefert das Archiv noch nicht; dort stehen die Handwerte.
 
 ## Was die Website zeigt und woher es dann kommt
 
