@@ -1,9 +1,8 @@
 # Bewertungen: Racespot Analytics → Website
 
-Stand 2026-09-24. Die Website ist fertig (`src/lib/testimonials.ts`,
-`getVoices()`) und wartet auf den Endpunkt im Analytics-Tool. Bis er antwortet,
-zeigt sie die Handliste in derselben Datei (heute eine Stimme, der Abschnitt
-erscheint ab drei).
+Stand 2026-09-24. Endpunkt live, Website fertig (`src/lib/testimonials.ts`,
+`getVoices()`). Antwortet er nicht, zeigt sie die Handliste in derselben
+Datei. Der Abschnitt erscheint ab drei Stimmen.
 
 ## Aufteilung
 
@@ -46,9 +45,13 @@ GET https://analytics.racespot.tv/api/public/reviews
   „empfohlen", 60–600 Zeichen). So kann sich die Regel ändern, ohne das Tool
   anzufassen.
 - **`author` schon gekürzt**, nie der volle Name, nie ein Foto, nie ein
-  Profil-Link. Ohne erkennbaren Nachnamen nur der Vorname. Ohne Namen „—"
-  ist nicht erlaubt: dann `"author": null` und die Website lässt die
-  Bewertung weg.
+  Profil-Link. Ohne erkennbaren Nachnamen nur der Vorname. Kein Name
+  bekannt: `"author": null` — **die Website zeigt die Bewertung dann ohne
+  Namen** (Rolle, falls redaktionell gesetzt, sonst Monat und Jahr).
+  Geändert 2026-09-24: Facebooks API gibt keiner App die Namen heraus, und
+  Namen für jede neue Bewertung von Hand nachzutragen ist laut Jürgen keine
+  Lösung. Platzhalter- oder erfundene Namen bleiben verboten; einen Namen im
+  Dashboard nachzutragen bleibt möglich, ist aber nicht nötig.
 - **Gelöschte Bewertungen verschwinden** beim nächsten Lauf aus der Antwort.
   Im Archiv bleiben sie mit Löschdatum; öffentlich nicht mehr.
 - **Kein Token**, öffentlich, nur lesend — dieselben Texte stehen öffentlich

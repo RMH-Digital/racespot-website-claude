@@ -18,8 +18,12 @@ import 'server-only'
  *   misleading advertising (§ 5 UWG); the value is that they are someone
  *   else's words.
  * - **Real reviews only.** Nothing invented, nothing written by the team.
- * - **First name and initial, no photo.** The archive shortens the name
- *   before it leaves the tool; full names and pictures stay on the platform.
+ * - **First name and initial, no photo — or no name at all.** The archive
+ *   shortens the name before it leaves the tool. Facebook's API gives no
+ *   names to any app, not even the page owner's (measured 2026-09-24), and
+ *   typing them in by hand for every new review is not a process (Jürgen),
+ *   so a review without a name is shown without one: its role, or the month
+ *   it was written. Never an invented name.
  * - **Only good ones are shown, and the page says it is a selection**
  *   ("Ausgewählte öffentliche Empfehlungen"), so nobody is led to believe
  *   this is every review there is.
@@ -30,8 +34,8 @@ export interface Testimonial {
   id: string
   /** Verbatim text */
   quote: string
-  /** First name and initial, e.g. "Chris L." */
-  name: string
+  /** First name and initial, e.g. "Chris L."; absent when the platform gives none */
+  name?: string
   /** Who they are to us — only set by hand in ROLES, never guessed */
   role?: 'viewer' | 'organiser' | 'partner' | 'driver'
   /** Language the quote is written in, when known */
@@ -83,7 +87,7 @@ interface ArchiveReview {
   rating: number | null
   recommended: boolean | null
   text: string
-  author: string
+  author: string | null
   date: string
   lang: string | null
 }
@@ -105,7 +109,7 @@ async function archiveReviews(): Promise<ArchiveReview[] | null> {
     const out: ArchiveReview[] = []
     for (const r of body.reviews) {
       const id = str(r?.id), platform = str(r?.platform), text = str(r?.text), author = str(r?.author), date = str(r?.date)
-      if (!id || !platform || !text || !author || !date) continue
+      if (!id || !platform || !text || !date) continue
       out.push({
         id: `${platform}:${id}`,
         platform,
@@ -185,7 +189,7 @@ export async function getVoices(): Promise<Testimonial[]> {
   return picked.map(({ r }) => ({
     id: r.id,
     quote: r.text,
-    name: r.author,
+    name: r.author ?? undefined,
     role: ROLES[r.id],
     lang: r.lang ?? undefined,
     date: r.date,
