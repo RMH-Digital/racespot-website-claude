@@ -18,12 +18,11 @@ import 'server-only'
  *   misleading advertising (§ 5 UWG); the value is that they are someone
  *   else's words.
  * - **Real reviews only.** Nothing invented, nothing written by the team.
- * - **First name and initial, no photo — or no name at all.** The archive
- *   shortens the name before it leaves the tool. Facebook's API gives no
- *   names to any app, not even the page owner's (measured 2026-09-24), and
- *   typing them in by hand for every new review is not a process (Jürgen),
- *   so a review without a name is shown without one: its role, or the month
- *   it was written. Never an invented name.
+ * - **A name on every quote, no date, no photo** (Jürgen, 2026-09-24,
+ *   after a day of showing the month instead). First name and initial, as
+ *   the archive shortens it before it leaves the tool. Facebook's API gives
+ *   no names to any app, so they are added once in the Analytics dashboard;
+ *   a review still without one is not shown. Never an invented name.
  * - **Only good ones are shown, and the page says it is a selection**
  *   ("Ausgewählte öffentliche Empfehlungen"), so nobody is led to believe
  *   this is every review there is.
@@ -34,8 +33,8 @@ export interface Testimonial {
   id: string
   /** Verbatim text */
   quote: string
-  /** First name and initial, e.g. "Chris L."; absent when the platform gives none */
-  name?: string
+  /** First name and initial, e.g. "Chris L." */
+  name: string
   /** Who they are to us — only set by hand in ROLES, never guessed */
   role?: 'viewer' | 'organiser' | 'partner' | 'driver'
   /** Language the quote is written in, when known */
@@ -157,7 +156,7 @@ export async function getVoices(): Promise<Testimonial[]> {
 
   const now = Date.now()
   const candidates = archive
-    .filter((r) => !EXCLUDE.has(r.id) && isPositive(r) && r.text.length >= MIN_CHARS && r.text.length <= MAX_CHARS)
+    .filter((r) => r.author !== null && !EXCLUDE.has(r.id) && isPositive(r) && r.text.length >= MIN_CHARS && r.text.length <= MAX_CHARS)
     .map((r) => {
       const ageYears = Math.max(0, (now - Date.parse(r.date)) / (365 * 86_400_000))
       const score = Math.min(r.text.length, 400) / 400 + Math.max(0, 1 - ageYears / 6)
@@ -189,7 +188,7 @@ export async function getVoices(): Promise<Testimonial[]> {
   return picked.map(({ r }) => ({
     id: r.id,
     quote: r.text,
-    name: r.author ?? undefined,
+    name: r.author!,
     role: ROLES[r.id],
     lang: r.lang ?? undefined,
     date: r.date,

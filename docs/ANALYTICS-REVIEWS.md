@@ -46,12 +46,11 @@ GET https://analytics.racespot.tv/api/public/reviews
   anzufassen.
 - **`author` schon gekürzt**, nie der volle Name, nie ein Foto, nie ein
   Profil-Link. Ohne erkennbaren Nachnamen nur der Vorname. Kein Name
-  bekannt: `"author": null` — **die Website zeigt die Bewertung dann ohne
-  Namen** (Rolle, falls redaktionell gesetzt, sonst Monat und Jahr).
-  Geändert 2026-09-24: Facebooks API gibt keiner App die Namen heraus, und
-  Namen für jede neue Bewertung von Hand nachzutragen ist laut Jürgen keine
-  Lösung. Platzhalter- oder erfundene Namen bleiben verboten; einen Namen im
-  Dashboard nachzutragen bleibt möglich, ist aber nicht nötig.
+  bekannt: `"author": null` — die Website zeigt die Bewertung dann **nicht**.
+  Facebooks API gibt keiner App die Namen heraus; sie werden einmal im
+  Analytics-Dashboard ergänzt. Jürgen, 2026-09-24: auf der Website immer mit
+  Namen, ohne Datum (einen Tag lang stand dort der Monat statt des Namens).
+  Platzhalter- oder erfundene Namen bleiben verboten.
 - **Gelöschte Bewertungen verschwinden** beim nächsten Lauf aus der Antwort.
   Im Archiv bleiben sie mit Löschdatum; öffentlich nicht mehr.
 - **Kein Token**, öffentlich, nur lesend — dieselben Texte stehen öffentlich

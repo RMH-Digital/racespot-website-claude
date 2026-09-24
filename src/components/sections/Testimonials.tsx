@@ -1,4 +1,4 @@
-import { getT, LOCALES, type Lang } from '@/lib/i18n'
+import { getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 import { MIN_SHOWN, getVoices } from '@/lib/testimonials'
 
@@ -40,19 +40,8 @@ export async function Testimonials({ lang }: { lang: Lang }) {
                 <p>{v.quote}</p>
               </blockquote>
               <figcaption className="mt-6 border-t border-rs-border pt-4 text-sm">
-                {/* Name when the platform gave one; otherwise who they are to
-                    us, or when they wrote it — never an invented name. */}
-                {v.name ? (
-                  <>
-                    <span className="font-semibold text-white">{v.name}</span>
-                    {v.role && <span className="text-rs-muted"> · {t(ROLE_KEY[v.role])}</span>}
-                  </>
-                ) : (
-                  <span className="text-rs-muted">
-                    {v.role ? `${t(ROLE_KEY[v.role])} · ` : ''}
-                    {new Date(`${v.date}T12:00:00Z`).toLocaleDateString(LOCALES[lang], { month: 'long', year: 'numeric', timeZone: 'UTC' })}
-                  </span>
-                )}
+                <span className="font-semibold text-white">{v.name}</span>
+                {v.role && <span className="text-rs-muted"> · {t(ROLE_KEY[v.role])}</span>}
               </figcaption>
             </figure>
           ))}
