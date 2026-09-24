@@ -21,3 +21,13 @@ export function ExpandIcon({ size = 16 }: { size?: number }) {
     </svg>
   )
 }
+
+/** Out of the browser: a window with an arrow leaving it */
+export function PopOutIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M13.5 9v3.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1H7" />
+      <path d="M10 2.5h3.5V6M13.5 2.5 8 8" />
+    </svg>
+  )
+}

@@ -448,6 +448,8 @@ export const translations = {
   'live.playStream': { en: 'Watch live', de: 'Live ansehen', es: 'Ver en directo', pt: 'Assistir ao vivo', fr: 'Regarder en direct', it: 'Guarda in diretta' },
   'video.minimize': { en: 'Minimise player', de: 'Player verkleinern', es: 'Minimizar reproductor', pt: 'Minimizar o player', fr: 'Réduire le lecteur', it: 'Riduci il lettore' },
   'video.expand': { en: 'Expand player', de: 'Player vergrößern', es: 'Ampliar reproductor', pt: 'Ampliar o player', fr: 'Agrandir le lecteur', it: 'Ingrandisci il lettore' },
+  'video.popOut': { en: 'Own window', de: 'Eigenes Fenster', es: 'Ventana propia', pt: 'Janela própria', fr: 'Fenêtre séparée', it: 'Finestra separata' },
+  'video.popOutHint': { en: 'Keeps playing in a small window above all other apps', de: 'Läuft in einem kleinen Fenster über allen anderen Programmen weiter', es: 'Sigue en una ventana pequeña sobre todas las aplicaciones', pt: 'Continua numa pequena janela acima de todos os apps', fr: 'Continue dans une petite fenêtre au-dessus des autres applications', it: 'Continua in una piccola finestra sopra tutte le app' },
   'video.close': { en: 'Close player', de: 'Player schließen', es: 'Cerrar reproductor', pt: 'Fechar o leitor', fr: 'Fermer le lecteur', it: 'Chiudi il lettore' },
   'video.playlist': { en: 'Playlist', de: 'Playlist', es: 'Lista de reproducción', pt: 'Playlist', fr: 'Playlist', it: 'Playlist' },
   'video.play': { en: 'Play', de: 'Abspielen', es: 'Reproducir', pt: 'Reproduzir', fr: 'Lire', it: 'Riproduci' },

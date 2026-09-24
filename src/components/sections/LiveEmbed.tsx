@@ -11,7 +11,7 @@ import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { useLiveDock, useLivePlayer } from '@/components/video/LivePlayerProvider'
 import { UpcomingRow } from '@/components/sections/calendar/UpcomingRow'
-import { ExpandIcon } from '@/components/video/PlayerIcons'
+import { ExpandIcon, MinimizeIcon, PopOutIcon } from '@/components/video/PlayerIcons'
 import type { CalendarEvent } from '@/lib/sheets'
 
 
@@ -29,7 +29,7 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   // Stream updates come from LiveStatusProvider, which already polls
   // /api/live-streams every 60 s for the header and ticker — no second poll here.
   const { liveStreams: polled, loaded } = useLiveStatus()
-  const { playing, start, minimized, expand } = useLivePlayer()
+  const { playing, start, minimized, expand, minimize, canFloat, popOut, canPopOut } = useLivePlayer()
   const slot = useRef<HTMLDivElement>(null)
   useLiveDock(slot)
 
@@ -183,9 +183,41 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
             {/* Stream info — the viewer count is in the badge row above */}
             <div className="mt-5">
-              <h2 className="text-lg md:text-2xl font-bold text-white mb-2">
-                {activeStream.title}
-              </h2>
+              <div className="mb-2 flex flex-col gap-3">
+                <h2 className="text-lg md:text-2xl font-bold text-white">
+                  {activeStream.title}
+                </h2>
+                {/* Under the player, not over it: YouTube's own controls
+                    (settings, captions) sit in the picture's top corners. */}
+                {isPlayingHere && !minimized && (canFloat || canPopOut) && (
+                  <div className="flex flex-wrap gap-2">
+                {canPopOut && (
+                  <button
+                    type="button"
+                    onClick={popOut}
+                    data-track="live-popout"
+                    title={t('video.popOutHint')}
+                    className="shrink-0 flex items-center gap-2 rounded-rs border border-rs-border px-3 py-2 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
+                  >
+                    <PopOutIcon size={14} />
+                    {t('video.popOut')}
+                  </button>
+                )}
+                {canFloat && (
+                  <button
+                    type="button"
+                    onClick={minimize}
+                    data-track="live-minimize"
+                    title={t('video.minimize')}
+                    className="shrink-0 flex items-center gap-2 rounded-rs border border-rs-border px-3 py-2 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
+                  >
+                    <MinimizeIcon size={14} />
+                    {t('video.minimize')}
+                  </button>
+                )}
+                  </div>
+                )}
+              </div>
               {intro && (
                 <p className="text-rs-muted text-sm max-w-2xl line-clamp-3">{intro}</p>
               )}

@@ -1,11 +1,12 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { getT, type Lang } from '@/lib/i18n'
 import { FollowUs } from '@/components/ui/FollowUs'
 import { useMediaQuery } from '@/lib/hooks/useLocalTime'
-import { ExpandIcon, MinimizeIcon } from './PlayerIcons'
+import { ExpandIcon, MinimizeIcon, PopOutIcon } from './PlayerIcons'
+import { openPip, pipSupported } from './pip'
 
 /**
  * One player for the whole site.
@@ -43,19 +44,28 @@ export function youtubeWatchUrl(m: PlayerMedia): string {
   return m.kind === 'playlist' ? `https://www.youtube.com/playlist?list=${m.id}` : `https://www.youtube.com/watch?v=${m.id}`
 }
 
-function embedUrl(m: PlayerMedia): string {
-  const base = 'https://www.youtube-nocookie.com/embed/'
-  if (m.kind === 'playlist') return `${base}videoseries?list=${encodeURIComponent(m.id)}&autoplay=1&rel=0`
+const ORIGIN = 'https://www.youtube-nocookie.com'
+
+/**
+ * `enablejsapi` lets the player report where it is (for "own window", which
+ * continues at the same second); `start` is that second when reopening.
+ */
+function embedUrl(m: PlayerMedia, start = 0): string {
+  const base = `${ORIGIN}/embed/`
+  const api = typeof window === 'undefined' ? '' : `&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`
+  const at = start > 0 ? `&start=${Math.floor(start)}` : ''
+  if (m.kind === 'playlist') return `${base}videoseries?list=${encodeURIComponent(m.id)}&autoplay=1&rel=0${api}`
   // A broadcast in several parts: the first one plays, the rest follow in the
   // same frame. `playlist` is YouTube's own parameter for exactly this, so
   // the player's next and previous buttons work without us building anything.
   const rest = m.parts && m.parts.length > 1 ? m.parts.slice(1) : []
   const queue = rest.length ? `&playlist=${rest.map(encodeURIComponent).join(',')}` : ''
-  return `${base}${encodeURIComponent(m.id)}?autoplay=1&rel=0${queue}`
+  return `${base}${encodeURIComponent(m.id)}?autoplay=1&rel=0${queue}${api}${at}`
 }
 
 /** Same rule as the live player: a hovering pointer and room for a corner window */
 const DESKTOP_QUERY = '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
+const noop = () => () => {}
 
 export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
   const [media, setMedia] = useState<PlayerMedia | null>(null)
@@ -66,6 +76,29 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
   const mini = miniRequested && isDesktop
   const opener = useRef<HTMLElement | null>(null)
   const closeBtn = useRef<HTMLButtonElement>(null)
+  const frame = useRef<HTMLIFrameElement>(null)
+  /** Seconds into the video, as the player last reported */
+  const position = useRef(0)
+  const canPopOut = useSyncExternalStore(noop, pipSupported, () => false) && isDesktop
+
+  // The player's reports, for the position.
+  useEffect(() => {
+    if (!media) return
+    position.current = 0
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== ORIGIN || e.source !== frame.current?.contentWindow) return
+      try {
+        const t = JSON.parse(e.data)?.info?.currentTime
+        if (typeof t === 'number') position.current = t
+      } catch { /* not ours */ }
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [media])
+
+  const onFrameLoad = useCallback(() => {
+    frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'rs-video', channel: 'widget' }), ORIGIN)
+  }, [])
 
   const play = useCallback((m: PlayerMedia) => {
     opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -105,6 +138,13 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
     }
   }, [media, mini, close])
 
+  // Into its own always-on-top window, at the same second; the page's player
+  // closes (one video at a time).
+  const popOut = useCallback(() => {
+    if (!media) return
+    void openPip(embedUrl(media, position.current), media.title).then((ok) => { if (ok) close() })
+  }, [media, close])
+
   const t = getT(lang)
   const iconBtn = mini
     ? 'flex h-7 w-7 shrink-0 items-center justify-center rounded-rs text-rs-muted transition-colors hover:bg-rs-gray hover:text-white'
@@ -136,6 +176,18 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
                   )}
                   <h2 className={mini ? 'truncate text-xs font-medium text-white' : 'truncate text-base font-semibold text-white md:text-lg'}>{media.title}</h2>
                 </div>
+                {canPopOut && (
+                  <button
+                    type="button"
+                    onClick={popOut}
+                    data-track="video-popout"
+                    aria-label={t('video.popOut')}
+                    title={t('video.popOutHint')}
+                    className={iconBtn}
+                  >
+                    <PopOutIcon size={mini ? 12 : 16} />
+                  </button>
+                )}
                 {isDesktop && (
                   <button
                     type="button"
@@ -164,8 +216,10 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
 
               <div className={mini ? 'relative aspect-video bg-rs-dark' : 'relative aspect-video overflow-hidden rounded-rs border border-rs-border bg-rs-dark'}>
                 <iframe
+                  ref={frame}
                   key={media.id}
                   src={embedUrl(media)}
+                  onLoad={onFrameLoad}
                   title={media.title}
                   className="absolute inset-0 h-full w-full"
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"

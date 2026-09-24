@@ -1,13 +1,14 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useMediaQuery } from '@/lib/hooks/useLocalTime'
-import { ExpandIcon, MinimizeIcon } from './PlayerIcons'
+import { ExpandIcon, PopOutIcon } from './PlayerIcons'
+import { openPip, pipSupported } from './pip'
 
 /**
  * The live stream's player, owned by the layout rather than the live page.
@@ -26,8 +27,9 @@ import { ExpandIcon, MinimizeIcon } from './PlayerIcons'
  *   or go to another page of the site, and it carries on in a small window
  *   in the bottom-right corner, with its sound. One click brings the viewer
  *   back to the live page, one closes it.
- * - **Minimise and expand by hand** (2026-09-24): a button on the player
- *   sends it to the corner on the live page too, the corner window's expand
+ * - **Minimise and expand by hand** (2026-09-24): a button under the player
+ *   (never over it — YouTube keeps its settings gear top right, and the first
+ *   version covered it during a live broadcast) sends it to the corner, the corner window's expand
  *   button — or the empty slot — brings it back. Same icons as the
  *   recordings player (PlayerIcons.tsx). One video at a time: opening a
  *   recording stops the stream, starting the stream closes the recording.
@@ -57,9 +59,18 @@ interface LivePlayerApi {
   minimized: boolean
   /** Back from the corner onto the live page's slot */
   expand: () => void
+  /** To the corner, from the live page (desktop only) */
+  minimize: () => void
+  /** Whether this screen gets the corner window at all */
+  canFloat: boolean
+  /** Out of the browser into an always-on-top window (Chrome/Edge, see pip.ts) */
+  popOut: () => void
+  canPopOut: boolean
 }
 
 const LivePlayerContext = createContext<LivePlayerApi | null>(null)
+
+const noop = () => () => {}
 
 export function useLivePlayer() {
   const ctx = useContext(LivePlayerContext)
@@ -85,6 +96,7 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   const t = getT(lang)
   const pathname = usePathname()
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
+  const canPopOut = useSyncExternalStore(noop, pipSupported, () => false) && isDesktop
   const { liveStreams, loaded } = useLiveStatus()
 
   const [playing, setPlaying] = useState<LiveMedia | null>(null)
@@ -219,6 +231,15 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
     }, 2500)
   }, [command])
 
+  // Into its own window: the page's player stops (one video at a time), the
+  // window gets a fresh one at the live edge. Back on the live page the slot
+  // offers the play button again.
+  const popOut = useCallback(() => {
+    if (!playing) return
+    const url = `${ORIGIN}/embed/${encodeURIComponent(playing.id)}?autoplay=1&playsinline=1&rel=0`
+    void openPip(url, playing.title).then((ok) => { if (ok) setPlaying(null) })
+  }, [playing])
+
   const unmute = useCallback(() => {
     command('unMute')
     command('playVideo')
@@ -226,7 +247,7 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
   }, [command])
 
   return (
-    <LivePlayerContext.Provider value={{ playing, start, stop, registerDock, minimized: minimized && isDesktop, expand: () => setMinimized(false) }}>
+    <LivePlayerContext.Provider value={{ playing, start, stop, registerDock, minimized: minimized && isDesktop, expand: () => setMinimized(false), minimize: () => setMinimized(true), canFloat: isDesktop, popOut, canPopOut }}>
       {children}
       {playing && (docked || floating) &&
         createPortal(
@@ -267,6 +288,18 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                     <ExpandIcon size={12} />
                   </Link>
                 )}
+                {canPopOut && (
+                  <button
+                    type="button"
+                    onClick={popOut}
+                    data-track="live-popout"
+                    aria-label={t('video.popOut')}
+                    title={t('video.popOutHint')}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-rs text-rs-muted hover:bg-rs-gray hover:text-white"
+                  >
+                    <PopOutIcon size={12} />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={stop}
@@ -292,18 +325,6 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
               />
-              {!floating && isDesktop && (
-                <button
-                  type="button"
-                  onClick={() => setMinimized(true)}
-                  data-track="live-minimize"
-                  aria-label={t('video.minimize')}
-                  title={t('video.minimize')}
-                  className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-rs bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
-                >
-                  <MinimizeIcon size={16} />
-                </button>
-              )}
               {muted && (
                 <button
                   type="button"
