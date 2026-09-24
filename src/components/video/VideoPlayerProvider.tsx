@@ -16,7 +16,8 @@ import { openPip, pipSupported } from './pip'
  * broadcast. The frame comes from youtube-nocookie.com, the mode the privacy
  * policy describes for embedded video: no cookies until playback starts.
  *
- * Escape and the backdrop close it, focus goes to the close button and comes
+ * Escape closes it; a click on the backdrop sends it to the corner on a
+ * desktop and closes it on a phone. Focus goes to the close button and comes
  * back to whatever opened the player, and the page behind stops scrolling.
  *
  * **Minimise** (Jürgen, 2026-09-24, desktop only like the live player): the
@@ -64,7 +65,7 @@ function embedUrl(m: PlayerMedia, start = 0): string {
 }
 
 /** Same rule as the live player: a hovering pointer and room for a corner window */
-const DESKTOP_QUERY = '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
+const DESKTOP_QUERY = '(min-width: 768px) and (hover: hover) and (pointer: fine)'
 const noop = () => () => {}
 
 export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
@@ -159,8 +160,13 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
             className={mini
               ? 'fixed bottom-4 right-4 z-[85] w-[360px]'
               : 'fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-3 sm:p-6 md:p-10'}
+            // A click beside the video sends it to the corner rather than
+            // ending it (Jürgen, 2026-09-24) — where there is a corner; on a
+            // phone it closes, as before.
             onMouseDown={(e) => {
-              if (!mini && e.target === e.currentTarget) close()
+              if (mini || e.target !== e.currentTarget) return
+              if (isDesktop) setMini(true)
+              else close()
             }}
           >
             <div

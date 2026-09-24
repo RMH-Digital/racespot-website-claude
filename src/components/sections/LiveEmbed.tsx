@@ -92,6 +92,37 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
             the player sat a full screen below it. On a phone they stack. */}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0">
+            {/* Above the picture, right-aligned — the same place as in the
+                recordings player, and never over the video, where YouTube
+                keeps its own settings gear. */}
+            {isPlayingHere && !minimized && (canFloat || canPopOut) && (
+              <div className="mb-3 flex justify-end gap-2">
+                {canPopOut && (
+                  <button
+                    type="button"
+                    onClick={popOut}
+                    data-track="live-popout"
+                    aria-label={t('video.popOut')}
+                    title={t('video.popOutHint')}
+                    className="flex h-11 w-11 items-center justify-center rounded-rs border border-rs-border text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
+                  >
+                    <PopOutIcon size={16} />
+                  </button>
+                )}
+                {canFloat && (
+                  <button
+                    type="button"
+                    onClick={minimize}
+                    data-track="live-minimize"
+                    aria-label={t('video.minimize')}
+                    title={t('video.minimize')}
+                    className="flex h-11 w-11 items-center justify-center rounded-rs border border-rs-border text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
+                  >
+                    <MinimizeIcon size={16} />
+                  </button>
+                )}
+              </div>
+            )}
             {/* Stream tabs — shown directly above video for 2+ streams */}
             {liveStreams.length > 1 && (
               <div className="flex gap-0 border-b border-rs-border mb-0 overflow-x-auto scrollbar-hide">
@@ -183,40 +214,10 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
             {/* Stream info — the viewer count is in the badge row above */}
             <div className="mt-5">
-              <div className="mb-2 flex flex-col gap-3">
+              <div className="mb-2">
                 <h2 className="text-lg md:text-2xl font-bold text-white">
                   {activeStream.title}
                 </h2>
-                {/* Under the player, not over it: YouTube's own controls
-                    (settings, captions) sit in the picture's top corners. */}
-                {isPlayingHere && !minimized && (canFloat || canPopOut) && (
-                  <div className="flex flex-wrap gap-2">
-                {canPopOut && (
-                  <button
-                    type="button"
-                    onClick={popOut}
-                    data-track="live-popout"
-                    title={t('video.popOutHint')}
-                    className="shrink-0 flex items-center gap-2 rounded-rs border border-rs-border px-3 py-2 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
-                  >
-                    <PopOutIcon size={14} />
-                    {t('video.popOut')}
-                  </button>
-                )}
-                {canFloat && (
-                  <button
-                    type="button"
-                    onClick={minimize}
-                    data-track="live-minimize"
-                    title={t('video.minimize')}
-                    className="shrink-0 flex items-center gap-2 rounded-rs border border-rs-border px-3 py-2 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted transition-colors hover:border-rs-yellow hover:text-rs-yellow"
-                  >
-                    <MinimizeIcon size={14} />
-                    {t('video.minimize')}
-                  </button>
-                )}
-                  </div>
-                )}
               </div>
               {intro && (
                 <p className="text-rs-muted text-sm max-w-2xl line-clamp-3">{intro}</p>

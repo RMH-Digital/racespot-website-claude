@@ -90,7 +90,7 @@ export function useLiveDock(ref: RefObject<HTMLElement | null>) {
 
 const ORIGIN = 'https://www.youtube-nocookie.com'
 /** A pointer that hovers and a screen wide enough to spare the corner */
-const DESKTOP_QUERY = '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
+const DESKTOP_QUERY = '(min-width: 768px) and (hover: hover) and (pointer: fine)'
 
 export function LivePlayerProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
   const t = getT(lang)
