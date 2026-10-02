@@ -239,6 +239,17 @@ racespot.tv, and with Do Not Track / Global Privacy Control.
 It is named in `legal/privacy.ts` section 5 (en + de). Changing what it
 records means changing that text in the same commit.
 
+## Feedback button (team only)
+
+`src/components/seo/FeedbackLoader.tsx` loads the Racespot feedback widget
+from analytics.racespot.tv — but only after someone opens a page with
+`#feedback`, and from then on only on that device (`localStorage.rsfb`).
+Visitors load and store nothing (measured 2026-10-01). Privacy policy section 4
+names it; change both together. Wishes for this site come back as a branch
+`feedback/<nr>-…` that Racespot Analytics' Mac runner builds and checks with
+`npm ci && npm run build`, and it ships to `origin/main` only after an approver's
+second click — never to `production`. Details: `~/Racespot Analytics/docs/FEEDBACK.md`.
+
 ## Deployment
 
 Hosting ist **Coolify** auf Philips Hetzner-Server (`178.104.72.17`), App-UUID

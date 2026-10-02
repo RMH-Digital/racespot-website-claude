@@ -28,13 +28,17 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  *   - First-party `racespot-lang` cookie, one year, functional only
  *   - Fonts are self-hosted by next/font; no request reaches Google
  *   - Footer social icons are plain links, no embeds, no pixels
+ *   - Feedback button for the Racespot team (components/seo/FeedbackLoader.tsx):
+ *     visitors load nothing; only after someone opens a page with #feedback is
+ *     the script fetched from analytics.racespot.tv and `rsfb` kept in
+ *     localStorage on that device (added 2026-10-01)
  *
  * KEEP THIS IN SYNC WITH THE CODE. Adding any third-party script, embed or
  * tracker means editing this file in the same commit.
  */
 
 const en: LegalDoc = {
-  updated: 'Last updated: September 24, 2026',
+  updated: 'Last updated: October 1, 2026',
   sections: [
     {
       heading: '1. Data Controller',
@@ -61,12 +65,13 @@ const en: LegalDoc = {
     {
       heading: '4. Cookies and Local Storage',
       body: [
-        p('This website sets **no advertising or tracking cookies**, which is why you are not asked for cookie consent. Only two entries can appear on your device:'),
+        p('This website sets **no advertising or tracking cookies**, which is why you are not asked for cookie consent. Only these entries can appear on your device:'),
         ul(
           '**`racespot-lang`** — remembers the language you selected, for one year. Set by us, read only by us. Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in showing you the site in your language). It is only written when you switch language within the site.',
           '**Cloudflare Turnstile** — sets a short-lived entry while the contact form checks that you are not a bot (see section 6).',
+          '**`rsfb`** (local storage) — only on devices of the Racespot team that have deliberately switched on our internal feedback tool. It keeps the feedback button visible and contains nothing but the value 1. Visitors never get this entry, and for them the tool loads nothing.',
         ),
-        p('You can delete both at any time in your browser settings; the site remains fully usable.'),
+        p('You can delete all of them at any time in your browser settings; the site remains fully usable.'),
       ],
     },
     {
@@ -178,7 +183,7 @@ const en: LegalDoc = {
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 24. September 2026',
+  updated: 'Stand: 1. Oktober 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
@@ -205,12 +210,13 @@ const de: LegalDoc = {
     {
       heading: '4. Cookies und lokale Speicherung',
       body: [
-        p('Diese Website setzt **keine Werbe- oder Tracking-Cookies**. Deshalb werden Sie auch nicht nach einer Cookie-Einwilligung gefragt. Nur zwei Einträge können auf Ihrem Gerät entstehen:'),
+        p('Diese Website setzt **keine Werbe- oder Tracking-Cookies**. Deshalb werden Sie auch nicht nach einer Cookie-Einwilligung gefragt. Nur diese Einträge können auf Ihrem Gerät entstehen:'),
         ul(
           '**`racespot-lang`** — merkt sich die von Ihnen gewählte Sprache, ein Jahr lang. Von uns gesetzt, nur von uns gelesen. Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, Ihnen die Seite in Ihrer Sprache zu zeigen). Der Eintrag entsteht nur, wenn Sie innerhalb der Seite die Sprache wechseln.',
           '**Cloudflare Turnstile** — legt beim Absenden des Kontaktformulars kurzzeitig einen Eintrag an, um zu prüfen, dass Sie kein Bot sind (siehe Abschnitt 6).',
+          '**`rsfb`** (lokaler Speicher) — nur auf Geräten des Racespot-Teams, die unser internes Feedback-Werkzeug bewusst eingeschaltet haben. Der Eintrag hält den Feedback-Knopf sichtbar und enthält nur den Wert 1. Besucherinnen und Besucher erhalten ihn nie, und für sie lädt das Werkzeug nichts.',
         ),
-        p('Beides können Sie jederzeit in den Browsereinstellungen löschen; die Seite bleibt vollständig nutzbar.'),
+        p('Alle Einträge können Sie jederzeit in den Browsereinstellungen löschen; die Seite bleibt vollständig nutzbar.'),
       ],
     },
     {
