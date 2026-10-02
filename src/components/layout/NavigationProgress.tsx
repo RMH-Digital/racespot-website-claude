@@ -252,7 +252,12 @@ export function NavigationProgress({ lang }: { lang: Lang }) {
     // scroll-locked page that never clears. This ends it either way.
     timers.current.push(setTimeout(leave, INTRO_MS + 200))
 
-    return clearTimers
+    // Unmounted mid-intro: take the curtain down, not just its timers. In
+    // development React mounts every effect twice; the second run finds the
+    // session key already set and returns early, so stopping only the timers
+    // left an invisible, full-screen curtain that swallowed every click
+    // (found 2026-10-02 while testing the footer's hidden door).
+    return reset
     // Mount only: this is the first paint of the session or it is nothing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

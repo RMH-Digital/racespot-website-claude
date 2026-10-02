@@ -39,6 +39,8 @@ export function proxy(request: NextRequest) {
 
   // Files that exist at the root and have no language variant.
   if (pathname === '/sitemap.xml' || pathname === '/robots.txt') return NextResponse.next()
+  // Hidden door to the team's feedback tool (app/intern/route.ts) — no language prefix.
+  if (pathname === '/intern') return NextResponse.next()
 
   const { lang } = splitPath(pathname)
 

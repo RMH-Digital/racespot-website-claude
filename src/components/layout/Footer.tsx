@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { SOCIAL } from '@/lib/socials'
 import Link from 'next/link'
+import { SecretDoor } from '@/components/seo/SecretDoor'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
 
@@ -100,7 +101,7 @@ export function Footer({ lang }: { lang: Lang }) {
         {/* Bottom bar */}
         <div className="border-t border-rs-border mt-8 pt-8 flex flex-col sm:flex-row justify-between gap-4">
           <p className="text-[13px] text-rs-muted">
-            © {new Date().getFullYear()} Racespot Media House GmbH · {t('footer.location')}
+            <SecretDoor>© {new Date().getFullYear()} Racespot Media House GmbH</SecretDoor> · {t('footer.location')}
           </p>
           {/* flex-wrap: in German the three links are wider than a phone */}
           <p className="text-[13px] text-rs-muted flex flex-wrap gap-x-4 gap-y-1">

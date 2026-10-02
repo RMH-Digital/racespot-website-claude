@@ -8,40 +8,34 @@ import { useEffect } from 'react'
  * write what should change; Claude plans it, an approver decides, a second
  * click ships it.
  *
- * Hidden on purpose. Visitors load nothing and store nothing: the widget
- * script is only fetched once someone opens a page with #feedback, and from
- * then on only on that device (localStorage `rsfb=1`, removed again with the
- * button's "Aus"). The privacy policy names it (legal/privacy.ts, section 4).
- * The widget sends nothing itself — it opens a window on analytics.racespot.tv,
- * where the team member is signed in, and hands the marked spot over.
+ * Hidden on purpose. Visitors load nothing and store nothing. The widget is
+ * only fetched when this device holds an unlock proof, and that exists only
+ * after a team member signed in on analytics.racespot.tv via the hidden door
+ * (/intern, or a right-click / five taps on the copyright line in the
+ * footer — SecretDoor). The hub sends the proof back as #rsfb=…; the widget keeps it
+ * in localStorage (`rsfb`), checks it with the hub and drops it when it is
+ * invalid or expired (30 days). Privacy policy section 4 names it.
  */
-const WIDGET = process.env.NEXT_PUBLIC_FEEDBACK_WIDGET || 'https://analytics.racespot.tv/feedback/widget.js'
+export const FEEDBACK_HUB = process.env.NEXT_PUBLIC_FEEDBACK_HUB || 'https://analytics.racespot.tv'
+const PROOF = /^[A-Za-z0-9_-]{10,600}\.[A-Za-z0-9_-]{43}$/
 
 function unlocked(): boolean {
-  if (location.hash === '#feedback') return true
+  if (location.hash.startsWith('#rsfb=')) return true
   try {
-    return localStorage.getItem('rsfb') === '1'
+    return PROOF.test(localStorage.getItem('rsfb') ?? '')
   } catch {
     return false
   }
 }
 
-function load() {
-  if (document.querySelector('script[data-rsfb-loader]')) return
-  const s = document.createElement('script')
-  s.src = WIDGET
-  s.defer = true
-  s.dataset.project = 'website'
-  s.dataset.rsfbLoader = ''
-  document.body.appendChild(s)
-}
-
 export function FeedbackLoader() {
   useEffect(() => {
-    if (unlocked()) load()
-    const onHash = () => location.hash === '#feedback' && load()
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
+    if (!unlocked() || document.querySelector('script[data-rsfb-loader]')) return
+    const s = document.createElement('script')
+    s.src = `${FEEDBACK_HUB}/feedback/widget.js`
+    s.dataset.project = 'website'
+    s.dataset.rsfbLoader = ''
+    document.body.appendChild(s)
   }, [])
   return null
 }

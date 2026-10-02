@@ -242,12 +242,15 @@ records means changing that text in the same commit.
 ## Feedback button (team only)
 
 `src/components/seo/FeedbackLoader.tsx` loads the Racespot feedback widget
-from analytics.racespot.tv — but only after someone opens a page with
-`#feedback`, and from then on only on that device (`localStorage.rsfb`).
-Visitors load and store nothing (measured 2026-10-01). Privacy policy section 4
-names it; change both together. Wishes for this site come back as a branch
+from analytics.racespot.tv only when this device holds an unlock proof
+(`localStorage.rsfb`). That proof exists only after a team member signed in on
+the hub through the hidden door: `/intern` (app/intern/route.ts — not in the
+sitemap, noindex, deliberately not in robots.txt) a right-click on the copyright
+line in the footer, or five quick taps on it (`SecretDoor`). Visitors load and store nothing.
+No password is ever typed on this site. Privacy policy section 4 names it;
+change both together. Wishes for this site come back as a branch
 `feedback/<nr>-…` that Racespot Analytics' Mac runner builds and checks with
-`npm ci && npm run build`, and it ships to `origin/main` only after an approver's
+`npm ci && npm run build`; it ships to `origin/main` only after an approver's
 second click — never to `production`. Details: `~/Racespot Analytics/docs/FEEDBACK.md`.
 
 ## Deployment
