@@ -158,7 +158,7 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
         createPortal(
           <div
             className={mini
-              ? 'fixed bottom-4 right-4 z-[85] w-[360px]'
+              ? 'rs-corner fixed bottom-4 right-4 z-[85] w-[360px]'
               : 'fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-3 sm:p-6 md:p-10'}
             // A click beside the video sends it to the corner rather than
             // ending it (Jürgen, 2026-09-24) — where there is a corner; on a

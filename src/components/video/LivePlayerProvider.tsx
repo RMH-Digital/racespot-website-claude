@@ -255,7 +255,7 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
             role="region"
             aria-label={playing.title}
             className={floating
-              ? 'fixed bottom-4 right-4 z-[80] w-[360px] overflow-hidden rounded-rs border border-rs-border bg-rs-dark shadow-2xl'
+              ? 'rs-corner fixed bottom-4 right-4 z-[80] w-[360px] overflow-hidden rounded-rs border border-rs-border bg-rs-dark shadow-2xl'
               : 'absolute z-[30] overflow-hidden rounded-rs'}
             style={floating || !rect ? undefined : { top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
           >

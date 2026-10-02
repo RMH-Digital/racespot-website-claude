@@ -420,3 +420,13 @@
   .container-rs { max-width: 1920px; }
   .container-rs-wide { max-width: 2200px; }
 }
+
+/* The team's feedback button (components/seo/FeedbackLoader.tsx) sits fixed
+   in the bottom-right corner, 16px from the edges, above everything — exactly
+   where the corner players are. On a device that has it, the players move up
+   over it instead of hiding YouTube's own controls under it. The widget's
+   host is `<div data-rsfb>` straight in <body>; the button is ~36px tall.
+   Unlayered, so it beats the bottom-4 utility. */
+body:has(> [data-rsfb]) .rs-corner {
+  bottom: 4rem;
+}
