@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Oswald } from 'next/font/google'
+import { preload } from 'react-dom'
 import { notFound } from 'next/navigation'
 import '../globals.css'
 import { Header } from '@/components/layout/Header'
@@ -102,15 +103,18 @@ export default async function RootLayout({
   const { lang } = await params
   if (!isLang(lang)) notFound()
 
+  // The two Eurostile cuts every headline uses (700 bold, 800 for
+  // font-black). Without a preload the browser finds them only after the
+  // stylesheet, paints the headlines in the narrow Oswald fallback and
+  // rewraps them when Eurostile arrives. ~16 KB each. preload(), not a
+  // <link> in <head>: React hoists one itself, and both ended up in the page.
+  for (const href of ['/fonts/eurostile-2-extended-bold.woff2', '/fonts/eurostile-becker-bold.woff2']) {
+    preload(href, { as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' })
+  }
+
   return (
     <html lang={lang} className={`${inter.variable} ${oswald.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        {/* The two Eurostile cuts every headline uses (700 bold, 800 for
-            font-black). Without a preload the browser finds them only after
-            the stylesheet, paints the headlines in the narrow Oswald fallback
-            and rewraps them when Eurostile arrives. ~16 KB each. */}
-        <link rel="preload" href="/fonts/eurostile-2-extended-bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/eurostile-becker-bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://i.ytimg.com" />
         <link rel="preconnect" href="https://img.youtube.com" />
         <link rel="dns-prefetch" href="https://i.ytimg.com" />
