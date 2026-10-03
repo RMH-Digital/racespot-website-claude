@@ -8,8 +8,8 @@ import { PACKAGES } from '@/lib/packages'
  * "Advertise with Racespot" on the services page — the way in for brands.
  *
  * Measured figures only, each dropped when its source has nothing (no
- * fallback for the two from Racespot Analytics: an old figure under these
- * labels would be a claim we cannot show). The packages by name and one
+ * fallback for watch time and the live average from Racespot Analytics: an
+ * old figure under these labels would be a claim we cannot show). The packages by name and one
  * line each, every card preselecting itself on the media form. No prices:
  * those are in the media kit, sent on request (Jürgen, 2026-10-03).
  */
@@ -23,11 +23,13 @@ export async function Advertise({ lang }: { lang: Lang }) {
 
   const figures: { value: string; label: string }[] = [
     { value: roundedDown(stats.broadcasts, locale, 10), label: t('ads.stat.streams') },
-    ...(stats.liveWatchShare !== null
-      ? [{ value: `${Math.floor(stats.liveWatchShare * 100).toLocaleString(locale)} %`, label: t('ads.stat.liveShare') }]
+    // Watch time rounds down to thousands; the average is an average, so it
+    // rounds to the nearest minute (654 s → Ø 11), as the media kit does.
+    ...(stats.watchHours !== null
+      ? [{ value: roundedDown(stats.watchHours, locale, 1000), label: t('ads.stat.watchHours') }]
       : []),
-    ...(stats.avgViewMinutes !== null
-      ? [{ value: `Ø ${Math.floor(stats.avgViewMinutes).toLocaleString(locale)}`, label: t('ads.stat.avgView') }]
+    ...(stats.liveAvgViewMinutes !== null
+      ? [{ value: `Ø ${Math.round(stats.liveAvgViewMinutes).toLocaleString(locale)}`, label: t('ads.stat.avgView') }]
       : []),
     { value: roundedDown(stats.youtubeSubscribers, locale, 100), label: t('ads.stat.subscribers') },
   ]

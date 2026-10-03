@@ -53,13 +53,11 @@ export interface SiteStats {
   /** YouTube subscribers alone — shown on the channel tile */
   youtubeSubscribers: number
   /**
-   * Share of YouTube watch time spent on live streams (as they ran or as
-   * recordings of them) over the last 365 days, 0–1. Null until Racespot
-   * Analytics delivers it — then nothing is shown, never a guess.
+   * Average minutes watched per view of a YouTube live stream (live or as
+   * its recording) over the last 365 days, from Racespot Analytics. Null
+   * until it answers — then nothing is shown, never a guess.
    */
-  liveWatchShare: number | null
-  /** Average view duration on YouTube over the last 365 days, in minutes; null as above */
-  avgViewMinutes: number | null
+  liveAvgViewMinutes: number | null
   /** Languages we broadcast in — not measurable, stated by the team */
   languages: number
   /** False when at least one source failed and a fallback is being shown */
@@ -79,8 +77,7 @@ const FALLBACK: SiteStats = {
   watchHours: null,        // no fallback on purpose: a stale figure under this label would be a claim we cannot show
   followers: 57_000, // measured 57,559
   youtubeSubscribers: 34_000, // measured 34,200
-  liveWatchShare: null,    // measured only: no fallback, like watchHours
-  avgViewMinutes: null,
+  liveAvgViewMinutes: null, // measured only: no fallback, like watchHours
   languages: 8,
   live: false,
 }
@@ -225,8 +222,7 @@ const youtubeWatchHours = unstable_cache(
  *   { asOf: string,
  *     followers: { youtube, x, facebook, instagram, twitch, tiktok: number | null },
  *     youtube:   { views: number | null, watchHours365: number | null,
- *                  liveWatchShare365: number | null,      // 0–1, added 2026-10-03
- *                  avgViewDuration365: number | null } }  // seconds, added 2026-10-03
+ *                  liveAvgViewSeconds365: number | null } }  // seconds, added 2026-10-03
  *
  * Read-only, public figures only, cached six hours like the YouTube numbers.
  * Unset URL, a timeout or a malformed answer all mean "not available" and
@@ -241,8 +237,7 @@ interface AnalyticsFigures {
   followers: Partial<Record<Platform, number>>
   views: number | null
   watchHours365: number | null
-  liveWatchShare365: number | null
-  avgViewDuration365: number | null
+  liveAvgViewSeconds365: number | null
 }
 
 const positive = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null)
@@ -261,13 +256,11 @@ async function analyticsFigures(): Promise<AnalyticsFigures | null> {
       const n = positive(body?.followers?.[p])
       if (n !== null) followers[p] = n
     }
-    const share = positive(body?.youtube?.liveWatchShare365)
     return {
       followers,
       views: positive(body?.youtube?.views),
       watchHours365: positive(body?.youtube?.watchHours365),
-      liveWatchShare365: share !== null && share <= 1 ? share : null,
-      avgViewDuration365: positive(body?.youtube?.avgViewDuration365),
+      liveAvgViewSeconds365: positive(body?.youtube?.liveAvgViewSeconds365),
     }
   } catch (error) {
     console.warn('[stats] analytics unreachable:', error instanceof Error ? error.message : error)
@@ -302,8 +295,7 @@ export async function getSiteStats(): Promise<SiteStats> {
     watchHours: analytics?.watchHours365 ?? ownWatchHours,
     followers: otherPlatforms + youtubeSubscribers,
     youtubeSubscribers,
-    liveWatchShare: analytics?.liveWatchShare365 ?? null,
-    avgViewMinutes: analytics?.avgViewDuration365 ? analytics.avgViewDuration365 / 60 : null,
+    liveAvgViewMinutes: analytics?.liveAvgViewSeconds365 ? analytics.liveAvgViewSeconds365 / 60 : null,
     languages: FALLBACK.languages,
     live: schedule !== null && (youtube !== null || analytics !== null),
   }

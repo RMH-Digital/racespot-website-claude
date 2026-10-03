@@ -1875,9 +1875,9 @@ Auftrag aus der Analytics-Session (Mediadaten-PDFs verlinken auf die Website).
 - Datenschutz 6. (de + en): Firma, Budget, Kampagnenquelle.
 
 **Offen**:
-- Die Zahlen „96 % der Sehzeit live“ und „Ø 11 Minuten je Aufruf“ erscheinen,
-  sobald Analytics `liveWatchShare365` und `avgViewDuration365` liefert
-  (ANALYTICS-SITE-STATS.md).
+- Erledigt 2026-10-03: Analytics liefert `liveAvgViewSeconds365` („Ø 11 Minuten
+  je Livestream-Aufruf“); statt „96 % der Sehzeit live“ steht `watchHours365`
+  als „Stunden Sehzeit im Jahr“ (ANALYTICS-SITE-STATS.md).
 - Logos gibt es nur als PNG; die SVGs in anderen Projekten betten diese PNGs
   nur ein, die in `~/.openclaw/…/racespot-logos` sind nachgebaute Textlogos in
   Oswald, also unbrauchbar. Echte Vektordateien (SVG/EPS) bei der Gestaltung

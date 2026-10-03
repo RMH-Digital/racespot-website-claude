@@ -36,8 +36,7 @@ GET https://analytics.racespot.tv/api/public/site-stats
   },
   "youtube": {
     "views": 6184897, "watchHours365": 123456,
-    "liveWatchShare365": 0.96,      // neu 2026-10-03
-    "avgViewDuration365": 660       // neu 2026-10-03, Sekunden
+    "liveAvgViewSeconds365": 654    // neu 2026-10-03, Sekunden
   }
 }
 ```
@@ -50,15 +49,15 @@ GET https://analytics.racespot.tv/api/public/site-stats
   Die Seite rundet ab und muss jede Zahl belegen können.
 - `youtube.watchHours365`: Summe `watch_minutes` (`kind` `daily`) der letzten
   365 Tage bis vorgestern, geteilt durch 60, gerundet.
-- `youtube.liveWatchShare365` (neu 2026-10-03): Anteil der Sehzeit der
-  letzten 365 Tage auf Videos, die Livestreams waren (live gesehen oder als
-  Aufzeichnung), 0–1. Die Website zeigt ihn abgerundet in Prozent
-  („96 % der Sehzeit live“, Services-Seite, Abschnitt Werben).
-- `youtube.avgViewDuration365` (neu 2026-10-03): durchschnittliche
-  Wiedergabedauer je Aufruf der letzten 365 Tage, in **Sekunden**. Die Website
-  zeigt abgerundete Minuten („Ø 11 Minuten je Aufruf“).
-- Beide fehlen, bis das Analytics-Tool sie liefert; die Website blendet die
-  Kachel dann aus, ohne Ersatzwert.
+- `youtube.liveAvgViewSeconds365` (neu 2026-10-03): Ø Sehdauer je Aufruf
+  eines YouTube-Livestreams, letzte 365 Tage bis vorgestern, Sehzeit ÷
+  Aufrufe, in **Sekunden**. Die Website zeigt gerundete Minuten
+  („Ø 11 Minuten je Livestream-Aufruf“, Services-Seite, Abschnitt Werben)
+  und blendet die Kachel bei `null` aus, ohne Ersatzwert.
+- Auf derselben Seite steht `watchHours365` als „Stunden Sehzeit im Jahr“,
+  auf Tausender abgerundet (69.996 → 69.000+).
+- Einen Live-Anteil der Sehzeit („96 %“) liefert das Archiv bewusst nicht;
+  die Website zeigt ihn nicht.
 - **Öffentlich, ohne Token, nur lesend.** Es sind genau die Zahlen, die auf
   racespot.tv ohnehin stehen — kein Geheimnis, also kein Schlüssel, der in
   zwei Coolify-Apps gepflegt werden müsste. Weitere Felder nur, wenn die Website sie anzeigt (so am 2026-10-03 die zwei oben).
