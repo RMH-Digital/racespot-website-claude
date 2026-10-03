@@ -28,7 +28,11 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
   // Stream updates come from LiveStatusProvider, which already polls
   // /api/live-streams every 60 s for the header and ticker — no second poll here.
-  const { liveStreams: polled, loaded } = useLiveStatus()
+  const { liveStreams: polled, loaded, polledAt } = useLiveStatus()
+  // The live status lives in the layout and survives client navigation: on
+  // arrival it can be a minute older than this server-rendered page. Only a
+  // poll made after the page appeared may send it back to the offline view.
+  const [mountedAt] = useState(() => Date.now())
   const { playing, start, minimized, expand, minimize, canFloat, popOut, canPopOut } = useLivePlayer()
   const slot = useRef<HTMLDivElement>(null)
   useLiveDock(slot)
@@ -45,7 +49,7 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   }, [playing, liveStreams, activeId, start])
 
   useEffect(() => {
-    if (!loaded) return
+    if (!loaded || polledAt < mountedAt) return
 
     if (polled.length === 0) {
       // All streams ended — full page reload to show offline state
@@ -57,7 +61,7 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
     // If active stream is no longer live, switch to the first available
     setActiveId(prev => (polled.some(s => s.id === prev) ? prev : polled[0].id))
-  }, [polled, loaded])
+  }, [polled, loaded, polledAt, mountedAt])
 
   // Find the active stream
   const activeStream = liveStreams.find(s => s.id === activeId) || liveStreams[0]

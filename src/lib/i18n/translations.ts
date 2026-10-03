@@ -258,6 +258,8 @@ export const translations = {
   'broadcastsPage.playlistMany': { en: '{n} playlists', de: '{n} Playlists', es: '{n} listas de reproducción', pt: '{n} playlists', fr: '{n} playlists', it: '{n} playlist' },
   'broadcastsPage.playlistFoundOne': { en: '1 playlist found', de: '1 Playlist gefunden', es: '1 lista encontrada', pt: '1 playlist encontrada', fr: '1 playlist trouvée', it: '1 playlist trovata' },
   'broadcastsPage.playlistFoundMany': { en: '{n} playlists found', de: '{n} Playlists gefunden', es: '{n} listas encontradas', pt: '{n} playlists encontradas', fr: '{n} playlists trouvées', it: '{n} playlist trovate' },
+  'broadcastsPage.showAll': { en: 'Show all playlists ({n} more)', de: 'Alle Playlists zeigen ({n} weitere)', es: 'Ver todas las listas ({n} más)', pt: 'Ver todas as playlists (mais {n})', fr: 'Voir toutes les playlists ({n} de plus)', it: 'Mostra tutte le playlist (altre {n})' },
+  'broadcastsPage.showLess': { en: 'Show fewer', de: 'Weniger zeigen', es: 'Ver menos', pt: 'Ver menos', fr: 'Voir moins', it: 'Mostra meno' },
   'broadcastsPage.noPlaylists': { en: 'No playlists found', de: 'Keine Playlists gefunden', es: 'No se encontraron playlists', pt: 'Nenhuma playlist encontrada', fr: 'Aucune playlist trouvée', it: 'Nessuna playlist trovata' },
   'broadcastsPage.clearFilters': { en: 'Clear filters', de: 'Filter zurücksetzen', es: 'Borrar filtros', pt: 'Limpar filtros', fr: 'Effacer les filtres', it: 'Cancella filtri' },
 

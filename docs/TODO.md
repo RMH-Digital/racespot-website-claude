@@ -1795,6 +1795,62 @@ verlinkt, kann aber in alten, von Netzwerken zwischengespeicherten Vorschauen
 stecken — bleibt liegen, kostet nichts. `content Website/` (Rohmaterial, nicht
 im Repo) und der Branch `dockerfile-build` (Entscheidung Nixpacks) bleiben.
 
+## 7w. Nachtrunde: Logik, Ruckeln, Gestaltung — 2026-10-02/03
+
+**Gemessen** (Produktions-Build, 1280 × 800): Scrollen auf sieben Seiten ohne
+ein Bild über 18 ms. Layout-Sprünge (CLS) auf der Live-Seite 0,09 → 0,0006,
+sonst überall unter 0,01. Kalender-Seite 48 KB (gzip) leichter.
+
+**Logik, behoben**:
+- **Ein YouTube-Fehler galt als „nichts live“** und blieb bis zu fünf
+  Minuten im Speicher — mitten in einer Sendung stoppte der Player, die
+  Live-Seite sprang in die Offline-Ansicht. Jetzt bleibt die letzte Antwort,
+  nächster Versuch nach 30 s (`checkLive`).
+- **Kontaktformular**: Scheiterte der Versand, wurde der erneute Versuch als
+  Duplikat mit „gesendet“ beantwortet — die Anfrage war verloren. Die Sperre
+  gilt jetzt erst, wenn die interne Mail raus ist.
+- **Aufzeichnungs-Index**: Ein Fehler auf Seite 3 nahm alles dahinter für
+  die Memo-Zeit aus dem Kalender; und weil YouTubes Seiten-Token Positionen
+  zählen, fielen an jeder Seitengrenze ältere Aufzeichnungen für bis zu einen
+  Tag heraus. Bekannte, abgeschlossene Aufzeichnungen bleiben jetzt erhalten.
+- Zeitlimits für alle Sheets- und YouTube-Abrufe (ein hängender Aufruf hielt
+  jede Seite und jede Live-Abfrage auf); nach einem Sheets-Fehler 30 s Pause
+  statt Neuversuch bei jeder Anfrage.
+- Kalender: Eine gewählte Karte an einem Tag mit mehreren Sendungen sprang
+  jede Minute zurück. Live-Seite lud neu, wenn der Live-Status aus der
+  vorigen Seite älter war als die Seite selbst. Die Suche (100 Einheiten)
+  konnte ohne Live-Schlüssel doch auf den Hauptschlüssel fallen.
+- Kleineres: RSS-Titel mit `&amp;`, Countdown rechnete ohne Ziel jede Sekunde
+  `NaN`, Stummschalt-Timer traf den nächsten Stream, Laufband-Datum in der
+  Browser- statt der Seitensprache, Hero ohne „Nächste Sendung“ während
+  dreier gleichzeitiger Sendungen, Watch-Time-Fehler sechs Stunden gecacht.
+
+**Ruckeln und Gestaltung, behoben**:
+- Jeder Seitenwechsel scrollte sichtbar nach oben (`scroll-behavior: smooth`
+  ohne `data-scroll-behavior` – Next 16 schaltet es sonst nicht ab).
+- Eurostile wird vorgeladen; vorher erschienen Überschriften kurz in Oswald
+  und brachen dann neu um.
+- Countdown-Kästen stehen ab dem ersten Bild da, Ziffern in fester Breite.
+- Partnerlogos mit echter Größe — das Laufband sprang, während sie luden.
+- Kopfzeile ohne Backdrop-Blur (bei 97 % Deckkraft unsichtbar, aber bei
+  jedem Scrollbild neu berechnet). Eine gemeinsame Scroll-Sperre
+  (`lib/scrollLock.ts`): Der Video-Dialog ließ auf dem iPhone die Seite
+  dahinter scrollen. `scrollbar-gutter: stable` gegen Seitwärtsrucken.
+- Touch: Pfeile und Punkte der Event-Karten, Play-Symbol der Videokarten und
+  Bildunterschriften der Galerie sind auf Touch-Geräten sichtbar
+  (`pointer-coarse:`), statt nur bei Mouseover. `framer-motion` entfernt
+  (eine 150-ms-Bewegung im Kalender, jetzt CSS).
+- „Show all / Show less“ auf Broadcasts übersetzt; „Show less“ scrollte zu
+  einer Id, die es nicht gab. Hero-Knöpfe am Handy gleich breit, „Alle
+  ansehen“ bei den Broadcasts auch am Handy, Sprachknopf 44 px hoch.
+
+**Bewusst offen**: „Live“ im Kalender gilt kanalweit — läuft irgendein
+Stream, ist jede Zeile in ihrem Fenster live. Pro Zeile zuordnen wäre der
+richtige Weg (wie `withReplays`), ist aber eine eigene Arbeit. Fehlerrot im
+Formular bleibt Tailwinds `red-400`: `rs-live` hätte auf Dunkel zu wenig
+Kontrast für kleine Schrift. `MANUAL` in `testimonials.ts` (ein Eintrag, nie
+sichtbar bei Schwelle 3) wartet auf Jürgens Entscheidung.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

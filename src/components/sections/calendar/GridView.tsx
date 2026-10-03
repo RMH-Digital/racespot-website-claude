@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
@@ -328,11 +327,13 @@ function DayCell({
   const hasMultiple = events.length > 1
 
   // Re-pick when the day's events change (month navigation reuses cells) or
-  // the live state does — a stream ending hands the cell to the next one.
+  // the pick itself does — a stream ending hands the cell to the next one.
+  // Keyed on the number, not on statusOf: that is a new function after every
+  // live poll, and the card a visitor had chosen jumped back once a minute.
+  const pick = defaultIndex(events)
   useEffect(() => {
-    setActiveIndex(defaultIndex(events))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events, statusOf])
+    setActiveIndex(pick)
+  }, [events, pick])
 
   return (
     <div
@@ -366,18 +367,12 @@ function DayCell({
         <div className="flex-1 flex flex-col min-h-0">
           {/* Card with animation */}
           <div className="flex-1 relative overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeIndex}
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.15 }}
-                className="h-full"
-              >
-                <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} timeZone={timeZone} isNext={events[activeIndex].id === nextId} />
-              </motion.div>
-            </AnimatePresence>
+            {/* Keyed, so the next event slides in. A CSS keyframe, not
+                framer-motion: the library was 48 KB gzipped on this page
+                for this one 150 ms movement (removed 2026-10-02). */}
+            <div key={activeIndex} className="h-full animate-slide-in motion-reduce:animate-none">
+              <EventCard lang={lang} event={events[activeIndex]} is24h={is24h} locale={locale} timeZone={timeZone} isNext={events[activeIndex].id === nextId} />
+            </div>
           </div>
 
           {/* Carousel navigation — ALWAYS rendered with same height to keep cards aligned.

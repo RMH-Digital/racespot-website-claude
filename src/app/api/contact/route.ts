@@ -22,7 +22,10 @@ function isRateLimited(ip: string): boolean {
   const now = Date.now()
   const timestamps = submissions.get(ip) || []
   const recent = timestamps.filter((t) => now - t < RATE_WINDOW)
-  submissions.set(ip, recent)
+  // An IP with nothing left in the window leaves the map, so it does not
+  // grow by one entry per visitor for as long as the container runs.
+  if (recent.length) submissions.set(ip, recent)
+  else submissions.delete(ip)
   return recent.length >= RATE_LIMIT
 }
 
@@ -333,6 +336,10 @@ function renderConfirmationHtml(name: string, p: Prepared): string {
 // ─── Handler ─────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  // Set once the payload is claimed as "being sent"; released again when the
+  // internal mail could not go out, so a retry is sent, not answered with
+  // "deduplicated" for a message that never arrived (until 2026-10-02 it was).
+  let claimed: string | null = null
   try {
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown'
@@ -380,9 +387,11 @@ export async function POST(request: Request) {
     const email = str(body.email, 200)
 
     // Same form, same IP, same content within 10 minutes → do not send twice.
-    if (isDuplicate(await payloadHash(ip, body))) {
+    const hash = await payloadHash(ip, body)
+    if (isDuplicate(hash)) {
       return NextResponse.json({ success: true, method: 'smtp', deduplicated: true })
     }
+    claimed = hash
 
     // Try SMTP if configured
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
@@ -408,6 +417,8 @@ export async function POST(request: Request) {
         text: `${prepared.heading}\n\n${prepared.summary}`,
         html: renderInternalHtml(prepared),
       })
+      // It is with us now; a resubmit from here on would be a second copy.
+      claimed = null
 
       // Confirmation copy to the sender — unless the sender is our own inbox
       // (tests from contact@ would otherwise produce two mails there).
@@ -436,6 +447,7 @@ export async function POST(request: Request) {
       },
     })
   } catch (error) {
+    if (claimed) recentHashes.delete(claimed)
     console.error('Contact form error:', error)
     return NextResponse.json(
       { error: 'Failed to send message. Please try again or email us directly at contact@racespot.tv', code: 'send_failed' },

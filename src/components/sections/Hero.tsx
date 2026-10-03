@@ -121,8 +121,9 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
             {t('hero.subtitle')}
           </p>
 
-          {/* CTA buttons */}
-          <div className="flex flex-wrap gap-3 md:gap-4">
+          {/* CTA buttons — on a phone one column of equal width (they wrapped
+              into two rows of different widths); side by side from sm up. */}
+          <div className="grid max-w-[360px] grid-cols-1 gap-3 sm:flex sm:max-w-none sm:flex-wrap md:gap-4">
             {isLive ? (
               <Link href={localePath(lang, '/live')} data-track="hero-watch-live" className="btn-primary">
                 <PlayIcon size={12} /> {t('hero.watchLive')}

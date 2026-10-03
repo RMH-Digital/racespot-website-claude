@@ -8,6 +8,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { CalendarEvent } from '@/lib/sheets'
 import { AddToCalendar } from '@/components/sections/calendar/AddToCalendar'
 import { eventStatus } from '@/components/sections/calendar/status'
+import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -25,50 +26,24 @@ interface TickerProps {
   items: TickerItem[]
 }
 
-// ─── Locale-aware helpers (same logic as CalendarClient) ────
+// ─── Dates in the page's language ───────────────────────────
+// Locale from the route, not navigator.language: a German page in an
+// English browser showed English weekdays here and nowhere else. Before
+// mount the zone is UTC (useLocalFormat), so the text is there from the
+// first paint and only the hour changes on hydration — the strip used to
+// gain its whole date then and jump mid-loop.
 
-function useIs24Hour(): boolean {
-  const [is24h, setIs24h] = useState(true)
-
-  useEffect(() => {
-    try {
-      const locale = navigator.language || 'en'
-      if (locale.startsWith('de')) { setIs24h(true); return }
-      const resolved = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions()
-      setIs24h(!resolved.hour12)
-    } catch {
-      setIs24h(false)
-    }
-  }, [])
-
-  return is24h
-}
-
-function formatLocalTime(iso: string, is24h: boolean): string {
+function formatWhen(iso: string, { locale, timeZone, is24h }: { locale: string; timeZone?: string; is24h: boolean }): string {
   const d = new Date(iso)
   try {
-    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
-    return d.toLocaleTimeString(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: !is24h,
-    })
+    const weekday = d.toLocaleDateString(locale, { weekday: 'short', timeZone })
+    const day = d.toLocaleDateString(locale, { day: 'numeric', timeZone })
+    const month = d.toLocaleDateString(locale, { month: 'short', timeZone })
+    const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: !is24h, timeZone })
+    return `${weekday} ${day} ${month} · ${time}`
   } catch {
-    const h = d.getHours()
-    const m = String(d.getMinutes()).padStart(2, '0')
-    if (is24h) return `${String(h).padStart(2, '0')}:${m}`
-    const ampm = h >= 12 ? 'PM' : 'AM'
-    return `${h % 12 || 12}:${m} ${ampm}`
+    return ''
   }
-}
-
-function formatLocalDate(iso: string): string {
-  const d = new Date(iso)
-  const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
-  const weekday = d.toLocaleDateString(locale, { weekday: 'short' })
-  const day = d.getDate()
-  const month = d.toLocaleDateString(locale, { month: 'short' })
-  return `${weekday} ${day} ${month}`
 }
 
 // ─── Reduced motion ─────────────────────────────────────────
@@ -95,14 +70,11 @@ function usePrefersReducedMotion(): boolean {
 // ─── Component ──────────────────────────────────────────────
 
 export function Ticker({ lang, items = [] }: TickerProps) {
-  const is24h = useIs24Hour()
-  const [mounted, setMounted] = useState(false)
+  const { locale, timeZone, is24h } = useLocalFormat(lang)
   const reducedMotion = usePrefersReducedMotion()
   const [step, setStep] = useState(0)
   const { liveStreams, isLive, loaded, polledAt } = useLiveStatus()
   const t = getT(lang)
-
-  useEffect(() => { setMounted(true) }, [])
 
   const rendered = useMemo(() => {
     // Prepend live stream titles from client-side polling
@@ -121,21 +93,17 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     // British F4 under the sheet's name and under YouTube's).
     const current = (!items || items.length === 0) ? [] : items.filter(item => {
       if (!item.event) return true
-      if (!loaded) return !(liveItems.length > 0 && item.event.isLive)
+      if (!loaded) return true
       const s = eventStatus(item.event, isLive, polledAt)
       return !s.past && !(s.live && liveItems.length > 0)
     })
     const serverItems = current.map(item => {
-      if (item.dateISO && mounted) {
-        const dateStr = formatLocalDate(item.dateISO)
-        const timeStr = formatLocalTime(item.dateISO, is24h)
-        return { text: `${item.label} — ${dateStr} · ${timeStr}`, event: item.event }
-      }
+      if (item.dateISO) return { text: `${item.label} — ${formatWhen(item.dateISO, { locale, timeZone, is24h })}`, event: item.event }
       return { text: item.label, event: item.event }
     })
 
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
-  }, [items, is24h, mounted, liveStreams, isLive, loaded, polledAt, t])
+  }, [items, locale, timeZone, is24h, liveStreams, isLive, loaded, polledAt, t])
 
   // Step through the items when nothing may scroll (see usePrefersReducedMotion)
   useEffect(() => {

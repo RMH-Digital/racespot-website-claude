@@ -212,6 +212,9 @@ async function readSchedule(): Promise<ScheduleEvent[]> {
     parsing ??= fetchRows().finally(() => { parsing = null })
     const rows = await parsing
     if (rows) parsed = { at: now, rows }
+    // Failed: the last parse stands for another thirty seconds before the
+    // next try, rather than every request of an outage asking again.
+    else if (parsed) parsed = { at: now - PARSE_MEMO_MS + 30_000, rows: parsed.rows }
   }
   return (parsed?.rows ?? []).map((r) => withStatus(r, now))
 }
@@ -221,7 +224,9 @@ async function fetchRows(): Promise<ParsedRow[] | null> {
   try {
     // Fetch all data rows (skip header row 1)
     const url = `${BASE_URL}/${SHEET_ID}/values/Master%20Schedule!A2:R?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`
-    const res = await fetch(url, { next: { revalidate: 300 } }) // 5 min cache
+    // 5 min cache. The timeout matters: every render and every live poll
+    // waits on this one shared request.
+    const res = await fetch(url, { next: { revalidate: 300 }, signal: AbortSignal.timeout(10_000) })
 
     if (!res.ok) {
       console.error('Google Sheets API error:', res.status, await res.text())

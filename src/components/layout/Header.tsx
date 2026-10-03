@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { lockScroll } from '@/lib/scrollLock'
 import { usePathname } from 'next/navigation'
 import { LANGUAGES, getT, localePath, switchLangPath, type Lang } from '@/lib/i18n'
 import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
@@ -67,33 +68,14 @@ export function Header({ lang }: { lang: Lang }) {
 
   // The open mobile menu is the page as far as the reader is concerned; let it
   // scroll on its own instead of dragging the content behind it along.
-  //
-  // `overflow: hidden` on <body> alone is not enough: Safari on the iPhone
-  // ignores it and kept scrolling the page behind the menu (reported
-  // 2026-09-24). Pinning the body with `position: fixed` at the current
-  // offset stops every browser, and the offset is restored on close so the
-  // reader lands where they were.
-  useEffect(() => {
-    if (!menuOpen) return
-    const y = window.scrollY
-    const { body } = document
-    const previous = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow }
-    body.style.position = 'fixed'
-    body.style.top = `-${y}px`
-    body.style.width = '100%'
-    body.style.overflow = 'hidden'
-    return () => {
-      Object.assign(body.style, previous)
-      // Instant, not smooth: the page's smooth scrolling would animate the
-      // jump back and land the reader short of where they were.
-      window.scrollTo({ top: y, behavior: 'instant' })
-    }
-  }, [menuOpen])
+  useEffect(() => (menuOpen ? lockScroll() : undefined), [menuOpen])
 
   const isActive = (href: string) => pathname.startsWith(localePath(lang, href))
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black/97 backdrop-blur-[10px] border-b border-rs-border">
+    // Solid, no backdrop blur: at 97 % opacity the blur was all but invisible
+    // and still re-sampled the page under the bar on every scroll frame.
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-rs-black border-b border-rs-border">
       <div className="container-rs flex items-center justify-between h-full">
         {/* Logo */}
         <Link href={localePath(lang, '/')} className="flex items-center shrink-0 h-11 -ml-1 px-1">
@@ -125,10 +107,7 @@ export function Header({ lang }: { lang: Lang }) {
                 `}
               >
                 {showLiveIndicator && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rs-live opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rs-live" />
-                  </span>
+                  <span className="w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />
                 )}
                 {t(labelKey)}
                 {showLiveIndicator && liveCount > 1 && (
@@ -153,7 +132,7 @@ export function Header({ lang }: { lang: Lang }) {
               aria-label={t('a11y.chooseLanguage')}
               title={t('a11y.chooseLanguage')}
               aria-expanded={langOpen}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
+              className="flex items-center gap-1.5 px-3 min-h-11 border border-rs-border rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider text-white hover:border-rs-yellow/50 transition-colors"
             >
               <span>{currentLang.code.toUpperCase()}</span>
               <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" className={`ml-0.5 transition-transform ${langOpen ? 'rotate-180' : ''}`}>
@@ -207,9 +186,8 @@ export function Header({ lang }: { lang: Lang }) {
       {/* Mobile menu — from the header to the bottom of the screen, opaque:
           until 2026-09-24 it was only as tall as its links, and the page
           showed through underneath. overscroll-contain keeps a swipe past its
-          end from moving the page. An explicit height, not `bottom-0`: the
-          header's backdrop-blur makes it the containing block even for fixed
-          children, so `bottom-0` ended at the header's own bottom edge. */}
+          end from moving the page. Absolute under the header with an explicit
+          height: `bottom-0` would end at the header's own bottom edge. */}
       {menuOpen && (
         <div id="mobile-menu" className="xl:hidden absolute inset-x-0 top-full h-[calc(100dvh-4rem)] bg-rs-dark border-t border-rs-border overflow-y-auto overscroll-contain">
           <nav className="container-rs py-6 flex flex-col gap-1">
@@ -247,7 +225,7 @@ export function Header({ lang }: { lang: Lang }) {
                     hrefLang={l.code}
                     lang={l.code}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider border transition-colors
+                    className={`flex items-center gap-1.5 px-3 min-h-11 rounded-rs text-[11px] font-display font-semibold uppercase tracking-wider border transition-colors
                       ${l.code === lang
                         ? 'bg-rs-yellow text-rs-black border-rs-yellow'
                         : 'text-rs-muted border-rs-border hover:text-white'}`}

@@ -1,19 +1,19 @@
 import { getT, type Lang } from '@/lib/i18n'
 
 const LOGOS = [
-  { src: '/images/partners/Porsche.png', alt: 'Porsche' },
-  { src: '/images/partners/BMW.png', alt: 'BMW' },
-  { src: '/images/partners/AudiSport.png', alt: 'Audi Sport' },
-  { src: '/images/partners/Mazda.png', alt: 'Mazda' },
-  { src: '/images/partners/VCO.png', alt: 'VCO' },
-  { src: '/images/partners/iRacing-COL.png', alt: 'iRacing' },
-  { src: '/images/partners/Verizon.png', alt: 'Verizon' },
-  { src: '/images/partners/ENASCAR-COL.png', alt: 'eNASCAR' },
-  { src: '/images/partners/bmwgt.png', alt: 'BMW GT' },
-  { src: '/images/partners/pesc-1.png', alt: 'PESC' },
-  { src: '/images/partners/creve.png', alt: 'Creve' },
-  { src: '/images/partners/dnls.png', alt: 'DNLS' },
-  { src: '/images/partners/indy.png', alt: 'Indy' },
+  { src: '/images/partners/Porsche.png', w: 600, h: 300, alt: 'Porsche' },
+  { src: '/images/partners/BMW.png', w: 600, h: 300, alt: 'BMW' },
+  { src: '/images/partners/AudiSport.png', w: 600, h: 300, alt: 'Audi Sport' },
+  { src: '/images/partners/Mazda.png', w: 600, h: 300, alt: 'Mazda' },
+  { src: '/images/partners/VCO.png', w: 600, h: 300, alt: 'VCO' },
+  { src: '/images/partners/iRacing-COL.png', w: 600, h: 300, alt: 'iRacing' },
+  { src: '/images/partners/Verizon.png', w: 600, h: 300, alt: 'Verizon' },
+  { src: '/images/partners/ENASCAR-COL.png', w: 600, h: 300, alt: 'eNASCAR' },
+  { src: '/images/partners/bmwgt.png', w: 300, h: 225, alt: 'BMW GT' },
+  { src: '/images/partners/pesc-1.png', w: 300, h: 225, alt: 'PESC' },
+  { src: '/images/partners/creve.png', w: 300, h: 225, alt: 'Creve' },
+  { src: '/images/partners/dnls.png', w: 300, h: 225, alt: 'DNLS' },
+  { src: '/images/partners/indy.png', w: 300, h: 225, alt: 'Indy' },
 ]
 
 /* Split logos into two rows for opposite-direction scrolling */
@@ -57,12 +57,17 @@ function LogoRow({
             <img
               src={logo.src}
               alt={logo.alt}
+              // The real size, so the strip is as wide before the logos
+              // arrive as after: it used to grow while they loaded and the
+              // loop point jumped.
+              width={logo.w}
+              height={logo.h}
               loading="eager"
               decoding="async"
               className="h-[50px] w-auto object-contain
                          opacity-80 hover:opacity-100
                          hover:scale-110
-                         transition-all duration-500"
+                         transition-[opacity,scale] duration-500"
             />
           </div>
         ))}

@@ -44,6 +44,11 @@ export async function LatestBroadcasts({ lang }: { lang: Lang }) {
           ))}
           <ChannelCard lang={lang} />
         </div>
+
+        {/* Mobile: the header link is hidden there (as in LatestNews) */}
+        <Link href={localePath(lang, '/broadcasts')} className="btn-ghost sm:hidden mt-6">
+          {t('broadcasts.viewAll')}
+        </Link>
       </div>
     </section>
   )

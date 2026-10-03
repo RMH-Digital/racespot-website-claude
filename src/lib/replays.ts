@@ -153,11 +153,29 @@ async function getReplayIndex(): Promise<Timed[]> {
 }
 
 async function buildReplayIndex(): Promise<Timed[]> {
-  const lists = await Promise.all([
+  const reads = await Promise.all([
     channelStreams(CHANNEL_ID!, REVALIDATE_RECENT),
     ...PARTNER_CHANNELS.map((c) => channelStreams(c.id, REVALIDATE_PARTNER_RECENT)),
   ])
-  const index = lists.flat().map((r) => ({ ...r, t: Date.parse(r.start) })).sort((a, b) => a.t - b.t)
+  const fresh = reads.flatMap((r) => r.replays).map((r) => ({ ...r, t: Date.parse(r.start) }))
+  // What the last index knew and this read did not see, kept where the read
+  // cannot be trusted to have seen it (added 2026-10-02):
+  //   - a channel whose read broke off part-way (a quota error on page 3
+  //     used to drop every recording behind it for the whole memo);
+  //   - finished recordings older than RECENT_DAYS. Page tokens count
+  //     positions, so new uploads shift every page by a few items, and a
+  //     page from the 24-hour cache no longer joins up with a fresh one —
+  //     the items at each seam fell out until the cache turned over.
+  //     A finished stream does not change; keeping it is safe.
+  const seen = new Set(fresh.map((r) => r.id))
+  const broken = new Set(reads.filter((r) => !r.complete).map((r) => r.channel))
+  const now = Date.now()
+  const horizon = now - RECENT_DAYS * 86_400_000
+  const cutoff = now - REPLAY_DAYS * 86_400_000
+  const kept = (indexMemo?.index ?? []).filter(
+    (r) => !seen.has(r.id) && r.t >= cutoff && (broken.has(r.channel) || (r.finished && r.t < horizon)),
+  )
+  const index = [...fresh, ...kept].sort((a, b) => a.t - b.t)
   if (index.length === 0 && indexMemo) {
     indexMemo = { at: Date.now() - INDEX_MEMO_MS + INDEX_RETRY_MS, index: indexMemo.index }
     return indexMemo.index
@@ -166,15 +184,19 @@ async function buildReplayIndex(): Promise<Timed[]> {
   return index
 }
 
-/** One channel's uploads, read back to the cutoff and reduced to its live streams. */
-async function channelStreams(channelId: string, recentTtl: number): Promise<Replay[]> {
+/**
+ * One channel's uploads, read back to the cutoff and reduced to its live
+ * streams. `complete` is false when a request failed on the way: what came
+ * before it is in `replays`, what came after is not.
+ */
+async function channelStreams(channelId: string, recentTtl: number): Promise<{ channel: string; replays: Replay[]; complete: boolean }> {
+  const replays: Replay[] = []
   try {
     // The uploads playlist is the channel id with its "UC" swapped for "UU".
     const uploads = 'UU' + channelId.slice(2)
     const now = Date.now()
     const cutoff = now - REPLAY_DAYS * 86_400_000
     const recentHorizon = now - RECENT_DAYS * 86_400_000
-    const replays: Replay[] = []
     let pageToken = ''
     // Set once a page reaches back past the horizon: everything after it is
     // older still, and gets the long lifetime.
@@ -183,13 +205,13 @@ async function channelStreams(channelId: string, recentTtl: number): Promise<Rep
     for (let page = 0; page < 40; page++) {
       const revalidate = settled ? REVALIDATE_ARCHIVE : recentTtl
       const url = `${BASE_URL}/playlistItems?part=contentDetails,snippet&playlistId=${uploads}&maxResults=50&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ''}`
-      const res = await fetch(url, { next: { revalidate } })
+      const res = await fetch(url, { next: { revalidate }, signal: AbortSignal.timeout(8000) })
       if (!res.ok) {
         // Worth saying out loud: an empty index means every past broadcast
         // loses its recording and every announced one its bell, and the page
         // itself renders perfectly well without either.
         console.warn(`[replays] uploads page ${page + 1} of ${channelId} failed: ${await apiError(res)}`)
-        break
+        return { channel: channelId, replays, complete: false }
       }
       const data = await res.json()
 
@@ -207,19 +229,18 @@ async function channelStreams(channelId: string, recentTtl: number): Promise<Rep
       if (ids.length) {
         // One videos.list per page, so a batch carries the lifetime of the
         // page it came from.
-        const res2 = await fetch(`${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids.join(',')}&key=${API_KEY}`, { next: { revalidate } })
-        if (res2.ok) {
-          const videos = await res2.json()
-          for (const v of videos.items ?? []) {
-            const live = v.liveStreamingDetails
-            if (!live) continue // a plain upload was never a broadcast
-            if (live.actualEndTime && live.actualStartTime) {
-              replays.push({ id: v.id, title: v.snippet.title, start: live.actualStartTime, end: live.actualEndTime, finished: true, channel: channelId })
-            } else if (!live.actualStartTime && live.scheduledStartTime) {
-              // Announced on YouTube but not yet live: the page where the
-              // reader can set the bell.
-              replays.push({ id: v.id, title: v.snippet.title, start: live.scheduledStartTime, finished: false, channel: channelId })
-            }
+        const res2 = await fetch(`${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids.join(',')}&key=${API_KEY}`, { next: { revalidate }, signal: AbortSignal.timeout(8000) })
+        if (!res2.ok) return { channel: channelId, replays, complete: false }
+        const videos = await res2.json()
+        for (const v of videos.items ?? []) {
+          const live = v.liveStreamingDetails
+          if (!live) continue // a plain upload was never a broadcast
+          if (live.actualEndTime && live.actualStartTime) {
+            replays.push({ id: v.id, title: v.snippet.title, start: live.actualStartTime, end: live.actualEndTime, finished: true, channel: channelId })
+          } else if (!live.actualStartTime && live.scheduledStartTime) {
+            // Announced on YouTube but not yet live: the page where the
+            // reader can set the bell.
+            replays.push({ id: v.id, title: v.snippet.title, start: live.scheduledStartTime, finished: false, channel: channelId })
           }
         }
       }
@@ -227,9 +248,9 @@ async function channelStreams(channelId: string, recentTtl: number): Promise<Rep
       pageToken = data.nextPageToken ?? ''
       if (!pageToken || reachedCutoff) break
     }
-    return replays
+    return { channel: channelId, replays, complete: true }
   } catch {
-    return []
+    return { channel: channelId, replays, complete: false }
   }
 }
 

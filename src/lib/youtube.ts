@@ -97,12 +97,24 @@ interface RSSVideoData {
  * Cost: 0 API units — uses YouTube's public Atom feed.
  * Returns up to 15 videos with basic data (YouTube RSS limit).
  */
+/** The feed is XML: titles arrive as `Rock &amp; Roll`, not `Rock & Roll` */
+function decodeXml(text: string): string {
+  return text
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+}
+
 async function getVideosFromRSS(): Promise<RSSVideoData[]> {
   if (!CHANNEL_ID) return []
 
   try {
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`
-    const res = await fetch(url, { next: { revalidate: CACHE_RSS } })
+    const res = await fetch(url, { next: { revalidate: CACHE_RSS }, signal: AbortSignal.timeout(8000) })
 
     if (!res.ok) {
       console.error('YouTube RSS feed error:', res.status)
@@ -126,7 +138,7 @@ async function getVideosFromRSS(): Promise<RSSVideoData[]> {
       const viewCount = entry.match(/<media:statistics views="(\d+)"/)?.[1] || '0'
 
       if (id) {
-        videos.push({ id, title, description, thumbnail, publishedAt, viewCount })
+        videos.push({ id, title: decodeXml(title), description: decodeXml(description), thumbnail, publishedAt, viewCount })
       }
     }
 
@@ -150,7 +162,7 @@ async function getUploadsFromApi(maxResults = 15): Promise<RSSVideoData[]> {
     // The uploads playlist is the channel id with its "UC" swapped for "UU".
     const uploads = 'UU' + CHANNEL_ID.slice(2)
     const url = `${BASE_URL}/playlistItems?part=snippet&playlistId=${uploads}&maxResults=${maxResults}&key=${API_KEY}`
-    const res = await fetch(url, { next: { revalidate: CACHE_1H } })
+    const res = await fetch(url, { next: { revalidate: CACHE_1H }, signal: AbortSignal.timeout(8000) })
     if (!res.ok) {
       console.error('YouTube uploads API error:', await apiError(res))
       return []
@@ -218,7 +230,7 @@ async function getVideoDetails(videoIds: string[], revalidate = CACHE_24H): Prom
 
   try {
     const url = `${BASE_URL}/videos?part=snippet,statistics,contentDetails&id=${videoIds.join(',')}&key=${API_KEY}`
-    const res = await fetch(url, { next: { revalidate } })
+    const res = await fetch(url, { next: { revalidate }, signal: AbortSignal.timeout(8000) })
 
     if (!res.ok) {
       console.error('YouTube videos API error:', await apiError(res))
@@ -307,6 +319,9 @@ let liveMemo: { at: number; streams: YouTubeLiveStream[] } | null = null
 /** What the last check logged, so the log only speaks when it changes */
 let lastLiveSummary: string | null = null
 let liveCheck: Promise<YouTubeLiveStream[]> | null = null
+/** After a failed check: keep the last answer until then, then ask again */
+let liveRetryAt = 0
+const LIVE_RETRY_MS = 30_000
 
 /**
  * Every live stream on the channel right now.
@@ -332,7 +347,7 @@ export async function getLiveStreams(scheduled?: ScheduledBroadcast): Promise<Yo
   if (!CHANNEL_ID) return []
   const now = Date.now()
   const ttl = scheduled ? LIVE_CHECK_ON_AIR_MS : LIVE_CHECK_IDLE_MS
-  if (liveMemo && now - liveMemo.at < ttl) return liveMemo.streams
+  if (liveMemo && (now - liveMemo.at < ttl || now < liveRetryAt)) return liveMemo.streams
   // One check for everyone who asks while it runs.
   liveCheck ??= checkLive(scheduled).finally(() => { liveCheck = null })
   return liveCheck
@@ -354,8 +369,13 @@ async function checkLive(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStr
     liveMemo = { at: Date.now(), streams }
     return streams
   } catch (error) {
+    // A failure is not an answer. Until 2026-10-02 every failed call came
+    // back as "nothing live" and was memoised for up to five minutes —
+    // mid-broadcast that stopped the player, reloaded the live page into
+    // its offline view and dropped the stream from the ticker. Now the last
+    // answer stands and the next try is in thirty seconds.
     console.error('YouTube live check error:', error)
-    // The last answer beats none, and the next call retries.
+    liveRetryAt = Date.now() + LIVE_RETRY_MS
     return liveMemo?.streams ?? []
   }
 }
@@ -370,51 +390,45 @@ async function checkLive(scheduled?: ScheduledBroadcast): Promise<YouTubeLiveStr
  * and doubled the delay.
  */
 async function detectLiveViaUploads(): Promise<{ live: YouTubeLiveStream[]; announced: number[] }> {
-  const none = { live: [], announced: [] }
   if (!LIVE_API_KEY || !CHANNEL_ID) {
     console.warn('[Live] detectLiveViaUploads: missing LIVE_API_KEY or CHANNEL_ID')
-    return none
+    return { live: [], announced: [] }
   }
 
-  try {
-    const recent = await getRecentVideos()
-    if (recent.length === 0) return none
+  // Throws when YouTube does not answer, so checkLive() keeps the last
+  // answer instead of memoising "nothing live".
+  const recent = await getRecentVideos()
+  // The channel has hundreds of uploads: an empty list is a failed feed.
+  if (recent.length === 0) throw new Error('no recent uploads (RSS and uploads list both empty)')
 
-    const ids = recent.map((v) => v.id).join(',')
-    const baseUrl = `${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids}`
-    let res = await fetch(`${baseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
+  const ids = recent.map((v) => v.id).join(',')
+  const baseUrl = `${BASE_URL}/videos?part=snippet,liveStreamingDetails&id=${ids}`
+  let res = await fetch(`${baseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
 
-    // A unit on the main key when the live key is spent — cheap, and it keeps
-    // the live page honest for the rest of the day.
-    if (!res.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
-      console.warn(`[Live] live key refused videos.list (${await apiError(res)}), using the main key`)
-      res = await fetch(`${baseUrl}&key=${API_KEY}`, { cache: 'no-store' })
-    }
-
-    if (!res.ok) {
-      console.warn(`[Live] videos.list failed: ${await apiError(res)}`)
-      return none
-    }
-
-    const items: LiveVideoItem[] = (await res.json()).items || []
-    const live = items.filter((item) => item.snippet.liveBroadcastContent === 'live')
-    // Once per change, not once per minute: the log said "0 live" 1,400
-    // times a day. A new line means something went on or off air.
-    const summary = live.map((i) => i.id).join(', ')
-    if (summary !== lastLiveSummary) {
-      console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${summary})` : ''}`)
-      lastLiveSummary = summary
-    }
-    // Scheduled start of every stream still waiting to go live, in ms.
-    const announced = items
-      .filter((item) => item.snippet.liveBroadcastContent === 'upcoming')
-      .map((item) => Date.parse(item.liveStreamingDetails?.scheduledStartTime ?? ''))
-      .filter(Number.isFinite)
-    return { live: live.map(toLiveStream), announced }
-  } catch (error) {
-    console.error('[Live] uploads-based detection error:', error)
-    return none
+  // A unit on the main key when the live key is spent — cheap, and it keeps
+  // the live page honest for the rest of the day.
+  if (!res.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
+    console.warn(`[Live] live key refused videos.list (${await apiError(res)}), using the main key`)
+    res = await fetch(`${baseUrl}&key=${API_KEY}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
   }
+
+  if (!res.ok) throw new Error(`videos.list failed: ${await apiError(res)}`)
+
+  const items: LiveVideoItem[] = (await res.json()).items || []
+  const live = items.filter((item) => item.snippet.liveBroadcastContent === 'live')
+  // Once per change, not once per minute: the log said "0 live" 1,400
+  // times a day. A new line means something went on or off air.
+  const summary = live.map((i) => i.id).join(', ')
+  if (summary !== lastLiveSummary) {
+    console.log(`[Live] videos.list: ${items.length} ids, ${live.length} live${live.length ? ` (${summary})` : ''}`)
+    lastLiveSummary = summary
+  }
+  // Scheduled start of every stream still waiting to go live, in ms.
+  const announced = items
+    .filter((item) => item.snippet.liveBroadcastContent === 'upcoming')
+    .map((item) => Date.parse(item.liveStreamingDetails?.scheduledStartTime ?? ''))
+    .filter(Number.isFinite)
+  return { live: live.map(toLiveStream), announced }
 }
 
 interface LiveVideoItem {
@@ -447,11 +461,11 @@ async function fetchLiveStreamDetails(videoIds: string[]): Promise<YouTubeLiveSt
   if (!LIVE_API_KEY || videoIds.length === 0) return []
 
   const detailBaseUrl = `${BASE_URL}/videos?part=liveStreamingDetails,snippet&id=${videoIds.join(',')}`
-  let detailRes = await fetch(`${detailBaseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
+  let detailRes = await fetch(`${detailBaseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
 
   if (!detailRes.ok && API_KEY && API_KEY !== LIVE_API_KEY) {
     console.warn(`[Live] live key refused the details call (${await apiError(detailRes)}), using the main key`)
-    detailRes = await fetch(`${detailBaseUrl}&key=${API_KEY}`, { cache: 'no-store' })
+    detailRes = await fetch(`${detailBaseUrl}&key=${API_KEY}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
   }
 
   if (!detailRes.ok) return []
@@ -540,11 +554,14 @@ export async function apiError(res: Response): Promise<string> {
  * stream is worth one unit through the uploads list, not the site's day.
  */
 async function searchLiveStreams(): Promise<YouTubeLiveStream[]> {
-  if (!LIVE_API_KEY || !CHANNEL_ID) return []
+  // The live key itself, not LIVE_API_KEY: that one falls back to the main
+  // key when no live key is configured, and this must not.
+  const key = process.env.YOUTUBE_LIVE_API_KEY
+  if (!key || !CHANNEL_ID) return []
 
   try {
     const searchBaseUrl = `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&maxResults=10`
-    const searchRes = await fetch(`${searchBaseUrl}&key=${LIVE_API_KEY}`, { cache: 'no-store' })
+    const searchRes = await fetch(`${searchBaseUrl}&key=${key}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
 
     if (!searchRes.ok) {
       // Deliberately no fallback to the main key — see the note on this
@@ -583,7 +600,7 @@ export async function getChannelPlaylists(maxResults = 50): Promise<YouTubePlayl
 
   try {
     const url = `${BASE_URL}/playlists?part=snippet,contentDetails&channelId=${CHANNEL_ID}&maxResults=${maxResults}&key=${API_KEY}`
-    const res = await fetch(url, { next: { revalidate: CACHE_24H } })
+    const res = await fetch(url, { next: { revalidate: CACHE_24H }, signal: AbortSignal.timeout(8000) })
 
     if (!res.ok) {
       console.error('YouTube playlists API error:', await apiError(res))
@@ -627,7 +644,7 @@ export async function getChannelPlaylists(maxResults = 50): Promise<YouTubePlayl
 export async function getVideoThumbnail(videoId: string): Promise<string | null> {
   if (!API_KEY) return null
   try {
-    const res = await fetch(`${BASE_URL}/videos?part=snippet&id=${videoId}&key=${API_KEY}`, { next: { revalidate: CACHE_24H } })
+    const res = await fetch(`${BASE_URL}/videos?part=snippet&id=${videoId}&key=${API_KEY}`, { next: { revalidate: CACHE_24H }, signal: AbortSignal.timeout(8000) })
     if (!res.ok) return null
     const t = (await res.json())?.items?.[0]?.snippet?.thumbnails
     return t?.maxres?.url || t?.standard?.url || t?.high?.url || null

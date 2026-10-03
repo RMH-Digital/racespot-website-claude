@@ -164,42 +164,38 @@ async function youtubeChannel(): Promise<{ views: number; subscribers: number } 
 const youtubeWatchHours = unstable_cache(
   async (): Promise<number | null> => {
     if (!OAUTH_CLIENT_ID || !OAUTH_CLIENT_SECRET || !OAUTH_REFRESH_TOKEN) return null
-    try {
-      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          refresh_token: OAUTH_REFRESH_TOKEN,
-          client_id: OAUTH_CLIENT_ID,
-          client_secret: OAUTH_CLIENT_SECRET,
-          grant_type: 'refresh_token',
-        }),
-        cache: 'no-store',
-      })
-      if (!tokenRes.ok) return null
-      const accessToken = (await tokenRes.json())?.access_token
-      if (typeof accessToken !== 'string') return null
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        refresh_token: OAUTH_REFRESH_TOKEN,
+        client_id: OAUTH_CLIENT_ID,
+        client_secret: OAUTH_CLIENT_SECRET,
+        grant_type: 'refresh_token',
+      }),
+      cache: 'no-store',
+    })
+    if (!tokenRes.ok) throw new Error(`token refresh ${tokenRes.status}`)
+    const accessToken = (await tokenRes.json())?.access_token
+    if (typeof accessToken !== 'string') throw new Error('no access token')
 
-      const end = new Date(Date.now() - 2 * 86_400_000)
-      const start = new Date(end.getTime() - 365 * 86_400_000)
-      const day = (d: Date) => d.toISOString().slice(0, 10)
-      const query = new URLSearchParams({
-        ids: 'channel==MINE',
-        startDate: day(start),
-        endDate: day(end),
-        metrics: 'estimatedMinutesWatched',
-      })
-      const res = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?${query}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
-      })
-      if (!res.ok) return null
-      const minutes = Number((await res.json())?.rows?.[0]?.[0])
-      if (!Number.isFinite(minutes) || minutes <= 0) return null
-      return Math.round(minutes / 60)
-    } catch {
-      return null
-    }
+    const end = new Date(Date.now() - 2 * 86_400_000)
+    const start = new Date(end.getTime() - 365 * 86_400_000)
+    const day = (d: Date) => d.toISOString().slice(0, 10)
+    const query = new URLSearchParams({
+      ids: 'channel==MINE',
+      startDate: day(start),
+      endDate: day(end),
+      metrics: 'estimatedMinutesWatched',
+    })
+    const res = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?${query}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    })
+    if (!res.ok) throw new Error(`analytics report ${res.status}`)
+    const minutes = Number((await res.json())?.rows?.[0]?.[0])
+    if (!Number.isFinite(minutes) || minutes <= 0) return null
+    return Math.round(minutes / 60)
   },
   ['youtube-watch-hours'],
   { revalidate: YT_REVALIDATE },
@@ -262,7 +258,9 @@ export async function getSiteStats(): Promise<SiteStats> {
   const [schedule, youtube, ownWatchHours, analytics] = await Promise.all([
     scheduleStats(),
     youtubeChannel(),
-    youtubeWatchHours(),
+    // Failures throw inside the cache, which stores nothing for them: a
+    // returned null would have hidden the figure for the full six hours.
+    youtubeWatchHours().catch(() => null),
     analyticsFigures(),
   ])
 

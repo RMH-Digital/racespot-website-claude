@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 
 interface LiveStatus {
@@ -27,6 +27,13 @@ export function useLiveStatus() {
 }
 
 const POLL_INTERVAL = 60_000 // 60 seconds
+/** Coming back to the tab polls at once — unless the last poll is this fresh */
+const REFRESH_ON_RETURN_MS = 15_000
+
+/** Same streams, same viewer counts: nothing for anyone to re-render */
+function sameStreams(a: YouTubeLiveStream[], b: YouTubeLiveStream[]): boolean {
+  return a.length === b.length && a.every((s, i) => s.id === b[i].id && s.concurrentViewers === b[i].concurrentViewers && s.title === b[i].title)
+}
 
 export function LiveStatusProvider({
   children,
@@ -40,13 +47,21 @@ export function LiveStatusProvider({
   const [loaded, setLoaded] = useState(false)
   const [polledAt, setPolledAt] = useState(0)
 
+  // Polls can overlap (a return to the tab while the interval fires); only
+  // the newest one may write, or an older answer overwrites a newer one.
+  const seq = useRef(0)
+  const lastPoll = useRef(0)
+
   const poll = useCallback(async () => {
+    const mine = ++seq.current
+    lastPoll.current = Date.now()
     try {
       const res = await fetch('/api/live-streams')
-      if (!res.ok) return
+      if (!res.ok || mine !== seq.current) return
       const data = await res.json()
+      if (mine !== seq.current) return
       const streams: YouTubeLiveStream[] = data.streams || []
-      setLiveStreams(streams)
+      setLiveStreams((prev) => (sameStreams(prev, streams) ? prev : streams))
       setLiveCount(streams.length)
       setLoaded(true)
       setPolledAt(Date.now())
@@ -75,7 +90,7 @@ export function LiveStatusProvider({
     }
     function handleVisibility() {
       if (document.visibilityState === 'visible') {
-        poll()
+        if (Date.now() - lastPoll.current > REFRESH_ON_RETURN_MS) poll()
         start()
       } else {
         stop()
@@ -90,8 +105,13 @@ export function LiveStatusProvider({
     }
   }, [poll])
 
+  const value = useMemo(
+    () => ({ liveStreams, liveCount, isLive: liveCount > 0, loaded, polledAt }),
+    [liveStreams, liveCount, loaded, polledAt],
+  )
+
   return (
-    <LiveStatusContext.Provider value={{ liveStreams, liveCount, isLive: liveCount > 0, loaded, polledAt }}>
+    <LiveStatusContext.Provider value={value}>
       {children}
     </LiveStatusContext.Provider>
   )

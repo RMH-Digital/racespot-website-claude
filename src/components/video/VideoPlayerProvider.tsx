@@ -7,6 +7,7 @@ import { FollowUs } from '@/components/ui/FollowUs'
 import { useMediaQuery } from '@/lib/hooks/useLocalTime'
 import { ExpandIcon, MinimizeIcon, PopOutIcon } from './PlayerIcons'
 import { openPip, pipSupported } from './pip'
+import { lockScroll } from '@/lib/scrollLock'
 
 /**
  * One player for the whole site.
@@ -126,15 +127,14 @@ export function VideoPlayerProvider({ lang, children }: { lang: Lang; children: 
   // page scrollable and the keyboard alone.
   useEffect(() => {
     if (!media || mini) return
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const unlock = lockScroll()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close()
     }
     document.addEventListener('keydown', onKey)
     closeBtn.current?.focus()
     return () => {
-      document.body.style.overflow = previous
+      unlock()
       document.removeEventListener('keydown', onKey)
     }
   }, [media, mini, close])

@@ -103,8 +103,14 @@ export default async function RootLayout({
   if (!isLang(lang)) notFound()
 
   return (
-    <html lang={lang} className={`${inter.variable} ${oswald.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${inter.variable} ${oswald.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
+        {/* The two Eurostile cuts every headline uses (700 bold, 800 for
+            font-black). Without a preload the browser finds them only after
+            the stylesheet, paints the headlines in the narrow Oswald fallback
+            and rewraps them when Eurostile arrives. ~16 KB each. */}
+        <link rel="preload" href="/fonts/eurostile-2-extended-bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/eurostile-becker-bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://i.ytimg.com" />
         <link rel="preconnect" href="https://img.youtube.com" />
         <link rel="dns-prefetch" href="https://i.ytimg.com" />

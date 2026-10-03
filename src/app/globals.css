@@ -34,6 +34,7 @@
   --animate-ticker: ticker 35s linear infinite;
   --animate-scroll-left: scrollLeft 50s linear infinite;
   --animate-scroll-right: scrollRight 50s linear infinite;
+  --animate-slide-in: slideIn 0.18s ease-out both;
 
   @keyframes fadeUp {
     from {
@@ -80,6 +81,13 @@
       transform: translateX(-50%);
     }
   }
+  /* The calendar grid's next event in a day cell (GridView) */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
   @keyframes scrollRight {
     from {
       transform: translateX(-50%);
@@ -113,7 +121,7 @@
            font-display font-bold text-[13px] tracking-[0.08em] uppercase
            px-7 py-3.5 rounded-rs
            hover:bg-rs-yellow-dark hover:-translate-y-px
-           transition-all duration-200;
+           transition-[background-color,translate] duration-200;
 }
 
 @utility btn-outline {
@@ -122,7 +130,7 @@
            font-display font-bold text-[13px] tracking-[0.08em] uppercase
            px-7 py-3.5 rounded-rs
            hover:bg-rs-yellow/8
-           transition-all duration-200;
+           transition-colors duration-200;
 }
 
 @utility btn-ghost {
@@ -131,7 +139,7 @@
      do not move. */
   @apply inline-flex items-center gap-1 py-2.5 -my-2.5
            text-rs-yellow font-display font-bold text-[13px] tracking-[0.08em] uppercase
-           hover:underline transition-all duration-200;
+           hover:underline;
 }
 
 @utility btn-sm {
@@ -187,7 +195,7 @@
   /* Cards */
   @apply bg-rs-dark border border-rs-border rounded-rs
            hover:border-rs-yellow hover:translate-y-[-3px]
-           transition-all duration-200;
+           transition-[border-color,translate] duration-200;
 }
 
 @utility badge-live {
@@ -254,8 +262,6 @@
     --font-inter: 'Inter', system-ui, sans-serif;
     --font-oswald: 'Oswald', 'Arial Black', sans-serif;
     --font-eurostile: 'Eurostile', 'Oswald', 'Arial Black', sans-serif;
-    --radius: 6px;
-    --transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * {
@@ -274,22 +280,31 @@
     overflow-wrap: break-word;
   }
 
+  /* Smooth only for in-page jumps: the root layout's
+     data-scroll-behavior="smooth" tells the Next router to switch it off
+     for a navigation, which otherwise slid every new page up from where
+     the old one was scrolled to. scroll-padding keeps a jump target clear of
+     the fixed header and ticker (64 + 34px), scrollbar-gutter stops the page
+     shifting sideways when a dialog locks the scroll on a desktop with
+     classic scrollbars. */
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 106px;
+    scrollbar-gutter: stable;
     -webkit-font-smoothing: antialiased;
   }
 
   body {
-    background-color: #0A0A0A;
-    color: #FFFFFF;
+    background-color: var(--color-rs-black);
+    color: var(--color-rs-white);
     font-family: var(--font-inter);
     font-size: 15px;
     line-height: 1.6;
   }
 
   ::selection {
-    background-color: #F5C000;
-    color: #0A0A0A;
+    background-color: var(--color-rs-yellow);
+    color: var(--color-rs-black);
   }
 
   /* Custom scrollbar */
@@ -297,14 +312,14 @@
     width: 4px;
   }
   ::-webkit-scrollbar-track {
-    background: #111;
+    background: var(--color-rs-dark);
   }
   ::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 2px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #F5C000;
+    background: var(--color-rs-yellow);
   }
 }
 

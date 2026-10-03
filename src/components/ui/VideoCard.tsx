@@ -45,7 +45,7 @@ export function VideoCard({ lang, video }: VideoCardProps) {
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
 
         {/* Play on hover */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100 transition-opacity duration-200">
           <div className="w-12 h-12 rounded-full bg-rs-yellow flex items-center justify-center shadow-lg">
             <PlayIcon size={20} className="ml-0.5 text-rs-black" />
           </div>

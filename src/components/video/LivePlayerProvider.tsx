@@ -216,6 +216,11 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
     ? `${ORIGIN}/embed/${encodeURIComponent(playing.id)}?autoplay=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(typeof window === 'undefined' ? '' : window.location.origin)}`
     : ''
 
+  // The muted-fallback check below belongs to one frame: a stream switched or
+  // stopped within its 2.5 s must not have the next one muted by it.
+  const muteCheck = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(muteCheck.current), [playing])
+
   const onFrameLoad = useCallback(() => {
     // Ask the player to report its state from now on.
     frame.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'rs-live', channel: 'widget' }), ORIGIN)
@@ -223,7 +228,8 @@ export function LivePlayerProvider({ lang, children }: { lang: Lang; children: R
     // couple of seconds in, it was refused: start muted — which every browser
     // allows — and offer the sound on our own button.
     ytState.current = -1
-    window.setTimeout(() => {
+    window.clearTimeout(muteCheck.current)
+    muteCheck.current = window.setTimeout(() => {
       if (ytState.current === 1 || ytState.current === 3) return
       command('mute')
       command('playVideo')

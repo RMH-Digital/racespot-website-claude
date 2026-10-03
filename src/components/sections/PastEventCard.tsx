@@ -34,7 +34,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
     <div
       className="group relative aspect-4/3 overflow-hidden rounded-rs
                  border-2 border-transparent hover:border-rs-yellow
-                 transition-all duration-300 ease-out cursor-pointer"
+                 transition-colors duration-300 ease-out"
     >
       {/* All images stacked, crossfade on active */}
       {event.images.map((src, i) => (
@@ -44,7 +44,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
           alt={`${event.name} – ${labels.photo} ${i + 1}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className={`object-cover transition-all duration-700 ease-out
+          className={`object-cover transition-[opacity,scale] duration-700 ease-out
                       ${i === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
         />
       ))}
@@ -70,9 +70,9 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
                        w-8 h-8 flex items-center justify-center
                        bg-rs-black/60 backdrop-blur-xs rounded-full
                        border border-white/20 text-white/80
-                       opacity-0 group-hover:opacity-100
+                       opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
-                       transition-all duration-300"
+                       transition-[opacity,background-color,color,border-color] duration-300"
             aria-label={labels.prev}
             title={labels.prev}
           >
@@ -86,9 +86,9 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
                        w-8 h-8 flex items-center justify-center
                        bg-rs-black/60 backdrop-blur-xs rounded-full
                        border border-white/20 text-white/80
-                       opacity-0 group-hover:opacity-100
+                       opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100
                        hover:bg-rs-yellow hover:text-rs-black hover:border-rs-yellow
-                       transition-all duration-300"
+                       transition-[opacity,background-color,color,border-color] duration-300"
             aria-label={labels.next}
             title={labels.next}
           >
@@ -106,7 +106,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
                      text-[11px] font-display font-bold tracking-widest uppercase
                      px-3 py-1.5 rounded-rs border border-rs-yellow/30
                      group-hover:bg-rs-yellow group-hover:text-rs-black
-                     transition-all duration-300"
+                     transition-colors duration-300"
         >
           {event.year}
         </span>
@@ -115,7 +115,7 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
       {/* Content overlay - bottom */}
       <div className="absolute bottom-0 left-0 right-0 z-10 p-5">
         {/* Yellow accent bar */}
-        <div className="w-8 h-[3px] bg-rs-yellow mb-3 group-hover:w-12 transition-all duration-300" />
+        <div className="w-12 h-[3px] bg-rs-yellow mb-3 origin-left scale-x-[0.667] group-hover:scale-x-100 transition-transform duration-300" />
 
         {/* Event name */}
         <h3
@@ -156,7 +156,8 @@ export default function PastEventCard({ event, labels }: { event: PastEvent; lab
           <div
             className="flex items-center gap-0.5 mt-2 -mb-2 opacity-0 translate-y-2
                        group-hover:opacity-100 group-hover:translate-y-0
-                       transition-all duration-300 delay-75"
+                       pointer-coarse:opacity-100 pointer-coarse:translate-y-0
+                       transition-[opacity,translate] duration-300 delay-75"
           >
             {event.images.map((_, i) => (
               // The visible dot stays a dot; the button around it is 24 px,

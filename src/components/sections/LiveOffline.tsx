@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useCountdown } from '@/lib/hooks/useCountdown'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
@@ -58,20 +58,26 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
   const countdown = useCountdown(nextEvent?.dateISO || '')
   const t = getT(lang)
 
-  const hasCountdown = nextEvent && (countdown.days > 0 || countdown.hours > 0 || countdown.mins > 0 || countdown.secs > 0)
+  // Before the first tick the boxes are already there, with dashes: they
+  // used to appear only after hydration and pushed the buttons below them
+  // down by 120px (layout shift 0.07, measured 2026-10-02).
+  const hasCountdown = nextEvent && (!countdown.ready || countdown.days > 0 || countdown.hours > 0 || countdown.mins > 0 || countdown.secs > 0)
+  const unit = (v: number, pad: boolean) => (countdown.ready ? (pad ? String(v).padStart(2, '0') : String(v)) : '–')
 
   // The header's poll (LiveStatusProvider, once a minute) is the first to
   // know when the stream is up; one reload then swaps this page for the
   // player. Until 2026-09-22 this component reloaded the whole page every
   // thirty seconds for the first three minutes after the scheduled start,
   // and only then — a stream that began early or late was never noticed.
-  const { isLive, loaded } = useLiveStatus()
+  const { isLive, loaded, polledAt } = useLiveStatus()
   const reloaded = useRef(false)
+  // Only a poll made after this page appeared counts — see LiveEmbed.
+  const [mountedAt] = useState(() => Date.now())
   useEffect(() => {
-    if (!loaded || !isLive || reloaded.current) return
+    if (!loaded || !isLive || reloaded.current || polledAt < mountedAt) return
     reloaded.current = true
     window.location.reload()
-  }, [isLive, loaded])
+  }, [isLive, loaded, polledAt, mountedAt])
 
   return (
     <div className="pt-8 min-h-screen">
@@ -81,10 +87,7 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
 
         {/* Offline state hero */}
         <div
-          className="rounded-lg border border-rs-border p-8 md:p-12 lg:p-16 text-center mb-16"
-          style={{
-            background: 'linear-gradient(180deg, #111 0%, #0A0A0A 100%)',
-          }}
+          className="rounded-rs border border-rs-border bg-linear-to-b from-rs-dark to-rs-black p-8 md:p-12 lg:p-16 text-center mb-16"
         >
           {/* Offline indicator */}
           <div className="flex items-center justify-center gap-2 mb-6">
@@ -117,16 +120,16 @@ export function LiveOffline({ lang, nextEvent, upcomingEvents }: LiveOfflineProp
               {hasCountdown && (
                 <div className="flex justify-center gap-3 sm:gap-4 mb-10">
                   {[
-                    { value: countdown.days, label: t('live.days') },
-                    { value: String(countdown.hours).padStart(2, '0'), label: t('live.hrs') },
-                    { value: String(countdown.mins).padStart(2, '0'), label: t('live.min') },
-                    { value: String(countdown.secs).padStart(2, '0'), label: t('live.sec') },
+                    { value: unit(countdown.days, false), label: t('live.days') },
+                    { value: unit(countdown.hours, true), label: t('live.hrs') },
+                    { value: unit(countdown.mins, true), label: t('live.min') },
+                    { value: unit(countdown.secs, true), label: t('live.sec') },
                   ].map((unit) => (
                     <div
                       key={unit.label}
                       className="bg-rs-dark border border-rs-border rounded-rs px-3 sm:px-5 py-3 min-w-[60px] sm:min-w-[80px] text-center"
                     >
-                      <p className="font-display font-black text-rs-yellow text-2xl sm:text-4xl leading-none">
+                      <p className="font-display font-black text-rs-yellow text-2xl sm:text-4xl leading-none tabular-nums">
                         {unit.value}
                       </p>
                       <p className="text-[11px] uppercase tracking-widest text-rs-muted mt-1">

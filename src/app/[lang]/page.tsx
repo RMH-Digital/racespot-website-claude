@@ -37,7 +37,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 
 export default async function HomePage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params
-  const events = await getUpcomingEvents(3)
+  // Wider than the three it once was: during a 24-hour race with two other
+  // rows on air, the first three were all live and the hero had no next.
+  const events = await getUpcomingEvents(10)
 
   // Next upcoming event for hero (when not live), with its announced
   // YouTube stream attached when there is one — that is where the bell is.

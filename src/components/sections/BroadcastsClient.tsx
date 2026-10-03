@@ -105,7 +105,9 @@ export function BroadcastsClient({ lang, playlists, families, followSlot }: Broa
   }
 
   return (
-    <div>
+    // Target of "Show less": back to the top of the playlists, not the
+    // footer where the long list ended (the id was missing until 2026-10-02).
+    <div id="playlists-section">
       {/* Header with search + filter */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
@@ -262,7 +264,7 @@ export function BroadcastsClient({ lang, playlists, families, followSlot }: Broa
             onClick={() => setShowAll(true)}
             className="btn-outline btn-sm"
           >
-            Show All Playlists ({hiddenCount} more)
+            {t('broadcastsPage.showAll').replace('{n}', String(hiddenCount))}
           </button>
         </div>
       )}
@@ -273,9 +275,9 @@ export function BroadcastsClient({ lang, playlists, families, followSlot }: Broa
               setShowAll(false)
               document.getElementById('playlists-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
             }}
-            className="text-rs-muted text-sm hover:text-rs-yellow transition-colors"
+            className="btn-ghost"
           >
-            Show Less
+            {t('broadcastsPage.showLess')}
           </button>
         </div>
       )}

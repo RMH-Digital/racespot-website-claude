@@ -22,7 +22,7 @@ export async function Testimonials({ lang }: { lang: Lang }) {
   const t = getT(lang)
 
   return (
-    <section className="section--alt py-14 md:py-20 border-y border-rs-border" aria-labelledby="voices-title">
+    <section className="section--alt py-14 md:py-20" aria-labelledby="voices-title">
       <div className="container-rs-wide">
         <div className="mb-8 text-center md:mb-10">
           <p className="section-label mb-2">{t('home.voices.label')}</p>
