@@ -15,3 +15,5 @@ next-env.d.ts
 
 # Transport-Pakete (z. B. Bilder-Exporte) gehören nicht ins Repo
 *.zip
+# …except the press kit's logo bundle, which the press page links to
+!public/press/racespot-logos.zip
