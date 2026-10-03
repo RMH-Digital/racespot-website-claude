@@ -440,7 +440,7 @@ interface LiveVideoItem {
     liveBroadcastContent: string
     channelId?: string
   }
-  liveStreamingDetails?: { concurrentViewers?: string; scheduledStartTime?: string }
+  liveStreamingDetails?: { concurrentViewers?: string; scheduledStartTime?: string; actualStartTime?: string }
 }
 
 function toLiveStream(item: LiveVideoItem): YouTubeLiveStream {
@@ -450,6 +450,7 @@ function toLiveStream(item: LiveVideoItem): YouTubeLiveStream {
     description: item.snippet.description,
     thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url || '',
     concurrentViewers: item.liveStreamingDetails?.concurrentViewers || '0',
+    startedAt: item.liveStreamingDetails?.actualStartTime,
   }
 }
 

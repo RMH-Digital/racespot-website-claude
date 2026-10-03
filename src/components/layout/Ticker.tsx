@@ -73,7 +73,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
   const { locale, timeZone, is24h } = useLocalFormat(lang)
   const reducedMotion = usePrefersReducedMotion()
   const [step, setStep] = useState(0)
-  const { liveStreams, isLive, loaded, polledAt } = useLiveStatus()
+  const { liveStreams, isLive, loaded, polledAt, liveRows } = useLiveStatus()
   const t = getT(lang)
 
   const rendered = useMemo(() => {
@@ -87,15 +87,16 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     // it rather than announce a broadcast that has ended. Only once YouTube's
     // answer is in; until then the server's list stands.
     //
-    // And a row that is live right now is dropped while YouTube reports a
-    // stream: the stream's own line above already says it, with the viewer
-    // count, and the strip carried the same broadcast twice (2026-09-23,
-    // British F4 under the sheet's name and under YouTube's).
+    // And a row whose own stream is on air is dropped: the stream's line
+    // above already says it, with the viewer count, and the strip carried the
+    // same broadcast twice (2026-09-23, British F4 under the sheet's name and
+    // under YouTube's). Only that row — until 2026-10-03 any stream dropped
+    // every live row, and a second broadcast at the same time vanished.
     const current = (!items || items.length === 0) ? [] : items.filter(item => {
       if (!item.event) return true
       if (!loaded) return true
-      const s = eventStatus(item.event, isLive, polledAt)
-      return !s.past && !(s.live && liveItems.length > 0)
+      const s = eventStatus(item.event, liveRows, polledAt)
+      return !s.past && !liveRows[item.event.id]
     })
     const serverItems = current.map(item => {
       if (item.dateISO) return { text: `${item.label} — ${formatWhen(item.dateISO, { locale, timeZone, is24h })}`, event: item.event }
@@ -103,7 +104,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
     })
 
     return liveItems.length > 0 ? [...liveItems, ...serverItems] : serverItems
-  }, [items, locale, timeZone, is24h, liveStreams, isLive, loaded, polledAt, t])
+  }, [items, locale, timeZone, is24h, liveStreams, liveRows, loaded, polledAt, t])
 
   // Step through the items when nothing may scroll (see usePrefersReducedMotion)
   useEffect(() => {

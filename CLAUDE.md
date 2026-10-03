@@ -216,6 +216,10 @@ Kostenrechnung steht im Kopf von `youtube.ts`, die Geschichte in
   Replay-Index liegen in Modul-Memos (ein Container). Hundert offene Tabs
   kosten, was einer kostet. Wer eine neue Datenquelle anschließt, hängt sie
   an dieselbe Stelle, nicht an den Aufrufer.
+- **„Live“ gilt pro Zeile, nicht pro Kanal.** `lib/liveRows.ts` ordnet jeden
+  Stream seiner Zeile zu; `/api/live-streams` liefert das als `rows`, und
+  `calendar/status.ts` liest nur das. Ein laufender Stream macht nicht jede
+  Zeile in ihrem Fenster live.
 - Der Hauptschlüssel (`YOUTUBE_API_KEY`) trägt die Seite, der Live-Schlüssel
   (`YOUTUBE_LIVE_API_KEY`) die Erkennung. Die Suche fällt **nie** auf den
   Hauptschlüssel zurück.

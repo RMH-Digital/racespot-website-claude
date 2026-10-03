@@ -1844,9 +1844,17 @@ sonst überall unter 0,01. Kalender-Seite 48 KB (gzip) leichter.
   einer Id, die es nicht gab. Hero-Knöpfe am Handy gleich breit, „Alle
   ansehen“ bei den Broadcasts auch am Handy, Sprachknopf 44 px hoch.
 
-**Bewusst offen**: „Live“ im Kalender gilt kanalweit — läuft irgendein
-Stream, ist jede Zeile in ihrem Fenster live. Pro Zeile zuordnen wäre der
-richtige Weg (wie `withReplays`), ist aber eine eigene Arbeit. Fehlerrot im
+**Nachgezogen 2026-10-03**: „Live“ im Kalender galt kanalweit — lief
+irgendein Stream, war jede Zeile in ihrem Fenster live, und eine zweite
+gleichzeitige Sendung fiel aus dem Laufband. Jetzt paart `lib/liveRows.ts`
+auf dem Server jeden Stream mit seiner Zeile (Titelwörter wie bei
+`withReplays`, gemeinsam in `lib/titleMatch.ts`; Startzeit des Streams;
+ein Stream darf zwei aufeinanderfolgende Klassen derselben Serie tragen),
+`/api/live-streams` liefert `rows` mit. Zeilen auf fremden Kanälen
+(`offChannel`: Destination ohne RaceSpot, oder Partnerkanal) folgen dem
+Zeitplan. Geprüft an acht konstruierten Fällen.
+
+**Bewusst offen**: Fehlerrot im
 Formular bleibt Tailwinds `red-400`: `rs-live` hätte auf Dunkel zu wenig
 Kontrast für kleine Schrift. `MANUAL` in `testimonials.ts` (ein Eintrag, nie
 sichtbar bei Schwelle 3) wartet auf Jürgens Entscheidung.

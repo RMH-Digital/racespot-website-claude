@@ -24,6 +24,7 @@
  */
 
 import type { ScheduledBroadcast } from './youtube'
+import { offChannel } from './liveRows'
 
 const API_KEY = process.env.GOOGLE_SHEETS_API_KEY
 const SHEET_ID = process.env.GOOGLE_SHEETS_ID
@@ -64,6 +65,12 @@ export interface CalendarEvent {
   videoId?: string
   /** Every part, in order, when one broadcast was streamed in several — `videoId` is the first of them */
   videoParts?: string[]
+  /**
+   * Goes out on a channel other than ours (the destination column, or a
+   * partner channel's announced stream — see withReplays). Our live list can
+   * never show it, so its status follows the schedule alone.
+   */
+  offChannel?: boolean
 }
 
 /**
@@ -267,6 +274,7 @@ export function toCalendarEvent(e: ScheduleEvent): CalendarEvent {
     durationHours: e.durationHours,
     isLive: e.isLive,
     isPast: e.isPast,
+    ...(offChannel(e.destination) ? { offChannel: true } : {}),
   }
 }
 

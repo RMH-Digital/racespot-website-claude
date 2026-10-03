@@ -26,6 +26,8 @@ export interface YouTubeLiveStream {
   description: string
   thumbnail: string
   concurrentViewers: string
+  /** When it went on air (ISO) — what pairs it with its row in the schedule */
+  startedAt?: string
 }
 
 export interface YouTubePlaylist {
