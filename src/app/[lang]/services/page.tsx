@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
+import { Advertise } from '@/components/sections/Advertise'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params
@@ -125,6 +126,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ lang:
             )
           })}
         </div>
+
+        <Advertise lang={lang} />
 
         {/* Behind the Scenes - How We Work Photos */}
         <div className="mt-20">

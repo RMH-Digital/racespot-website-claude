@@ -23,11 +23,12 @@ const BUILT_AT = new Date()
  * Bump the date here when you change what the page *says*.
  */
 const CONTENT_UPDATED: Record<string, string> = {
-  '/services': '2026-09-15',
+  '/services': '2026-10-03',
+  '/press':    '2026-10-03',
   '/about':    '2026-09-15',
   '/events':   '2026-09-15',
-  '/contact':  '2026-09-14',
-  '/privacy':  '2026-09-14',
+  '/contact':  '2026-10-03',
+  '/privacy':  '2026-10-03',
   '/terms':    '2026-09-14',
   '/imprint':  '2026-09-14',
 }
@@ -42,6 +43,7 @@ const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number; lan
   { path: '/news',       changeFrequency: 'weekly',  priority: 0.8 },
   { path: '/about',      changeFrequency: 'monthly', priority: 0.7 },
   { path: '/contact',    changeFrequency: 'monthly', priority: 0.6 },
+  { path: '/press',      changeFrequency: 'monthly', priority: 0.5 },
   // legal texts exist in en and de only (see src/lib/i18n/legal/types.ts)
   { path: '/privacy',    changeFrequency: 'yearly',  priority: 0.3, langs: LEGAL_LANGS },
   { path: '/terms',      changeFrequency: 'yearly',  priority: 0.3, langs: LEGAL_LANGS },

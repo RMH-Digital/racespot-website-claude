@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server'
+import { BUDGETS, BUDGET_NAMES_EN, PACKAGE_NAMES_EN, isPackage, type BudgetSlug } from '@/lib/packages'
 
 /**
  * POST /api/contact
  *
- * Three form types share this endpoint, selected by `body.type`:
+ * Four form types share this endpoint, selected by `body.type`:
  *   - 'general'   — name, email, subject?, message
  *   - 'broadcast' — structured quote request for a series/event broadcast
  *   - 'event'     — an event: its dates, whether a broadcast is planned,
  *                   whether a venue is in place, and anything else
+ *   - 'media'     — advertising: brand, product, package, start, budget
+ * Any of them may carry `source` (the page's utm_* values), shown in the
+ * internal mail only.
  *
- * Both pass through the same honeypot, Turnstile check and rate limit.
+ * All pass through the same honeypot, Turnstile check and rate limit.
  * Delivery: SMTP when configured, otherwise a mailto fallback for the client.
  */
 
@@ -98,7 +102,7 @@ function internalRecipients(): string[] {
 
 // ─── Form definitions ────────────────────────────────────────
 
-type FormType = 'general' | 'broadcast' | 'event'
+type FormType = 'general' | 'broadcast' | 'event' | 'media'
 
 interface Row { label: string; value: string; multiline?: boolean }
 
@@ -283,6 +287,50 @@ function prepareEvent(body: Record<string, unknown>): Prepared | Invalid {
   }
 }
 
+function prepareMedia(body: Record<string, unknown>): Prepared | Invalid {
+  const brand = str(body.brand, 200)
+  const product = str(body.product, 300)
+  const name = str(body.name, 200)                         // optional
+  const email = str(body.email, 200)
+  const pkg = str(body.package, 30)
+  const start = str(body.start, 10)                        // optional, YYYY-MM
+  const budget = str(body.budget, 20)                      // optional
+  const message = str(body.message)                        // optional
+
+  const fields: FieldErrors = {}
+  if (!brand) fields.brand = 'required'
+  if (!product) fields.product = 'required'
+  if (!email) fields.email = 'required'
+  else if (!EMAIL_RE.test(email)) fields.email = 'email'
+  if (pkg && pkg !== 'open' && !isPackage(pkg)) fields.package = 'select'
+  if (start && !/^\d{4}-(0[1-9]|1[0-2])$/.test(start)) fields.start = 'select'
+  if (budget && !(BUDGETS as readonly string[]).includes(budget)) fields.budget = 'select'
+  if (Object.keys(fields).length) return { error: 'Please check the highlighted fields.', fields }
+
+  const packageName = isPackage(pkg) ? PACKAGE_NAMES_EN[pkg] : 'Not sure yet'
+  const rows: Row[] = [
+    { label: 'Company / brand', value: brand },
+    { label: 'Promote', value: product },
+    ...(name ? [{ label: 'Contact', value: name }] : []),
+    { label: 'Email', value: email },
+    { label: 'Package', value: packageName },
+    ...(start ? [{ label: 'Preferred start', value: start }] : []),
+    ...(budget ? [{ label: 'Budget', value: BUDGET_NAMES_EN[budget as BudgetSlug] }] : []),
+  ]
+
+  const summary =
+    rows.map((r) => `${r.label}: ${r.value}`).join('\n') +
+    (message ? `\n\nMessage:\n${message}` : '')
+
+  return {
+    subject: `Media & Partnerschaft: ${brand} — ${packageName}`,
+    heading: 'New Media & Partnership Inquiry',
+    rows,
+    freeText: message ? { label: 'Message', value: message } : undefined,
+    summary,
+  }
+}
+
 // ─── Rendering ───────────────────────────────────────────────
 
 const HTML_HEAD = `<div style="background: #0A0A0A; padding: 20px 24px; border-bottom: 3px solid #F5C000;">`
@@ -376,14 +424,28 @@ export async function POST(request: Request) {
     }
 
     const type: FormType =
-      body.type === 'broadcast' ? 'broadcast' : body.type === 'event' ? 'event' : 'general'
+      body.type === 'broadcast' ? 'broadcast' : body.type === 'event' ? 'event' : body.type === 'media' ? 'media' : 'general'
     const prepared =
-      type === 'broadcast' ? prepareBroadcast(body) : type === 'event' ? prepareEvent(body) : prepareGeneral(body)
+      type === 'broadcast' ? prepareBroadcast(body)
+        : type === 'event' ? prepareEvent(body)
+        : type === 'media' ? prepareMedia(body)
+        : prepareGeneral(body)
     if ('error' in prepared) {
       return NextResponse.json({ error: prepared.error, code: 'validation', fields: prepared.fields }, { status: 400 })
     }
 
-    const name = str(body.name, 200)
+    // Where the inquiry came from: the utm_* of the page it was sent from
+    // ("mediakit / pdf"), so the mail says which link brought it. Not stored
+    // anywhere else; it travels in this mail only.
+    const source = str(body.source, 300)
+    if (source) {
+      // Rows only: the summary is also the sender's own copy, and "where we
+      // found you" is ours to know, not theirs to be told.
+      prepared.rows.push({ label: 'Source', value: source })
+    }
+
+    // The media form's name is optional; the brand speaks then.
+    const name = str(body.name, 200) || str(body.brand, 200)
     const email = str(body.email, 200)
 
     // Same form, same IP, same content within 10 minutes → do not send twice.
@@ -414,7 +476,7 @@ export async function POST(request: Request) {
         to: recipients.join(', '),
         replyTo: `"${name.replace(/["\r\n]/g, '')}" <${email}>`,
         subject: prepared.subject.replace(/[\r\n]/g, ' '),
-        text: `${prepared.heading}\n\n${prepared.summary}`,
+        text: `${prepared.heading}\n\n${prepared.summary}${source ? `\n\nSource: ${source}` : ''}`,
         html: renderInternalHtml(prepared),
       })
       // It is with us now; a resubmit from here on would be a second copy.
@@ -426,7 +488,7 @@ export async function POST(request: Request) {
       if (!internal.includes(email.toLowerCase())) await transporter.sendMail({
         from: `"Racespot.tv" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: `Copy of your ${type === 'broadcast' ? 'broadcast request' : type === 'event' ? 'event inquiry' : 'message'} to Racespot.tv`,
+        subject: `Copy of your ${type === 'broadcast' ? 'broadcast request' : type === 'event' ? 'event inquiry' : type === 'media' ? 'partnership inquiry' : 'message'} to Racespot.tv`,
         text: `Hi ${name},\n\nThank you for reaching out to Racespot.tv! This is a copy of what you sent us:\n\n${prepared.summary}\n\n---\nWe'll get back to you as soon as possible.\n\nBest regards,\nThe Racespot Team\ncontact@racespot.tv\nhttps://racespot.tv`,
         html: renderConfirmationHtml(name, prepared),
       })

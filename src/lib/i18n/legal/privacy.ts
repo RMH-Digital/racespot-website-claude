@@ -38,7 +38,7 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  */
 
 const en: LegalDoc = {
-  updated: 'Last updated: October 2, 2026',
+  updated: 'Last updated: October 3, 2026',
   sections: [
     {
       heading: '1. Data Controller',
@@ -87,7 +87,7 @@ const en: LegalDoc = {
     {
       heading: '6. Contact Form and Email',
       body: [
-        p('When you use one of our contact forms, we process the data you enter — your name, email address and the content of your message, plus the details of your enquiry in the broadcast request form — in order to answer you. Legal basis: **Art. 6(1)(b) GDPR** where the enquiry concerns a contract or its preparation, otherwise **Art. 6(1)(f) GDPR** (legitimate interest in responding to enquiries).'),
+        p('When you use one of our contact forms, we process the data you enter — your name, email address and the content of your message, plus the details of your enquiry in the broadcast, event and partnership forms (in the partnership form, for example, your company or brand, the product and, if you state it, a budget range) — in order to answer you. If you reached the form through a link carrying campaign parameters (for example from our media kit), we send the name of that campaign along with your enquiry so we know where it came from; it is not stored anywhere else. Legal basis: **Art. 6(1)(b) GDPR** where the enquiry concerns a contract or its preparation, otherwise **Art. 6(1)(f) GDPR** (legitimate interest in responding to enquiries).'),
         p('Providing this data is voluntary; without an email address we cannot reply. Enquiries are deleted once they are settled and no retention obligation applies — as a rule after two years at the latest.'),
         h3('Spam protection (Cloudflare Turnstile)'),
         p('The forms are protected by **Turnstile**, a service of **Cloudflare, Inc.**, 101 Townsend St., San Francisco, CA 94107, USA. It checks whether the form is being filled in by a person rather than a bot. To do so, your IP address and information about your browser are transmitted to Cloudflare and a short-lived entry is stored on your device. Turnstile works without tracking cookies and is not used for advertising.'),
@@ -183,7 +183,7 @@ const en: LegalDoc = {
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 2. Oktober 2026',
+  updated: 'Stand: 3. Oktober 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
@@ -232,7 +232,7 @@ const de: LegalDoc = {
     {
       heading: '6. Kontaktformular und E-Mail',
       body: [
-        p('Wenn Sie eines unserer Kontaktformulare nutzen, verarbeiten wir die von Ihnen eingegebenen Daten — Name, E-Mail-Adresse und Inhalt Ihrer Nachricht, bei der Broadcast-Anfrage zusätzlich die Angaben zu Ihrem Vorhaben — um Ihnen zu antworten. Rechtsgrundlage: **Art. 6 Abs. 1 lit. b DSGVO**, soweit die Anfrage einen Vertrag oder dessen Anbahnung betrifft, sonst **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse an der Beantwortung von Anfragen).'),
+        p('Wenn Sie eines unserer Kontaktformulare nutzen, verarbeiten wir die von Ihnen eingegebenen Daten — Name, E-Mail-Adresse und Inhalt Ihrer Nachricht, bei Broadcast-, Event- und Partnerschaftsanfragen zusätzlich die Angaben zu Ihrem Vorhaben (bei Partnerschaftsanfragen etwa Firma oder Marke, das Produkt und, falls angegeben, einen Budgetrahmen) — um Ihnen zu antworten. Kommen Sie über einen Link mit Kampagnenparametern zum Formular (etwa aus unseren Mediadaten), schicken wir den Namen dieser Kampagne mit Ihrer Anfrage mit, damit wir wissen, woher sie kommt; gespeichert wird er nirgends sonst. Rechtsgrundlage: **Art. 6 Abs. 1 lit. b DSGVO**, soweit die Anfrage einen Vertrag oder dessen Anbahnung betrifft, sonst **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse an der Beantwortung von Anfragen).'),
         p('Die Angabe ist freiwillig; ohne E-Mail-Adresse können wir nicht antworten. Anfragen löschen wir, sobald sie erledigt sind und keine Aufbewahrungspflicht entgegensteht — in der Regel spätestens nach zwei Jahren.'),
         h3('Spam-Schutz (Cloudflare Turnstile)'),
         p('Die Formulare sind durch **Turnstile** geschützt, einen Dienst der **Cloudflare, Inc.**, 101 Townsend St., San Francisco, CA 94107, USA. Er prüft, ob das Formular von einem Menschen und nicht von einem Bot ausgefüllt wird. Dabei werden Ihre IP-Adresse und Angaben zu Ihrem Browser an Cloudflare übermittelt und kurzzeitig ein Eintrag auf Ihrem Gerät gespeichert. Turnstile kommt ohne Tracking-Cookies aus und wird nicht für Werbung verwendet.'),

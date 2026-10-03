@@ -1859,6 +1859,31 @@ Formular bleibt Tailwinds `red-400`: `rs-live` hätte auf Dunkel zu wenig
 Kontrast für kleine Schrift. `MANUAL` in `testimonials.ts` (ein Eintrag, nie
 sichtbar bei Schwelle 3) wartet auf Jürgens Entscheidung.
 
+## 7x. Werbekunden-Einstieg, Presseseite — 2026-10-03
+
+Auftrag aus der Analytics-Session (Mediadaten-PDFs verlinken auf die Website).
+- Kontaktformular: Reiter über `?type=`, Paket über `?package=`, vierter
+  Reiter „Media & Partnerschaft“ (Firma/Marke, Produkt, E-Mail Pflicht; Name,
+  Paket, Start-Monat, Budgetrahmen, Nachricht optional). `utm_*` gehen als
+  „Source“ nur in die interne Mail. Das Feld heißt `brand`, weil `company` der
+  Honeypot ist.
+- `/press`: Presseverteiler (press@racespot.tv), Affiliate-Hinweis, Eckdaten
+  live, Logos (Schriftzug weiß/schwarz/gelb, R weiß/schwarz/auf Gelb, ZIP),
+  Mediadaten auf Anfrage. Footer, Sitemap, Metadaten in sechs Sprachen.
+- Services: Abschnitt „Werben bei Racespot“ mit Zahlen und den sechs Paketen
+  (Name + Kurzzeile aus den Mediadaten), keine Preise.
+- Datenschutz 6. (de + en): Firma, Budget, Kampagnenquelle.
+
+**Offen**:
+- Die Zahlen „96 % der Sehzeit live“ und „Ø 11 Minuten je Aufruf“ erscheinen,
+  sobald Analytics `liveWatchShare365` und `avgViewDuration365` liefert
+  (ANALYTICS-SITE-STATS.md).
+- Logos gibt es nur als PNG; die SVGs in anderen Projekten betten diese PNGs
+  nur ein, die in `~/.openclaw/…/racespot-logos` sind nachgebaute Textlogos in
+  Oswald, also unbrauchbar. Echte Vektordateien (SVG/EPS) bei der Gestaltung
+  anfragen. Das Gelb der Logo-Dateien ist #FFD305, nicht #F5C000.
+- Preise und Mediadaten zum Herunterladen erst nach Absprache mit Philip und Hugo.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl

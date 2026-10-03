@@ -34,7 +34,11 @@ GET https://analytics.racespot.tv/api/public/site-stats
     "youtube": 34200, "x": 9728, "facebook": 7692,
     "instagram": 3072, "twitch": 2467, "tiktok": 400
   },
-  "youtube": { "views": 6184897, "watchHours365": 123456 }
+  "youtube": {
+    "views": 6184897, "watchHours365": 123456,
+    "liveWatchShare365": 0.96,      // neu 2026-10-03
+    "avgViewDuration365": 660       // neu 2026-10-03, Sekunden
+  }
 }
 ```
 
@@ -46,9 +50,18 @@ GET https://analytics.racespot.tv/api/public/site-stats
   Die Seite rundet ab und muss jede Zahl belegen können.
 - `youtube.watchHours365`: Summe `watch_minutes` (`kind` `daily`) der letzten
   365 Tage bis vorgestern, geteilt durch 60, gerundet.
+- `youtube.liveWatchShare365` (neu 2026-10-03): Anteil der Sehzeit der
+  letzten 365 Tage auf Videos, die Livestreams waren (live gesehen oder als
+  Aufzeichnung), 0–1. Die Website zeigt ihn abgerundet in Prozent
+  („96 % der Sehzeit live“, Services-Seite, Abschnitt Werben).
+- `youtube.avgViewDuration365` (neu 2026-10-03): durchschnittliche
+  Wiedergabedauer je Aufruf der letzten 365 Tage, in **Sekunden**. Die Website
+  zeigt abgerundete Minuten („Ø 11 Minuten je Aufruf“).
+- Beide fehlen, bis das Analytics-Tool sie liefert; die Website blendet die
+  Kachel dann aus, ohne Ersatzwert.
 - **Öffentlich, ohne Token, nur lesend.** Es sind genau die Zahlen, die auf
   racespot.tv ohnehin stehen — kein Geheimnis, also kein Schlüssel, der in
-  zwei Coolify-Apps gepflegt werden müsste. Keine anderen Felder hinzufügen.
+  zwei Coolify-Apps gepflegt werden müsste. Weitere Felder nur, wenn die Website sie anzeigt (so am 2026-10-03 die zwei oben).
 - Die Website fragt höchstens alle sechs Stunden (Next-Fetch-Cache).
 
 ## Scharf schalten

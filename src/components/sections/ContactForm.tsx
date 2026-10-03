@@ -1,21 +1,30 @@
 'use client'
 
-// Contact form — three forms behind a tab switcher:
+// Contact form — four forms behind a tab switcher:
 //   1. Broadcast Request (default) — structured quote request for a series/event
 //   2. Event Inquiry — dates, whether a broadcast is planned, whether a venue exists
-//   3. General Inquiry — the classic name / email / subject / message form
-// Both share the honeypot, Cloudflare Turnstile and the /api/contact endpoint,
+//   3. Media & Partnership — advertising: brand, product, package, start, budget
+//   4. General Inquiry — the classic name / email / subject / message form
+// All share the honeypot, Cloudflare Turnstile and the /api/contact endpoint,
 // which branches on `type`.
+//
+// The address can pick the tab: /{lang}/contact?type=broadcast|event|media|general,
+// and ?package=<slug> preselects a package on the media tab. That is a
+// contract — the media kit and reports from Racespot Analytics link here.
+// utm_* stay in the address for Umami and travel with the inquiry as `source`.
 //
 // Validation runs here first (noValidate + our own rules) so every message is
 // translated and shown under the field it belongs to; the server re-validates
 // and answers with an error *code* that is mapped back to a translated string.
-import { useState, useRef, type FormEvent, type ReactNode } from 'react'
+import { useState, useRef, useEffect, type FormEvent, type ReactNode } from 'react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { getT, type Lang } from '@/lib/i18n'
+import { LOCALES, getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
+import { BUDGETS, PACKAGES, isPackage, type PackageSlug } from '@/lib/packages'
+import { useMounted } from '@/lib/hooks/useLocalTime'
 
-type FormType = 'broadcast' | 'event' | 'general'
+type FormType = 'broadcast' | 'event' | 'media' | 'general'
+const FORM_TYPES: readonly FormType[] = ['broadcast', 'event', 'media', 'general']
 type T = (key: TranslationKey) => string
 type Errors = Record<string, TranslationKey>
 
@@ -79,6 +88,14 @@ function validate(type: FormType, data: FormData): Errors {
     return errors
   }
 
+  if (type === 'media') {
+    // Name is optional here: a brand writes as a brand.
+    delete errors.name
+    required('brand')
+    required('product')
+    return errors
+  }
+
   if (type === 'event') {
     required('eventName')
     if (!get('eventStartDate')) errors.eventStartDate = 'contact.err.required'
@@ -109,6 +126,8 @@ function validate(type: FormType, data: FormData): Errors {
 
 export function ContactForm({ lang }: { lang: Lang }) {
   const [formType, setFormType] = useState<FormType>('broadcast')
+  const [presetPackage, setPresetPackage] = useState<PackageSlug | ''>('')
+  const [source, setSource] = useState('')
   const [submitted, setSubmitted] = useState<FormType | null>(null)
   const [sending, setSending] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
@@ -117,6 +136,20 @@ export function ContactForm({ lang }: { lang: Lang }) {
   const turnstileRef = useRef<TurnstileInstance>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const t = getT(lang)
+
+  // The tab, package and campaign from the address. Read after mount: the
+  // page is prerendered, so the server never sees the query string.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const type = q.get('type')
+    const pkg = q.get('package')
+    const utm = ['utm_source', 'utm_medium', 'utm_campaign'].map((k) => q.get(k)?.trim().slice(0, 100)).filter(Boolean)
+    /* eslint-disable react-hooks/set-state-in-effect -- a one-off read of the address */
+    if (type && (FORM_TYPES as readonly string[]).includes(type)) setFormType(type as FormType)
+    if (isPackage(pkg)) setPresetPackage(pkg)
+    if (utm.length) setSource(utm.join(' / '))
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [])
 
   function switchForm(next: FormType) {
     if (next === formType) return
@@ -158,7 +191,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
     }
 
     setSending(true)
-    const payload: Record<string, unknown> = { type: formType, lang, 'cf-turnstile-response': turnstileToken }
+    const payload: Record<string, unknown> = { type: formType, lang, 'cf-turnstile-response': turnstileToken, ...(source ? { source } : {}) }
     data.forEach((value, key) => { payload[key] = typeof value === 'string' ? value : '' })
 
     try {
@@ -205,6 +238,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
   const TABS: { id: FormType; labelKey: TranslationKey }[] = [
     { id: 'broadcast', labelKey: 'contact.tab.broadcast' },
     { id: 'event',     labelKey: 'contact.tab.event' },
+    { id: 'media',     labelKey: 'contact.tab.media' },
     { id: 'general',   labelKey: 'contact.tab.general' },
   ]
 
@@ -212,11 +246,13 @@ export function ContactForm({ lang }: { lang: Lang }) {
   const SEND_LABEL: Record<FormType, TranslationKey> = {
     broadcast: 'contact.bc.send',
     event: 'contact.ev.send',
+    media: 'contact.md.send',
     general: 'contact.send',
   }
   const THANKS: Record<FormType, TranslationKey> = {
     broadcast: 'contact.bc.thanksDesc',
     event: 'contact.ev.thanksDesc',
+    media: 'contact.md.thanksDesc',
     general: 'contact.thanksDesc',
   }
 
@@ -287,7 +323,9 @@ export function ContactForm({ lang }: { lang: Lang }) {
                 <div
                   role="tablist"
                   aria-label={t('contact.title')}
-                  className="grid grid-cols-3 gap-1 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
+                  // Four across from sm; two by two on a phone, where four
+                  // would leave ~78 px for "Media & Partnerschaft".
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-1 mb-8 p-1 bg-rs-dark border border-rs-border rounded-rs"
                 >
                   {TABS.map((tab) => {
                     const active = tab.id === formType
@@ -309,11 +347,11 @@ export function ContactForm({ lang }: { lang: Lang }) {
                           switchForm(next.id)
                           document.getElementById(`tab-${next.id}`)?.focus()
                         }}
-                        // Three tabs across a phone leave ~103 px each, and the
-                        // longest label ("Transmisión", "Transmissão") does not fit
-                        // on one line there. Smaller type, tighter padding and
-                        // automatic hyphenation — the document's `lang` picks the
-                        // right patterns — let it break instead of being clipped.
+                        // Narrow cells (four across a small tablet) do not fit the
+                        // longest labels on one line. Smaller type, tighter
+                        // padding and automatic hyphenation — the document's
+                        // `lang` picks the right patterns — let them break
+                        // instead of being clipped.
                         className={`min-h-11 px-1 py-2 sm:px-4 sm:py-2.5 rounded-[4px] font-display font-bold text-[10px] sm:text-[12px] uppercase tracking-normal sm:tracking-[0.08em] leading-[1.15] hyphens-auto transition-colors
                           ${active ? 'bg-rs-yellow text-rs-black' : 'text-rs-muted hover:text-white hover:bg-rs-gray'}`}
                       >
@@ -335,6 +373,7 @@ export function ContactForm({ lang }: { lang: Lang }) {
                 >
                   {formType === 'broadcast' && <BroadcastFields {...fieldProps} />}
                   {formType === 'event' && <EventFields {...fieldProps} />}
+                  {formType === 'media' && <MediaFields {...fieldProps} lang={lang} presetPackage={presetPackage} />}
                   {formType === 'general' && <GeneralFields {...fieldProps} />}
 
                   {/* Honeypot — hidden from real users, bots fill it out */}
@@ -438,7 +477,7 @@ function Field({
 
 /** Native <select> styled like the inputs, with our own chevron. */
 function Select({
-  id, name, className, invalid, describedBy, onChange, children, ariaLabel, required,
+  id, name, className, invalid, describedBy, onChange, children, ariaLabel, required, defaultValue = '',
 }: {
   id?: string
   name: string
@@ -449,13 +488,14 @@ function Select({
   children: ReactNode
   ariaLabel?: string
   required?: boolean
+  defaultValue?: string
 }) {
   return (
     <div className="relative">
       <select
         id={id}
         name={name}
-        defaultValue=""
+        defaultValue={defaultValue}
         aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         aria-describedby={describedBy}
@@ -696,6 +736,82 @@ function EventFields(ctx: FieldCtx) {
 
       <Field id="eventInfo" label={t('contact.ev.info')} ctx={ctx}>
         {(a) => <textarea id="eventInfo" name="eventInfo" rows={5} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.ev.infoPlaceholder')} />}
+      </Field>
+    </>
+  )
+}
+
+// ─── Media & partnership ─────────────────────────────────────
+
+/** The next twelve months as YYYY-MM, named in the page's language */
+function nextMonths(lang: Lang): { value: string; label: string }[] {
+  const now = new Date()
+  return Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    return { value, label: d.toLocaleDateString(LOCALES[lang], { month: 'long', year: 'numeric' }) }
+  })
+}
+
+function MediaFields({ lang, presetPackage, ...ctx }: FieldCtx & { lang: Lang; presetPackage: PackageSlug | '' }) {
+  const { t } = ctx
+  // The months depend on today; the page is prerendered at build time, so
+  // they are only listed once we are in the browser.
+  const mounted = useMounted()
+  const months = mounted ? nextMonths(lang) : []
+
+  return (
+    <>
+      <SectionLabel>{t('contact.md.brandSection')}</SectionLabel>
+      <div className="grid sm:grid-cols-2 gap-5">
+        {/* `brand`, not `company`: that name is the honeypot below. */}
+        <Field id="brand" label={t('contact.md.brand')} required ctx={ctx}>
+          {(a) => <input id="brand" name="brand" type="text" autoComplete="organization" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.md.brandPlaceholder')} />}
+        </Field>
+        <Field id="product" label={t('contact.md.product')} required ctx={ctx}>
+          {(a) => <input id="product" name="product" type="text" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.md.productPlaceholder')} />}
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Field id="name" label={t('contact.name')} ctx={ctx}>
+          {(a) => <input id="name" name="name" type="text" autoComplete="name" onChange={a.onChange} className={a.className} placeholder={t('contact.namePlaceholder')} />}
+        </Field>
+        <Field id="email" label={t('contact.email')} required ctx={ctx}>
+          {(a) => <input id="email" name="email" type="email" autoComplete="email" aria-invalid={a.invalid || undefined} aria-required={a.required} aria-describedby={a.describedBy} onChange={a.onChange} className={a.className} placeholder={t('contact.emailPlaceholder')} />}
+        </Field>
+      </div>
+
+      <SectionLabel>{t('contact.md.planSection')}</SectionLabel>
+      <Field id="package" label={t('contact.md.package')} ctx={ctx}>
+        {(a) => (
+          // Keyed on the preset: it arrives from the address after mount,
+          // and a select only reads defaultValue when it is created.
+          <Select key={presetPackage} id="package" name="package" defaultValue={presetPackage || 'open'} {...a}>
+            {PACKAGES.map((p) => <option key={p} value={p}>{t(`pkg.${p}.name` as TranslationKey)}</option>)}
+            <option value="open">{t('contact.md.packageOpen')}</option>
+          </Select>
+        )}
+      </Field>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Field id="start" label={t('contact.md.start')} ctx={ctx}>
+          {(a) => (
+            <Select id="start" name="start" defaultValue="" {...a}>
+              <option value="">{t('contact.md.startOpen')}</option>
+              {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </Select>
+          )}
+        </Field>
+        <Field id="budget" label={t('contact.md.budget')} ctx={ctx}>
+          {(a) => (
+            <Select id="budget" name="budget" defaultValue="" {...a}>
+              <option value="">{t('contact.selectPlaceholder')}</option>
+              {BUDGETS.map((b) => <option key={b} value={b}>{t(`contact.md.budget.${b}` as TranslationKey)}</option>)}
+            </Select>
+          )}
+        </Field>
+      </div>
+      <Field id="message" label={t('contact.message')} ctx={ctx}>
+        {(a) => <textarea id="message" name="message" rows={5} onChange={a.onChange} className={`${a.className} resize-none`} placeholder={t('contact.md.messagePlaceholder')} />}
       </Field>
     </>
   )

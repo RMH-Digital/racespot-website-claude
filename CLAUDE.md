@@ -64,6 +64,21 @@ item 1. The rules that are easy to break:
   en/de, no sitemap entry — the same treatment as an untranslated article. Both
   versions are approved; change them together.
 
+## Links from outside (contract)
+
+The media kit and reports from Racespot Analytics (PDF) link here, so these
+addresses are fixed:
+
+- `/{lang}/contact?type=broadcast|event|media|general` picks the form's tab
+  (unknown or missing → broadcast); `&package=feature|social|stream|series|presenting|custom`
+  preselects a package on the media tab (`lib/packages.ts`). `utm_*` stay in
+  the address for Umami and reach the internal mail as „Source“, nowhere else.
+- `/{lang}/press` — press contact (press@racespot.tv), key figures, logos
+  (`public/press/`).
+- **No prices and no downloadable media kit on the site** (Jürgen, 2026-10-03:
+  first to be agreed with Philip and Hugo). Packages appear by name and one
+  line; the media kit is sent on request.
+
 ## Design tokens
 
 Defined in `tailwind.config.ts` under `colors.rs` — don't hardcode hex values in

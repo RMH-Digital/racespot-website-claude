@@ -21,6 +21,7 @@ const FOOTER_LINKS: { categoryKey: TranslationKey; links: { href: string; labelK
       { href: '/events',     labelKey: 'nav.events' },
       { href: '/news',       labelKey: 'nav.news' },
       { href: '/about',      labelKey: 'footer.aboutUs' },
+      { href: '/press',      labelKey: 'footer.press' },
       { href: '/contact',    labelKey: 'footer.contact' },
     ],
   },
