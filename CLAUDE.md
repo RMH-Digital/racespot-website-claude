@@ -70,8 +70,9 @@ The media kit and reports from Racespot Analytics (PDF) link here, so these
 addresses are fixed:
 
 - `/{lang}/contact?type=broadcast|event|media|general` picks the form's tab
-  (unknown or missing → broadcast); `&package=feature|social|stream|series|presenting|custom`
-  preselects a package on the media tab (`lib/packages.ts`). `utm_*` stay in
+  (unknown or missing → broadcast); `&package=feature|social|stream|combo|series|custom`
+  preselects a package on the media tab (`lib/packages.ts`; the retired
+  `presenting` maps to `series`, „Series & Presenting“, since 2026-10-07). `utm_*` stay in
   the address for Umami and reach the internal mail as „Source“, nowhere else.
 - `/{lang}/press` — press contact (press@racespot.tv), key figures, logos
   (`public/press/`).

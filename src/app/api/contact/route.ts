@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { BUDGETS, BUDGET_NAMES_EN, PACKAGE_NAMES_EN, isPackage, type BudgetSlug } from '@/lib/packages'
+import { BUDGETS, BUDGET_NAMES_EN, PACKAGE_NAMES_EN, toPackage, type BudgetSlug } from '@/lib/packages'
 
 /**
  * POST /api/contact
@@ -302,12 +302,13 @@ function prepareMedia(body: Record<string, unknown>): Prepared | Invalid {
   if (!product) fields.product = 'required'
   if (!email) fields.email = 'required'
   else if (!EMAIL_RE.test(email)) fields.email = 'email'
-  if (pkg && pkg !== 'open' && !isPackage(pkg)) fields.package = 'select'
+  const slug = toPackage(pkg)
+  if (pkg && pkg !== 'open' && !slug) fields.package = 'select'
   if (start && !/^\d{4}-(0[1-9]|1[0-2])$/.test(start)) fields.start = 'select'
   if (budget && !(BUDGETS as readonly string[]).includes(budget)) fields.budget = 'select'
   if (Object.keys(fields).length) return { error: 'Please check the highlighted fields.', fields }
 
-  const packageName = isPackage(pkg) ? PACKAGE_NAMES_EN[pkg] : 'Not sure yet'
+  const packageName = slug ? PACKAGE_NAMES_EN[slug] : 'Not sure yet'
   const rows: Row[] = [
     { label: 'Company / brand', value: brand },
     { label: 'Promote', value: product },

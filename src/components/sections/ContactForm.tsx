@@ -20,7 +20,7 @@ import { useState, useRef, useEffect, type FormEvent, type ReactNode } from 'rea
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { LOCALES, getT, type Lang } from '@/lib/i18n'
 import type { TranslationKey } from '@/lib/i18n/translations'
-import { BUDGETS, PACKAGES, isPackage, type PackageSlug } from '@/lib/packages'
+import { BUDGETS, PACKAGES, toPackage, type PackageSlug } from '@/lib/packages'
 import { useMounted } from '@/lib/hooks/useLocalTime'
 
 type FormType = 'broadcast' | 'event' | 'media' | 'general'
@@ -142,11 +142,12 @@ export function ContactForm({ lang }: { lang: Lang }) {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     const type = q.get('type')
-    const pkg = q.get('package')
+    // Retired slugs (presenting) land on their successor.
+    const pkg = toPackage(q.get('package'))
     const utm = ['utm_source', 'utm_medium', 'utm_campaign'].map((k) => q.get(k)?.trim().slice(0, 100)).filter(Boolean)
     /* eslint-disable react-hooks/set-state-in-effect -- a one-off read of the address */
     if (type && (FORM_TYPES as readonly string[]).includes(type)) setFormType(type as FormType)
-    if (isPackage(pkg)) setPresetPackage(pkg)
+    if (pkg) setPresetPackage(pkg)
     if (utm.length) setSource(utm.join(' / '))
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [])

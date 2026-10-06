@@ -1883,6 +1883,11 @@ Auftrag aus der Analytics-Session (Mediadaten-PDFs verlinken auf die Website).
   Oswald, also unbrauchbar. Echte Vektordateien (SVG/EPS) bei der Gestaltung
   anfragen. Das Gelb der Logo-Dateien ist #FFD305, nicht #F5C000.
 - Preise und Mediadaten zum Herunterladen erst nach Absprache mit Philip und Hugo.
+- 2026-10-07 (Pakete v3 in Analytics): `combo` „Stream + Social“ neu, `series`
+  heißt „Serie & Presenting“, `presenting` entfällt und wird auf `series`
+  abgebildet (alte PDF-Links). Die Kurzzeile von Stream + Social nennt in den
+  Mediadaten einen Preis („299 € günstiger“) — auf der Website steht deshalb
+  „Social und Stream zusammen“.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
