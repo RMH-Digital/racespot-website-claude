@@ -1900,8 +1900,11 @@ Timing-Anzeige über unser Relais (Besucher ohne Kontakt zu Appgineering).
 - Coolify: `TALENT_SUPABASE_URL` und `TALENT_SUPABASE_ANON_KEY` setzen (Jürgen).
   Bis dahin rechnet die Website die Räume selbst — richtig, solange im Dashboard
   niemand einen Raum von Hand setzt.
-- Erster echter Test in der Nacht 2026-10-08 (iRacing Short Course, PCA). Der
-  Leser ist an selbst gebauten Frames geprüft (14 Fälle), noch nicht an echten.
+- Leser an echten Daten geprüft (2026-10-07, ein fremder Raum, Qualifying
+  Watkins Glen): 16.051 Frames in 8 min, 0 Lesefehler, 28 Fahrer korrekt.
+  Danach nachgeschärft: Ort statt internem Streckennamen, Session-Typ übersetzt,
+  Teilrunden (< 60 % der schnellsten Runde) nicht als „letzte Runde“. Der
+  erste Test mit einem Racespot-Raum steht noch aus (iRacing, Nacht 2026-10-08).
 - Hugo: „Live Timing ja/nein“ pro Sendung, Räume ohne Klick vergeben, schmale
   Ansicht statt offener `sch_events` (Nachricht in LIVE-TIMING.md).
 - Ausnahmeliste (`seriesHasTiming`) vom Team bestätigen lassen.

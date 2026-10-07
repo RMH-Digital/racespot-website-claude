@@ -315,6 +315,8 @@ export interface BoardRow {
 export interface Board {
   session: {
     name: string | null
+    /** 1 practice, 2 qualifying, 3 warm-up, 4 race (iRacing); null if unknown */
+    type: number | null
     isRace: boolean
     flag: Flag
     timeRemaining: number | null
@@ -337,6 +339,11 @@ const UNLIMITED_S = 86_400 * 2
 
 export function toBoard(state: TimingState): Board {
   const s = state.session
+  // A "last lap" far below the session's fastest is a partial one — the run
+  // from the pit exit in qualifying, measured 2026-10-07 at 6.9 s and 13.8 s
+  // against 85 s laps. Shown, it reads as a record; it is left out.
+  const fastestLap = lapTime(s.fastestLapTime)
+  const plausible = (v: number | null) => (v !== null && fastestLap !== null && v < fastestLap * 0.6 ? null : v)
   const rows: BoardRow[] = []
   for (const [id, e] of state.entries) {
     const t = state.timing.get(id) ?? {}
@@ -354,7 +361,7 @@ export function toBoard(state: TimingState): Board {
       gapLaps: t.gapLaps ?? 0,
       interval: t.interval !== undefined && t.interval >= 0 ? t.interval : null,
       intervalLaps: t.intervalLaps ?? 0,
-      last: lapTime(t.lastLap),
+      last: plausible(lapTime(t.lastLap)),
       best: lapTime(t.bestLap),
       pits: t.pitStopCount ?? 0,
       inPit: Boolean(t.inPitLane || t.inPitBox),
@@ -367,11 +374,12 @@ export function toBoard(state: TimingState): Board {
   const remaining = s.sessionTimeRemaining !== undefined && s.sessionTimeRemaining >= 0 && s.sessionTimeRemaining < UNLIMITED_S
     ? s.sessionTimeRemaining
     : null
-  const fastest = lapTime(s.fastestLapTime)
+  const fastest = fastestLap
 
   return {
     session: {
       name: s.sessionName || null,
+      type: s.sessionType && s.sessionType >= 1 && s.sessionType <= 4 ? s.sessionType : null,
       isRace: s.sessionType === 4,
       flag: flagOf(s.flags, s.sessionState),
       timeRemaining: remaining,
@@ -380,7 +388,9 @@ export function toBoard(state: TimingState): Board {
       byLaps: Boolean(s.sessionLengthDecidedByLaps),
       fastest: fastest ? { time: fastest, name: s.fastestLapDriverName || null, entryId: s.fastestLapEntryId ?? null } : null,
     },
-    track: state.track.name || null,
+    // The track frame's name is iRacing's internal one ("watkinsglen 2021
+    // fullnoloop"); the city is the readable name of the venue.
+    track: state.track.city || state.track.name || null,
     airC: state.weather.airC ?? null,
     trackC: state.weather.trackC ?? null,
     classes: [...state.classes].map(([id, c]) => ({ id, name: c.name ?? '', color: c.color ?? null })),

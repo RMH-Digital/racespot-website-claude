@@ -195,7 +195,8 @@ const FLAG_CLASS: Record<Flag, string> = {
 
 function Header({ board, t, event }: { board: Board; t: T; event: string | null }) {
   const s = board.session
-  const sessionLabel = s.isRace ? t('timing.session.race') : s.name
+  const SESSION: Record<number, TranslationKey> = { 1: 'timing.session.practice', 2: 'timing.session.qualify', 3: 'timing.session.warmup', 4: 'timing.session.race' }
+  const sessionLabel = s.type !== null ? t(SESSION[s.type]) : s.name
   const clock = s.timeRemaining !== null && !(s.byLaps && s.lapsTotal) ? duration(s.timeRemaining) : null
   return (
     <div className="border-b border-rs-border bg-rs-dark">

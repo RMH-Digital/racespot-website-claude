@@ -113,5 +113,8 @@ Beide nur zur Laufzeit nötig. Ohne sie rechnet die Website die Räume selbst
 
 - Lokal mit Testdaten: Live-Seite (Reiter, Breite, „Groß“, `?tab=timing`),
   Kalender-/Hero-Links, 1440 px und 375 px.
-- Echte Session: aufgezeichnet in der Nacht 2026-10-07/08 (siehe docs/TODO.md 7y),
-  Frames durch `decode.ts` gelesen.
+- Echte Session (2026-10-07, fremder Raum „Velocity Online Racing“, Qualifying
+  Watkins Glen): 16.051 Frames in 8 Minuten, alle gelesen, 22 ms für alle.
+  Häufigste Typen: ENTRY_TIMING (13.411), END_UPDATE_CYCLE (1.059), SESSION
+  und WEATHER (je 479). Board als JSON: 7,5 KB. Die Liste aktiver Räume
+  (`/frontend/home/live`) liefert `roomName`, auch für nicht verifizierte Räume.
