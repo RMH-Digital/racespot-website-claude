@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "eslint . && next build",
+    "build": "node scripts/check-sitemap.mjs && eslint . && next build",
     "start": "node scripts/start.mjs",
     "lint": "eslint .",
     "optimize-images": "node scripts/optimize-images.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
-    "youtube-auth": "node scripts/youtube-analytics-auth.mjs"
+    "youtube-auth": "node scripts/youtube-analytics-auth.mjs",
+    "check-sitemap": "node scripts/check-sitemap.mjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",
