@@ -1889,6 +1889,23 @@ Auftrag aus der Analytics-Session (Mediadaten-PDFs verlinken auf die Website).
   Mediadaten einen Preis („299 € günstiger“) — auf der Website steht deshalb
   „Social und Stream zusammen“.
 
+## 7y. Live Timing (Appgineering) — 2026-10-08
+
+Alle drei Stufen, entschieden mit Jürgen am 2026-10-07; Details in
+[LIVE-TIMING.md](LIVE-TIMING.md). Reiter „Live-Chat | Live Timing“ und „Groß“ auf
+der Live-Seite, Links in Kalender, „Kommende Broadcasts“ und Hero, eigene
+Timing-Anzeige über unser Relais (Besucher ohne Kontakt zu Appgineering).
+
+**Offen**:
+- Coolify: `TALENT_SUPABASE_URL` und `TALENT_SUPABASE_ANON_KEY` setzen (Jürgen).
+  Bis dahin rechnet die Website die Räume selbst — richtig, solange im Dashboard
+  niemand einen Raum von Hand setzt.
+- Erster echter Test in der Nacht 2026-10-08 (iRacing Short Course, PCA). Der
+  Leser ist an selbst gebauten Frames geprüft (14 Fälle), noch nicht an echten.
+- Hugo: „Live Timing ja/nein“ pro Sendung, Räume ohne Klick vergeben, schmale
+  Ansicht statt offener `sch_events` (Nachricht in LIVE-TIMING.md).
+- Ausnahmeliste (`seriesHasTiming`) vom Team bestätigen lassen.
+
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
 
 Der Build markierte **alle** `[lang]`-Routen als `ƒ` (dynamisch), obwohl
