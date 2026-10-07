@@ -51,9 +51,11 @@ export interface RawFrame {
 // ─── Reader (their class ji) ────────────────────────────────
 
 class Reader {
+  private buf: Uint8Array
   private view: DataView
   private i = 0
-  constructor(private buf: Uint8Array) {
+  constructor(buf: Uint8Array) {
+    this.buf = buf
     this.view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
   }
   seek(at: number) { this.i = at }
