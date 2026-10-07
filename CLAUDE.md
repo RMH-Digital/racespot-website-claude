@@ -240,6 +240,21 @@ Kostenrechnung steht im Kopf von `youtube.ts`, die Geschichte in
   (`YOUTUBE_LIVE_API_KEY`) die Erkennung. Die Suche fällt **nie** auf den
   Hauptschlüssel zurück.
 
+## Live Timing (Appgineering)
+
+Details, Entscheidungen und Coolify-Variablen: [docs/LIVE-TIMING.md](docs/LIVE-TIMING.md).
+Die Regeln, die leicht zu brechen sind:
+
+- **Besucher reden nie selbst mit Appgineering.** `lib/timing/relay.ts` hält je
+  Raum eine Verbindung für alle; der Browser fragt `/api/timing/<raum>`. Nur der
+  Rückfall (Appgineerings Seite) lädt auf Klick — so steht es in der
+  Datenschutzerklärung, Abschnitt 7.
+- **Das Frame-Format ist undokumentiert** (`lib/timing/decode.ts`). Ein Fehler
+  beim Lesen darf nie den Server stören: Raum als „broken“ markieren, Rückfall.
+- **Raum je Sendung kommt aus dem Talent Dashboard** (`lib/timing/rooms.ts`),
+  ob überhaupt Timing läuft, aus Appgineerings Liste aktiver Räume.
+- `/api/timing/` bedient nur unsere Räume (`Racespot\d+`), kein offenes Relais.
+
 ## YouTube Watch Time
 
 Optional, per OAuth des Brand-Kontos: `docs/YOUTUBE-ANALYTICS.md`. Ohne die drei

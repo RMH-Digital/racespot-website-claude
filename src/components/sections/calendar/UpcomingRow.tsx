@@ -57,15 +57,19 @@ export function UpcomingRow({ lang, event }: { lang: Lang; event: CalendarEvent 
         {fmt({ hour: '2-digit', minute: '2-digit', hour12: !is24h })}
       </p>
 
-      {status.live && <TimingLink lang={lang} event={event} compact />}
+      {/* Not on a phone: the row is the live page's own schedule, the timing
+          sits right above it, and the series name needs the width. */}
+      {status.live && <TimingLink lang={lang} event={event} compact className="max-sm:hidden" />}
       {status.live ? (
         <Link
           href={localePath(lang, '/live')}
           data-track="upcoming-watch-live"
-          className="shrink-0 flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider text-rs-live hover:text-white"
+          className="shrink-0 flex min-h-11 items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider text-rs-live hover:text-white"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-rs-live animate-pulse-live" aria-hidden="true" />
-          {t('calendar.watch')}
+          {/* On a phone the dot and the arrow say it; the series name needs the width. */}
+          <span className="max-sm:sr-only">{t('calendar.watch')}</span>
+          <span className="sm:hidden text-base leading-none" aria-hidden="true">→</span>
         </Link>
       ) : (
         <AddToCalendar lang={lang} event={event} t={t} />

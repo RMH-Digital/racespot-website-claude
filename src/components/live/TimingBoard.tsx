@@ -49,7 +49,9 @@ export function TimingBoard({
     let timer: ReturnType<typeof setTimeout> | undefined
     const tick = async () => {
       if (stop) return
-      if (document.visibilityState === 'visible') {
+      // Time in a hidden tab does not count towards giving up.
+      if (document.visibilityState !== 'visible') since.current = Date.now()
+      else {
         try {
           const res = await fetch(`/api/timing/${encodeURIComponent(room)}`, { cache: 'no-store' })
           const body: TimingAnswer = await res.json()
@@ -100,7 +102,7 @@ export function TimingBoard({
             <tr className="border-b border-rs-border">
               <th scope="col" className="w-11 py-2 pl-3 pr-1 text-left">{t('timing.pos')}</th>
               {full && multiClass && <th scope="col" className="w-10 py-2 pr-1 text-left">{t('timing.classPos')}</th>}
-              <th scope="col" className="w-12 py-2 text-left">#</th>
+              <th scope="col" className="w-11 py-2 text-left">#</th>
               <th scope="col" className="py-2 text-left">{t('timing.driver')}</th>
               {full && <th scope="col" className="w-14 py-2 pr-3 text-right">{t('timing.laps')}</th>}
               {full ? (
@@ -121,7 +123,8 @@ export function TimingBoard({
                   </button>
                 </th>
               )}
-              <th scope="col" className="w-20 py-2 pr-3 text-right">{t('timing.last')}</th>
+              {/* On a phone the narrow board drops the last lap: the name needs the room. */}
+              <th scope="col" className={`w-20 py-2 pr-3 text-right ${full ? '' : 'hidden sm:table-cell'}`}>{t('timing.last')}</th>
               {full && <th scope="col" className="w-20 py-2 pr-3 text-right">{t('timing.best')}</th>}
               {full && <th scope="col" className="w-12 py-2 pr-3 text-right">{t('timing.pits')}</th>}
             </tr>
@@ -157,7 +160,7 @@ export function TimingBoard({
                   ) : (
                     <td className="py-1.5 pr-3 text-right text-white/90">{gapText(r, mode, t)}</td>
                   )}
-                  <td className="py-1.5 pr-3 text-right text-white/80">{lapText(r.last)}</td>
+                  <td className={`py-1.5 pr-3 text-right text-white/80 ${full ? '' : 'hidden sm:table-cell'}`}>{lapText(r.last)}</td>
                   {full && (
                     <td className={`py-1.5 pr-3 text-right ${r.id === fastestId ? 'font-bold text-rs-fastest' : 'text-white/80'}`}>
                       {lapText(r.best)}

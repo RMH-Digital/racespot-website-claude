@@ -157,7 +157,7 @@ export function ReplayOnYouTube({ lang, videoId, compact = false }: { lang: Lang
  * (lib/timing/rooms.ts, decided by /api/live-streams). Leads to the live page
  * with the timing open; on the live page itself it opens the tab in place.
  */
-export function TimingLink({ lang, event, compact = false }: { lang: Lang; event: CalendarEvent; compact?: boolean }) {
+export function TimingLink({ lang, event, compact = false, className = '' }: { lang: Lang; event: CalendarEvent; compact?: boolean; className?: string }) {
   const status = useEventStatus()(event)
   const { liveTiming } = useLiveStatus()
   const pathname = usePathname()
@@ -177,7 +177,7 @@ export function TimingLink({ lang, event, compact = false }: { lang: Lang; event
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }}
       className={`relative z-10 inline-flex shrink-0 items-center gap-1.5 text-rs-yellow hover:text-white transition-colors
-        ${compact ? 'h-7 w-7 justify-center' : 'min-h-9 text-xs font-display font-bold uppercase tracking-wider'}`}
+        ${compact ? 'h-7 w-7 justify-center' : 'min-h-9 text-xs font-display font-bold uppercase tracking-wider'} ${className}`}
     >
       <StopwatchIcon />
       {!compact && <span>{t('timing.title')}</span>}
