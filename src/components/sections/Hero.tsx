@@ -29,10 +29,13 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
   const singleTitle = liveTitles.length === 1 ? liveTitles[0] : null
 
   return (
+    // A phone held sideways (≤ 500 px tall): no minimum height, the content
+    // sets it. The 560 px minimum made the hero one and a half screens there,
+    // with the headline below the fold and only the photo in view (2026-10-08).
     <section
       className="relative overflow-hidden
-                 min-h-[480px] md:min-h-[560px] max-h-[860px]"
-      style={{ height: 'calc(100svh - 98px)' }}
+                 h-[calc(100svh-98px)] min-h-[480px] md:min-h-[560px] max-h-[860px]
+                 [@media(max-height:500px)]:h-auto [@media(max-height:500px)]:min-h-0 [@media(max-height:500px)]:py-8"
     >
       {/* Background image — a real <Image> (not CSS background) so the browser
           preloads it as the LCP element and the optimizer serves AVIF/WebP. */}
@@ -67,7 +70,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
         <div className="max-w-[700px]">
           {/* Live / Upcoming badge */}
           {isLive && hasMultipleStreams ? (
-            <Link href={localePath(lang, '/live')} className="flex flex-col gap-2 mb-5 md:mb-8 group">
+            <Link href={localePath(lang, '/live')} className="flex flex-col gap-2 mb-5 md:mb-8 [@media(max-height:500px)]:mb-4 group">
               <div className="flex items-center gap-3">
                 <span className="badge-live">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
@@ -86,7 +89,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
               </div>
             </Link>
           ) : isLive && singleTitle ? (
-            <Link href={localePath(lang, '/live')} className="flex items-center gap-3 mb-5 md:mb-8 group">
+            <Link href={localePath(lang, '/live')} className="flex items-center gap-3 mb-5 md:mb-8 [@media(max-height:500px)]:mb-4 group">
               <span className="badge-live">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-live" />
                 {t('hero.liveNow')}
@@ -98,7 +101,7 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
             // anchor, and the two do different things — the link goes to the
             // live page, the small icon offers the calendar entry, the series
             // feed and, where YouTube already lists the stream, the bell.
-            <div className="flex items-center gap-3 mb-5 md:mb-8">
+            <div className="flex items-center gap-3 mb-5 md:mb-8 [@media(max-height:500px)]:mb-4">
               <Link href={localePath(lang, '/live')} className="flex items-center gap-3 group min-w-0">
                 <span className="bg-rs-dark border border-rs-border text-white text-[11px] font-display font-bold uppercase tracking-wider px-3 py-1.5 rounded-rs flex items-center gap-1.5 shrink-0 group-hover:border-rs-yellow transition-colors">
                   <span className="w-1.5 h-1.5 rounded-full bg-rs-yellow" />
@@ -112,7 +115,8 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
 
           {/* Main title */}
           <h1 className="font-display font-black uppercase text-white tracking-tight
-                         text-[28px] leading-[0.95] md:text-display mb-3 md:mb-6">
+                         text-[28px] leading-[0.95] md:text-display mb-3 md:mb-6
+                         [@media(max-height:500px)]:text-[32px] [@media(max-height:500px)]:mb-3">
             {t('hero.title.line1')}<br />
             {t('hero.title.line2')}<br />
             <em className="not-italic text-rs-yellow">{t('hero.title.line3')}</em><br />

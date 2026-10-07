@@ -123,7 +123,9 @@ export function BroadcastsClient({ lang, playlists, families, followSlot }: Broa
           <div ref={filterRef} className="relative">
             <button
               onClick={() => setFilterOpen(!filterOpen)}
-              className={`flex items-center gap-2 bg-rs-dark border rounded-rs px-3.5 py-2.5 text-sm transition-colors ${
+              aria-expanded={filterOpen}
+              aria-haspopup="true"
+              className={`flex min-h-11 items-center gap-2 bg-rs-dark border rounded-rs px-3.5 py-2.5 text-sm transition-colors ${
                 isFiltering
                   ? 'border-rs-yellow text-rs-yellow'
                   : 'border-rs-border text-rs-muted hover:border-rs-yellow/50 hover:text-white'

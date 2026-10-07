@@ -386,7 +386,7 @@ function DayCell({
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(i => Math.max(0, i - 1)) }}
                   disabled={activeIndex === 0}
-                  className="hidden md:flex w-6 h-6 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
+                  className="hidden md:flex w-6 h-6 shrink-0 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
                   aria-label={t('calendar.prevEvent')}
                 >
                   ‹
@@ -399,7 +399,7 @@ function DayCell({
                       key={idx}
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(idx) }}
                       className="group/dot flex h-6 w-6 items-center justify-center rounded-full"
-                      aria-label={`Event ${idx + 1} of ${events.length}`}
+                      aria-label={t('calendar.eventNofM').replace('{n}', String(idx + 1)).replace('{m}', String(events.length))}
                       aria-current={idx === activeIndex || undefined}
                     >
                       <span
@@ -416,7 +416,7 @@ function DayCell({
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(i => Math.min(events.length - 1, i + 1)) }}
                   disabled={activeIndex === events.length - 1}
-                  className="hidden md:flex w-6 h-6 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
+                  className="hidden md:flex w-6 h-6 shrink-0 items-center justify-center text-rs-muted hover:text-rs-yellow disabled:opacity-20 transition-colors"
                   aria-label={t('calendar.nextEvent')}
                 >
                   ›

@@ -77,10 +77,10 @@ export default async function ImprintPage({ params }: { params: Promise<{ lang: 
 
           {/* Links to other legal pages */}
           <div className="border-t border-rs-border pt-8 flex flex-wrap gap-6">
-            <Link href={localePath(lang, '/privacy')} className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/privacy')} className="inline-flex min-h-11 items-center text-rs-yellow hover:underline text-sm">
               {t('footer.privacyPolicy')}
             </Link>
-            <Link href={localePath(lang, '/terms')} className="text-rs-yellow hover:underline text-sm">
+            <Link href={localePath(lang, '/terms')} className="inline-flex min-h-11 items-center text-rs-yellow hover:underline text-sm">
               {t('footer.terms')}
             </Link>
           </div>

@@ -59,7 +59,7 @@ export function LegalDocument({ lang, titleKey, docs, related }: Props) {
 
           <div className="border-t border-rs-border pt-8 flex flex-wrap gap-6">
             {related.map((r) => (
-              <Link key={r.path} href={localePath(lang, r.path)} className="text-rs-yellow hover:underline text-sm">
+              <Link key={r.path} href={localePath(lang, r.path)} className="inline-flex min-h-11 items-center text-rs-yellow hover:underline text-sm">
                 {t(r.labelKey)}
               </Link>
             ))}

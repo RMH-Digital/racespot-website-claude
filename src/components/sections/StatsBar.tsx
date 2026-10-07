@@ -39,10 +39,14 @@ export async function StatsBar({ lang }: { lang: Lang }) {
   return (
     <div className="bg-rs-yellow py-12 border-b border-rs-border">
       <div className="container-rs">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
+        {/* Two columns on a phone: below ~360 px "69.700+" at 36 px was wider
+            than its column and pushed the page sideways (measured 2026-10-08).
+            Smaller there, scaling with the width; the four-column row keeps
+            its old size. */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 md:gap-10">
           {tiles.map((tile) => (
             <Tip key={tile.labelKey} content={t(tile.tipKey)} className="text-center">
-              <p className="font-display font-black text-rs-black" style={{ fontSize: 'clamp(36px, 5vw, 56px)' }}>
+              <p className="font-display font-black text-rs-black text-[clamp(28px,9vw,56px)] lg:text-[clamp(36px,5vw,56px)]">
                 {tile.value}
               </p>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-rs-black/70 mt-1">
