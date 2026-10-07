@@ -1,6 +1,9 @@
 'use client'
 
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { getT, localePath, type Lang } from '@/lib/i18n'
+import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
 import { useVideoPlayer } from '@/components/video/VideoPlayerProvider'
 import { YOUTUBE_STREAMS_URL, YouTubeIcon } from '@/lib/socials'
 import { useEventStatus } from './status'
@@ -146,5 +149,47 @@ export function ReplayOnYouTube({ lang, videoId, compact = false }: { lang: Lang
     >
       <YouTubeIcon size={compact ? 13 : 16} />
     </a>
+  )
+}
+
+/**
+ * "Live Timing" beside a broadcast that is on air and has a timing room
+ * (lib/timing/rooms.ts, decided by /api/live-streams). Leads to the live page
+ * with the timing open; on the live page itself it opens the tab in place.
+ */
+export function TimingLink({ lang, event, compact = false }: { lang: Lang; event: CalendarEvent; compact?: boolean }) {
+  const status = useEventStatus()(event)
+  const { liveTiming } = useLiveStatus()
+  const pathname = usePathname()
+  if (!status.live || !liveTiming[event.id]) return null
+  const t = getT(lang)
+  const href = `${localePath(lang, '/live')}?tab=timing`
+  return (
+    <Link
+      href={href}
+      data-track="timing-link"
+      aria-label={t('timing.title')}
+      title={t('timing.title')}
+      onClick={(e) => {
+        if (!/\/live\/?$/.test(pathname ?? '')) return
+        e.preventDefault()
+        window.dispatchEvent(new Event('rs:timing-open'))
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }}
+      className={`relative z-10 inline-flex shrink-0 items-center gap-1.5 text-rs-yellow hover:text-white transition-colors
+        ${compact ? 'h-7 w-7 justify-center' : 'min-h-9 text-xs font-display font-bold uppercase tracking-wider'}`}
+    >
+      <StopwatchIcon />
+      {!compact && <span>{t('timing.title')}</span>}
+    </Link>
+  )
+}
+
+function StopwatchIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+      <circle cx="8" cy="9.5" r="5.25" />
+      <path d="M8 9.5V6.75M6.25 1.75h3.5M12.25 4.5l1-1" />
+    </svg>
   )
 }

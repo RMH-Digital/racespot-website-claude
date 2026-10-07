@@ -28,6 +28,10 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  *   - First-party `racespot-lang` cookie, one year, functional only
  *   - Fonts are self-hosted by next/font; no request reaches Google
  *   - Footer social icons are plain links, no embeds, no pixels
+ *   - Live timing (lib/timing/relay.ts): our server fetches Appgineering's
+ *     data, visitors do not contact them; only the click-to-load fallback
+ *     and the "open at Appgineering" link reach timing.appgineering.com
+ *     (added 2026-10-08)
  *   - Feedback button for the Racespot team (components/seo/FeedbackLoader.tsx):
  *     visitors load nothing; only after a team member signs in on
  *     analytics.racespot.tv (via /intern) does the device keep a signed proof
@@ -38,7 +42,7 @@ import { p, h3, ul, type LegalDoc, type LegalLang } from './types'
  */
 
 const en: LegalDoc = {
-  updated: 'Last updated: October 3, 2026',
+  updated: 'Last updated: October 8, 2026',
   sections: [
     {
       heading: '1. Data Controller',
@@ -106,6 +110,9 @@ const en: LegalDoc = {
         ),
         p('Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in presenting our broadcasts on the site). Google also processes data in the USA on the basis of the EU-US Data Privacy Framework and standard contractual clauses. What Google does with the data is beyond our control; see [policies.google.com/privacy](https://policies.google.com/privacy).'),
         p('If you would rather avoid this, do not open the Live page, or use a browser that blocks third-party content.'),
+        h3('Live timing'),
+        p('During many broadcasts the Live page also shows the live timing — positions, gaps and lap times. It comes from **Appgineering GbR**, Germany, which makes the broadcast software we use. **Our server** fetches the data and passes it to your browser; your browser does not contact Appgineering for it, and no data about you reaches them.'),
+        p('Only if our display is unavailable can you choose, with a click, to load Appgineering’s own timing page instead, and the link “Open at Appgineering” opens it in a new tab. In both cases your browser connects to timing.appgineering.com, which receives your IP address and browser information like any website. Legal basis: **Art. 6(1)(f) GDPR** (legitimate interest in showing the timing of our broadcasts). Privacy: [appgineering.com/privacy-policy](https://appgineering.com/privacy-policy/)'),
       ],
     },
     {
@@ -183,7 +190,7 @@ const en: LegalDoc = {
 }
 
 const de: LegalDoc = {
-  updated: 'Stand: 3. Oktober 2026',
+  updated: 'Stand: 8. Oktober 2026',
   sections: [
     {
       heading: '1. Verantwortlicher',
@@ -251,6 +258,9 @@ const de: LegalDoc = {
         ),
         p('Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, unsere Produktionen auf der Seite zu zeigen). Google verarbeitet Daten auch in den USA auf Grundlage des EU-US Data Privacy Framework und von Standardvertragsklauseln. Was Google mit den Daten tut, entzieht sich unserem Einfluss; siehe [policies.google.com/privacy](https://policies.google.com/privacy).'),
         p('Wenn Sie das vermeiden möchten, rufen Sie die Live-Seite nicht auf oder nutzen Sie einen Browser, der Inhalte Dritter blockiert.'),
+        h3('Live Timing'),
+        p('Bei vielen Sendungen zeigt die Live-Seite zusätzlich das Live Timing — Positionen, Abstände und Rundenzeiten. Es stammt von der **Appgineering GbR**, Deutschland, die die von uns genutzte Broadcast-Software herstellt. **Unser Server** ruft die Daten ab und reicht sie an Ihren Browser weiter; Ihr Browser verbindet sich dafür nicht mit Appgineering, und es gelangen keine Daten über Sie dorthin.'),
+        p('Nur wenn unsere Anzeige nicht verfügbar ist, können Sie per Klick stattdessen die Timing-Seite von Appgineering laden, und der Link „Bei Appgineering öffnen“ öffnet sie in einem neuen Tab. In beiden Fällen verbindet sich Ihr Browser mit timing.appgineering.com, das wie jede Website Ihre IP-Adresse und Browserangaben erhält. Rechtsgrundlage: **Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse daran, das Timing unserer Sendungen zu zeigen). Datenschutz: [appgineering.com/privacy-policy](https://appgineering.com/privacy-policy/)'),
       ],
     },
     {

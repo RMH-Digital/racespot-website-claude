@@ -19,7 +19,10 @@ interface HeroProps {
 
 export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: HeroProps) {
   const t = getT(lang)
-  const { liveStreams, isLive } = useLiveStatus()
+  const { liveStreams, isLive, liveTiming } = useLiveStatus()
+  // While something on air has a Live Timing, the second button leads there
+  // instead of to the schedule.
+  const hasTiming = isLive && Object.keys(liveTiming).length > 0
 
   const liveTitles = liveStreams.map(s => s.title)
   const hasMultipleStreams = liveTitles.length > 1
@@ -133,9 +136,15 @@ export function Hero({ lang, nextEventSeries, nextEventDateISO, nextEvent }: Her
                 {t('hero.watchBroadcasts')}
               </Link>
             )}
-            <Link href={localePath(lang, '/calendar')} data-track="hero-calendar" className="btn-outline">
-              {t('hero.viewSchedule')}
-            </Link>
+            {hasTiming ? (
+              <Link href={`${localePath(lang, '/live')}?tab=timing`} data-track="hero-timing" className="btn-outline">
+                {t('timing.title')}
+              </Link>
+            ) : (
+              <Link href={localePath(lang, '/calendar')} data-track="hero-calendar" className="btn-outline">
+                {t('hero.viewSchedule')}
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -11,6 +11,9 @@
   --color-rs-border: #2a2a2a;
   --color-rs-white: #ffffff;
   --color-rs-live: #e53e3e;
+  /* Live Timing: the green flag and the motorsport purple of a fastest lap */
+  --color-rs-flag-green: #22c55e;
+  --color-rs-fastest: #b388ff;
 
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-display:

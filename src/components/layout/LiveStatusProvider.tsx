@@ -14,6 +14,8 @@ interface LiveStatus {
   polledAt: number
   /** Schedule row id → the stream that row is on air with (lib/liveRows.ts) */
   liveRows: Record<string, string>
+  /** Schedule row id → its Live Timing room ("Racespot2"), for rows on air that have one */
+  liveTiming: Record<string, string>
 }
 
 const NO_ROWS: Record<string, string> = {}
@@ -25,6 +27,7 @@ const LiveStatusContext = createContext<LiveStatus>({
   loaded: false,
   polledAt: 0,
   liveRows: NO_ROWS,
+  liveTiming: NO_ROWS,
 })
 
 export function useLiveStatus() {
@@ -57,6 +60,7 @@ export function LiveStatusProvider({
   const [loaded, setLoaded] = useState(false)
   const [polledAt, setPolledAt] = useState(0)
   const [liveRows, setLiveRows] = useState<Record<string, string>>(NO_ROWS)
+  const [liveTiming, setLiveTiming] = useState<Record<string, string>>(NO_ROWS)
 
   // Polls can overlap (a return to the tab while the interval fires); only
   // the newest one may write, or an older answer overwrites a newer one.
@@ -76,6 +80,8 @@ export function LiveStatusProvider({
       setLiveCount(streams.length)
       const rows: Record<string, string> = data.rows || NO_ROWS
       setLiveRows((prev) => (sameRows(prev, rows) ? prev : rows))
+      const timing: Record<string, string> = data.timing || NO_ROWS
+      setLiveTiming((prev) => (sameRows(prev, timing) ? prev : timing))
       setLoaded(true)
       setPolledAt(Date.now())
     } catch {
@@ -119,8 +125,8 @@ export function LiveStatusProvider({
   }, [poll])
 
   const value = useMemo(
-    () => ({ liveStreams, liveCount, isLive: liveCount > 0, loaded, polledAt, liveRows }),
-    [liveStreams, liveCount, loaded, polledAt, liveRows],
+    () => ({ liveStreams, liveCount, isLive: liveCount > 0, loaded, polledAt, liveRows, liveTiming }),
+    [liveStreams, liveCount, loaded, polledAt, liveRows, liveTiming],
   )
 
   return (
@@ -128,4 +134,14 @@ export function LiveStatusProvider({
       {children}
     </LiveStatusContext.Provider>
   )
+}
+
+/** The Live Timing room of the row a stream belongs to, if it has one */
+export function useStreamTiming(streamId: string | undefined): string | null {
+  const { liveRows, liveTiming } = useLiveStatus()
+  if (!streamId) return null
+  for (const [row, stream] of Object.entries(liveRows)) {
+    if (stream === streamId && liveTiming[row]) return liveTiming[row]
+  }
+  return null
 }

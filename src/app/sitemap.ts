@@ -28,7 +28,7 @@ const CONTENT_UPDATED: Record<string, string> = {
   '/about':    '2026-09-15',
   '/events':   '2026-09-15',
   '/contact':  '2026-10-03',
-  '/privacy':  '2026-10-03',
+  '/privacy':  '2026-10-08',
   '/terms':    '2026-09-14',
   '/imprint':  '2026-09-14',
 }

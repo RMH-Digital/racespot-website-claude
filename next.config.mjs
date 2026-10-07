@@ -14,6 +14,11 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  // The Live Timing relay (src/lib/timing/relay.ts) runs Microsoft's SignalR
+  // client on the server. It loads its WebSocket transport with a runtime
+  // require, which the bundler cannot follow ("dynamic usage of require is
+  // not supported") — so it is loaded from node_modules as it is.
+  serverExternalPackages: ['@microsoft/signalr'],
   // A stray package-lock.json in the home directory makes Next infer the wrong
   // workspace root and trace files from there. Pin it to this project.
   outputFileTracingRoot: dirname(fileURLToPath(import.meta.url)),

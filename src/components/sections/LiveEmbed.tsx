@@ -7,7 +7,8 @@ import type { YouTubeLiveStream } from '@/lib/youtube-utils'
 import { formatViewCount } from '@/lib/youtube-utils'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { FollowUs } from '@/components/ui/FollowUs'
-import { useLiveStatus } from '@/components/layout/LiveStatusProvider'
+import { useLiveStatus, useStreamTiming } from '@/components/layout/LiveStatusProvider'
+import { TimingPanel } from '@/components/live/TimingPanel'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { useLiveDock, useLivePlayer } from '@/components/video/LivePlayerProvider'
 import { UpcomingRow } from '@/components/sections/calendar/UpcomingRow'
@@ -25,6 +26,19 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
   const t = getT(lang)
   const [liveStreams, setLiveStreams] = useState(initialStreams)
   const [activeId, setActiveId] = useState(initialStreams[0]?.id || '')
+  // Beside the player: the chat, or the Live Timing (?tab=timing opens it —
+  // the calendar's and the hero's "Live Timing" links land there). The large
+  // board under the player is the third place, from lg up.
+  const [sideTab, setSideTab] = useState<'chat' | 'timing'>('chat')
+  const [bigTiming, setBigTiming] = useState(false)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- a one-off read of the address after hydration
+    if (new URLSearchParams(window.location.search).get('tab') === 'timing') setSideTab('timing')
+    // "Live Timing" links on this same page (the schedule below) open it in place.
+    const open = () => { setSideTab('timing'); setBigTiming(false) }
+    window.addEventListener('rs:timing-open', open)
+    return () => window.removeEventListener('rs:timing-open', open)
+  }, [])
 
   // Stream updates come from LiveStatusProvider, which already polls
   // /api/live-streams every 60 s for the header and ticker — no second poll here.
@@ -65,10 +79,16 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
 
   // Find the active stream
   const activeStream = liveStreams.find(s => s.id === activeId) || liveStreams[0]
+  const timingFor = useStreamTiming(activeStream?.id)
   if (!activeStream) return null
 
   const intro = streamIntro(activeStream.description)
   const isPlayingHere = playing?.id === activeStream.id
+  // The Live Timing of the stream being watched — its row's room, from the
+  // talent dashboard (lib/timing/rooms.ts); none for a stream without one.
+  const timingRoom = timingFor
+  const side = timingRoom ? sideTab : 'chat'
+  const big = Boolean(timingRoom) && bigTiming
 
   return (
     <div className="pt-4 md:pt-8 min-h-screen">
@@ -94,7 +114,11 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
         {/* Player and chat side by side from lg up — the layout every
             streaming site has taught viewers, and at 1440 px the chat under
             the player sat a full screen below it. On a phone they stack. */}
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* A table needs more room than a chat: the side column widens while
+            it shows the timing. */}
+        <div className={`grid gap-6 ${side === 'timing'
+          ? 'lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_480px]'
+          : 'lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]'}`}>
           <div className="min-w-0">
             {/* Above the picture, right-aligned — the same place as in the
                 recordings player, and never over the video, where YouTube
@@ -231,27 +255,84 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
             <FollowUs lang={lang} size="md" stretch className="mt-6" />
           </div>
 
-          {/* Chat embed */}
+          {/* Chat and Live Timing */}
           <div className="flex flex-col border border-rs-border rounded-rs overflow-hidden lg:self-start lg:sticky lg:top-[114px]">
-            <div className="bg-rs-dark px-4 py-2.5 border-b border-rs-border">
-              <p className="text-xs font-display font-bold uppercase tracking-wider text-rs-muted">
-                {t('live.liveChat')}
-              </p>
+            <div className="flex items-center justify-between gap-2 bg-rs-dark border-b border-rs-border">
+              {timingRoom ? (
+                <div role="tablist" aria-label={t('timing.title')} className="flex">
+                  {(['chat', 'timing'] as const).map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={side === id}
+                      onClick={() => { setSideTab(id); if (id === 'timing') setBigTiming(false) }}
+                      data-track={`live-side-${id}`}
+                      className={`relative min-h-11 px-4 text-xs font-display font-bold uppercase tracking-wider transition-colors
+                        ${side === id ? 'text-white' : 'text-rs-muted hover:text-white/80'}`}
+                    >
+                      {id === 'chat' ? t('live.liveChat') : t('timing.title')}
+                      {side === id && <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-rs-yellow" />}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="px-4 py-2.5 text-xs font-display font-bold uppercase tracking-wider text-rs-muted">
+                  {t('live.liveChat')}
+                </p>
+              )}
+              {timingRoom && side === 'timing' && (
+                <button
+                  type="button"
+                  onClick={() => { setBigTiming(true); setSideTab('chat') }}
+                  data-track="live-timing-big"
+                  title={t('timing.big')}
+                  className="mr-2 hidden h-9 items-center gap-1.5 rounded-rs px-2 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted transition-colors hover:text-rs-yellow lg:flex"
+                >
+                  <ExpandIcon size={12} /> {t('timing.big')}
+                </button>
+              )}
             </div>
             {/* dark_theme=1: YouTube's chat defaults to its light theme, a white
                 box in a black page. The dark one matches; the container is dark
-                too so the frame never flashes white while it loads. */}
+                too so the frame never flashes white while it loads. The chat
+                stays loaded behind the timing, so switching back keeps it. */}
             <div className="relative h-[420px] lg:h-[calc(100vh-190px)] lg:max-h-[640px] bg-rs-dark">
               <iframe
                 key={`chat-${activeStream.id}`}
                 src={`https://www.youtube.com/live_chat?v=${activeStream.id}&embed_domain=racespot.tv&dark_theme=1`}
                 title={t('live.liveChat')}
-                className="absolute inset-0 w-full h-full"
+                className={`absolute inset-0 w-full h-full ${side === 'chat' ? '' : 'invisible'}`}
                 style={{ colorScheme: 'dark' }}
               />
+              {timingRoom && side === 'timing' && (
+                <div className="absolute inset-0">
+                  <TimingPanel room={timingRoom} size="compact" lang={lang} />
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Large Live Timing, the width of the page under player and chat */}
+        {timingRoom && big && (
+          <section aria-label={t('timing.title')} className="mt-6 overflow-hidden rounded-rs border border-rs-border">
+            <div className="flex items-center justify-between bg-rs-dark border-b border-rs-border px-4">
+              <h2 className="py-2.5 text-xs font-display font-bold uppercase tracking-wider text-white">{t('timing.title')}</h2>
+              <button
+                type="button"
+                onClick={() => { setBigTiming(false); setSideTab('timing') }}
+                data-track="live-timing-small"
+                className="flex h-9 items-center gap-1.5 text-[11px] font-display font-bold uppercase tracking-wider text-rs-muted hover:text-rs-yellow"
+              >
+                <MinimizeIcon size={12} /> {t('timing.small')}
+              </button>
+            </div>
+            <div className="h-[min(70vh,720px)]">
+              <TimingPanel room={timingRoom} size="full" lang={lang} />
+            </div>
+          </section>
+        )}
 
         {/* Upcoming schedule */}
         {upcomingEvents.length > 0 && (

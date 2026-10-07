@@ -4,7 +4,7 @@ import { useMemo, useRef } from 'react'
 import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
-import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, TimingLink, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { useEventStatus } from './status'
 import { localDate, formatTime, formatWeekday, getMonthKey, zonedParts } from './time'
@@ -95,6 +95,7 @@ export function EventRow({ lang, event, is24h, locale, timeZone, isNext = false,
         <span className="hidden sm:inline text-xs text-rs-yellow font-display font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
           {hoverLabel}
         </span>
+        <TimingLink lang={lang} event={event} />
         {past
           ? <ReplayOnYouTube lang={lang} videoId={event.videoId} />
           : <AddToCalendar lang={lang} event={event} t={t} triggerRef={menuTrigger} />}

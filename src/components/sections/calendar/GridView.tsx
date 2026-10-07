@@ -5,7 +5,7 @@ import type { CalendarEvent } from '@/lib/sheets'
 import { getT, localePath, type Lang } from '@/lib/i18n'
 import { AddToCalendar } from './AddToCalendar'
 import { EventRow } from './ListView'
-import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, UpNextBadge } from './shared'
+import { LiveBadge, EmptyState, EventTipContent, EventLink, ReplayBadge, ReplayOnYouTube, TimingLink, UpNextBadge } from './shared'
 import { Tip } from '@/components/ui/Tip'
 import { useEventStatus } from './status'
 import { localDate, formatTime, getWeekdayNames, getDaysInMonth, getFirstDayOfWeek, zonedParts } from './time'
@@ -483,9 +483,12 @@ function EventCard({ lang, event, is24h, locale, timeZone, isNext = false }: { l
         <span className={`text-[10px] md:text-[11px] font-bold whitespace-nowrap ${past ? 'text-rs-muted' : 'text-rs-yellow'}`}>
           {formatTime(event.dateISO, is24h, locale, timeZone)}
         </span>
-        {past
-          ? <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
-          : <AddToCalendar lang={lang} event={event} t={t} compact triggerRef={menuTrigger} />}
+        <span className="flex items-center">
+          <TimingLink lang={lang} event={event} compact />
+          {past
+            ? <ReplayOnYouTube lang={lang} videoId={event.videoId} compact />
+            : <AddToCalendar lang={lang} event={event} t={t} compact triggerRef={menuTrigger} />}
+        </span>
       </div>
     </div>
     </Tip>

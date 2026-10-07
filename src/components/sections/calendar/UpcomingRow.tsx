@@ -6,6 +6,7 @@ import { getT, localePath, type Lang } from '@/lib/i18n'
 import { useLocalFormat } from '@/lib/hooks/useLocalTime'
 import { AddToCalendar } from './AddToCalendar'
 import { useEventStatus } from './status'
+import { TimingLink } from './shared'
 
 /**
  * One announced broadcast as a row: date, series, time — and on the right the
@@ -56,6 +57,7 @@ export function UpcomingRow({ lang, event }: { lang: Lang; event: CalendarEvent 
         {fmt({ hour: '2-digit', minute: '2-digit', hour12: !is24h })}
       </p>
 
+      {status.live && <TimingLink lang={lang} event={event} compact />}
       {status.live ? (
         <Link
           href={localePath(lang, '/live')}

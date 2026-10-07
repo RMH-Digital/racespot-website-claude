@@ -1,12 +1,17 @@
 import { getLiveStreams } from '@/lib/youtube'
 import { getUpcomingEvents, watchedBroadcast } from '@/lib/sheets'
 import { liveRows } from '@/lib/liveRows'
+import { timingRooms, seriesHasTiming } from '@/lib/timing/rooms'
+import { liveRoomNames } from '@/lib/timing/relay'
+import type { ScheduleEvent } from '@/lib/sheets'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/live-streams — what is on air right now, for the tabs that poll it:
- * the streams, and which schedule row each one is (`rows`, row id → stream id).
+ * the streams, which schedule row each one is (`rows`, row id → stream id),
+ * and the Live Timing room of each of those rows that has one (`timing`,
+ * row id → room name, e.g. "Racespot2").
  *
  * Every open tab asks once a minute (LiveStatusProvider), so this has to be
  * cheap however many there are: the schedule is parsed once a minute for the
@@ -22,12 +27,35 @@ export async function GET() {
     // for liveRows() to pair the streams with their rows.
     const events = await getUpcomingEvents(20)
     const streams = await getLiveStreams(watchedBroadcast(events))
+    const rows = liveRows(events, streams)
     return Response.json(
-      { streams, rows: liveRows(events, streams) },
+      { streams, rows, timing: await liveTiming(events, rows) },
       { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' } },
     )
   } catch (error) {
     console.error('Live streams API error:', error)
-    return Response.json({ streams: [], rows: {} })
+    return Response.json({ streams: [], rows: {}, timing: {} })
   }
+}
+
+/**
+ * The Live Timing room of every row on air, where there is a timing to see.
+ *
+ * The room comes from the talent dashboard (lib/timing/rooms.ts). Whether it
+ * has a timing comes from Appgineering itself: a room is listed as live only
+ * while ATVO broadcasts to it, so a broadcast from another sim simply has
+ * none. Only if that list cannot be read does the series name decide.
+ */
+async function liveTiming(events: ScheduleEvent[], rows: Record<string, string>): Promise<Record<string, string>> {
+  const onAir = events.filter((e) => rows[e.id])
+  if (onAir.length === 0) return {}
+  const [rooms, live] = await Promise.all([timingRooms(onAir), liveRoomNames()])
+  const out: Record<string, string> = {}
+  for (const e of onAir) {
+    const room = rooms.get(e.id)
+    if (!room) continue
+    const has = live ? live.has(room.name.toLowerCase()) : seriesHasTiming(e.series)
+    if (has) out[e.id] = room.name
+  }
+  return out
 }
