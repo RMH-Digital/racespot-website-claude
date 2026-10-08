@@ -1904,9 +1904,18 @@ Timing-Anzeige über unser Relais (Besucher ohne Kontakt zu Appgineering).
   Watkins Glen): 16.051 Frames in 8 min, 0 Lesefehler, 28 Fahrer korrekt.
   Danach nachgeschärft: Ort statt internem Streckennamen, Session-Typ übersetzt,
   Teilrunden (< 60 % der schnellsten Runde) nicht als „letzte Runde“. Der
-  erste Test mit einem Racespot-Raum steht noch aus (iRacing, Nacht 2026-10-08).
-- Hugo: „Live Timing ja/nein“ pro Sendung, Räume ohne Klick vergeben, schmale
-  Ansicht statt offener `sch_events` (Nachricht in LIVE-TIMING.md).
+  erste Test mit einem Racespot-Raum steht noch aus: In der Nacht 2026-10-08
+  sendete keine Sendung in einen Racespot-Raum (PCA lief im Raum „backup“) —
+  laut Hugo eine ATVO-Störung, sonst immer `Racespot1…n`. Die Website hat
+  richtig keinen Reiter gezeigt. Nebenbei behoben: ein Stream lieh sich
+  rückwärts eine frühere Zeile (`liveRows`, `549c3c4`).
+- Hugo (Antwort 2026-10-08, PDF `docs/Live-Timing-Hugo.pdf`): Räume werden
+  künftig automatisch vergeben. Wir haben um ein Feld `has_timing` gebeten
+  (Default ja, je Serie voreinstellbar; Vergabe nur bei ja), statt „kein Raum =
+  kein Timing“ — mit automatischer Vergabe hat sonst jede Sendung einen Raum.
+  **Sobald es das Feld gibt:** in `lib/timing/rooms.ts` mitlesen, bei `false`
+  kein Reiter. Schmale Ansicht statt offener `sch_events`: nur machbar, wenn
+  das Dashboard nicht selbst mit dem anon-Key liest — zurückgestellt.
 - Ausnahmeliste (`seriesHasTiming`) vom Team bestätigen lassen.
 
 ## 7h. Jede Seite wurde bei jedem Aufruf neu gerendert — behoben 2026-09-15
