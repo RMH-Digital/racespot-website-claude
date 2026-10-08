@@ -24,7 +24,11 @@ import { overlap, sharesAWord } from './titleMatch'
  *      a shared word, the clock alone may pair them only within the hour.
  *   2. A stream that carries on into the next row of the same series — one
  *      stream for two back-to-back classes — lights that row as well, when
- *      it was already running at the row's start.
+ *      it was already running at the row's start and pass one gave it to an
+ *      earlier row. Without that last condition a stream carried backwards:
+ *      on 2026-10-08 the PCA stream (paired with its own row at 01:20 UTC)
+ *      lit the iRacing Short Course Pro row from 01:00 once that row's own
+ *      stream had ended — "Pro" was the shared word, as on 2026-09-24.
  */
 const EARLY_MS = 30 * 60_000           // a stream may go on air before the scheduled start
 const OVERTIME_MS = 90 * 60_000        // same buffer as the schedule's own isLive
@@ -70,18 +74,22 @@ export function liveRows(events: ScheduleEvent[], streams: YouTubeLiveStream[], 
     }
   }
   pairs.sort((a, b) => (b.score - a.score) || (a.delta - b.delta))
-  const used = new Set<string>()
+  /** stream id → start of the row pass one gave it to */
+  const pairedAt = new Map<string, number>()
   for (const p of pairs) {
-    if (out[p.row.id] || used.has(p.s.id)) continue
+    if (out[p.row.id] || pairedAt.has(p.s.id)) continue
     out[p.row.id] = p.s.id
-    used.add(p.s.id)
+    pairedAt.set(p.s.id, p.row.date.getTime())
   }
 
   // Pass two
   for (const row of rows) {
     const start = row.date.getTime()
     if (out[row.id] || now < start) continue
-    const carrying = streams.find((s) => startOf(s) <= start + LATE_START_GRACE_MS && sharesAWord(row.series, s.title))
+    const carrying = streams.find((s) => {
+      const from = pairedAt.get(s.id)
+      return from !== undefined && from < start && startOf(s) <= start + LATE_START_GRACE_MS && sharesAWord(row.series, s.title)
+    })
     if (carrying) out[row.id] = carrying.id
   }
   return out
