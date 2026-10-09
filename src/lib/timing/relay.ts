@@ -17,6 +17,11 @@ import { applyFrame, emptyState, toBoard, type Board, type RawFrame, type Timing
  * Format and failure handling: lib/timing/decode.ts. A room whose frames
  * cannot be read is marked broken and the board falls back to Appgineering's
  * own page; the next subscribe tries again.
+ *
+ * The log (`[timing] …`, one line per event, with the time) is how a night
+ * is checked afterwards: subscribed, first board, session change, closed —
+ * and on /api/live-streams which room each broadcast got and why
+ * (timingLog). Added 2026-10-09, after a night that left no trace.
  */
 const API = 'https://timing-api.appgineering.com'
 const IDLE_MS = 2 * 60_000
@@ -33,6 +38,19 @@ interface Feed {
   lastFrame: number
   broken: string | null
   eventName: string | null
+  since: number
+  frames: number
+  /** "Race|4" — logged when it changes; null until the first board */
+  session: string | null
+}
+
+export function timingLog(message: string) {
+  console.log(`${new Date().toISOString()} [timing] ${message}`)
+}
+
+function describe(b: Board): string {
+  const s = b.session
+  return `${s.name ?? '?'} (type ${s.type ?? '?'}), ${b.rows.length} drivers, ${b.track ?? 'track ?'}, flag ${s.flag}`
 }
 
 const feeds = new Map<string, Feed>()
@@ -62,13 +80,15 @@ async function subscribe(feed: Feed): Promise<void> {
     try {
       applyFrame(feed.state, frame)
       feed.lastFrame = Date.now()
+      feed.frames++
     } catch (error) {
       feed.broken = error instanceof Error ? error.message : String(error)
-      console.warn(`[timing] ${feed.roomId}: frame type ${frame.type} unreadable — ${feed.broken}`)
+      timingLog(`${feed.roomId}: frame type ${frame.type} unreadable — ${feed.broken}`)
     }
   })
   // A subscription does not survive a reconnect: ask again, from scratch.
   c.onreconnected(() => {
+    timingLog(`${feed.roomId}: reconnected, subscribing again`)
     feed.state = emptyState()
     feed.board = null
     feed.boardCycle = -1
@@ -79,7 +99,8 @@ async function subscribe(feed: Feed): Promise<void> {
   await c.send('SubscribeAsync', feed.roomId)
 }
 
-function close(feed: Feed) {
+function close(name: string, feed: Feed, why: string) {
+  if (feed.conn) timingLog(`${name}: closed (${why}) after ${Math.round((Date.now() - feed.since) / 60_000)} min, ${feed.frames} frames, last ${feed.board ? describe(feed.board) : 'no board'}`)
   const c = feed.conn
   feed.conn = null
   if (!c) return
@@ -91,7 +112,7 @@ function sweep() {
   for (const [name, f] of feeds) {
     if (now - f.lastAsked < IDLE_MS) continue
     feeds.delete(name)
-    close(f)
+    close(name, f, 'nobody watching')
   }
   if (feeds.size === 0 && sweeper) {
     clearInterval(sweeper)
@@ -119,15 +140,16 @@ export async function timingFor(room: string): Promise<TimingAnswer> {
   if (!feed) {
     const info = await roomInfo(room).catch(() => null)
     if (!info) return { room, event: null, ok: false, reason: 'unknown-room', board: null, age: null }
-    feed = { roomId: info.id, conn: null, state: emptyState(), board: null, boardCycle: -1, lastAsked: now, lastFrame: 0, broken: null, eventName: info.eventName }
+    feed = { roomId: info.id, conn: null, state: emptyState(), board: null, boardCycle: -1, lastAsked: now, lastFrame: 0, broken: null, eventName: info.eventName, since: now, frames: 0, session: null }
     feeds.set(room, feed)
     sweeper ??= setInterval(sweep, 30_000)
     try {
       await subscribe(feed)
+      timingLog(`${room}: subscribed (event "${info.eventName ?? ''}")`)
     } catch (error) {
       feeds.delete(room)
-      close(feed)
-      console.warn(`[timing] ${room}: cannot connect — ${error instanceof Error ? error.message : error}`)
+      close(room, feed, 'connect failed')
+      timingLog(`${room}: cannot connect — ${error instanceof Error ? error.message : error}`)
       return { room, event: null, ok: false, reason: 'unreachable', board: null, age: null }
     }
   }
@@ -136,13 +158,19 @@ export async function timingFor(room: string): Promise<TimingAnswer> {
   if (feed.broken) {
     // Try again from a clean slate on the next ask after this one.
     feeds.delete(room)
-    close(feed)
+    close(room, feed, 'unreadable frame')
     return { room, event: feed.eventName, ok: false, reason: 'broken', board: null, age: null }
   }
   // Rebuild the board only when a full update cycle has arrived since.
   if (feed.state.cycle !== feed.boardCycle) {
     feed.board = toBoard(feed.state)
     feed.boardCycle = feed.state.cycle
+    const b = feed.board
+    const key = b.rows.length ? `${b.session.name}|${b.session.type}` : null
+    if (key && key !== feed.session) {
+      timingLog(`${room}: ${feed.session ? 'session now' : 'first board'} — ${describe(b)}`)
+      feed.session = key
+    }
   }
   const age = feed.lastFrame ? Math.round((now - feed.lastFrame) / 1000) : null
   const hasRows = Boolean(feed.board && feed.board.rows.length)

@@ -118,3 +118,14 @@ Beide nur zur Laufzeit nötig. Ohne sie rechnet die Website die Räume selbst
   Häufigste Typen: ENTRY_TIMING (13.411), END_UPDATE_CYCLE (1.059), SESSION
   und WEATHER (je 479). Board als JSON: 7,5 KB. Die Liste aktiver Räume
   (`/frontend/home/live`) liefert `roomName`, auch für nicht verifizierte Räume.
+
+## Nachträglich prüfen (Log)
+
+Seit 2026-10-09 schreibt der Server je Ereignis eine Zeile `<ISO-Zeit> [timing] …`
+ins Container-Log (Coolify → Logs, oder API `/api/v1/applications/<uuid>/logs`):
+
+- je Sendung, sobald sich die Antwort ändert: Raum, „tab shown“ / „no tab“ und
+  warum (bei „no tab“ die Räume, die Appgineering gerade als live führt);
+- je Raum: `subscribed`, `first board` (Session, Fahrer, Strecke, Flagge),
+  `session now …` beim Wechsel, `closed … after N min, N frames`, und Fehler
+  (`unreadable`, `cannot connect`).

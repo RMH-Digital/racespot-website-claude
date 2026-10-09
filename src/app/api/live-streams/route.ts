@@ -2,7 +2,7 @@ import { getLiveStreams } from '@/lib/youtube'
 import { getUpcomingEvents, watchedBroadcast } from '@/lib/sheets'
 import { liveRows } from '@/lib/liveRows'
 import { timingRooms, seriesHasTiming } from '@/lib/timing/rooms'
-import { liveRoomNames } from '@/lib/timing/relay'
+import { liveRoomNames, timingLog } from '@/lib/timing/relay'
 import type { ScheduleEvent } from '@/lib/sheets'
 
 export const dynamic = 'force-dynamic'
@@ -56,6 +56,26 @@ async function liveTiming(events: ScheduleEvent[], rows: Record<string, string>)
     if (!room) continue
     const has = live ? live.has(room.name.toLowerCase()) : seriesHasTiming(e.series)
     if (has) out[e.id] = room.name
+    noteDecision(e, room.name, has, live)
   }
   return out
+}
+
+/**
+ * One log line per broadcast whenever its answer changes — enough to tell
+ * afterwards whether a tab was shown, and if not, whether ATVO was sending
+ * to a different room (the live list's own rooms are named).
+ */
+const decisions = new Map<string, string>()
+
+function noteDecision(e: ScheduleEvent, room: string, has: boolean, live: Set<string> | null) {
+  const why = live
+    ? has ? 'live at Appgineering' : `not live at Appgineering (live: ${[...live].join(', ') || 'none'})`
+    : `live list unreadable, by series: ${has ? 'yes' : 'no'}`
+  // Keyed without the list itself: other people's rooms come and go all night.
+  const key = `${room}|${has}|${live ? 'list' : 'series'}`
+  if (decisions.get(e.id) === key) return
+  if (decisions.size > 200) decisions.clear()
+  decisions.set(e.id, key)
+  timingLog(`${e.series} (${e.date.toISOString().slice(0, 16)}Z): ${room} → ${has ? 'tab shown' : 'no tab'}, ${why}`)
 }
