@@ -195,9 +195,11 @@ Sections, series and platforms live in **one file**,
   never a bare brand („porsche“ would pull in a wheel announcement). An id
   that is not there gets no chip and no page.
 - **Whether RaceSpot broadcasts a series, and its tier, comes from the Master
-  Schedule** (`src/lib/seriesSchedule.ts`): public rows of the last 12 months
-  and the future whose series name starts with one of the series' `calendar`
-  names. That drives the „Broadcast by RaceSpot“ badge and puts broadcast
+  Schedule** (`src/lib/seriesSchedule.ts`): public rows whose series name
+  starts with one of the series' `calendar` names — and only when we can show
+  it: a past row with a recording (`/api/broadcasts`) or a broadcast within the
+  next 30 days (Jürgen, 2026-10-28; a row alone gave the Supercup a badge with
+  nothing behind it). That drives the „Broadcast by RaceSpot“ badge and puts broadcast
   series first, by tier, in series lists. There is no hand-kept list for this —
   Philip and Hugo keep none, the schedule is it (Jürgen, 2026-10-28). A new
   series in the schedule needs only a taxonomy entry with its `calendar` name.

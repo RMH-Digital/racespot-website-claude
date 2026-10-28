@@ -3839,6 +3839,14 @@ export const ARTICLES: Article[] = [
     slug: 'rennsport-summit-2026-munich',
     category: 'Events',
     series: ['rennsport-summit'],
+    // Day 2 has no schedule row; it is our upload of the same summit (2026-02-21).
+    broadcast: {
+      videoId: 'BmYtfJayJ_w',
+      videoParts: ['BmYtfJayJ_w', 'nKtTyxJeNkI'],
+      eventId: '13830',
+      date: '2026-02-20',
+      series: 'Rennsport Summit #1',
+    },
     title: 'RENNSPORT Summit 2026: The Re-Launch Heads to Munich',
     excerpt:
       'Competition Company\'s racing sim returns with a bold new vision — "Double the Content, Half the Price." The RENNSPORT Summit 2026 in Munich brings Le Mans, modding tools, and the ESL R1 league together.',
@@ -3929,6 +3937,13 @@ export const ARTICLES: Article[] = [
     slug: 'vco-infinity-24h-endurance',
     category: 'Esports',
     series: ['vco-infinity'],
+    broadcast: {
+      videoId: 'plLt-x6PYFg',
+      videoParts: ['plLt-x6PYFg', 'RtI7AizumZM', 'u8I1qPBG16s', 'hykGSmIshZo'],
+      eventId: '13767',
+      date: '2026-02-14',
+      series: 'VCO INFINITY',
+    },
     title: 'VCO Infinity: 24 Hours of Non-Stop Sim Racing',
     excerpt:
       '40 teams, 250+ drivers, 24 races in 24 hours — VCO Infinity pushes the endurance format to its absolute limit on iRacing. Here\'s how the marathon event unfolded.',
