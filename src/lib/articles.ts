@@ -133,6 +133,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "enascar-college-queen-city-crown-final-holmes",
     category: "Esports",
+    series: ["enascar-college"],
     title: "eNASCAR College Series: Timothy Holmes Wins the Queen City Crown by 0.002 Seconds",
     seoTitle: "Timothy Holmes wins Queen City Crown by 0.002 seconds",
     excerpt: "Timothy Holmes held off Dylan Ault by 0.002 seconds at Charlotte for his first eNASCAR College win and closed to six points off the lead.",
@@ -146,7 +147,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "enascar", "iracing", "enascar-college"],
+    tags: ["enascar", "iracing", "enascar-college"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/timothy-holmes-puts-horry-georgetown-technical-college-in-enascar-college-iracing-series-victory-lane-in-queen-city-crown-finale/" },
     ],
