@@ -2021,6 +2021,23 @@ erscheinen; heute 5 Rubriken (Sim to Real fehlt), 13 Serien, 4 Familien
 je Serie aus dem Master Schedule), Schritt 7 (Suche, Topic-/Plattform-Filter),
 Google-News-Sitemap, Prerender-Grenze. Schritt 2/3 mit dem Press Tool.
 
+## 7z-3. Serien aus dem Master Schedule statt aus einer Liste — 2026-10-28
+
+E3 ist erledigt, anders als geplant: Philip und Hugo führen keine Serienliste
+(Jürgen). Der Master Schedule mit seiner Tier-Spalte ist die Liste.
+`src/lib/seriesSchedule.ts` ordnet öffentliche Zeilen der letzten 12 Monate und
+der Zukunft über die `calendar`-Namen in `taxonomy.json` den Serien zu. Daraus
+kommen das Badge „Übertragen von RaceSpot“ und die Reihenfolge (Tier zuerst).
+Das von Hand gesetzte Feld `racespot` ist entfernt.
+
+13 Serien neu aufgenommen, alle 2026 mit Tier 1–3 im Zeitplan, darunter
+Porsche Esports Carrera Cup GB, Operation eMotorsport League, iRacing Short
+Course, iRacing Special Events, Svensk eRacingLigan, IVRA, 60+ Racing
+Adventures und MSUK. Sie erscheinen erst mit ihrem ersten Artikel. Gemessen am
+Zeitplan vom 28.10.: 18 Serien gesendet. Nicht im Zeitplan sind IMSA Esports
+(zuletzt 2022), VLMS, eNASCAR College, FIA F4, Sim Racing Expo und VCO Grand
+Slam. Sie bleiben Serien, nur ohne Badge.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

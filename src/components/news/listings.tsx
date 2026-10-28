@@ -21,6 +21,7 @@ import {
   toNewsItem,
 } from '@/lib/newsIndex'
 import { getFamily } from '@/lib/newsTaxonomy'
+import { byTier, seriesOnSchedule } from '@/lib/seriesSchedule'
 import { BreadcrumbJsonLd, CollectionPageJsonLd } from '@/components/seo/JsonLd'
 import { NewsCard, NewsCompact, SeriesCard } from './cards'
 import { NewsLead, NewsPageHeader, NewsRows, Pagination, SectionNav, type Crumb } from './nav'
@@ -79,7 +80,7 @@ export function frontMetadata(lang: Lang, page: number): Metadata {
 }
 
 /** /news itself: lead, series, cards, short lines, and from page 2 on rows. */
-export function FrontPage({ lang, page }: { lang: Lang; page: number }) {
+export async function FrontPage({ lang, page }: { lang: Lang; page: number }) {
   const t = getT(lang)
   const all = sortedArticles()
   const pages = pageCount(all.length)
@@ -106,7 +107,9 @@ export function FrontPage({ lang, page }: { lang: Lang; page: number }) {
   const lead = items.slice(0, 3)
   const cards = items.slice(3, 9)
   const lines = items.slice(9)
-  const series = liveSeries()
+  // Broadcast series first, by tier from the Master Schedule; then the rest by latest article.
+  const schedule = await seriesOnSchedule()
+  const series = byTier(liveSeries(), schedule)
   const years = archiveYears()
 
   return (
@@ -153,7 +156,7 @@ export function FrontPage({ lang, page }: { lang: Lang; page: number }) {
                     name={s.name}
                     family={s.family ? getFamily(s.family)?.name : undefined}
                     count={count}
-                    racespot={s.racespot}
+                    racespot={schedule.has(s.id)}
                   />
                 </li>
               ))}
@@ -258,9 +261,10 @@ export function seriesIndexMetadata(lang: Lang): Metadata {
   })
 }
 
-export function SeriesIndexPage({ lang }: { lang: Lang }) {
+export async function SeriesIndexPage({ lang }: { lang: Lang }) {
   const t = getT(lang)
-  const series = liveSeries()
+  const schedule = await seriesOnSchedule()
+  const series = byTier(liveSeries(), schedule)
   const families = liveFamilies()
   if (!series.length) notFound()
   const crumbs = [newsCrumb(lang), { name: t('news.series') }]
@@ -292,7 +296,7 @@ export function SeriesIndexPage({ lang }: { lang: Lang }) {
                 name={s.name}
                 family={s.family ? getFamily(s.family)?.name : undefined}
                 count={count}
-                racespot={s.racespot}
+                racespot={schedule.has(s.id)}
               />
             </li>
           ))}
@@ -317,8 +321,9 @@ export function seriesMetadata(lang: Lang, slug: string, page: number): Metadata
   })
 }
 
-export function SeriesPage({ lang, slug, page }: { lang: Lang; slug: string; page: number }) {
+export async function SeriesPage({ lang, slug, page }: { lang: Lang; slug: string; page: number }) {
   const t = getT(lang)
+  const schedule = await seriesOnSchedule()
   const found = resolveSeriesPage(slug)
   if (!found) notFound()
   const pages = pageCount(found.articles.length)
@@ -362,7 +367,7 @@ export function SeriesPage({ lang, slug, page }: { lang: Lang; slug: string; pag
         description={description}
         count={found.articles.length}
       >
-        {found.kind === 'series' && found.series.racespot && (
+        {found.kind === 'series' && schedule.has(found.series.id) && (
           <p className="mt-4 inline-block rounded-rs border border-rs-yellow/60 px-3 py-1 text-xs text-rs-yellow">
             {t('news.producedByRacespot')}
           </p>
@@ -385,7 +390,7 @@ export function SeriesPage({ lang, slug, page }: { lang: Lang; slug: string; pag
                     href={localePath(lang, `/news/series/${s.id}`)}
                     name={s.name}
                     count={liveSeries().find((l) => l.series.id === s.id)?.count ?? 0}
-                    racespot={s.racespot}
+                    racespot={schedule.has(s.id)}
                   />
                 </li>
               ))}

@@ -44,11 +44,9 @@ export interface NewsSeries {
   platform?: string
   /** An event series (expo, summit) rather than a championship. */
   kind?: 'event'
-  /** RaceSpot produces the broadcast. */
-  racespot: boolean
   /** Lower-case phrases that identify the series in a text. Specific, never a bare brand. */
   aliases: string[]
-  /** How the Master Schedule starts this series' name (column K). */
+  /** How the Master Schedule starts this series' name (column K). Whether we broadcast it comes from there: seriesSchedule.ts. */
   calendar: string[]
 }
 

@@ -178,6 +178,13 @@ Sections, series and platforms live in **one file**,
 - `series` ids come from the closed list there; aliases are specific phrases,
   never a bare brand („porsche“ would pull in a wheel announcement). An id
   that is not there gets no chip and no page.
+- **Whether RaceSpot broadcasts a series, and its tier, comes from the Master
+  Schedule** (`src/lib/seriesSchedule.ts`): public rows of the last 12 months
+  and the future whose series name starts with one of the series' `calendar`
+  names. That drives the „Broadcast by RaceSpot“ badge and puts broadcast
+  series first, by tier, in series lists. There is no hand-kept list for this —
+  Philip and Hugo keep none, the schedule is it (Jürgen, 2026-10-28). A new
+  series in the schedule needs only a taxonomy entry with its `calendar` name.
 - `reservedSlugs` are pages under `/news/` — no article may use one.
 - The Press Tool still mirrors the keys in `preview.categories`; it is to read
   the file from its checkout instead (plan step 2). Until then: add a category
