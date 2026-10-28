@@ -120,6 +120,10 @@ interface Article {
   tags?: string[]       // free, normalised (lower-case-hyphens); platforms derive from them
   format?: 'feature'    // evergreen piece; omitted = news
   pinnedUntil?: string  // ISO UTC; leads the news page until then — by hand only, ≤ 48 h
+  broadcast?: {         // recording of our own past broadcast → the site's player opens the article
+    videoId: string; videoParts?: string[]; eventId?: string
+    date: string; series: string; title?: string   // date YYYY-MM-DD UTC, series as in the Master Schedule
+  }
   sources?: { label: string; url: string }[]   // recorded, NOT rendered
   content: string[] | Block[]
   translations?: Partial<Record<'de'|'es'|'pt'|'fr'|'it', ArticleTranslation>>
@@ -161,6 +165,18 @@ the site appends `" | Racespot.tv"`, so the budget is **55**. Read it through
 `localizeArticle()` like everything else — `loc.seoTitle` falls back to that
 language's headline, never to the English one. Leave it out whenever the
 headline already fits; it exists for the long ones.
+
+### Broadcast recording (added 2026-10-28)
+
+`broadcast` is set by the Press Tool, only for a broadcast that has happened
+and only when exactly one entry of `GET /api/broadcasts` (our past broadcasts
+with a recording, `lib/broadcasts.ts`) matches the article's series and day —
+the pairing of schedule row and recording lives once, in `replays.ts`, and
+the endpoint feeds `withReplays()` the same list the calendar does, so both
+give the same answer. With the field the hero image becomes the poster of
+the site's one player (`VideoPoster` → `VideoPlayerProvider`: dialog, corner,
+own window); nothing of YouTube loads before play. `check-news` rejects a
+malformed id.
 
 ### Taxonomy (changed 2026-10-28)
 

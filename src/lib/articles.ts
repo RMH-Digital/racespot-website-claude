@@ -104,6 +104,27 @@ export interface Article {
   /** ISO 8601 UTC. Until then the article leads the news page whatever its date. Set by hand only, at most 48 h. */
   pinnedUntil?: string
   /**
+   * The recording of our own broadcast the article is about — shown in the
+   * site's player at the top of the article. The Press Tool sets it only for
+   * a broadcast that has happened and only when exactly one entry of
+   * /api/broadcasts matches the article's series and day; the names are
+   * those of `CalendarEvent`. Omitted = no player.
+   */
+  broadcast?: {
+    /** YouTube id of the recording, the first part when there are several */
+    videoId: string
+    /** Every part in order, when it went out in several streams; `videoId` is the first */
+    videoParts?: string[]
+    /** CalendarEvent.id of the schedule row, when known */
+    eventId?: string
+    /** Day of the broadcast, YYYY-MM-DD UTC */
+    date: string
+    /** Series name as in the Master Schedule */
+    series: string
+    /** e.g. "Round 3 at Watkins Glen" */
+    title?: string
+  }
+  /**
    * `string[]` is still valid and means "these are plain paragraphs", so every
    * article written before blocks existed keeps working untouched. Read it
    * through `toBlocks()` from ./articleContent rather than directly.

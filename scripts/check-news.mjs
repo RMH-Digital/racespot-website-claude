@@ -103,6 +103,23 @@ const normalizeTag = (t) =>
 const blockText = (b) => (typeof b === 'string' ? b : b.kind === 'p' ? b.text : '')
 
 /** A paragraph that is one italic run and names AI, among the last three blocks. */
+/** YouTube video ids are 11 characters of [A-Za-z0-9_-]. */
+const VIDEO_ID = /^[\w-]{11}$/
+
+/** The `broadcast` field (src/lib/articles.ts) — a bad id would be a player that never plays. */
+function checkBroadcast(where, b) {
+  if (typeof b !== 'object' || b === null) return error(where, 'broadcast is not an object')
+  if (!VIDEO_ID.test(b.videoId ?? '')) error(where, `broadcast.videoId "${b.videoId}" is not a YouTube id`)
+  if (b.videoParts !== undefined) {
+    if (!Array.isArray(b.videoParts) || b.videoParts.some((id) => !VIDEO_ID.test(id))) error(where, 'broadcast.videoParts must be YouTube ids')
+    else if (b.videoParts[0] !== b.videoId) error(where, 'broadcast.videoParts must start with broadcast.videoId')
+  }
+  if (!DAY.test(b.date ?? '')) error(where, `broadcast.date "${b.date}" is not YYYY-MM-DD`)
+  if (typeof b.series !== 'string' || !b.series.trim()) error(where, 'broadcast.series is missing')
+  if (b.eventId !== undefined && (typeof b.eventId !== 'string' || !b.eventId)) error(where, 'broadcast.eventId is empty')
+  if (b.title !== undefined && (typeof b.title !== 'string' || !b.title.trim())) error(where, 'broadcast.title is empty')
+}
+
 function hasAiNotice(content, lang) {
   return content.slice(-3).some((b) => {
     const text = blockText(b).trim()
@@ -130,6 +147,7 @@ for (const a of ARTICLES) {
   if (a.updatedAt !== undefined && !ISO.test(a.updatedAt)) error(where, `updatedAt "${a.updatedAt}" is not ISO 8601 UTC`)
   if (a.pinnedUntil !== undefined && !ISO.test(a.pinnedUntil)) error(where, `pinnedUntil "${a.pinnedUntil}" is not ISO 8601 UTC`)
   if (a.format !== undefined && a.format !== 'feature') error(where, `format "${a.format}" is not "feature"`)
+  if (a.broadcast !== undefined) checkBroadcast(where, a.broadcast)
 
   if (!Array.isArray(a.content) || a.content.length === 0) error(where, 'content is empty')
   else if (!hasAiNotice(a.content, 'en')) error(where, 'English text has no AI notice at the end')

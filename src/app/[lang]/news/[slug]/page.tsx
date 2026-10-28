@@ -11,6 +11,7 @@ import { moreFromSeries, relatedArticles, toNewsItem } from '@/lib/newsIndex'
 import { articleSeries, getCategory } from '@/lib/newsTaxonomy'
 import { NewsCard, NewsCompact } from '@/components/news/cards'
 import { Breadcrumbs, type Crumb } from '@/components/news/nav'
+import { VideoPoster } from '@/components/video/VideoPoster'
 
 interface Props {
   params: Promise<{ lang: Lang; slug: string }>
@@ -56,6 +57,7 @@ export default async function ArticlePage({ params }: Props) {
   const t = getT(lang)
   const loc = localizeArticle(article, lang)
   const fallback = loc.lang !== lang
+  const broadcast = article.broadcast
 
   // Where the article sits: News › section › series. The same trail is
   // visible above the headline and in the BreadcrumbJsonLd.
@@ -95,24 +97,50 @@ export default async function ArticlePage({ params }: Props) {
           { name: loc.title },
         ]}
       />
-      {/* Hero image */}
-      <div className="relative h-[300px] md:h-[400px] overflow-hidden">
-        <Image
-          src={article.image}
-          alt={loc.imageAlt}
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/50 to-rs-black/10" />
-        {article.imageCredit && (
-          <p className="absolute bottom-2.5 right-4 font-mono text-[11px] tracking-wide text-rs-white/45">
-            {article.imageCredit}
-          </p>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
-      </div>
+      {broadcast ? (
+        // An article about one of our broadcasts opens with its recording:
+        // the hero image becomes the poster of the site's player (dialog,
+        // corner, own window — VideoPlayerProvider), and nothing of YouTube
+        // loads until the reader presses play.
+        <div className="relative border-b border-rs-border bg-rs-dark">
+          <div className="container-rs pt-6 pb-8 md:pt-10 md:pb-10">
+            <div className="max-w-5xl mx-auto" lang={lang}>
+              <p className="section-label mb-3">{t('news.watchBroadcast')}</p>
+              <VideoPoster
+                lang={lang}
+                id={broadcast.videoId}
+                parts={broadcast.videoParts}
+                title={broadcast.title ? `${broadcast.series} – ${broadcast.title}` : broadcast.series}
+                poster={article.image}
+                priority
+              />
+              {article.imageCredit && (
+                <p className="mt-2 text-right font-mono text-[11px] tracking-wide text-rs-white/45">{article.imageCredit}</p>
+              )}
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        </div>
+      ) : (
+        // Hero image
+        <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+          <Image
+            src={article.image}
+            alt={loc.imageAlt}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/50 to-rs-black/10" />
+          {article.imageCredit && (
+            <p className="absolute bottom-2.5 right-4 font-mono text-[11px] tracking-wide text-rs-white/45">
+              {article.imageCredit}
+            </p>
+          )}
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
+        </div>
+      )}
 
       <div className="container-rs py-12">
         {/* The article's text is in loc.lang; when that is not the page
