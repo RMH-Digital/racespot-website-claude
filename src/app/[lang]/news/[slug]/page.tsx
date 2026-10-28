@@ -2,11 +2,15 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ARTICLES, sortedArticles, CATEGORY_COLORS } from '@/lib/articles'
+import { ARTICLES, CATEGORY_COLORS } from '@/lib/articles'
 import { articleLangs, localizeArticle, renderInline, footerNote } from '@/lib/articleContent'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 import { categoryLabel, formatDate, getT, localePath, type Lang } from '@/lib/i18n'
 import { absoluteUrl, clampDescription, pageMetadata, titleWithBrand } from '@/lib/i18n/seo'
+import { moreFromSeries, relatedArticles, toNewsItem } from '@/lib/newsIndex'
+import { articleSeries, getCategory } from '@/lib/newsTaxonomy'
+import { NewsCard, NewsCompact } from '@/components/news/cards'
+import { Breadcrumbs, type Crumb } from '@/components/news/nav'
 
 interface Props {
   params: Promise<{ lang: Lang; slug: string }>
@@ -53,11 +57,21 @@ export default async function ArticlePage({ params }: Props) {
   const loc = localizeArticle(article, lang)
   const fallback = loc.lang !== lang
 
-  // Neighbours in reading order — by date, like the list — not array order.
-  const ordered = sortedArticles()
-  const idx = ordered.indexOf(article)
-  const prev = idx > 0 ? ordered[idx - 1] : null
-  const next = idx < ordered.length - 1 ? ordered[idx + 1] : null
+  // Where the article sits: News › section › series. The same trail is
+  // visible above the headline and in the BreadcrumbJsonLd.
+  const category = getCategory(article.category)
+  const series = articleSeries(article)
+  const crumbs: Crumb[] = [
+    { name: t('nav.news'), path: '/news' },
+    ...(category ? [{ name: categoryLabel(lang, article.category), path: `/news/category/${category.slug}` }] : []),
+    ...(series[0] ? [{ name: series[0].name, path: `/news/series/${series[0].id}` }] : []),
+  ]
+
+  // What to read next: the rest of the series first, then related pieces.
+  // Replaces previous/next by date, which led through unrelated stories once
+  // the Press Tool published ten a day.
+  const more = moreFromSeries(article)
+  const related = relatedArticles(article, 4, more?.articles.map((a) => a.slug) ?? [])
 
   return (
     <div>
@@ -70,12 +84,14 @@ export default async function ArticlePage({ params }: Props) {
         datePublished={article.publishedAt}
         dateModified={article.updatedAt ?? article.publishedAt}
         slug={article.slug}
+        section={categoryLabel(loc.lang, article.category)}
+        about={series.map((s) => ({ name: s.name, url: absoluteUrl(lang, `/news/series/${s.id}`) }))}
       />
-      {/* racespot.tv › News › Headline, instead of a slug in the result */}
+      {/* racespot.tv › News › Section › Series › Headline, instead of a slug in the result */}
       <BreadcrumbJsonLd
         crumbs={[
-          { name: 'Racespot.tv', url: `https://racespot.tv/${lang}` },
-          { name: t('nav.news'), url: `https://racespot.tv/${lang}/news` },
+          { name: 'Racespot.tv', url: absoluteUrl(lang, '/') },
+          ...crumbs.map((c) => ({ name: c.name, url: absoluteUrl(lang, c.path ?? '/news') })),
           { name: loc.title },
         ]}
       />
@@ -105,11 +121,22 @@ export default async function ArticlePage({ params }: Props) {
         {/* 44rem ≈ 71 characters a line. max-w-3xl (48rem) wrapped at ~78, past the
             point where the eye starts losing the start of the next line. */}
         <article className="max-w-[44rem] mx-auto" lang={fallback ? loc.lang : undefined}>
+          <div lang={lang}>
+            <Breadcrumbs lang={lang} crumbs={crumbs} />
+          </div>
+
           {/* Meta */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span className={`text-xs font-mono ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}>
-              {categoryLabel(lang, article.category)}
-            </span>
+            {category ? (
+              <Link
+                href={localePath(lang, `/news/category/${category.slug}`)}
+                className={`text-xs font-mono hover:underline ${CATEGORY_COLORS[article.category] ?? 'text-rs-muted'}`}
+              >
+                {categoryLabel(lang, article.category)}
+              </Link>
+            ) : (
+              <span className="text-xs font-mono text-rs-muted">{categoryLabel(lang, article.category)}</span>
+            )}
             <span className="text-rs-muted" aria-hidden="true">·</span>
             <time dateTime={article.date} className="text-rs-muted text-xs">{formatDate(lang, article.date)}</time>
             {article.updatedAt && (
@@ -138,9 +165,24 @@ export default async function ArticlePage({ params }: Props) {
           )}
 
           {/* Title */}
-          <h1 className="font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-8">
+          <h1 className="font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-6">
             {loc.title}
           </h1>
+
+          {series.length > 0 && (
+            <ul className="flex flex-wrap gap-2 mb-8" aria-label={t('news.series')} lang={lang}>
+              {series.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={localePath(lang, `/news/series/${s.id}`)}
+                    className="inline-block rounded-rs border border-rs-border px-2.5 py-1 text-xs text-rs-white/80 hover:border-rs-yellow hover:text-rs-yellow transition-colors"
+                  >
+                    {s.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Content */}
           <div className="space-y-6">
@@ -216,34 +258,40 @@ export default async function ArticlePage({ params }: Props) {
               )
             })}
           </div>
+        </article>
 
-          {/* Navigation */}
-          <nav className="mt-16 pt-8 border-t border-rs-border flex items-center justify-between gap-4" lang={lang}>
-            {prev ? (
-              <Link href={localePath(lang, `/news/${prev.slug}`)} className="group text-left">
-                <p className="text-xs text-rs-muted mb-1">← {t('news.previous')}</p>
-                <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
-                  {localizeArticle(prev, lang).title}
-                </p>
-              </Link>
-            ) : <div />}
-            {next ? (
-              <Link href={localePath(lang, `/news/${next.slug}`)} className="group text-right">
-                <p className="text-xs text-rs-muted mb-1">{t('news.next')} →</p>
-                <p className="text-sm text-rs-white group-hover:text-rs-yellow transition-colors line-clamp-1">
-                  {localizeArticle(next, lang).title}
-                </p>
-              </Link>
-            ) : <div />}
-          </nav>
+        {/* Read next — wider than the text column, cards need the room */}
+        <div className="max-w-5xl mx-auto" lang={lang}>
+          {more && (
+            <section className="mt-16 pt-8 border-t border-rs-border" aria-labelledby="more-from-series">
+              <h2 id="more-from-series" className="font-display font-bold uppercase text-white text-lg tracking-wide mb-5">
+                {t('news.moreFrom').replace('{name}', more.series.name)}
+              </h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {more.articles.map((a) => (
+                  <NewsCard key={a.slug} item={toNewsItem(a, lang)} lang={lang} excerpt={false} />
+                ))}
+              </div>
+            </section>
+          )}
+          {related.length > 0 && (
+            <section className={`${more ? 'mt-12' : 'mt-16 pt-8 border-t border-rs-border'}`} aria-labelledby="related">
+              <h2 id="related" className="font-display font-bold uppercase text-white text-lg tracking-wide mb-2">
+                {t('news.related')}
+              </h2>
+              {related.map((a) => (
+                <NewsCompact key={a.slug} item={toNewsItem(a, lang)} lang={lang} />
+              ))}
+            </section>
+          )}
 
           {/* Back link */}
-          <div className="mt-8 text-center" lang={lang}>
+          <div className="mt-10 text-center">
             <Link href={localePath(lang, '/news')} className="btn-ghost">
               ← {t('news.allNews')}
             </Link>
           </div>
-        </article>
+        </div>
       </div>
     </div>
   )

@@ -2006,6 +2006,21 @@ Entwurf für Philip und Hugo (E3). Serienbeschreibungen fehlen noch, sie kommen
 mit den Serienseiten (Schritt 4). Der Press Tool kennt `series` noch nicht: Ein
 Re-Publish überschreibt den Eintrag ohne `series` und mit alten Tags (Schritt 2).
 
+## 7z-2. News-Bereich neu, Schritte 4 und 5: Seiten — 2026-10-28
+
+Rubrik-, Serien-, Familien-, Archiv- und Listenseiten, RSS je Sprache,
+gemeinsame Kartenbausteine (`src/components/news/`), Artikelseite mit
+sichtbarem Pfad, Serien-Chips, „Mehr aus …“ und „Verwandt“. `NewsBrowser`
+(Kategoriefilter im Browser) ist entfernt — Rubriken sind jetzt echte Seiten.
+
+**Wächst mit (Jürgen, 2026-10-28):** Nur Rubriken und Serien mit Artikeln
+erscheinen; heute 5 Rubriken (Sim to Real fehlt), 13 Serien, 4 Familien
+(Porsche Esports, VCO, eNASCAR, RENNSPORT). Pagination ab 25 Artikeln.
+
+**Offen aus dem Plan:** Schritt 6 (Live/Heute-Leiste und nächste Übertragung
+je Serie aus dem Master Schedule), Schritt 7 (Suche, Topic-/Plattform-Filter),
+Google-News-Sitemap, Prerender-Grenze. Schritt 2/3 mit dem Press Tool.
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

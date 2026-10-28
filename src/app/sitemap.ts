@@ -1,9 +1,18 @@
 import type { MetadataRoute } from 'next'
-import { ARTICLES } from '@/lib/articles'
+import { ARTICLES, type Article } from '@/lib/articles'
 import { articleLangs } from '@/lib/articleContent'
 import { LANGS, type Lang } from '@/lib/i18n'
 import { absoluteUrl } from '@/lib/i18n/seo'
 import { LEGAL_LANGS } from '@/lib/i18n/legal/types'
+import {
+  INDEX_MIN,
+  archiveYears,
+  articlesInYear,
+  liveCategories,
+  articlesInCategory,
+  resolveSeriesPage,
+  seriesPageSlugs,
+} from '@/lib/newsIndex'
 
 type Freq = NonNullable<MetadataRoute.Sitemap[number]['changeFrequency']>
 
@@ -40,7 +49,8 @@ const STATIC_PAGES: { path: string; changeFrequency: Freq; priority: number; lan
   { path: '/live',       changeFrequency: 'always',  priority: 0.9 },
   { path: '/events',     changeFrequency: 'weekly',  priority: 0.8 },
   { path: '/services',   changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/news',       changeFrequency: 'weekly',  priority: 0.8 },
+  { path: '/news',       changeFrequency: 'daily',   priority: 0.8 },
+  { path: '/news/series', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/about',      changeFrequency: 'monthly', priority: 0.7 },
   { path: '/contact',    changeFrequency: 'monthly', priority: 0.6 },
   { path: '/press',      changeFrequency: 'monthly', priority: 0.5 },
@@ -56,6 +66,24 @@ function languages(path: string, langs: readonly Lang[]) {
   for (const l of langs) out[l] = absoluteUrl(l, path)
   out['x-default'] = absoluteUrl('en', path)
   return out
+}
+
+/** The newest publish in a list — a list page changes when one of its articles does. */
+function newest(articles: Article[]): Date {
+  return new Date(articles.map((a) => a.updatedAt ?? a.publishedAt).sort().at(-1) ?? BUILT_AT)
+}
+
+/**
+ * Section, series and archive pages that are worth indexing: those with at
+ * least INDEX_MIN articles. Thinner ones exist (and are `noindex, follow`)
+ * but are not offered. Page 2 onwards is found through the links on page 1.
+ */
+function newsListPages(): { path: string; articles: Article[] }[] {
+  return [
+    ...liveCategories().map(({ category }) => ({ path: `/news/category/${category.slug}`, articles: articlesInCategory(category.key) })),
+    ...seriesPageSlugs().map((slug) => ({ path: `/news/series/${slug}`, articles: resolveSeriesPage(slug)?.articles ?? [] })),
+    ...archiveYears().map((year) => ({ path: `/news/archive/${year}`, articles: articlesInYear(year) })),
+  ].filter((p) => p.articles.length >= INDEX_MIN)
 }
 
 /**
@@ -76,6 +104,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: page.changeFrequency,
         priority: page.priority,
         alternates: { languages: languages(page.path, langs) },
+      })
+    }
+  }
+
+  for (const { path, articles } of newsListPages()) {
+    for (const lang of LANGS) {
+      entries.push({
+        url: absoluteUrl(lang, path),
+        lastModified: newest(articles),
+        changeFrequency: 'weekly',
+        priority: 0.6,
+        alternates: { languages: languages(path, LANGS) },
       })
     }
   }

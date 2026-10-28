@@ -53,6 +53,9 @@ const seriesIds = unique(taxonomy.series, 'id', TAXONOMY_FILE)
 const platformIds = unique(taxonomy.platforms, 'id', TAXONOMY_FILE)
 const reserved = new Set(taxonomy.reservedSlugs)
 
+// Families and series share /news/series/<id>, so one id may not be both.
+for (const id of familyIds) if (seriesIds.has(id)) error(TAXONOMY_FILE, `"${id}" is both a family and a series id`)
+
 for (const s of taxonomy.series) {
   const where = `${TAXONOMY_FILE} series "${s.id}"`
   if (s.family && !familyIds.has(s.family)) error(where, `unknown family "${s.family}"`)

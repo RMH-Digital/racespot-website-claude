@@ -97,9 +97,13 @@ interface ArticleJsonLdProps {
   slug: string
   /** ISO; the last publish — falls back to datePublished */
   dateModified?: string
+  /** Section name in the language of the text */
+  section?: string
+  /** Series the article is about, with the URL of their news page */
+  about?: { name: string; url: string }[]
 }
 
-export function ArticleJsonLd({ lang, urlLang, title, description, image, datePublished, dateModified, slug }: ArticleJsonLdProps) {
+export function ArticleJsonLd({ lang, urlLang, title, description, image, datePublished, dateModified, slug, section, about = [] }: ArticleJsonLdProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -110,6 +114,10 @@ export function ArticleJsonLd({ lang, urlLang, title, description, image, datePu
     dateModified: dateModified ?? datePublished,
     inLanguage: LOCALES[lang],
     url: `https://racespot.tv/${urlLang}/news/${slug}`,
+    ...(section ? { articleSection: section } : {}),
+    ...(about.length
+      ? { keywords: about.map((a) => a.name).join(', '), about: about.map((a) => ({ '@type': 'Thing', name: a.name, url: a.url })) }
+      : {}),
     author: {
       '@type': 'Organization',
       name: 'Racespot Media House GmbH',
@@ -157,6 +165,46 @@ export function BreadcrumbJsonLd({ crumbs }: { crumbs: Crumb[] }) {
       name: c.name,
       ...(c.url ? { item: c.url } : {}),
     })),
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}
+
+/**
+ * A news list page — section, series, archive, /news itself — as a
+ * CollectionPage whose ItemList names the articles shown, in order.
+ */
+export function CollectionPageJsonLd({
+  lang,
+  url,
+  name,
+  description,
+  items,
+}: {
+  lang: Lang
+  url: string
+  name: string
+  description: string
+  /** Absolute article URLs, in the order shown. */
+  items: string[]
+}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url,
+    inLanguage: LOCALES[lang],
+    isPartOf: { '@type': 'WebSite', name: 'Racespot.tv', url: 'https://racespot.tv' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: items.map((item, i) => ({ '@type': 'ListItem', position: i + 1, url: item })),
+    },
   }
 
   return (

@@ -183,6 +183,26 @@ Sections, series and platforms live in **one file**,
   the file from its checkout instead (plan step 2). Until then: add a category
   in taxonomy.json, `translations.ts` and `project.yaml` together, or not at all.
 
+### News pages — they grow with the articles (2026-10-28)
+
+`/news`, `/news/page/<n>`, `/news/category/<slug>`, `/news/series` and
+`/news/series/<id>` (a series, or a family once ≥ 2 of its series have
+articles), `/news/archive/<year>`, `/news/feed.xml` (RSS, newest 50). Routes
+are thin; the pages live in `src/components/news/listings.tsx`, the cards in
+`cards.tsx`, the rules in `src/lib/newsIndex.ts`. Article URLs are unchanged.
+
+**Nothing is shown before it has articles** (Jürgen): a section or series
+without one has no chip, no page (404 — `dynamicParams` is off) and no
+sitemap entry; the deploy that brings its first article creates it.
+Pagination appears past 24 articles, the series rail with two series, the
+archive links with two years. Pages with fewer than 3 articles are
+`noindex, follow` and stay out of the sitemap. Never add a hand-kept list of
+sections or series to a page — derive it in `newsIndex.ts`.
+
+An article shows News › section › series as a visible trail (same as the
+BreadcrumbJsonLd), its series as chips, then „More from <series>“ and
+„Related“ (`relatedArticles()`); previous/next by date is gone.
+
 `npm run check-news` (part of `npm run build`) checks taxonomy and every
 article: slug format and uniqueness, reserved slugs, known category, dates,
 required fields, and **the AI notice in every language** — a missing one fails
