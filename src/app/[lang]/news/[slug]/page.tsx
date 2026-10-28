@@ -11,7 +11,7 @@ import { moreFromSeries, relatedArticles, toNewsItem } from '@/lib/newsIndex'
 import { articleSeries, getCategory } from '@/lib/newsTaxonomy'
 import { NewsCard, NewsCompact } from '@/components/news/cards'
 import { Breadcrumbs, type Crumb } from '@/components/news/nav'
-import { VideoPoster } from '@/components/video/VideoPoster'
+import { ArticleBroadcast } from '@/components/video/ArticleBroadcast'
 
 interface Props {
   params: Promise<{ lang: Lang; slug: string }>
@@ -75,6 +75,78 @@ export default async function ArticlePage({ params }: Props) {
   const more = moreFromSeries(article)
   const related = relatedArticles(article, 4, more?.articles.map((a) => a.slug) ?? [])
 
+  const renderBlock = (block: (typeof loc.blocks)[number], i: number) => {
+    if (block.kind === 'h2') {
+      return (
+        <h2
+          key={i}
+          className="font-display font-bold text-xl md:text-2xl text-white leading-tight pt-6
+            before:block before:w-8 before:h-[3px] before:rounded-xs before:bg-rs-yellow before:mb-3.5"
+        >
+          {renderInline(block.text)}
+        </h2>
+      )
+    }
+    if (block.kind === 'quote') {
+      return (
+        <blockquote
+          key={i}
+          className="relative border-l-[3px] border-rs-yellow rounded-r-lg py-5 pl-6 pr-6
+            bg-linear-to-r from-rs-yellow/[0.07] to-transparent
+            text-[17px] leading-relaxed text-rs-white/80"
+        >
+          <p>{renderInline(block.text)}</p>
+          {block.attribution && (
+            <footer className="mt-2.5 text-sm text-rs-muted">
+              {renderInline(block.attribution)}
+            </footer>
+          )}
+        </blockquote>
+      )
+    }
+    if (block.kind === 'image') {
+      return (
+        <figure key={i} className="my-8">
+          <Image
+            src={block.src}
+            alt={block.alt}
+            width={1600}
+            height={900}
+            className="w-full h-auto rounded-md"
+            sizes="(max-width: 768px) 100vw, 768px"
+          />
+          {(block.alt || block.credit) && (
+            <figcaption className="mt-2 text-[13px] text-rs-muted">
+              {block.alt}
+              {block.credit && (
+                <span className="ml-1.5 font-mono text-[11px] text-rs-muted/70">
+                  {block.credit}
+                </span>
+              )}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+    // The credit and AI notice under the article: small print, set
+    // quietly, rather than the yellow italics an `<em>` gets inside
+    // a sentence. Only at the very end — the translation footer may
+    // follow it — so an italic line mid-article keeps its emphasis.
+    const note = i >= loc.blocks.length - 2 ? footerNote(block.text) : null
+    if (note !== null) {
+      return (
+        <p key={i} className="text-[13px] italic leading-relaxed text-rs-muted/75">
+          {renderInline(note)}
+        </p>
+      )
+    }
+    return (
+      <p key={i} className="text-rs-muted leading-relaxed text-[16px]">
+        {renderInline(block.text)}
+      </p>
+    )
+  }
+
   return (
     <div>
       <ArticleJsonLd
@@ -97,26 +169,13 @@ export default async function ArticlePage({ params }: Props) {
           { name: loc.title },
         ]}
       />
-      {broadcast ? (
-        // An article about one of our broadcasts opens with its recording:
-        // the hero image becomes the poster of the site's player (dialog,
-        // corner, own window — VideoPlayerProvider), and nothing of YouTube
-        // loads until the reader presses play.
+      {broadcast && !article.image ? (
+        // No picture of its own: the recording is the header.
         <div className="relative border-b border-rs-border bg-rs-dark">
           <div className="container-rs pt-6 pb-8 md:pt-10 md:pb-10">
             <div className="max-w-5xl mx-auto" lang={lang}>
               <p className="section-label mb-3">{t('news.watchBroadcast')}</p>
-              <VideoPoster
-                lang={lang}
-                id={broadcast.videoId}
-                parts={broadcast.videoParts}
-                title={broadcast.title ? `${broadcast.series} – ${broadcast.title}` : broadcast.series}
-                poster={article.image}
-                priority
-              />
-              {article.imageCredit && (
-                <p className="mt-2 text-right font-mono text-[11px] tracking-wide text-rs-white/45">{article.imageCredit}</p>
-              )}
+              <ArticleBroadcast lang={lang} broadcast={broadcast} priority />
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-linear-to-r from-rs-yellow via-rs-yellow/50 to-transparent" />
@@ -214,76 +273,19 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Content */}
           <div className="space-y-6">
-            {loc.blocks.map((block, i) => {
-              if (block.kind === 'h2') {
-                return (
-                  <h2
-                    key={i}
-                    className="font-display font-bold text-xl md:text-2xl text-white leading-tight pt-6
-                      before:block before:w-8 before:h-[3px] before:rounded-xs before:bg-rs-yellow before:mb-3.5"
-                  >
-                    {renderInline(block.text)}
-                  </h2>
-                )
-              }
-              if (block.kind === 'quote') {
-                return (
-                  <blockquote
-                    key={i}
-                    className="relative border-l-[3px] border-rs-yellow rounded-r-lg py-5 pl-6 pr-6
-                      bg-linear-to-r from-rs-yellow/[0.07] to-transparent
-                      text-[17px] leading-relaxed text-rs-white/80"
-                  >
-                    <p>{renderInline(block.text)}</p>
-                    {block.attribution && (
-                      <footer className="mt-2.5 text-sm text-rs-muted">
-                        {renderInline(block.attribution)}
-                      </footer>
-                    )}
-                  </blockquote>
-                )
-              }
-              if (block.kind === 'image') {
-                return (
-                  <figure key={i} className="my-8">
-                    <Image
-                      src={block.src}
-                      alt={block.alt}
-                      width={1600}
-                      height={900}
-                      className="w-full h-auto rounded-md"
-                      sizes="(max-width: 768px) 100vw, 768px"
-                    />
-                    {(block.alt || block.credit) && (
-                      <figcaption className="mt-2 text-[13px] text-rs-muted">
-                        {block.alt}
-                        {block.credit && (
-                          <span className="ml-1.5 font-mono text-[11px] text-rs-muted/70">
-                            {block.credit}
-                          </span>
-                        )}
-                      </figcaption>
-                    )}
-                  </figure>
-                )
-              }
-              // The credit and AI notice under the article: small print, set
-              // quietly, rather than the yellow italics an `<em>` gets inside
-              // a sentence. Only at the very end — the translation footer may
-              // follow it — so an italic line mid-article keeps its emphasis.
-              const note = i >= loc.blocks.length - 2 ? footerNote(block.text) : null
-              if (note !== null) {
-                return (
-                  <p key={i} className="text-[13px] italic leading-relaxed text-rs-muted/75">
-                    {renderInline(note)}
-                  </p>
-                )
-              }
-              return (
-                <p key={i} className="text-rs-muted leading-relaxed text-[16px]">
-                  {renderInline(block.text)}
-                </p>
-              )
+            {loc.blocks.flatMap((block, i) => {
+              const el = renderBlock(block, i)
+              // The article has its own picture above: the recording comes
+              // right after the opening paragraph — the first third of the
+              // text, where Jürgen wants it (2026-10-28).
+              return i === 0 && broadcast && article.image
+                ? [el, (
+                    <div key="broadcast" className="!my-8" lang={lang}>
+                      <p className="section-label mb-3">{t('news.watchBroadcast')}</p>
+                      <ArticleBroadcast lang={lang} broadcast={broadcast} />
+                    </div>
+                  )]
+                : [el]
             })}
           </div>
         </article>

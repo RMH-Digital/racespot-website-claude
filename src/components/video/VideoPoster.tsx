@@ -20,7 +20,7 @@ import { PlayIcon } from '@/components/ui/icons'
  * then `hqdefault`, which every video has.
  */
 const SIZES = ['maxresdefault', 'sddefault', 'hqdefault'] as const
-export function VideoPoster({ lang, id, title, parts, poster, priority = false, className = '' }: { lang: Lang; id: string; title: string; /** Every part of a broadcast streamed in several, `id` being the first */ parts?: string[]; /** Exact still URL, when the caller already knows which sizes exist — or our own image */ poster?: string | null; /** Above the fold: load eagerly */ priority?: boolean; className?: string }) {
+export function VideoPoster({ lang, id, title, parts, poster, priority = false, attached = false, className = '' }: { lang: Lang; id: string; title: string; /** Every part of a broadcast streamed in several, `id` being the first */ parts?: string[]; /** Exact still URL, when the caller already knows which sizes exist — or our own image */ poster?: string | null; /** Above the fold: load eagerly */ priority?: boolean; /** Sits under StreamTabs: square top, no top border */ attached?: boolean; className?: string }) {
   const t = getT(lang)
   const { play } = useVideoPlayer()
   const [size, setSize] = useState(0)
@@ -29,7 +29,7 @@ export function VideoPoster({ lang, id, title, parts, poster, priority = false, 
       type="button"
       onClick={() => play({ kind: 'video', id, title, parts })}
       aria-label={`${t('video.play')}: ${title}`}
-      className={`group relative block aspect-video w-full overflow-hidden rounded-rs border border-white/10 bg-rs-gray text-left ${className}`}
+      className={`group relative block aspect-video w-full overflow-hidden border border-white/10 bg-rs-gray text-left ${attached ? 'rounded-b-rs border-t-0' : 'rounded-rs'} ${className}`}
     >
       <Image
         key={poster && size === 0 ? poster : SIZES[size]}

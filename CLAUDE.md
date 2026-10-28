@@ -173,10 +173,13 @@ and only when exactly one entry of `GET /api/broadcasts` (our past broadcasts
 with a recording, `lib/broadcasts.ts`) matches the article's series and day —
 the pairing of schedule row and recording lives once, in `replays.ts`, and
 the endpoint feeds `withReplays()` the same list the calendar does, so both
-give the same answer. With the field the hero image becomes the poster of
-the site's one player (`VideoPoster` → `VideoPlayerProvider`: dialog, corner,
-own window); nothing of YouTube loads before play. `check-news` rejects a
-malformed id.
+give the same answer. With the field the article shows the recording in the
+site's one player (`ArticleBroadcast` → `VideoPoster` → `VideoPlayerProvider`:
+dialog, corner, own window); nothing of YouTube loads before play. Where
+(Jürgen, 2026-10-28): right after the opening paragraph when the article has
+its own image, as the header only when it has none. Several `videoParts` get
+the tab row the live page uses for two streams at once (`StreamTabs`), one
+tab per part. `check-news` rejects a malformed id.
 
 ### Taxonomy (changed 2026-10-28)
 

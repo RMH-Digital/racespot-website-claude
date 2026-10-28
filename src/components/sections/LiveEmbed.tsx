@@ -1,5 +1,6 @@
 'use client'
 
+import { StreamTabs } from '@/components/video/StreamTabs'
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -153,38 +154,20 @@ export function LiveEmbed({ lang, liveStreams: initialStreams, upcomingEvents = 
             )}
             {/* Stream tabs — shown directly above video for 2+ streams */}
             {liveStreams.length > 1 && (
-              <div className="flex gap-0 border-b border-rs-border mb-0 overflow-x-auto scrollbar-hide">
-                {liveStreams.map((stream) => {
-                  const isActive = stream.id === activeStream.id
-                  return (
-                    <button
-                      key={stream.id}
-                      onClick={() => {
-                      setActiveId(stream.id)
-                      if (playing) start({ id: stream.id, title: stream.title })
-                    }}
-                      className={`relative flex items-center gap-2 px-4 py-3 text-xs font-display font-bold
-                        transition-colors min-w-0 flex-1
-                        ${isActive
-                          ? 'text-white'
-                          : 'text-rs-muted hover:text-white/80'
-                        }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-rs-live animate-pulse-live' : 'bg-rs-muted/50'}`} />
-                      <span className="truncate">{stream.title}</span>
-                      {parseInt(stream.concurrentViewers) > 0 && (
-                        <span className="text-[11px] text-rs-muted font-normal shrink-0">
-                          {formatViewCount(stream.concurrentViewers)}
-                        </span>
-                      )}
-                      {/* Active indicator bar */}
-                      {isActive && (
-                        <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-rs-yellow" />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
+              <StreamTabs
+                live
+                tabs={liveStreams.map((stream) => ({
+                  id: stream.id,
+                  label: stream.title,
+                  extra: parseInt(stream.concurrentViewers) > 0 ? formatViewCount(stream.concurrentViewers) : undefined,
+                }))}
+                activeId={activeStream.id}
+                onSelect={(id) => {
+                  setActiveId(id)
+                  const stream = liveStreams.find((s) => s.id === id)
+                  if (playing && stream) start({ id: stream.id, title: stream.title })
+                }}
+              />
             )}
 
             {/* The player's place on the page. Nothing plays until the
