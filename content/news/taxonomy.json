@@ -1,0 +1,217 @@
+{
+  "_about": "The one list of news sections, series and platforms. Read by the website (src/lib/newsTaxonomy.ts) and, once its adapter learns it, by the Press Tool from its checkout of this repo. Keys and ids are stable: they are stored in articles and used in URLs. Rename what readers see (translations.ts category.<key>, series name), never the key or id. Plan: docs/news-plan/index.html.",
+
+  "categories": [
+    {
+      "key": "Esports",
+      "slug": "esports",
+      "color": "text-blue-400",
+      "hex": "#60a5fa",
+      "topics": ["sim-racing-results", "esports-series", "community-leagues"]
+    },
+    {
+      "key": "Industry",
+      "slug": "sims-hardware",
+      "color": "text-purple-400",
+      "hex": "#c084fc",
+      "topics": ["publisher-news", "sim-hardware"]
+    },
+    {
+      "key": "Events",
+      "slug": "events",
+      "color": "text-rs-yellow",
+      "hex": "#F5C000",
+      "topics": ["events"]
+    },
+    {
+      "key": "Broadcast",
+      "slug": "broadcast",
+      "color": "text-green-400",
+      "hex": "#4ade80",
+      "topics": ["broadcast-hardware"]
+    },
+    {
+      "key": "Motorsport",
+      "slug": "sim-to-real",
+      "color": "text-orange-400",
+      "hex": "#fb923c",
+      "topics": ["sim-to-real", "real-racing"]
+    },
+    {
+      "key": "Company",
+      "slug": "racespot",
+      "color": "text-rs-white",
+      "hex": "#FFFFFF",
+      "topics": []
+    }
+  ],
+
+  "families": [
+    { "id": "porsche-esports", "name": "Porsche Esports" },
+    { "id": "imsa", "name": "IMSA" },
+    { "id": "vco", "name": "VCO" },
+    { "id": "enascar", "name": "eNASCAR" },
+    { "id": "rennsport", "name": "RENNSPORT" },
+    { "id": "radical", "name": "Radical SimRacing" }
+  ],
+
+  "_series": "aliases: specific phrases only, never a bare brand (\"porsche\" would pull in a wheel announcement). calendar: how the Master Schedule (column K) starts the row's series name. racespot: RaceSpot produces it — set where the calendar or our own articles show it; Philip and Hugo confirm the list (plan E3).",
+  "series": [
+    {
+      "id": "porsche-esports-supercup",
+      "name": "Porsche Esports Supercup",
+      "family": "porsche-esports",
+      "platform": "iracing",
+      "racespot": true,
+      "aliases": ["porsche esports supercup", "porsche tag heuer esports supercup", "pesc"],
+      "calendar": ["Porsche Esports Supercup"]
+    },
+    {
+      "id": "porsche-esports-sprint-challenge",
+      "name": "Porsche Esports Sprint Challenge GB",
+      "family": "porsche-esports",
+      "platform": "iracing",
+      "racespot": true,
+      "aliases": ["porsche esports sprint challenge"],
+      "calendar": ["Porsche Esports Sprint Challenge"]
+    },
+    {
+      "id": "imsa-esports",
+      "name": "IMSA Esports",
+      "family": "imsa",
+      "platform": "iracing",
+      "racespot": true,
+      "aliases": ["imsa esports", "imsa iracing pro series"],
+      "calendar": ["IMSA Esports", "IMSA iRacing"]
+    },
+    {
+      "id": "erl",
+      "name": "European Racing League",
+      "family": "vco",
+      "racespot": true,
+      "aliases": ["european racing league", "esports racing league", "vco erl", "erl"],
+      "calendar": ["VCO ERL", "ERL", "Esports Racing League"]
+    },
+    {
+      "id": "vco-grand-slam",
+      "name": "VCO Grand Slam",
+      "family": "vco",
+      "platform": "iracing",
+      "racespot": false,
+      "aliases": ["vco grand slam"],
+      "calendar": []
+    },
+    {
+      "id": "vco-infinity",
+      "name": "VCO Infinity",
+      "family": "vco",
+      "racespot": true,
+      "aliases": ["vco infinity"],
+      "calendar": ["VCO Infinity"]
+    },
+    {
+      "id": "enascar-coca-cola-iracing-series",
+      "name": "eNASCAR Coca-Cola iRacing Series",
+      "family": "enascar",
+      "platform": "iracing",
+      "racespot": false,
+      "aliases": ["enascar coca-cola iracing series", "enascar coca cola iracing series", "coca-cola iracing series"],
+      "calendar": ["eNASCAR Coca Cola iRacing Series", "eNASCAR Coca-Cola iRacing Series"]
+    },
+    {
+      "id": "enascar-college",
+      "name": "eNASCAR College iRacing Series",
+      "family": "enascar",
+      "platform": "iracing",
+      "racespot": false,
+      "aliases": ["enascar college"],
+      "calendar": []
+    },
+    {
+      "id": "rennsport-r1",
+      "name": "RENNSPORT R1",
+      "family": "rennsport",
+      "platform": "rennsport",
+      "racespot": true,
+      "aliases": ["rennsport r1"],
+      "calendar": ["RENNSPORT R1"]
+    },
+    {
+      "id": "vlms",
+      "name": "Virtual Le Mans Series",
+      "racespot": false,
+      "aliases": ["virtual le mans series", "vlms"],
+      "calendar": ["VLMS", "Virtual Le Mans Series"]
+    },
+    {
+      "id": "24h-series-esports",
+      "name": "24H Series Esports",
+      "racespot": true,
+      "aliases": ["24h series esports"],
+      "calendar": ["24H Series Esports"]
+    },
+    {
+      "id": "fia-f4-esports",
+      "name": "FIA F4 Global Esports Championship",
+      "platform": "iracing",
+      "racespot": false,
+      "aliases": ["fia f4 global esports", "f4 global esports"],
+      "calendar": []
+    },
+    {
+      "id": "british-f4-esports",
+      "name": "British F4 Esports Championship",
+      "racespot": true,
+      "aliases": ["british f4 esports"],
+      "calendar": ["British F4 Esports"]
+    },
+    {
+      "id": "radical-simracing",
+      "name": "Radical SimRacing Championship",
+      "family": "radical",
+      "racespot": true,
+      "aliases": ["radical simracing", "radical sim racing", "radical e-cup"],
+      "calendar": ["Radical SimRacing", "Radical e-Cup"]
+    },
+    {
+      "id": "pca-sim-racing",
+      "name": "Porsche Club of America Sim Racing",
+      "platform": "iracing",
+      "racespot": true,
+      "aliases": ["porsche club of america", "pca sim racing"],
+      "calendar": ["Porsche Club of America", "PCA"]
+    },
+    {
+      "id": "sim-racing-expo",
+      "name": "Sim Racing Expo",
+      "kind": "event",
+      "racespot": true,
+      "aliases": ["sim racing expo", "simracing expo"],
+      "calendar": ["Sim Racing Expo", "SimRacing Expo"]
+    },
+    {
+      "id": "rennsport-summit",
+      "name": "RENNSPORT Summit",
+      "family": "rennsport",
+      "kind": "event",
+      "racespot": false,
+      "aliases": ["rennsport summit"],
+      "calendar": []
+    }
+  ],
+
+  "_platforms": "Not stored on the article: derived from its tags. tags are the normalised spellings that mean this platform.",
+  "platforms": [
+    { "id": "iracing", "name": "iRacing", "tags": ["iracing"] },
+    { "id": "rennsport", "name": "RENNSPORT", "tags": ["rennsport"] },
+    { "id": "le-mans-ultimate", "name": "Le Mans Ultimate", "tags": ["le-mans-ultimate", "lmu"] },
+    { "id": "assetto-corsa-evo", "name": "Assetto Corsa EVO", "tags": ["assetto-corsa-evo", "ac-evo"] },
+    { "id": "assetto-corsa-competizione", "name": "Assetto Corsa Competizione", "tags": ["assetto-corsa-competizione", "acc"] },
+    { "id": "rfactor-2", "name": "rFactor 2", "tags": ["rfactor-2", "rfactor2"] },
+    { "id": "gran-turismo", "name": "Gran Turismo", "tags": ["gran-turismo", "gran-turismo-7", "gt7"] },
+    { "id": "raceroom", "name": "RaceRoom", "tags": ["raceroom"] }
+  ],
+
+  "_reservedSlugs": "Path segments under /news/ that are pages, not articles. No article may use one as its slug.",
+  "reservedSlugs": ["page", "category", "series", "archive", "search", "feed", "feed.xml", "index.json"]
+}

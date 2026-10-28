@@ -1,4 +1,5 @@
 import type { Lang } from './i18n'
+import { NEWS_CATEGORIES } from './newsTaxonomy'
 
 /**
  * A block of article body. Articles used to be a flat `string[]` of paragraphs,
@@ -90,8 +91,18 @@ export interface Article {
   sources?: Source[]
   /** Editorial beats, finer than `category`; several share one category. Carried for a topic filter or press menu, not rendered yet. */
   topics?: { id: string; label: string }[]
-  /** Free tags from the Press Tool. Carried, not rendered. */
+  /**
+   * Series ids from `content/news/taxonomy.json` (Porsche Esports Supercup,
+   * IMSA Esports …), 0–n. An id the taxonomy does not know is ignored and the
+   * build check warns about it. Read through `articleSeries()`.
+   */
+  series?: string[]
+  /** Free tags, normalised (`normalizeTag()`: lower case, hyphens). Platforms are derived from them. */
   tags?: string[]
+  /** `feature` for evergreen pieces (the Press Tool's `mode: evergreen` topics); omitted = news. */
+  format?: 'feature'
+  /** ISO 8601 UTC. Until then the article leads the news page whatever its date. Set by hand only, at most 48 h. */
+  pinnedUntil?: string
   /**
    * `string[]` is still valid and means "these are plain paragraphs", so every
    * article written before blocks existed keeps working untouched. Read it
@@ -122,6 +133,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "logitech-g-presenting-sponsor-enascar-college-iracing",
     category: "Esports",
+    series: ["enascar-college"],
     title: "Logitech G Steps Up to Presenting Sponsor as the eNASCAR College iRacing Series Opens Its 2026-27 Season",
     seoTitle: "Logitech G presents 2026-27 eNASCAR College Series",
     excerpt: "Logitech G becomes presenting sponsor of the eNASCAR College iRacing Series for 2026-27, helping fund $60,000 in scholarships as the season opens.",
@@ -137,7 +149,7 @@ export const ARTICLES: Article[] = [
       { id: "esports-series", label: "Esports series & seasons" },
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "enascar", "iracing"],
+    tags: ["enascar", "iracing"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/logitech-g-returns-as-enascar-college-iracing-series-presenting-sponsor-in-2026-27-collegiate-season/" },
       { label: "iracing.com", url: "https://www.iracing.com/2026-27-enascar-college-iracing-series-peachtree-pursuit-at-echo-park-time-attack-results/" },
@@ -261,6 +273,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "enascar-college-big-apple-battle-watkins-glen-seeds",
     category: "Esports",
+    series: ["enascar-college"],
     title: "eNASCAR College Series Takes the Ford Mustang GT4 to Watkins Glen, Dylan Ault Top Seed Again",
     seoTitle: "eNASCAR College Series: Mustang GT4 at Watkins Glen",
     excerpt: "The Big Apple Battle swaps oval trucks for the Ford Mustang GT4 at Watkins Glen, and Dylan Ault is No. 1 seed for the third straight time.",
@@ -274,7 +287,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "esports-series", label: "Esports series & seasons" },
     ],
-    tags: ["esports-series", "enascar", "iracing", "college-esports"],
+    tags: ["enascar", "iracing", "college-esports"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/2026-27-enascar-college-iracing-series-big-apple-battle-at-watkins-glen-time-attack-results/" },
     ],
@@ -432,6 +445,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "enascar-college-queen-city-crown-semifinals-charlotte",
     category: "Esports",
+    series: ["enascar-college"],
     title: "eNASCAR College Series: Wilkerson and Mercurio Win the Queen City Crown Semifinals as 40 Advance at Charlotte",
     seoTitle: "eNASCAR College Queen City Crown semifinals",
     excerpt: "Jacob Wilkerson and Brian Mercurio won the Charlotte semifinals. 40 of 100 students advance, and for the first time Week 1 pays points.",
@@ -445,7 +459,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "enascar", "iracing", "enascar-college"],
+    tags: ["enascar", "iracing", "enascar-college"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/2026-27-enascar-college-iracing-series-queen-city-crown-at-charlotte-week-1-recap/" },
     ],
@@ -633,6 +647,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "porsche-esports-supercup-interlagos-coanda-sweep",
     category: "Esports",
+    series: ["porsche-esports-supercup"],
     title: "Warren and Sánchez Sweep Interlagos for Coanda as deJong Takes the Porsche Esports Supercup Lead Into Monza",
     seoTitle: "Porsche Esports Supercup Interlagos, Coanda sweep",
     excerpt: "Dayne Warren and Alejandro Sánchez win at Interlagos, leader Lebigre crashes 500 yards from the flag, and Mitchell deJong goes to Monza on top.",
@@ -646,7 +661,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "porsche-esports-supercup", "iracing", "coanda-esports"],
+    tags: ["porsche-esports-supercup", "iracing", "coanda-esports"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/warren-sanchez-complete-coanda-sweep-at-interlagos-as-porsche-esports-supercup-world-championship-points-battle-gets-physical/" },
     ],
@@ -858,6 +873,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "porsche-esports-supercup-suzuka-dejong-wins-rain",
     category: "Esports",
+    series: ["porsche-esports-supercup"],
     title: "deJong Gambles on Slicks and Wins in the Suzuka Rain as Lebigre Takes the Porsche Esports Supercup Lead",
     seoTitle: "Porsche Esports Supercup: deJong wins wet Suzuka round",
     excerpt: "Mitchell deJong stayed out on dry tires in the Suzuka rain and won, while Florian Lebigre pitted, finished fourth and still took the points lead.",
@@ -871,7 +887,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "esports", "porsche", "iracing"],
+    tags: ["esports", "porsche", "iracing"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/florian-lebigre-mitchell-dejong-shine-in-rain-impacted-event-at-suzuka-porsche-esports-supercup-world-championship/" },
     ],
@@ -1334,6 +1350,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "rennsport-r1-fall-season-tc-esports-early-pace",
     category: "Esports",
+    series: ["rennsport-r1"],
     title: "RENNSPORT R1 Fall Season Round 1: TC Esports Lead, Porsche Coanda Down in Eighth",
     seoTitle: "RENNSPORT R1 Round 1: TC Esports take early lead",
     excerpt: "TC Esports lead the RENNSPORT R1 Fall Season on 62 points after night one. RENNSPORT Grandmasters are second; champions Porsche Coanda sit eighth.",
@@ -1347,7 +1364,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "rennsport", "esports"],
+    tags: ["rennsport", "esports"],
     sources: [
       { label: "traxion.gg", url: "https://traxion.gg/rennsport-r1-fall-season-tc-esports-draw-first-blood-in-opening-round/" },
       { label: "traxion.gg", url: "https://traxion.gg/rennsport-r1-fall-season-double-csincsik-gives-tc-esports-early-lead/" },
@@ -1485,6 +1502,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "porsche-esports-supercup-world-championship-kicks-off-septem",
     category: "Esports",
+    series: ["porsche-esports-supercup"],
     title: "Collins Steals Spa on the Last Lap as the Porsche Esports Supercup Opens",
     seoTitle: "Porsche Esports Supercup 2026: Collins wins Spa opener",
     excerpt: "Lebigre took pole and the Sprint at Spa, Collins stole the Main on the final lap, and the 2026 Porsche Esports Supercup leaves round one with a tie on top.",
@@ -1499,7 +1517,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "esports", "porsche", "iracing"],
+    tags: ["esports", "porsche", "iracing"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/2026-porsche-esports-supercup-world-championship-series-begins-september-19th/" },
       { label: "iracing.com", url: "https://www.iracing.com/2026-porsche-esports-supercup-world-championship-series-race-1-circuit-de-spa-francorchamps-preview/" },
@@ -1694,6 +1712,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "imsa-esports-road-atlanta-season-five-opener",
     category: "Esports",
+    series: ["imsa-esports"],
     title: "Bleu Mercure and Risi Competizione by GnG Win the Wet-to-Dry IMSA Esports Opener at Road Atlanta",
     seoTitle: "IMSA Esports: Bleu Mercure, Risi win at Road Atlanta",
     excerpt: "Bleu Mercure Esport held off Grid-and-Go by 1.124 seconds in GTP, and Risi Competizione by GnG won GTD after starting on dry tires on a wet track.",
@@ -1913,7 +1932,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-hardware", label: "Sim racing hardware" },
     ],
-    tags: ["sim-hardware", "next-level-racing", "cockpits"],
+    tags: ["next-level-racing", "cockpits"],
     sources: [
       { label: "Next Level Racing", url: "https://nextlevelracing.com/news/next-level-racing-introduces-the-f-gt-shift-formula-to-gt-in-under-5-seconds/" },
     ],
@@ -2059,6 +2078,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "simracing-expo-frankfurt-2026-exhibitor-list",
     category: "Events",
+    series: ["sim-racing-expo"],
     title: "SimRacing Expo Frankfurt 2026: Who Is There and What They Unveiled",
     seoTitle: "SimRacing Expo Frankfurt 2026: exhibitors and reveals",
     excerpt: "SimRacing Expo Frankfurt 2026 drew a record 29,580 visitors. Who was there, what they unveiled, and when the show returns in September 2027.",
@@ -2076,7 +2096,7 @@ export const ARTICLES: Article[] = [
       { id: "publisher-news", label: "Publisher and platform news" },
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["events", "simracing-expo", "frankfurt", "sim-hardware", "rennsport", "r1"],
+    tags: ["simracing-expo", "frankfurt", "rennsport", "r1"],
     sources: [
       { label: "traxion.gg", url: "https://traxion.gg/ollis-garage-racings-legendary-dacia-will-be-on-display-at-this-years-simracing-expo-frankfurt/" },
       { label: "traxion.gg", url: "https://traxion.gg/asetek-racing-joins-simracing-expo-line-up/" },
@@ -2461,6 +2481,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "steven-wilson-third-enascar-title-homestead",
     category: "Esports",
+    series: ["enascar-coca-cola-iracing-series"],
     title: "Steven Wilson Wins His Third eNASCAR Title as Parker White Takes the Finale and Says Goodbye",
     seoTitle: "Steven Wilson wins third eNASCAR Coca-Cola title",
     excerpt: "Second behind his own setup teammate was enough: Steven Wilson takes his third eNASCAR Coca-Cola iRacing title in four seasons, by two points.",
@@ -2474,7 +2495,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "enascar", "homestead-miami", "championship-4"],
+    tags: ["enascar", "homestead-miami", "championship-4"],
     sources: [
       { label: "iRacing", url: "https://www.iracing.com/steven-wilson-earns-third-career-enascar-coca-cola-iracing-championship-series-title-in-2026-campaign/" },
     ],
@@ -2688,7 +2709,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "broadcast-hardware", label: "Broadcast and production tech" },
     ],
-    tags: ["broadcast-hardware", "espn", "4k-hdr", "smpte-st-2110"],
+    tags: ["espn", "4k-hdr", "smpte-st-2110"],
     sources: [
       { label: "sportsvideo.org", url: "https://www.sportsvideo.org/2026/09/22/svg-sit-down-disneys-dave-johnson-on-espns-new-4k-hdr-distribution-pipeline-and-what-it-means-for-super-bowl-lix-and-beyond/" },
     ],
@@ -2813,6 +2834,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "blue-mercure-esport-sweeps-petit-le-mans-vco-grand-slam",
     category: "Esports",
+    series: ["vco-grand-slam"],
     title: "Blue Mercure Esport Sweeps Petit Le Mans, Taking GTP and GT3 to Close Out the VCO Grand Slam",
     seoTitle: "Blue Mercure Sweeps Petit Le Mans's GTP and GT3",
     excerpt: "Blue Mercure Esport took pole and the win in both GTP and GT3 at iRacing's Petit Le Mans, their first-ever win at the race.",
@@ -2826,7 +2848,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-racing-results", label: "Sim racing results" },
     ],
-    tags: ["sim-racing-results", "iracing", "vco", "petit-le-mans"],
+    tags: ["iracing", "vco", "petit-le-mans"],
     sources: [
       { label: "traxion.gg", url: "https://traxion.gg/iracing-petit-le-mans-2026-blue-mercure-esport-dominate-with-two-class-victories/" },
     ],
@@ -2977,7 +2999,8 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: "boxthislap-porsche-esports-sprint-challenge-gb-2026",
-    category: "Esports",
+    category: "Company",
+    series: ["porsche-esports-sprint-challenge"],
     title: "BoxThisLap Previews Season Four of the Porsche Esports Sprint Challenge GB",
     seoTitle: "Porsche Esports Sprint Challenge GB 2026, previewed",
     excerpt: "BoxThisLap breaks down the fourth Porsche Esports Sprint Challenge GB: five iRacing events, real-world prizes, and every round live on RaceSpot TV.",
@@ -3104,7 +3127,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-hardware", label: "Sim racing hardware" },
     ],
-    tags: ["sim-hardware", "moza", "gamescom", "playstation"],
+    tags: ["moza", "gamescom", "playstation"],
     sources: [
       { label: "MOZA Racing", url: "https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/" },
       { label: "mozaracing.com", url: "https://mozaracing.com/blogs/news/moza-racing-gamescom-2026" },
@@ -3136,7 +3159,7 @@ export const ARTICLES: Article[] = [
       { kind: "p", text: "The booth also carried MOZA's wider 2026 range for hands-on demos — the R16 Ultra, R5 Pro, AY90 and MFY Pro, plus the Farming Control System — and MOZA hardware was on show at four partner booths: Newegg, DOF Reality, PIMAX and SIMGASM B.V." },
       { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "MOZA's current wheel, pedal, shifter and yoke range", credit: "MOZA Racing" },
       { kind: "p", text: "Four licensed wheels, an AI coach, a console range and a motion system have arrived inside three weeks. The next dates are the Mustang GTD wheel's launch on 17 September and the pricing MOZA has promised for the PS5 lineup." },
-      { kind: "p", text: "*Based on a press release from MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+      { kind: "p", text: "*Based on a press release from MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -3169,7 +3192,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Am Stand war außerdem MOZAs breiteres 2026er-Sortiment zum Anfassen vertreten – der R16 Ultra, R5 Pro, AY90 und MFY Pro sowie das Farming Control System – und MOZA-Hardware war an vier Partnerständen zu sehen: Newegg, DOF Reality, PIMAX und SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "MOZAs aktuelles Sortiment an Lenkrädern, Pedalen, Shiftern und Yokes", credit: "MOZA Racing" },
           { kind: "p", text: "Vier lizenzierte Lenkräder, ein KI-Coach, eine Konsolen-Reihe und ein Motion-System sind innerhalb von drei Wochen erschienen. Die nächsten Termine sind der Marktstart des Mustang-GTD-Lenkrads am 17. September und die Preisangaben, die MOZA für das PS5-Lineup versprochen hat." },
-          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
           { kind: "p", text: "Dies ist eine automatische Übersetzung aus dem Englischen. [Zum Originalartikel](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -3203,7 +3226,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "El stand también exhibió la gama más amplia de **MOZA** para 2026 en demostraciones prácticas —el R16 Ultra, el R5 Pro, el AY90 y el MFY Pro, además del Farming Control System— y hardware de **MOZA** estuvo presente en otros cuatro stands asociados: Newegg, DOF Reality, PIMAX y SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gama actual de volantes, pedales, shifters y yokes de MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Cuatro volantes con licencia, un entrenador de IA, una gama para consolas y un sistema de movimiento han llegado en apenas tres semanas. Las próximas fechas son el lanzamiento del volante Mustang GTD el 17 de septiembre y los precios que **MOZA** ha prometido para la gama de PS5." },
-          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). Este artículo se ha creado con ayuda de IA y ha sido revisado por el equipo editorial de RaceSpot.*" },
           { kind: "p", text: "Esta es una traducción automática del inglés. [Leer el artículo original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -3237,7 +3260,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Le stand présentait également la gamme 2026 plus large de **MOZA** en démonstration — le R16 Ultra, le R5 Pro, l’AY90 et le MFY Pro, ainsi que le Farming Control System — et du matériel **MOZA** était exposé sur quatre stands partenaires : Newegg, DOF Reality, PIMAX et SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gamme actuelle de volants, pédales, shifters et yokes de MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quatre volants sous licence, un coach IA, une gamme console et un système de mouvement sont arrivés en l’espace de trois semaines. Les prochaines dates sont le lancement du volant Mustang GTD le 17 septembre et les prix promis par **MOZA** pour la gamme PS5." },
-          { kind: "p", text: "*D’après un communiqué de presse de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*D’après un communiqué de presse de MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). Cet article a été créé avec l’aide de l’IA et relu par la rédaction de RaceSpot.*" },
           { kind: "p", text: "Ceci est une traduction automatique de l'anglais. [Lire l'article original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -3271,7 +3294,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "Lo stand ospitava anche la più ampia gamma 2026 di **MOZA** per prove pratiche — l’R16 Ultra, l’R5 Pro, l’AY90 e l’MFY Pro, oltre al Farming Control System — e hardware **MOZA** era esposto in quattro stand partner: Newegg, DOF Reality, PIMAX e SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Gamma attuale di volanti, pedaliere, shifter e yoke di MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quattro volanti su licenza, un coach IA, una gamma per console e un sistema di movimento sono arrivati nel giro di tre settimane. Le prossime date sono il lancio del volante Mustang GTD il 17 settembre e i prezzi che MOZA ha promesso per la gamma PS5." },
-          { kind: "p", text: "*Basato su un comunicato stampa di MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Basato su un comunicato stampa di MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). Questo articolo è stato creato con l’assistenza dell’IA e rivisto dalla redazione di RaceSpot.*" },
           { kind: "p", text: "Questa è una traduzione automatica dall'inglese. [Leggi l'articolo originale](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -3305,7 +3328,7 @@ export const ARTICLES: Article[] = [
           { kind: "p", text: "O estande também trouxe a linha mais ampla da **MOZA** para 2026 em demonstrações práticas — o R16 Ultra, o R5 Pro, o AY90 e o MFY Pro, além do Farming Control System — e hardware da **MOZA** foi exibido em quatro estandes parceiros: Newegg, DOF Reality, PIMAX e SIMGASM B.V." },
           { kind: "image", src: "/images/news/moza-gamescom-porsche-ford-mercedes-wheels/15ywfzzzby1mqla-jhk1wh6-8sex6i2jtwpslb7kctnk-3.webp", alt: "Linha atual de volantes, pedais, shifters e yokes da MOZA", credit: "MOZA Racing" },
           { kind: "p", text: "Quatro volantes licenciados, um treinador de IA, uma linha para consoles e um sistema de movimento chegaram em apenas três semanas. As próximas datas são o lançamento do volante Mustang GTD em 17 de setembro e os preços que a **MOZA** prometeu para a linha de PS5." },
-          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com)*" },
+          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [traxion.gg](https://traxion.gg/moza-takes-the-wraps-off-new-licensed-porsche-mercedes-amg-and-ford-steering-wheels-at-gamescom/) · [mozaracing.com](https://mozaracing.com/blogs/news/moza-racing-gamescom-2026) · [traxion.gg](https://traxion.gg/moza-racings-debut-ps5-wheel-set-for-tgs-unveil-next-week/) · [www.mozaracing.com](https://www.mozaracing.com). Este artigo foi criado com auxílio de IA e revisado pela equipe editorial da RaceSpot.*" },
           { kind: "p", text: "Esta é uma tradução automática do inglês. [Ler o artigo original](https://racespot.tv/en/news/moza-gamescom-porsche-ford-mercedes-wheels)" },
         ],
       },
@@ -3314,6 +3337,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "moza-racing-title-sponsor-fia-f4-global-esports-2026",
     category: "Industry",
+    series: ["fia-f4-esports"],
     title: "MOZA Racing Renews as Title Sponsor of the FIA F4 Global Esports Championship",
     excerpt: "MOZA Racing is back as title sponsor of the FIA F4 Global Esports Championship for a second season, with a $35,000 prize pool and a three-region qualifying structure feeding an eight-round Global Championship on iRacing from October.",
     date: "2026-08-04",
@@ -3326,7 +3350,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-hardware", label: "Sim racing hardware" },
     ],
-    tags: ["moza racing", "iracing", "sim hardware", "esports sponsorship"],
+    tags: ["moza", "iracing", "esports-sponsorship"],
     sources: [
       { label: "MOZA Racing", url: "https://www.mozaracing.com" },
       { label: "iracing.com", url: "https://www.iracing.com/fia-f4-esports/" },
@@ -3340,7 +3364,7 @@ export const ARTICLES: Article[] = [
       { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "MOZA F4 FIA Esports Global Championship 2026 race schedule graphic listing four dates in October and November", credit: "MOZA Racing" },
       { kind: "h2", text: "Last season's momentum" },
       { kind: "p", text: "MOZA sums up last season as delivering \"unforgettable moments on track, with intense wheel-to-wheel battles and the rise of standout talents who proved themselves on the global stage.\" The renewal, the company says, continues \"this evolving chapter of esports racing, building on a partnership that helps push the boundaries of competitive sim racing.\"" },
-      { kind: "p", text: "*Based on a press release from MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+      { kind: "p", text: "*Based on a press release from MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). This article was created with AI assistance and reviewed by the RaceSpot editorial team.*" },
     ],
     translations: {
       de: {
@@ -3358,7 +3382,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "MOZA F4 FIA Esports Global Championship 2026 Rennkalender-Grafik mit vier Terminen im Oktober und November", credit: "MOZA Racing" },
           { kind: "h2", text: "Der Schwung der vergangenen Saison" },
           { kind: "p", text: "MOZA fasst die vergangene Saison als eine Saison zusammen, die „unvergessliche Momente auf der Strecke, mit intensiven Rad-an-Rad-Duellen und dem Aufstieg herausragender Talente, die sich auf der Weltbühne bewiesen haben\" lieferte. Die Verlängerung, so das Unternehmen, setze „dieses sich weiterentwickelnde Kapitel des Esports-Rennsports fort und baue auf einer Partnerschaft auf, die hilft, die Grenzen des kompetitiven Sim Racing zu verschieben\"." },
-          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Basierend auf einer Pressemitteilung von MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). Dieser Artikel wurde mit KI-Unterstützung erstellt und von der RaceSpot-Redaktion geprüft.*" },
           { kind: "p", text: "Dies ist eine automatische Übersetzung aus dem Englischen. [Zum Originalartikel](https://racespot.tv/en/news/moza-racing-title-sponsor-fia-f4-global-esports-2026)" },
         ],
       },
@@ -3377,7 +3401,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Gráfico del calendario de carreras del MOZA F4 FIA Esports Global Championship 2026 con cuatro fechas en octubre y noviembre", credit: "MOZA Racing" },
           { kind: "h2", text: "El impulso de la temporada pasada" },
           { kind: "p", text: "MOZA resume la temporada pasada como generadora de «momentos inolvidables en pista, con intensas batallas rueda a rueda y el ascenso de talentos destacados que demostraron su valía en el escenario global». La renovación, según la compañía, continúa «este capítulo en evolución de las carreras de esports, apoyándose en una asociación que ayuda a superar los límites del sim racing competitivo»." },
-          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Basado en un comunicado de prensa de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). Este artículo se ha creado con ayuda de IA y ha sido revisado por el equipo editorial de RaceSpot.*" },
           { kind: "p", text: "Esta es una traducción automática del inglés. [Leer el artículo original](https://racespot.tv/en/news/moza-racing-title-sponsor-fia-f4-global-esports-2026)" },
         ],
       },
@@ -3396,7 +3420,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Graphique du calendrier de courses du MOZA F4 FIA Esports Global Championship 2026 listant quatre dates en octobre et novembre", credit: "MOZA Racing" },
           { kind: "h2", text: "L’élan de la saison dernière" },
           { kind: "p", text: "MOZA résume la saison dernière comme ayant offert « des moments inoubliables sur la piste, avec des duels roue contre roue intenses et l’émergence de talents remarquables qui ont fait leurs preuves sur la scène mondiale ». Ce renouvellement, selon l’entreprise, prolonge « ce chapitre en constante évolution de l’esports racing, en s’appuyant sur un partenariat qui aide à repousser les limites du sim racing compétitif »." },
-          { kind: "p", text: "*D’après un communiqué de presse de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*D’après un communiqué de presse de MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). Cet article a été créé avec l’aide de l’IA et relu par la rédaction de RaceSpot.*" },
           { kind: "p", text: "Ceci est une traduction automatique de l'anglais. [Lire l'article original](https://racespot.tv/en/news/moza-racing-title-sponsor-fia-f4-global-esports-2026)" },
         ],
       },
@@ -3415,7 +3439,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Grafica del calendario gare del MOZA F4 FIA Esports Global Championship 2026 con quattro date tra ottobre e novembre", credit: "MOZA Racing" },
           { kind: "h2", text: "Lo slancio della scorsa stagione" },
           { kind: "p", text: "MOZA riassume la scorsa stagione come portatrice di «momenti indimenticabili in pista, con intense battaglie ruota a ruota e l’emergere di talenti di spicco che hanno dimostrato il proprio valore sul palcoscenico globale». Il rinnovo, afferma l’azienda, prosegue «questo capitolo in evoluzione delle corse esports, costruendo su una partnership che aiuta a spingere i confini del sim racing competitivo»." },
-          { kind: "p", text: "*Sulla base di un comunicato stampa di MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Sulla base di un comunicato stampa di MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). Questo articolo è stato creato con l’assistenza dell’IA e rivisto dalla redazione di RaceSpot.*" },
           { kind: "p", text: "Questa è una traduzione automatica dall'inglese. [Leggi l'articolo originale](https://racespot.tv/en/news/moza-racing-title-sponsor-fia-f4-global-esports-2026)" },
         ],
       },
@@ -3434,7 +3458,7 @@ export const ARTICLES: Article[] = [
           { kind: "image", src: "/images/news/moza-racing-title-sponsor-fia-f4-global-esports-2026/iracing-fia-f4-esports-championship-2026-3.webp", alt: "Gráfico do calendário de corridas do MOZA F4 FIA Esports Global Championship 2026 listando quatro datas em outubro e novembro", credit: "MOZA Racing" },
           { kind: "h2", text: "O embalo da temporada passada" },
           { kind: "p", text: "A MOZA resume a temporada passada como geradora de «momentos inesquecíveis na pista, com batalhas roda a roda intensas e a ascensão de talentos de destaque que se provaram no palco global». A renovação, diz a empresa, dá continuidade a «este capítulo em evolução das corridas de esports, construindo sobre uma parceria que ajuda a expandir os limites do sim racing competitivo»." },
-          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/)*" },
+          { kind: "p", text: "*Baseado em um comunicado de imprensa da MOZA Racing · [www.mozaracing.com](https://www.mozaracing.com) · [www.iracing.com](https://www.iracing.com/fia-f4-esports/). Este artigo foi criado com auxílio de IA e revisado pela equipe editorial da RaceSpot.*" },
           { kind: "p", text: "Esta é uma tradução automática do inglês. [Ler o artigo original](https://racespot.tv/en/news/moza-racing-title-sponsor-fia-f4-global-esports-2026)" },
         ],
       },
@@ -3457,7 +3481,7 @@ export const ARTICLES: Article[] = [
     topics: [
       { id: "sim-hardware", label: "Sim racing hardware" },
     ],
-    tags: ["sim-hardware", "thrustmaster", "ferrari-499p"],
+    tags: ["thrustmaster", "ferrari-499p"],
     sources: [
       { label: "Thrustmaster", url: "https://www.thrustmaster.com/en-us/news/ferrari-499p-centenary-winner-edition-quand-le-volant-de-lhypercar-entre-dans-le-monde-du-sim-racing/" },
     ],
@@ -3579,6 +3603,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'rennsport-summit-2026-munich',
     category: 'Events',
+    series: ['rennsport-summit'],
     title: 'RENNSPORT Summit 2026: The Re-Launch Heads to Munich',
     excerpt:
       'Competition Company\'s racing sim returns with a bold new vision — "Double the Content, Half the Price." The RENNSPORT Summit 2026 in Munich brings Le Mans, modding tools, and the ESL R1 league together.',
@@ -3668,6 +3693,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'vco-infinity-24h-endurance',
     category: 'Esports',
+    series: ['vco-infinity'],
     title: 'VCO Infinity: 24 Hours of Non-Stop Sim Racing',
     excerpt:
       '40 teams, 250+ drivers, 24 races in 24 hours — VCO Infinity pushes the endurance format to its absolute limit on iRacing. Here\'s how the marathon event unfolded.',
@@ -3755,6 +3781,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'erl-2025-season-finals-maastricht',
     category: 'Esports',
+    series: ['erl'],
     title: 'ERL Season 5: 23 Teams Battle Across 6 Games for the European Title',
     seoTitle: 'ERL Season 5: 23 Teams, 6 Games, One European Title',
     excerpt:
@@ -3848,6 +3875,7 @@ export const ARTICLES: Article[] = [
   {
     slug: 'sim-racing-expo-2025-record-attendance',
     category: 'Events',
+    series: ['sim-racing-expo'],
     title: 'Sim Racing Expo 2025: Over 24,000 Visitors Set New Record',
     seoTitle: 'Sim Racing Expo 2025: Over 24,000 Visitors, a Record',
     excerpt:
@@ -3940,7 +3968,8 @@ export const ARTICLES: Article[] = [
   },
   {
     slug: 'imsa-esports-2025-virtual-meets-real',
-    category: 'Broadcast',
+    category: 'Esports',
+    series: ['imsa-esports'],
     title: 'IMSA Esports: Where Virtual Prototypes Meet Real-World Heritage',
     seoTitle: 'IMSA Esports: Virtual Prototypes Meet Real Heritage',
     excerpt:
@@ -4033,11 +4062,11 @@ export const ARTICLES: Article[] = [
   },
 ]
 
-export const CATEGORY_COLORS: Record<string, string> = {
-  Events: 'text-rs-yellow',
-  Broadcast: 'text-green-400',
-  Esports: 'text-blue-400',
-  Motorsport: 'text-orange-400',
-  Industry: 'text-purple-400',
-  Company: 'text-purple-400',
-}
+/**
+ * Text colour per section key. Comes from `content/news/taxonomy.json`; a
+ * category that is not there renders without a colour. The Press Tool's
+ * `preview.categories` mirrors the keys.
+ */
+export const CATEGORY_COLORS: Record<string, string> = Object.fromEntries(
+  NEWS_CATEGORIES.map((c) => [c.key, c.color])
+)

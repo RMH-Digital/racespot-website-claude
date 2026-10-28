@@ -1986,6 +1986,26 @@ trug den richtigen 404-Titel, aber eine Client-Navigation auf einen toten Link
 löste die Metadaten *dieser* Route auf — und ohne eigene fiel sie auf den
 Layout-Standard zurück, der Tab las sich dann wie die Startseite.
 
+## 7z. News-Bereich neu, Schritt 1: Taxonomie — 2026-10-28
+
+Plan mit allen Entscheidungen: `docs/news-plan/index.html` (E1–E10 von Jürgen
+am 2026-10-28 wie vorgeschlagen freigegeben). Schritt 1 ist erledigt:
+
+- `content/news/taxonomy.json`: Rubriken (Schlüssel, URL-Slug, Farbe, Topics),
+  17 Serien mit Familien, Aliasen und Kalendernamen (aus `schedule.ics`),
+  8 Plattformen, reservierte Slugs. Gelesen über `src/lib/newsTaxonomy.ts`.
+- `Article` hat `series`, `format`, `pinnedUntil`. 18 der 23 Artikel haben eine
+  Serie; Tags normalisiert, Topic-IDs aus den Tags entfernt.
+- E10: `boxthislap-…` → Company („Inside RaceSpot“), `imsa-esports-2025-…` → Esports.
+- Neue Anzeigenamen und Beschreibungen der Rubriken in sechs Sprachen.
+- `scripts/check-news.mjs` im Build. Fand die beiden MOZA-Artikel ohne
+  KI-Hinweis (seit dem Re-Publish vom 24.09.); in allen Sprachen nachgetragen.
+
+**Offen:** `racespot: true/false` je Serie und die Serienliste selbst sind ein
+Entwurf für Philip und Hugo (E3). Serienbeschreibungen fehlen noch, sie kommen
+mit den Serienseiten (Schritt 4). Der Press Tool kennt `series` noch nicht: Ein
+Re-Publish überschreibt den Eintrag ohne `series` und mit alten Tags (Schritt 2).
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**

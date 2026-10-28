@@ -65,8 +65,8 @@ export function getT(lang: Lang) {
 }
 
 /**
- * Translated name of a news category. Categories are the keys of
- * CATEGORY_COLORS in articles.ts; one without a `category.*` key renders as is.
+ * Translated name of a news category. Categories are the keys in
+ * content/news/taxonomy.json; one without a `category.*` key renders as is.
  */
 export function categoryLabel(lang: Lang, category: string): string {
   const key = `category.${category}`

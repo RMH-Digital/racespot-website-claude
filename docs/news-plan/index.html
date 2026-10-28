@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>News-Bereich neu – Plan</title>
+<style>
+  :root {
+    --yellow: #F5C000; --black: #0A0A0A; --dark: #111111; --gray: #1A1A1A;
+    --muted: #8A8A8A; --border: #2A2A2A; --live: #E53E3E; --text: #E8E8E8;
+    --blue: #60a5fa; --green: #4ade80; --orange: #fb923c; --purple: #c084fc;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--black); color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 48px 20px 96px; }
+  h1, h2, h3 { font-family: "Eurostile", "Oswald", "Arial Black", sans-serif; color: #fff; line-height: 1.2; }
+  h1 { font-size: 34px; text-transform: uppercase; margin: 0 0 8px; }
+  h2 { font-size: 22px; text-transform: uppercase; margin: 56px 0 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  h2::before { content: ""; display: block; width: 32px; height: 3px; background: var(--yellow); margin-bottom: 12px; }
+  h3 { font-size: 16px; margin: 28px 0 8px; }
+  p, li { color: #cfcfcf; }
+  a { color: var(--yellow); }
+  code { font: 13px/1.4 ui-monospace, Menlo, monospace; background: var(--gray); border: 1px solid var(--border); border-radius: 3px; padding: 1px 4px; color: #f0f0f0; }
+  .lead { font-size: 17px; color: #ddd; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .box { background: var(--dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+  .box.y { border-left: 3px solid var(--yellow); }
+  .box.r { border-left: 3px solid var(--live); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 7px 9px; border-bottom: 1px solid var(--border); }
+  th { color: #fff; font-weight: 600; background: var(--gray); }
+  td { color: #cfcfcf; }
+  .tag { display: inline-block; font: 11px ui-monospace, Menlo, monospace; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .c-es { color: var(--blue); } .c-in { color: var(--purple); } .c-ev { color: var(--yellow); }
+  .c-br { color: var(--green); } .c-mo { color: var(--orange); }
+  .toc { columns: 2; column-gap: 32px; padding-left: 18px; }
+  .toc li { break-inside: avoid; }
+  ol.steps > li { margin-bottom: 10px; }
+
+  /* ---------- wireframes ---------- */
+  .wf { background: #0d0d0d; border: 1px dashed #3a3a3a; border-radius: 6px; padding: 14px; margin: 14px 0 6px; font-size: 12px; }
+  .wf-cap { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .wf .row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .wf .col { flex: 1; min-width: 0; }
+  .wf .blk { background: var(--gray); border: 1px solid var(--border); border-radius: 3px; padding: 8px; color: #bbb; }
+  .wf .img { background: repeating-linear-gradient(45deg, #1d1d1d 0 6px, #232323 6px 12px); border-radius: 3px; }
+  .wf .t { height: 7px; background: #3a3a3a; border-radius: 2px; margin: 5px 0; }
+  .wf .t.w { background: #cfcfcf; } .wf .t.s { width: 60%; } .wf .t.xs { width: 35%; }
+  .wf .k { font: 10px ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: .06em; }
+  .wf .chip { display: inline-block; border: 1px solid var(--border); border-radius: 3px; padding: 3px 8px; margin: 0 4px 4px 0; font: 700 10px "Oswald", sans-serif; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .wf .chip.on { background: var(--yellow); color: #000; border-color: var(--yellow); }
+  .wf .live { background: rgba(229,62,62,.12); border: 1px solid rgba(229,62,62,.5); color: #fff; border-radius: 3px; padding: 7px 10px; margin-bottom: 10px; }
+  .wf .live b { color: var(--live); }
+  .wf .crumb { color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+  .wf .lst { border-bottom: 1px solid var(--border); padding: 6px 0; display: flex; gap: 10px; align-items: center; }
+  .wf .lst .d { color: var(--muted); width: 52px; flex: none; font: 10px ui-monospace, Menlo, monospace; }
+  .wf .pg { text-align: center; color: var(--muted); margin-top: 8px; }
+  .wf .pg span { display: inline-block; border: 1px solid var(--border); padding: 2px 8px; margin: 0 2px; border-radius: 3px; }
+  .wf .pg span.on { border-color: var(--yellow); color: var(--yellow); }
+  .wf .yl { border-left: 3px solid var(--yellow); }
+  .mobile { width: 240px; margin: 0 auto; }
+
+  @media (max-width: 700px) { .toc { columns: 1; } .wf .row.st { flex-direction: column; } }
+
+  @media print {
+    :root { --text: #111; --muted: #555; --border: #ccc; --gray: #f1f1f1; --dark: #fafafa; }
+    body { background: #fff; color: #111; font-size: 11.5px; }
+    main { padding: 0; max-width: none; }
+    h1, h2, h3 { color: #000; }
+    p, li, td { color: #222; }
+    code { background: #f1f1f1; color: #000; }
+    th { color: #000; }
+    h2 { break-before: page; }
+    h2.keep { break-before: auto; }
+    .wf, .box, table, tr { break-inside: avoid; }
+    .wf { background: #f7f7f7; }
+    .wf .blk { color: #333; }
+    .wf .img { background: repeating-linear-gradient(45deg, #ddd 0 6px, #e8e8e8 6px 12px); }
+    .wf .t { background: #c8c8c8; } .wf .t.w { background: #555; }
+    .wf .live { color: #000; }
+    a { color: #000; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<p class="meta">Racespot.tv · News-Bereich · Plan (Phase 1) · Stand 28.10.2026 · Session „↳ News-Bereich neu“</p>
+<h1>News-Bereich neu</h1>
+<p class="lead">Der Press Tool veröffentlicht inzwischen automatisch, am 28.10. allein zehn Artikel. Die News-Seite ist aber noch eine einzige Liste mit einem Kategoriefilter. Dieser Plan macht daraus eine News-Seite für einen Sim-Racing-Broadcaster: Rubriken zum Navigieren, <b>Serien</b> als neue Ebene, Seiten, die auch bei 1000 Artikeln tragen, und eine Datenablage, die nicht an einer 37-MB-Datei erstickt.</p>
+
+<div class="box y">
+<b>Kurzfassung in fünf Punkten</b>
+<ol>
+  <li><b>Rubriken bleiben fünf plus eine, die Schlüssel bleiben gleich.</b> Es ändern sich nur die angezeigten Namen. Dann muss kein bestehender Artikel und keine Press-Tool-Regel umgeschrieben werden.</li>
+  <li><b>Neu ist die Serien-Ebene</b> (Porsche Esports Supercup, IMSA Esports, ERL, eNASCAR …), als feste Liste mit Aliasnamen. Sie verbindet News mit Kalender, Live und Aufzeichnungen. Für einen Broadcaster ist das die wichtigste Ordnung.</li>
+  <li><b>Neue URLs</b>: <code>/news/category/&lt;x&gt;</code>, <code>/news/series/&lt;x&gt;</code>, <code>/news/page/&lt;n&gt;</code>. Artikel-URLs bleiben unverändert. Tags und Autoren bekommen <b>keine</b> eigenen Seiten.</li>
+  <li><b>Ablage: ein JSON-File pro Artikel</b> statt eines Arrays in <code>articles.ts</code>. Das ist heute schon nötig, nicht erst bei 1000 Artikeln: zehn Press-Tool-PRs am Tag fügen alle an <em>derselben</em> Zeile ein. Die Umstellung läuft als <em>eine</em> abgestimmte Vertragsänderung mit dem Press Tool.</li>
+  <li><b>Die Taxonomie liegt an einer Stelle</b> (<code>content/news/taxonomy.json</code> im Website-Repo). Der Press Tool liest sie aus seinem Checkout. Damit gibt es die „drei Stellen“, die auseinanderlaufen können, nicht mehr.</li>
+</ol>
+</div>
+
+<ol class="toc">
+  <li><a href="#bestand">Bestand: was heute da ist</a></li>
+  <li><a href="#taxonomie">Taxonomie</a></li>
+  <li><a href="#urls">Seitenstruktur, URLs, SEO</a></li>
+  <li><a href="#formate">Vorschauformate und Wireframes</a></li>
+  <li><a href="#wachstum">Wachstum: 100 / 500 / 1000 Artikel</a></li>
+  <li><a href="#presstool">Press-Tool-Anbindung</a></li>
+  <li><a href="#i18n">Sprachen</a></li>
+  <li><a href="#suche">Suche und Filter</a></li>
+  <li><a href="#schritte">Umsetzungsschritte</a></li>
+  <li><a href="#offen">Offene Entscheidungen</a></li>
+</ol>
+
+<!-- ===================================================== -->
+<h2 id="bestand" class="keep">0 · Bestand</h2>
+
+<table>
+  <tr><th>Was</th><th>Heute</th><th>Folge für den Plan</th></tr>
+  <tr><td>Artikel</td><td>23, <b>alle</b> in sechs Sprachen. 18 vom Press Tool (seit 8.9.), 5 ältere von Hand. Seit 1.9. gab es 34 „Add article“-Commits (inkl. Neuauflagen), in Schüben (24.9.: 5, 28.10.: 10).</td><td>Bei diesem Tempo sind 100 Artikel im Dezember erreicht und 500 im Laufe von 2027.</td></tr>
+  <tr><td><code>articles.ts</code></td><td>854 KB, im Schnitt <b>~37 KB je Artikel</b> (sechs Sprachen), eine einzige Datei</td><td>1000 Artikel ergeben ~37 MB TypeScript in einer Datei. Siehe Abschnitt 4.</td></tr>
+  <tr><td>Kategorien</td><td>Esports 14 · Industry 5 · Events 3 · Broadcast 2 · Motorsport 0 · Company 0</td><td>Zwei Rubriken sind leer. Esports trägt 60 % und ist damit als Filter zu grob.</td></tr>
+  <tr><td>Topics (Press Tool)</td><td><code>sim-racing-results</code> (die meisten), <code>sim-hardware</code>, <code>publisher-news</code>, <code>broadcast-hardware</code>, <code>events</code>, <code>esports-series</code>. Jedes Topic hat genau eine Kategorie in <code>project.yaml</code>.</td><td>Topics sind redaktionelle Ressorts, keine Leser-Navigation. Sie eignen sich als Unterfilter.</td></tr>
+  <tr><td>Tags</td><td>Frei vom Modell vergeben und uneinheitlich: <code>"moza racing"</code> neben <code>moza</code>, <code>"sim hardware"</code> neben <code>sim-hardware</code>, Topic-IDs als Tags, <code>porsche</code> für Supercup <em>und</em> für Lenkräder</td><td>Als öffentliche Seiten ungeeignet (dünn, doppelt). Für „verwandte Artikel“ und die Suche brauchbar.</td></tr>
+  <tr><td>Serien</td><td>Auf der Website gibt es keine. Der Press Tool kennt in <code>own_coverage.series</code> vier Einträge mit Match-Wörtern. <code>replays.ts</code> hat eine Alias-Tabelle für Kalendernamen.</td><td>Die Bausteine sind da, sie werden nur nirgends zusammengeführt.</td></tr>
+  <tr><td>Autoren</td><td>John Carter, Lauren Hughes, Matt Doyle: Personas des Press Tools mit erfundener Biografie</td><td>Keine Autorenseiten (siehe Entscheidung E4)</td></tr>
+  <tr><td>Seiten</td><td><code>/news</code>: ein Aufmacher, darunter <em>alle</em> Artikel als Liste, Kategoriefilter im Browser. <code>/news/[slug]</code> mit Zurück/Weiter. Startseite: Aufmacher plus drei Karten.</td><td><code>NewsBrowser</code> serialisiert jeden Artikel in die Seite. Bei 1000 Artikeln sind das ~600 KB pro Aufruf.</td></tr>
+  <tr><td>SEO</td><td>hreflang/Canonical sauber, <code>NewsArticle</code> mit Organisation als Autor, Breadcrumb News › Titel, Sitemap pro Sprache</td><td>Das Fundament ist gut, Listen- und Rubrikseiten fehlen noch</td></tr>
+</table>
+
+<!-- ===================================================== -->
+<h2 id="taxonomie">1 · Taxonomie</h2>
+
+<p>Es gibt vier Ebenen. Jede hat genau eine Aufgabe:</p>
+<table>
+  <tr><th>Ebene</th><th>Was</th><th>Wer vergibt</th><th>Navigation?</th><th>Eigene Seite?</th><th>Filter?</th></tr>
+  <tr><td><b>Rubrik</b> (<code>category</code>)</td><td>5–6 feste Bereiche, genau einer pro Artikel</td><td>Press Tool, über das Topic (wie heute)</td><td>✔ Leiste oben auf jeder News-Seite</td><td>✔ indexiert</td><td>–</td></tr>
+  <tr><td><b>Serie</b> (<code>series</code>, neu)</td><td>Kontrollierte Liste: Meisterschaften und Event-Reihen, 0–n pro Artikel</td><td>Press Tool, über Aliasabgleich gegen die Liste</td><td>✔ Leiste „Serien“ auf <code>/news</code></td><td>✔ indexiert ab 3 Artikeln</td><td>✔</td></tr>
+  <tr><td><b>Topic</b> (<code>topics</code>)</td><td>Redaktionelle Ressorts des Press Tools, feiner als die Rubrik</td><td>Press Tool (wie heute)</td><td>–</td><td>–</td><td>✔ als Unterfilter innerhalb einer Rubrik</td></tr>
+  <tr><td><b>Tag</b> (<code>tags</code>)</td><td>Frei, normalisiert auf <code>klein-mit-bindestrich</code></td><td>Press Tool</td><td>–</td><td>–</td><td>nur über die Suche; dazu ein kontrollierter Unterfilter „Plattform“</td></tr>
+</table>
+
+<h3>Rubriken: Schlüssel bleiben, Namen werden geschärft</h3>
+<p>Die Schlüssel (<code>Esports</code>, <code>Industry</code> …) stehen in 23 Artikeln, in <code>project.yaml</code> (Topics und <code>preview.categories</code>) und in <code>CATEGORY_COLORS</code>. Sie umzubenennen kostet eine Migration an drei Stellen und bringt dem Leser nichts. Der Leser sieht nur den <b>Anzeigenamen</b>, und der lässt sich frei ändern. Der URL-Teil ist ein eigener, englischer Slug.</p>
+<table>
+  <tr><th>Schlüssel</th><th>URL</th><th>Anzeige EN / DE (Vorschlag)</th><th>Inhalt</th><th>Topics darunter</th></tr>
+  <tr><td class="c-es">Esports</td><td><code>esports</code></td><td>Esports / Esports</td><td>Rennen, Ergebnisse, Saisons, Teams, Fahrerwechsel, Ligen</td><td>sim-racing-results, esports-series, community-leagues</td></tr>
+  <tr><td class="c-in">Industry</td><td><code>sims-hardware</code></td><td><b>Sims &amp; Hardware</b> / <b>Sims &amp; Hardware</b> <span class="meta">(heute „Industry / Branche“)</span></td><td>Plattformen und Spiele, Updates, Lenkräder, Rigs</td><td>publisher-news, sim-hardware</td></tr>
+  <tr><td class="c-ev">Events</td><td><code>events</code></td><td>Events / Events</td><td>Expos, Summits, LAN-Finals, Messen</td><td>events</td></tr>
+  <tr><td class="c-br">Broadcast</td><td><code>broadcast</code></td><td><b>Broadcast &amp; Production</b> / <b>Broadcast &amp; Produktion</b></td><td>Produktionstechnik, Streaming, eigene Übertragungen</td><td>broadcast-hardware</td></tr>
+  <tr><td class="c-mo">Motorsport</td><td><code>sim-to-real</code></td><td><b>Sim to Real</b> / <b>Sim to Real</b> <span class="meta">(heute „Motorsport“)</span></td><td>Wege vom Simulator ins echte Auto. Echter Motorsport ist seit 9.9. ausgeschlossen, also passt „Motorsport“ als Name nicht mehr.</td><td>sim-to-real (Evergreen, alle 30 Tage)</td></tr>
+  <tr><td class="c-in">Company</td><td><code>racespot</code></td><td><b>Inside RaceSpot</b></td><td>Eigene Meldungen, Partnerschaften, Presseecho</td><td>– (redaktionell von Hand)</td></tr>
+</table>
+<p><b>Regel für leere Rubriken:</b> Eine Rubrik erscheint in der Leiste erst, wenn sie mindestens einen Artikel hat. Ihre Seite wird erst ab drei Artikeln indexiert. Heute betrifft das „Sim to Real“ und „Inside RaceSpot“. Sie bleiben angelegt, damit der Press Tool sie schon vergeben kann.</p>
+<p><b>Farben:</b> Industry und Company teilen sich heute <code>purple-400</code>. Vorschlag: Company bekommt <code>text-rs-white</code>, so ist sie von Industry unterscheidbar und kommt ohne neue Farbe aus.</p>
+
+<h3>Serien: die neue Ebene</h3>
+<p>Ein Leser des Porsche Supercup will den Supercup verfolgen, nicht „Esports“. Für RaceSpot ist die Serie außerdem das Produkt: Sie verbindet Artikel mit Kalender, Live-Stream und Aufzeichnungen. Serien sind deshalb eine <b>kontrollierte Liste</b> und kein freies Tag. Nur was auf der Liste steht, bekommt eine Seite.</p>
+<p>Ein Eintrag in <code>content/news/taxonomy.json</code>:</p>
+<pre class="box"><code>{
+  "id": "porsche-esports-supercup",          // URL-Slug, englisch, nie ändern
+  "name": "Porsche Esports Supercup",         // Eigenname, in allen Sprachen gleich
+  "family": "porsche-esports",                // Dachmarke (optional)
+  "platform": "iracing",
+  "racespot": true,                           // produziert RaceSpot die Serie? → Badge, Kalender-Box
+  "aliases": ["porsche esports supercup", "pesc", "porsche supercup esports"],
+  "calendar": ["Porsche Esports Supercup"],   // Schreibweisen im Master Schedule (Spalte K)
+  "desc": { "en": "…", "de": "…", "es": "…", "pt": "…", "fr": "…", "it": "…" },
+  "active": true
+}</code></pre>
+
+<p>Zum Start schlage ich diese Liste vor. Philip und Hugo sollten sie prüfen (Entscheidung E3):</p>
+<table>
+  <tr><th>Familie</th><th>Serien (id)</th><th>Artikel heute</th></tr>
+  <tr><td>Porsche Esports</td><td><code>porsche-esports-supercup</code>, <code>porsche-esports-sprint-challenge</code></td><td>3 + 1</td></tr>
+  <tr><td>IMSA</td><td><code>imsa-esports</code></td><td>2</td></tr>
+  <tr><td>VCO</td><td><code>erl</code> (Esports Racing League), <code>vco-grand-slam</code>, <code>vco-infinity</code></td><td>1 + 1 + 1</td></tr>
+  <tr><td>eNASCAR</td><td><code>enascar-coca-cola-iracing-series</code>, <code>enascar-college</code></td><td>1 + 3</td></tr>
+  <tr><td>RENNSPORT</td><td><code>rennsport-r1</code></td><td>1</td></tr>
+  <tr><td>Weitere</td><td><code>vlms</code> (Virtual Le Mans Series), <code>24h-series-esports</code>, <code>fia-f4-esports</code></td><td>0 + 0 + 1</td></tr>
+  <tr><td>Event-Reihen</td><td><code>sim-racing-expo</code>, <code>rennsport-summit</code></td><td>2 + 1</td></tr>
+</table>
+<p>Eine <b>Familienseite</b> (z. B. <code>/news/series/porsche-esports</code>) zeigt die Artikel aller ihrer Serien. So gibt es eine Seite für „alles von Porsche Esports“, ohne dass jemand doppelt taggen muss.</p>
+
+<h3>Topics und Plattform als Unterfilter</h3>
+<p>Auf der Rubrikseite „Sims &amp; Hardware“ trennen die Chips <em>Plattformen</em> | <em>Hardware</em> die beiden Topics. Auf „Esports“ trennen sie <em>Ergebnisse</em> | <em>Serien &amp; Saisons</em> | <em>Community</em>. Der Filter „Plattform“ (iRacing, RENNSPORT, Le Mans Ultimate, Assetto Corsa EVO, rFactor 2, Gran Turismo) leitet sich aus normalisierten Tags gegen eine feste Liste ab. Ein neues Feld braucht es dafür nicht.</p>
+
+<h3>Mapping der 23 bestehenden Artikel</h3>
+<p>Die Rubriken bleiben bei allen gleich. Neu kommt nur <code>series</code> dazu. Zwei Artikel möchte ich zur Prüfung vorlegen:</p>
+<table>
+  <tr><th>Slug</th><th>Rubrik</th><th>Serie (neu)</th></tr>
+  <tr><td>logitech-g-presenting-sponsor-enascar-college-iracing</td><td>Esports</td><td>enascar-college</td></tr>
+  <tr><td>enascar-college-big-apple-battle-watkins-glen-seeds</td><td>Esports</td><td>enascar-college</td></tr>
+  <tr><td>enascar-college-queen-city-crown-semifinals-charlotte</td><td>Esports</td><td>enascar-college</td></tr>
+  <tr><td>steven-wilson-third-enascar-title-homestead</td><td>Esports</td><td>enascar-coca-cola-iracing-series</td></tr>
+  <tr><td>porsche-esports-supercup-interlagos-coanda-sweep</td><td>Esports</td><td>porsche-esports-supercup</td></tr>
+  <tr><td>porsche-esports-supercup-suzuka-dejong-wins-rain</td><td>Esports</td><td>porsche-esports-supercup</td></tr>
+  <tr><td>porsche-esports-supercup-world-championship-kicks-off-septem</td><td>Esports</td><td>porsche-esports-supercup</td></tr>
+  <tr><td>boxthislap-porsche-esports-sprint-challenge-gb-2026</td><td>Esports <span class="meta">→ prüfen: trägt das Tag <code>racespot-in-the-press</code>, gehört evtl. zu „Inside RaceSpot“</span></td><td>porsche-esports-sprint-challenge</td></tr>
+  <tr><td>imsa-esports-road-atlanta-season-five-opener</td><td>Esports</td><td>imsa-esports</td></tr>
+  <tr><td>imsa-esports-2025-virtual-meets-real</td><td>Broadcast <span class="meta">→ prüfen: inhaltlich eher Esports</span></td><td>imsa-esports</td></tr>
+  <tr><td>blue-mercure-esport-sweeps-petit-le-mans-vco-grand-slam</td><td>Esports</td><td>vco-grand-slam</td></tr>
+  <tr><td>vco-infinity-24h-endurance</td><td>Esports</td><td>vco-infinity</td></tr>
+  <tr><td>erl-2025-season-finals-maastricht</td><td>Esports</td><td>erl</td></tr>
+  <tr><td>rennsport-r1-fall-season-tc-esports-early-pace</td><td>Esports</td><td>rennsport-r1</td></tr>
+  <tr><td>moza-racing-title-sponsor-fia-f4-global-esports-2026</td><td>Industry</td><td>fia-f4-esports</td></tr>
+  <tr><td>simracing-expo-frankfurt-2026-exhibitor-list</td><td>Events</td><td>sim-racing-expo</td></tr>
+  <tr><td>sim-racing-expo-2025-record-attendance</td><td>Events</td><td>sim-racing-expo</td></tr>
+  <tr><td>rennsport-summit-2026-munich</td><td>Events</td><td>rennsport-summit</td></tr>
+  <tr><td>rennsport-hypercars-expansion-pack-release · next-level-racing-f-gt-shift-cockpit · moza-gamescom-… · thrustmaster-ferrari-499p-… </td><td>Industry</td><td>– (nur Plattform/Tags)</td></tr>
+  <tr><td>espn-4k-hdr-rollout-ip-infrastructure</td><td>Broadcast</td><td>–</td></tr>
+</table>
+<p>Die Migration setzt außerdem die Tags auf die normalisierte Schreibweise (<code>"moza racing"</code> → <code>moza</code>). Text, Datum, <code>publishedAt</code>, <code>updatedAt</code> und KI-Hinweis bleiben unberührt. Die Sortierung wird vorher und nachher Zeile für Zeile verglichen.</p>
+
+<!-- ===================================================== -->
+<h2 id="urls">2 · Seitenstruktur, URLs, SEO</h2>
+
+<table>
+  <tr><th>URL (je Sprache)</th><th>Inhalt</th><th>Index</th><th>Sitemap</th></tr>
+  <tr><td><code>/{lang}/news</code></td><td>Startseite der News: Live-Leiste, Aufmacher, Rubriken, Serien, neueste 24</td><td>✔</td><td>✔</td></tr>
+  <tr><td><code>/{lang}/news/page/{n}</code></td><td>Ältere Artikel, 24 pro Seite, kompakte Liste</td><td>✔ (eigenes Canonical)</td><td>–</td></tr>
+  <tr><td><code>/{lang}/news/category/{rubrik}</code> (+ <code>/page/{n}</code>)</td><td>Rubrikseite mit Beschreibung und Topic-Chips</td><td>✔ ab 3 Artikeln, sonst <code>noindex,follow</code></td><td>✔ ab 3</td></tr>
+  <tr><td><code>/{lang}/news/series/{serie}</code> (+ <code>/page/{n}</code>)</td><td>Serienseite: Beschreibung, nächste Übertragung, Chronik</td><td>✔ ab 3 Artikeln</td><td>✔ ab 3</td></tr>
+  <tr><td><code>/{lang}/news/archive/{jahr}</code></td><td>Jahresarchiv, nach Monaten gruppiert, nur Titel</td><td>✔</td><td>✔</td></tr>
+  <tr><td><code>/{lang}/news/feed.xml</code></td><td>RSS je Sprache, letzte 50 Artikel</td><td>–</td><td>–</td></tr>
+  <tr><td><code>/{lang}/news/{slug}</code></td><td><b>unverändert</b></td><td>wie heute</td><td>wie heute</td></tr>
+</table>
+
+<div class="box r">
+<b>Reservierte Slugs.</b> <code>/news/page</code>, <code>/news/category</code>, <code>/news/series</code>, <code>/news/archive</code>, <code>/news/feed.xml</code> und <code>/news/search</code> liegen im selben Pfad wie Artikel. Kein Artikel darf <code>page</code>, <code>category</code>, <code>series</code>, <code>archive</code>, <code>search</code> oder <code>feed</code> heißen. Heute kollidiert keiner. Der Press Tool bekommt eine Prüfung im Precheck, und das Prüfskript der Website meldet einen Verstoß ebenfalls.
+</div>
+
+<p><b>Nicht gebaut:</b> Tag-Seiten (dünn und doppelt, siehe Bestand), Autorenseiten (siehe E4), Filter-URLs als eigene Seiten. <code>?topic=</code>, <code>?platform=</code> und <code>?q=</code> setzen das Canonical auf die Seite ohne Parameter.</p>
+
+<h3>Canonical und hreflang</h3>
+<ul>
+  <li>Listen- und Rubrikseiten gibt es in allen sechs Sprachen. Sie bekommen hreflang für alle sechs plus <code>x-default → /en/</code>, gebaut über <code>pageMetadata()</code>, wie bei den statischen Seiten.</li>
+  <li>Seite 2 ff. verweist im Canonical auf sich selbst und nicht auf Seite 1. Das ist Googles Empfehlung, denn sonst werden ältere Artikel schlechter gefunden. Titel: „Esports – Seite 2 | Racespot.tv“.</li>
+  <li>Unübersetzte Artikel erscheinen in den Listen mit englischem Titel und kleinem „EN“-Badge (<code>lang="en"</code> am Titel). Der Artikel selbst verhält sich unverändert: Canonical auf <code>/en/</code>, kein hreflang, kein Sitemap-Eintrag.</li>
+</ul>
+
+<h3>Strukturierte Daten</h3>
+<ul>
+  <li><b>Artikel</b>: <code>NewsArticle</code> bekommt zusätzlich <code>articleSection</code> (Rubrikname in der Sprache des Artikels), <code>keywords</code> (Seriennamen) und <code>about</code> (Serie als <code>Thing</code> mit URL der Serienseite). Als <code>author</code> bleibt die Organisation stehen (siehe E4).</li>
+  <li><b>Breadcrumb</b> wird dreistufig: Racespot.tv › News › <em>Serie</em> (oder Rubrik ohne Serie) › Titel. Dieselbe Spur steht auch sichtbar über dem Titel.</li>
+  <li><b>Listen</b>: <code>CollectionPage</code> mit <code>ItemList</code> (URLs der gezeigten Artikel) plus <code>BreadcrumbList</code>.</li>
+  <li>Das JSON-LD bleibt in der bestehenden <code>JsonLd.tsx</code>, über <code>JSON.stringify</code> eines Objekts. Artikeltext wird dort nie als HTML gesetzt.</li>
+</ul>
+
+<h3>Sitemap</h3>
+<p>Dazu kommen die indexierbaren Rubrik-, Serien- und Archivseiten × sechs Sprachen. Ihr <code>lastmod</code> ist das Datum des neuesten Artikels darin, nicht der Deploy-Zeitpunkt (Regel aus <code>sitemap.ts</code>). Optional gibt es zusätzlich eine <b>Google-News-Sitemap</b> mit den Artikeln der letzten 48 Stunden, wenn RaceSpot ins Google News Publisher Center will (E7).</p>
+
+<!-- ===================================================== -->
+<h2 id="formate">3 · Vorschauformate und Wireframes</h2>
+
+<p>Fünf Kartentypen, gesammelt in <code>src/components/news/</code>. Heute baut jede Seite ihre Karten selbst (<code>NewsBrowser</code>, <code>LatestNews</code>). Danach nutzen alle Seiten dieselben Bausteine:</p>
+<table>
+  <tr><th>Baustein</th><th>Aussehen</th><th>Wo</th></tr>
+  <tr><td><code>NewsHero</code></td><td>Großes Bild 21:9 bzw. 2:1, Rubrik · Serie · Datum, Titel im Display-Font, Teaser</td><td>Aufmacher /news, Rubrik, Serie, Startseite</td></tr>
+  <tr><td><code>NewsCard</code></td><td>Bild 16:9, Rubrik/Serie, Datum, Titel (2 Zeilen), Teaser (2 Zeilen)</td><td>Raster 3-spaltig</td></tr>
+  <tr><td><code>NewsRow</code></td><td>Thumbnail links, Titel und Teaser rechts (die heutige Liste)</td><td>Rubrik- und Serienseiten unterhalb des Rasters</td></tr>
+  <tr><td><code>NewsCompact</code></td><td>Ohne Bild: Datum · Rubrikfarbe · Titel, eine Zeile</td><td>„Weitere Meldungen“, Archiv, Seite 2 ff., Seitenleisten</td></tr>
+  <tr><td><code>SeriesCard</code></td><td>Serienname, Familie, Zahl der Artikel, ggf. „Nächste Übertragung Fr 20:00“, RaceSpot-Badge</td><td>Serienleiste /news, verwandte Serien</td></tr>
+</table>
+
+<h3>A · /news (Desktop)</h3>
+<div class="wf">
+  <div class="live"><b>● LIVE</b> &nbsp;Porsche Esports Supercup · Rd 6 Spa &nbsp;→ Jetzt ansehen &nbsp;&nbsp;<span class="meta">| sonst: „Heute 20:00 · IMSA Esports · Watkins Glen → Kalender“, ohne Sendung keine Leiste</span></div>
+  <div class="row"><span class="chip on">Alle</span><span class="chip">Esports</span><span class="chip">Sims &amp; Hardware</span><span class="chip">Events</span><span class="chip">Broadcast</span></div>
+  <div class="row st">
+    <div class="col" style="flex:2"><div class="img" style="height:150px"></div><div class="k c-es" style="margin-top:6px">Esports · Porsche Esports Supercup · 28. Okt</div><div class="t w"></div><div class="t w s"></div><div class="t"></div></div>
+    <div class="col"><div class="img" style="height:62px"></div><div class="k c-in">Sims &amp; Hardware</div><div class="t w"></div><div class="t w xs"></div><div style="height:8px"></div><div class="img" style="height:62px"></div><div class="k c-ev">Events</div><div class="t w"></div><div class="t w xs"></div></div>
+  </div>
+  <div class="k" style="margin:12px 0 6px;color:#fff">Serien</div>
+  <div class="row"><div class="col blk yl">Porsche Esports Supercup<br><span class="meta">4 Artikel · Fr 20:00</span></div><div class="col blk yl">IMSA Esports<br><span class="meta">2 Artikel</span></div><div class="col blk">eNASCAR College<br><span class="meta">3 Artikel</span></div><div class="col blk">ERL<br><span class="meta">1 Artikel</span></div><div class="col blk" style="text-align:center">Alle Serien →</div></div>
+  <div class="k" style="margin:12px 0 6px;color:#fff">Neueste</div>
+  <div class="row st"><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div></div>
+  <div class="row st"><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div><div class="col"><div class="img" style="height:60px"></div><div class="t w"></div><div class="t"></div></div></div>
+  <div class="k" style="margin:12px 0 4px;color:#fff">Weitere Meldungen</div>
+  <div class="lst"><span class="d">26.10.</span><span class="k c-es">Esports</span><span class="t w" style="flex:1"></span></div>
+  <div class="lst"><span class="d">26.10.</span><span class="k c-in">Hardware</span><span class="t w" style="flex:1"></span></div>
+  <div class="lst"><span class="d">16.10.</span><span class="k c-es">Esports</span><span class="t w" style="flex:1"></span></div>
+  <div class="pg"><span class="on">1</span><span>2</span><span>3</span> … <span>Ältere →</span> &nbsp; · &nbsp; Archiv 2026 · 2025</div>
+</div>
+<p class="wf-cap">Aufmacher: neuester Artikel, oder ein angehefteter (E5). Rechts daneben die zwei nächsten, möglichst aus anderen Rubriken, damit oben nicht dreimal Esports steht. Danach 6 Karten, 15 kompakte Zeilen, Pagination. Insgesamt 24 Artikel pro Seite.</p>
+
+<h3>B · Rubrikseite /news/category/sims-hardware</h3>
+<div class="wf">
+  <div class="crumb">News › Sims &amp; Hardware</div>
+  <div class="t w" style="width:40%;height:12px"></div><div class="t s"></div>
+  <div class="row" style="margin-top:8px"><span class="chip on">Alle</span><span class="chip">Plattformen</span><span class="chip">Hardware</span> &nbsp; <span class="chip">iRacing</span><span class="chip">RENNSPORT</span><span class="chip">LMU</span></div>
+  <div class="row st"><div class="col" style="flex:2"><div class="img" style="height:110px"></div><div class="t w"></div><div class="t"></div></div><div class="col"><div class="img" style="height:50px"></div><div class="t w"></div><div style="height:6px"></div><div class="img" style="height:50px"></div><div class="t w"></div></div></div>
+  <div class="lst"><div class="img" style="width:60px;height:36px"></div><div style="flex:1"><div class="t w s"></div><div class="t"></div></div></div>
+  <div class="lst"><div class="img" style="width:60px;height:36px"></div><div style="flex:1"><div class="t w s"></div><div class="t"></div></div></div>
+  <div class="pg"><span class="on">1</span><span>2</span></div>
+</div>
+<p class="wf-cap">Zwei Sätze Beschreibung pro Rubrik und Sprache geben der Seite eigenen Text, damit sie keine reine Linkliste ist. Die Topic- und Plattform-Chips filtern im Browser über den Suchindex (Abschnitt 7), die URL bekommt <code>?topic=</code>.</p>
+
+<h3>C · Serienseite /news/series/porsche-esports-supercup</h3>
+<div class="wf">
+  <div class="crumb">News › Serien › Porsche Esports › Porsche Esports Supercup</div>
+  <div class="row st">
+    <div class="col" style="flex:2"><div class="t w" style="width:60%;height:12px"></div><div class="t"></div><div class="t s"></div><span class="tag">iRacing</span> <span class="tag" style="color:#F5C000;border-color:#F5C000">Produziert von RaceSpot</span></div>
+    <div class="col blk yl"><span class="k" style="color:#F5C000">Nächste Übertragung</span><br>Fr 31.10. · 20:00 · Rd 7 Monza<br><span class="meta">→ Kalender · 🔔 Erinnerung (.ics)</span><br><span class="meta">→ Aufzeichnungen der Serie</span></div>
+  </div>
+  <div class="k" style="margin:10px 0 4px;color:#fff">Chronik</div>
+  <div class="lst"><span class="d">12.10.</span><div class="img" style="width:60px;height:36px"></div><span class="t w" style="flex:1"></span></div>
+  <div class="lst"><span class="d">05.10.</span><div class="img" style="width:60px;height:36px"></div><span class="t w" style="flex:1"></span></div>
+  <div class="lst"><span class="d">05.09.</span><div class="img" style="width:60px;height:36px"></div><span class="t w" style="flex:1"></span></div>
+  <div class="k" style="margin:10px 0 4px;color:#fff">Auch bei Porsche Esports</div>
+  <div class="row"><div class="col blk">Sprint Challenge GB<br><span class="meta">1 Artikel</span></div><div class="col"></div><div class="col"></div></div>
+</div>
+<p class="wf-cap">Die Box „Nächste Übertragung“ liest den Master Schedule aus dem vorhandenen Modul-Memo in <code>sheets.ts</code>. Das kostet keine zusätzliche Abfrage. Zugeordnet wird über <code>calendar</code>-Namen und Aliase der Serie, mit derselben Normalisierung wie in <code>replays.ts</code>. Ohne geplante Sendung gibt es keine Box. Live erscheint die rote Leiste wie auf /news, über <code>/api/live-streams</code> → <code>rows</code>.</p>
+
+<h3>D · Artikelseite (Ergänzungen)</h3>
+<div class="wf">
+  <div class="crumb">News › Esports › Porsche Esports Supercup</div>
+  <div class="k c-es">Esports · 12. Okt 2026 · 3 min · John Carter</div>
+  <div class="t w" style="height:12px"></div><div class="t w s" style="height:12px"></div>
+  <div style="margin:6px 0"><span class="tag">Porsche Esports Supercup</span> <span class="tag">iRacing</span></div>
+  <div class="t"></div><div class="t"></div><div class="t s"></div>
+  <div class="blk yl" style="margin:10px 0">Nächste Übertragung: Fr 31.10. 20:00 · Rd 7 Monza → Kalender</div>
+  <div class="k" style="margin:10px 0 4px;color:#fff">Mehr aus dem Porsche Esports Supercup</div>
+  <div class="row st"><div class="col"><div class="img" style="height:46px"></div><div class="t w"></div></div><div class="col"><div class="img" style="height:46px"></div><div class="t w"></div></div><div class="col"><div class="img" style="height:46px"></div><div class="t w"></div></div></div>
+  <div class="k" style="margin:10px 0 4px;color:#fff">Verwandte Artikel</div>
+  <div class="lst"><span class="d">05.10.</span><span class="t w" style="flex:1"></span></div>
+  <div class="lst"><span class="d">02.10.</span><span class="t w" style="flex:1"></span></div>
+</div>
+<p class="wf-cap">Die Serien-Chips verlinken auf die Serienseite. „Mehr aus dieser Serie“ zeigt die drei neuesten der Serie und fehlt, wenn die Serie keine weiteren Artikel hat. „Verwandt“ wird berechnet: gleiche Serie 5 Punkte, gleiche Familie 3, gleiches Topic 2, gemeinsames Tag je 1, dazu ein Abschlag für das Alter. Zurück/Weiter entfällt dafür. Es führte chronologisch durch fremde Themen, und bei zehn Artikeln am Tag ist das Rauschen. Der KI-Hinweis und der Übersetzungs-Footer bleiben unverändert am Ende des Textes, vor diesen Blöcken.</p>
+
+<h3>E · Mobil (/news)</h3>
+<div class="wf mobile">
+  <div class="live" style="font-size:11px"><b>●</b> Heute 20:00 · IMSA Esports →</div>
+  <div style="white-space:nowrap;overflow:hidden"><span class="chip on">Alle</span><span class="chip">Esports</span><span class="chip">Sims</span><span class="chip">Ev…</span></div>
+  <div class="img" style="height:100px;margin-top:6px"></div><div class="k c-es">Esports · 28. Okt</div><div class="t w"></div><div class="t w s"></div>
+  <div class="k" style="margin:8px 0 4px;color:#fff">Serien →</div>
+  <div style="white-space:nowrap;overflow:hidden"><span class="blk" style="display:inline-block;width:45%">Supercup</span> <span class="blk" style="display:inline-block;width:45%">IMSA</span></div>
+  <div class="lst"><div class="img" style="width:54px;height:34px"></div><div style="flex:1"><div class="t w"></div><div class="t xs"></div></div></div>
+  <div class="lst"><div class="img" style="width:54px;height:34px"></div><div style="flex:1"><div class="t w"></div><div class="t xs"></div></div></div>
+</div>
+<p class="wf-cap">Rubriken und Serien sind waagerecht wischbar. Unter dem Aufmacher stehen nur Zeilen mit Thumbnail, keine Karten, das hält die Seite kurz.</p>
+
+<h3>F · Startseite</h3>
+<p>Das Layout bleibt (Aufmacher plus drei Karten), es nutzt nur die gemeinsamen Bausteine. Eine Änderung gibt es: Läuft heute eine Sendung einer Serie, rückt deren neuester Artikel (höchstens 7 Tage alt) auf den ersten der drei Plätze, mit Hinweis „Heute live“. So passt die Startseite zum Kalender.</p>
+
+<!-- ===================================================== -->
+<h2 id="wachstum">4 · Wachstum: 100 / 500 / 1000 Artikel</h2>
+
+<table>
+  <tr><th></th><th>100 (≈ Dez 2026)</th><th>500 (2027)</th><th>1000</th></tr>
+  <tr><td><code>articles.ts</code></td><td>~3,7 MB</td><td>~18 MB</td><td>~37 MB in einer Datei</td></tr>
+  <tr><td>Typprüfung/Build</td><td>unkritisch</td><td>spürbar: <code>tsc</code> muss ein riesiges Literal gegen <code>Article[]</code> prüfen, mehr Speicher im Coolify-Build</td><td>Risiko auf dem geteilten Server: Speicher und Minuten pro Build, bei 10 Deploys am Tag</td></tr>
+  <tr><td>Seiten beim Build</td><td>600 Artikelseiten</td><td>3000</td><td>6000 (× sechs Sprachen)</td></tr>
+  <tr><td>/news heute</td><td>~60 KB Liste im Payload</td><td>~300 KB</td><td>~600 KB pro Aufruf: <code>NewsBrowser</code> bekommt alle Artikel</td></tr>
+  <tr><td>Merge-Konflikte</td><td colspan="3"><b>Schon heute ein Problem:</b> Jeder Press-Tool-PR fügt direkt nach <code>export const ARTICLES: Article[] = [</code> ein. Zwei offene PRs ändern dieselbe Stelle, der zweite kollidiert. Bei zehn am Tag passiert das regelmäßig.</td></tr>
+  <tr><td>Git-Diffs/Review</td><td colspan="3">Ein Artikel ergibt einen 180-Zeilen-Hunk in einer Riesendatei. Nachträgliche Korrekturen über den Brace-Walk in <code>remove_article()</code> sind fragil.</td></tr>
+</table>
+
+<h3>Vorschlag: ein JSON pro Artikel</h3>
+<pre class="box"><code>content/news/
+  taxonomy.json                       // Rubriken (Schlüssel, Slug, Farbe, Namen, Beschreibung) + Serien
+  articles/
+    porsche-esports-supercup-interlagos-coanda-sweep.json
+    imsa-esports-road-atlanta-season-five-opener.json
+    …</code></pre>
+<ul>
+  <li><b>Gleiche Form wie heute.</b> Jede Datei enthält genau ein <code>Article</code>-Objekt mit allen sechs Sprachen. <code>translations</code>, <code>Block[]</code> und Inline-Syntax bleiben unverändert. Der Text bleibt Text und wird über <code>renderInline()</code> dargestellt, ohne <code>dangerouslySetInnerHTML</code>.</li>
+  <li><b><code>src/lib/articles.ts</code> behält Typen und API</b> (<code>ARTICLES</code>, <code>sortedArticles()</code>, <code>CATEGORY_COLORS</code>). Es liest den Ordner einmal pro Prozess, als Modul-Memo wie <code>sheets.ts</code>, und nur auf dem Server (<code>import 'server-only'</code>). Seiten und Sitemap rufen weiter dieselben Funktionen auf.</li>
+  <li><b>Validierung beim Laden</b> (<code>npm run check-news</code>, auch im <code>prebuild</code>): Pflichtfelder, Datumsformat, Slug = Dateiname, Slug eindeutig und nicht reserviert, Rubrik bekannt, KI-Hinweis in jeder vorhandenen Sprache. Ein kaputtes JSON bricht den Build ab, die laufende Version bleibt live. Eine unbekannte Serie erzeugt nur eine Warnung.</li>
+  <li><b>Listen paginiert, Artikelseiten zum Teil auf Abruf.</b> Beim Build werden die neuesten ~150 Artikel × sechs Sprachen vorgerendert, ältere beim ersten Aufruf (ISR, <code>dynamicParams</code> nur auf dem Slug-Segment). Ob Next 16 das unter dem <code>dynamicParams = false</code> des <code>[lang]</code>-Layouts erlaubt, prüfe ich vor dem Umbau. Ab 100 Artikeln sinkt damit die Build-Zeit statt zu steigen.</li>
+  <li><b>Zur Laufzeit:</b> 1000 Artikel × 37 KB sind ~37 MB JSON, einmal pro Prozess geparst (Größenordnung 0,3 s). Ab ~2000 Artikeln lohnt ein Index nur mit Metadaten plus Bodies auf Abruf. Das kostet keine Vertragsänderung, weil die Dateien gleich bleiben.</li>
+</ul>
+
+<div class="box r">
+<b>Vertragsänderung mit dem Press Tool.</b> Heute sucht der Press Tool die Zeile <code>export const ARTICLES: Article[] = [</code> (<code>ARRAY_RE</code> in <code>core/publish/git_site.py</code>). Künftig schreibt er <code>content/news/articles/&lt;slug&gt;.json</code> mit <code>json.dumps</code>. Das ist einfacher und sicherer als TypeScript-Literal plus Brace-Walk. Zurückziehen heißt Datei löschen. <b>Betroffen sind drei Stellen, die zusammen geändert werden:</b> (1) Website-Loader und Migration, (2) Press-Tool-Adapter mit Precheck, (3) der Vertrag in <code>CLAUDE.md</code> beider Repos und in <code>docs/TODO.md</code> Punkt 1. Ablauf siehe Schritt 3 unten.
+</div>
+
+<!-- ===================================================== -->
+<h2 id="presstool">5 · Press-Tool-Anbindung</h2>
+
+<table>
+  <tr><th>Feld</th><th>Heute</th><th>Künftig</th><th>Herkunft</th></tr>
+  <tr><td><code>category</code></td><td>✔ aus dem Topic</td><td>unverändert, Pflicht</td><td>Topic → <code>category</code> in <code>project.yaml</code></td></tr>
+  <tr><td><code>topics</code></td><td>✔</td><td>unverändert</td><td>Story-Register</td></tr>
+  <tr><td><code>series</code></td><td>–</td><td><b>neu</b>, <code>string[]</code> mit IDs aus <code>taxonomy.json</code>, darf leer sein</td><td>Aliasabgleich, siehe unten</td></tr>
+  <tr><td><code>tags</code></td><td>frei</td><td>normalisiert: klein, Bindestrich, ohne Topic-IDs, höchstens 6</td><td>Modell, danach Normalisierung im Precheck</td></tr>
+  <tr><td><code>format</code></td><td>–</td><td><b>neu, optional</b>: <code>"feature"</code> für Evergreen (<code>mode: evergreen</code>), sonst weglassen</td><td>Topic-Modus</td></tr>
+  <tr><td><code>pinnedUntil</code></td><td>–</td><td>optional (nur falls E5 = ja): ISO-Zeit, bis zu der der Artikel Aufmacher bleibt</td><td>Desk im Studio, nie automatisch</td></tr>
+</table>
+
+<h3>Wie Serien richtig vergeben werden</h3>
+<ol>
+  <li><b>Eine einzige Liste.</b> Der Press Tool liest <code>content/news/taxonomy.json</code> aus seinem Checkout des Website-Repos, den er zum Veröffentlichen ohnehin hat. <code>preview.categories</code>, <code>category_colors</code> und <code>own_coverage.series</code> in <code>project.yaml</code> werden daraus abgeleitet statt von Hand gepflegt. Damit entfällt der Satz „add a category in all three places“.</li>
+  <li><b>Deterministischer Abgleich vor dem Modell.</b> Aliase der Serie gegen Titel, Teaser, Tags und ersten Absatz, nur ganze Wortfolgen. Aliase sind spezifisch (<code>porsche esports supercup</code>, <code>pesc</code>) und nie bloß Marken (<code>porsche</code>). Sonst würde der Thrustmaster-Ferrari- oder MOZA-Porsche-Artikel als Supercup einsortiert.</li>
+  <li><b>Das Modell schlägt nur aus der Liste vor.</b> Das Drafting bekommt die Serienliste als geschlossenes Vokabular. Was es zusätzlich nennt, verwirft der Precheck.</li>
+  <li><b>Review.</b> Die Serie steht im Review-Panel neben der Rubrik und ist im Editor änderbar. Ein Artikel mit Rubrik Esports und Topic <code>sim-racing-results</code>, aber ohne Serie, bekommt einen <em>Hinweis</em>, keinen Blocker.</li>
+</ol>
+
+<h3>Unbekannte Werte</h3>
+<table>
+  <tr><th>Fall</th><th>Press Tool</th><th>Website</th></tr>
+  <tr><td>Unbekannte Rubrik</td><td>Blocker (wie heute, <code>check_category</code>)</td><td>Build-Prüfung schlägt fehl, der Artikel geht nicht live</td></tr>
+  <tr><td>Unbekannte Serie</td><td>aus dem Artikel entfernt. Der Name landet in einer Liste „Serien-Kandidaten“ im Studio. Ab drei Nennungen schlägt das Studio vor, ihn aufzunehmen, angelegt wird aber nie automatisch.</td><td>wird ignoriert (Warnung im Build), kein Chip, keine Seite</td></tr>
+  <tr><td>Reservierter Slug</td><td>Blocker, Slug wird angepasst</td><td>Build-Prüfung schlägt fehl</td></tr>
+  <tr><td>Serie wird umbenannt</td><td colspan="2">Die ID bleibt, nur <code>name</code> ändert sich. Muss die ID doch geändert werden, bekommt die alte ein <code>redirectTo</code> und der Proxy leitet mit 301 weiter.</td></tr>
+</table>
+<p class="meta">Alle Änderungen am Press Tool laufen in der Press-Tool-Session und erst nach Absprache.</p>
+
+<!-- ===================================================== -->
+<h2 id="i18n">6 · Sprachen</h2>
+<ul>
+  <li><b>Rubriknamen</b> bleiben in <code>translations.ts</code> (<code>category.&lt;Key&gt;</code>). Dazu kommt <code>category.&lt;Key&gt;.desc</code>, zwei Sätze pro Sprache. Wo ein Name sich ändert (Industry → „Sims &amp; Hardware“ …), wird er in allen sechs Sprachen neu gesetzt.</li>
+  <li><b>Seriennamen</b> sind Eigennamen und überall gleich. <code>taxonomy.json</code> erlaubt trotzdem pro Sprache einen abweichenden Namen (<code>names.fr</code>). Beschreibungen gibt es in allen sechs Sprachen. Ohne Beschreibung erscheint der englische Text mit <code>lang="en"</code>, und die Serienseite wird in dieser Sprache nicht indexiert. Das ist dieselbe Regel wie bei Artikeln.</li>
+  <li><b>Pt</b> bleibt pt-BR (<code>formatDate</code> etc. unverändert).</li>
+  <li><b>Unübersetzte Artikel</b>: Auf der Artikelseite ändert sich nichts. In Listen erscheinen sie mit englischem Titel und „EN“-Badge. Der Sprachfilter (siehe 7) blendet sie auf Wunsch aus.</li>
+  <li>URL-Slugs für Rubriken und Serien sind englisch und in allen Sprachen gleich, wie bei den Artikeln. So bleiben hreflang-Paare trivial.</li>
+</ul>
+
+<!-- ===================================================== -->
+<h2 id="suche">7 · Suche und Filter</h2>
+<ul>
+  <li><b>Rubrik und Serie</b> sind echte Seiten mit eigener URL und werden auf dem Server gerendert.</li>
+  <li><b>Topic, Plattform, Jahr und Sprache</b> sind Filter im Browser auf Rubrik- und Serienseiten. Sie arbeiten auf einem schlanken <b>Suchindex je Sprache</b>: <code>/{lang}/news/index.json</code>, statisch erzeugt mit Slug, Titel, Teaser, Rubrik, Serien, Topics, Tags, Datum und Sprache. Bei 1000 Artikeln sind das ~350 KB roh bzw. ~80 KB gzip. Geladen wird er erst, wenn jemand filtert oder ins Suchfeld klickt.</li>
+  <li><b>Suche</b>: ein Feld auf /news, durchsucht im Browser denselben Index (Titel vor Serie vor Teaser vor Tags) und toleriert Umlaute und Akzente. Das braucht keinen Drittanbieter und keine Bibliothek, die irgendwohin telefoniert. Der Suchbegriff verlässt das Gerät nicht.</li>
+  <li><b>Datenschutz</b>: Umami bekommt höchstens ein Ereignis „Suche benutzt“, nie den Begriff. Die Heatmap zeichnet schon heute keine Formulareingaben auf. Damit ändert sich an der Datenschutzerklärung nichts. Sollte doch einmal der Begriff gemessen werden, wäre das eine Änderung in <code>legal/privacy.ts</code> (en + de) im selben Commit.</li>
+  <li><b>Zustand in der URL</b> (<code>?q=</code>, <code>?topic=</code>), damit ein gefilterter Link teilbar ist. Canonical bleibt die Seite ohne Parameter, keine Indexierung.</li>
+  <li>Ab ~2000 Artikeln oder wenn Volltext gewünscht ist: Suche als Route auf dem eigenen Server. Das bleibt ohne Drittanbieter, ist aber jetzt nicht nötig.</li>
+</ul>
+
+<!-- ===================================================== -->
+<h2 id="schritte">8 · Umsetzungsschritte</h2>
+<p>Die Reihenfolge ist so gewählt, dass jeder Schritt einzeln deploybar ist und die Artikel-URLs nie wackeln. Aufwand in Arbeitstagen einer Session:</p>
+<table>
+  <tr><th>#</th><th>Schritt</th><th>Aufwand</th><th>Risiko</th></tr>
+  <tr><td>1</td><td><b>Taxonomie</b>: <code>taxonomy.json</code> (Rubriken mit Slug, Farbe, Namen; Serien mit Aliasen), Typ <code>series?: string[]</code>, <code>format?</code>, Hilfsfunktionen, Prüfskript <code>check-news</code>. Bestehende 23 Artikel nach Tabelle oben mappen, Tags normalisieren. Neue Rubriknamen in sechs Sprachen.</td><td>1 T</td><td>gering, nichts Sichtbares ändert sich</td></tr>
+  <tr><td>2</td><td><b>Press Tool, Teil 1</b> (eigene Session, nach Absprache): Adapter schreibt wahlweise TS-Array oder JSON-Datei (Schalter <code>publishing.format</code>, Standard wie heute), liest <code>taxonomy.json</code>, vergibt <code>series</code>, normalisiert Tags, prüft reservierte Slugs.</td><td>1–1,5 T</td><td>mittel; hinter dem Schalter ohne Wirkung</td></tr>
+  <tr><td>3</td><td><b>Ablage umstellen</b>, in einem abgestimmten Fenster: Autopress pausieren, offene Artikel-PRs mergen, Migrationsskript wandelt <code>ARTICLES</code> in 23 JSON-Dateien um (Vergleich: <code>sortedArticles()</code> und gerendertes HTML aller Artikel vorher = nachher), Loader rein, Schalter im Press Tool umlegen, Autopress wieder an. Danach CLAUDE.md und TODO-Vertrag in beiden Repos nachziehen.</td><td>1 T + ½ T Fenster</td><td><b>mittel bis hoch</b>, weil der Vertrag sich ändert. Rückweg: Revert plus Schalter zurück.</td></tr>
+  <tr><td>4</td><td><b>Seiten</b>: <code>/news</code> neu (Aufmacher, Raster, kompakt, Pagination), Rubrik-, Serien- und Archivseiten, Breadcrumbs, Metadaten mit hreflang und noindex-Regel, JSON-LD, Sitemap, RSS.</td><td>2–2,5 T</td><td>mittel (SEO); Artikel-URLs bleiben unberührt</td></tr>
+  <tr><td>5</td><td><b>Bausteine und Artikelseite</b>: <code>src/components/news/*</code>, Serien-Chips, „Mehr aus der Serie“, „Verwandt“, Startseiten-Teaser auf die Bausteine umstellen.</td><td>1,5 T</td><td>gering</td></tr>
+  <tr><td>6</td><td><b>Live/Heute</b>: Leiste auf /news, Box auf Serien- und Artikelseiten, Startseiten-Regel, Abgleich Serie ↔ Master Schedule (Aliase, gemeinsame Normalisierung mit <code>replays.ts</code>).</td><td>1 T</td><td>Namensabgleich; ein falscher Treffer zeigt eine falsche Sendung. Deshalb nur exakte Kalendernamen aus <code>taxonomy.json</code>.</td></tr>
+  <tr><td>7</td><td><b>Suche und Filter</b>: Index-Route, Facetten, Suchfeld.</td><td>1–1,5 T</td><td>gering</td></tr>
+  <tr><td>8</td><td>Optional: Google-News-Sitemap, Prerender-Grenze (neueste 150) mit ISR für ältere Artikel</td><td>½ T</td><td>gering</td></tr>
+</table>
+<p><b>Summe:</b> Website ~8–9 Tage, Press Tool ~1,5 Tage. Schritt 1 und 2 können parallel laufen. Schritt 3 braucht beide. Die Schritte 4–7 hängen nur von Schritt 1 ab und könnten zur Not vor Schritt 3 kommen. Ich würde Schritt 3 aber früh machen, weil die Merge-Konflikte jetzt schon auftreten. Jeder Schritt wird mit <code>npm run build</code> und im Browser auf Desktop und Mobil geprüft. Commit und Push gibt es nur nach deinem OK.</p>
+
+<!-- ===================================================== -->
+<h2 id="offen">9 · Offene Entscheidungen</h2>
+<table>
+  <tr><th>#</th><th>Frage</th><th>Mein Vorschlag</th><th>Wer</th></tr>
+  <tr><td>E1</td><td>Anzeigenamen der Rubriken: Industry → „Sims &amp; Hardware“, Broadcast → „Broadcast &amp; Production“, Motorsport → „Sim to Real“, Company → „Inside RaceSpot“?</td><td>ja; Schlüssel bleiben</td><td>Jürgen</td></tr>
+  <tr><td>E2</td><td>Serienseiten unter <code>/news/series/&lt;x&gt;</code> oder als eigener Bereich <code>/series/&lt;x&gt;</code> (Hub mit News, Kalender, Aufzeichnungen)?</td><td><code>/news/series/</code> jetzt; ein späterer Hub kann dieselbe Liste nutzen und weiterleiten</td><td>Jürgen, Philip</td></tr>
+  <tr><td>E3</td><td>Startliste der Serien und Familien (Tabelle in Abschnitt 1): Was fehlt, was soll raus, wo steht „Produziert von RaceSpot“? Wie heißen die Serien im Master Schedule genau?</td><td>Liste oben als Entwurf</td><td>Philip, Hugo</td></tr>
+  <tr><td>E4</td><td>Autoren: Die drei Bylines sind Personas mit erfundener Biografie. Autorenseiten würden sie als reale Redakteure ausweisen. Das widerspricht dem KI-Hinweis unter jedem Artikel und Googles Transparenzerwartung an News-Seiten.</td><td>keine Autorenseiten; im JSON-LD bleibt die Organisation. Ob die Byline so bleiben soll, z. B. als „John Carter (KI-Persona)“ oder „RaceSpot Redaktion“, ist eine eigene redaktionelle Entscheidung.</td><td>Jürgen, Philip, Hugo</td></tr>
+  <tr><td>E5</td><td>Aufmacher anheften können (<code>pinnedUntil</code>)?</td><td>ja, nur von Hand im Studio, maximal 48 h</td><td>Jürgen</td></tr>
+  <tr><td>E6</td><td>Zeitfenster für die Umstellung der Ablage (Schritt 3), mit kurz pausiertem Autopress</td><td>an einem Tag ohne Rennwochenende, morgens</td><td>Jürgen</td></tr>
+  <tr><td>E7</td><td>Google News Publisher Center und News-Sitemap, RSS-Feed öffentlich?</td><td>RSS ja, News-Sitemap ja; Anmeldung im Publisher Center separat</td><td>Jürgen, Hugo</td></tr>
+  <tr><td>E8</td><td>Suche jetzt (Schritt 7) oder erst ab ~150 Artikeln?</td><td>mit Schritt 7, ist klein</td><td>Jürgen</td></tr>
+  <tr><td>E9</td><td>„Inside RaceSpot“: Wer schreibt dort, und kommt der Press Tool überhaupt dafür in Frage?</td><td>von Hand bzw. Press-Release-Workflow; die Rubrik bleibt versteckt, bis es Inhalte gibt</td><td>Philip, Hugo</td></tr>
+  <tr><td>E10</td><td>Prüfen: <code>boxthislap-…</code> → Inside RaceSpot? <code>imsa-esports-2025-…</code> → Esports statt Broadcast?</td><td>beide umsortieren</td><td>Jürgen</td></tr>
+</table>
+
+<p class="meta" style="margin-top:40px">Bis zur Freigabe ändert diese Session keinen Code. Quellen: CLAUDE.md, docs/TODO.md (1, 5b, 7p), src/lib/articles.ts, articleContent.tsx, app/[lang]/news/*, LatestNews, NewsBrowser, sitemap.ts, i18n/seo.ts, JsonLd.tsx, ~/Press Tool/projects/racespot/project.yaml, core/publish/git_site.py, core/precheck.py, personas/.</p>
+</main>
+</body>
+</html>

@@ -116,7 +116,10 @@ interface Article {
   imageCredit?: string  // shown bottom-right on the hero
   author?: string       // byline; omitted = no byline shown
   topics?: { id: string; label: string }[]     // editorial beats, finer than category — carried, not rendered yet
-  tags?: string[]                              // free tags — carried, not rendered
+  series?: string[]     // series ids from content/news/taxonomy.json; unknown = ignored
+  tags?: string[]       // free, normalised (lower-case-hyphens); platforms derive from them
+  format?: 'feature'    // evergreen piece; omitted = news
+  pinnedUntil?: string  // ISO UTC; leads the news page until then — by hand only, ≤ 48 h
   sources?: { label: string; url: string }[]   // recorded, NOT rendered
   content: string[] | Block[]
   translations?: Partial<Record<'de'|'es'|'pt'|'fr'|'it', ArticleTranslation>>
@@ -159,12 +162,34 @@ the site appends `" | Racespot.tv"`, so the budget is **55**. Read it through
 language's headline, never to the English one. Leave it out whenever the
 headline already fits; it exists for the long ones.
 
-`category` must be a key of `CATEGORY_COLORS` (Events, Broadcast, Esports,
-Motorsport, Industry, Company) — a category that is not a key renders without a
-colour, and its name is translated through `category.<Name>` in
-`translations.ts` (missing key = shown as is). The Press Tool pipeline
-(`~/Press Tool`) mirrors this list in each project's `preview.categories`; add a
-category in all three places or not at all.
+### Taxonomy (changed 2026-10-28)
+
+Sections, series and platforms live in **one file**,
+`content/news/taxonomy.json`, read through `src/lib/newsTaxonomy.ts`
+(`CATEGORY_COLORS` is derived from it). Plan and reasoning:
+`docs/news-plan/index.html`.
+
+- `category` must be a `key` there (Events, Broadcast, Esports, Motorsport,
+  Industry, Company). **Keys never change** — they are stored in every article
+  and in the Press Tool. What readers see is `category.<Key>` in
+  `translations.ts`, renamed freely: since 2026-10-28 Industry shows as „Sims &
+  Hardware“, Broadcast as „Broadcast & Production“, Motorsport as „Sim to
+  Real“, Company as „Inside RaceSpot“. Each also has `category.<Key>.desc`.
+- `series` ids come from the closed list there; aliases are specific phrases,
+  never a bare brand („porsche“ would pull in a wheel announcement). An id
+  that is not there gets no chip and no page.
+- `reservedSlugs` are pages under `/news/` — no article may use one.
+- The Press Tool still mirrors the keys in `preview.categories`; it is to read
+  the file from its checkout instead (plan step 2). Until then: add a category
+  in taxonomy.json, `translations.ts` and `project.yaml` together, or not at all.
+
+`npm run check-news` (part of `npm run build`) checks taxonomy and every
+article: slug format and uniqueness, reserved slugs, known category, dates,
+required fields, and **the AI notice in every language** — a missing one fails
+the build, so the live site keeps the previous version. Unknown series and
+unnormalised tags only warn until the Press Tool sets them itself. It found
+both MOZA articles without their notice on 2026-10-28: a Press Tool re-publish
+on 2026-09-24 had replaced the hand-fixed versions (TODO 7p); restored.
 
 ### What the body can carry (changed 2026-07-31)
 
