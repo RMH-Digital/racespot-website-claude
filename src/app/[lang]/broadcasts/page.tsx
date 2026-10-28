@@ -114,10 +114,10 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ lan
       {/* Hero Banner */}
       <div className="relative h-[300px] md:h-[400px] overflow-hidden">
         <Image
-          src="/images/setup/broadcast-production-desk.jpg"
+          src="/images/setup/WhatsApp Image 2026-03-13 at 09.42.54.jpeg"
           alt={t('broadcastsPage.heroAlt')}
           fill
-          className="object-cover object-[center_35%]"
+          className="object-cover object-[center_55%]"
           priority
         />
         <div className="absolute inset-0 bg-linear-to-t from-rs-black via-rs-black/60 to-rs-black/20" />
