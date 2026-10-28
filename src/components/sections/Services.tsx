@@ -8,7 +8,7 @@ const SERVICES: { number: string; titleKey: TranslationKey; taglineKey: Translat
     number: '01',
     titleKey: 'services.broadcast.title',
     taglineKey: 'services.broadcast.tagline',
-    image: '/images/setup/WhatsApp Image 2026-03-13 at 09.43.42.jpeg',
+    image: '/images/setup/broadcast-production-desk.jpg',
   },
   {
     number: '02',

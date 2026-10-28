@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 type ServiceKey = 'broadcast' | 'events' | 'studio' | 'hardware'
 
 const SERVICES: { number: string; key: ServiceKey; image: string; details: number }[] = [
-  { number: '01', key: 'broadcast', image: '/images/setup/WhatsApp Image 2026-03-13 at 09.43.42.jpeg', details: 6 },
+  { number: '01', key: 'broadcast', image: '/images/setup/broadcast-production-desk.jpg', details: 6 },
   { number: '02', key: 'events',    image: '/images/events-banner.jpg',   details: 6 },
   { number: '03', key: 'studio',    image: '/images/studio-banner.jpg',   details: 6 },
   { number: '04', key: 'hardware',  image: '/images/hardware-banner.jpg', details: 5 },
