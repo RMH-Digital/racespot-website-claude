@@ -41,6 +41,8 @@ export function proxy(request: NextRequest) {
   if (pathname === '/sitemap.xml' || pathname === '/robots.txt') return NextResponse.next()
   // Hidden door to the team's feedback tool (app/intern/route.ts) — no language prefix.
   if (pathname === '/intern') return NextResponse.next()
+  // The always-on-top player window's page (app/pip/route.ts).
+  if (pathname === '/pip') return NextResponse.next()
 
   const { lang } = splitPath(pathname)
 

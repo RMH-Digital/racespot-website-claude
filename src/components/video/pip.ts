@@ -51,7 +51,10 @@ export async function openPip(src: string, title: string, onClose?: () => void):
     style.textContent = 'html,body{margin:0;height:100%;background:#000;overflow:hidden}iframe{display:block;border:0;width:100%;height:100%}'
     doc.head.append(style)
     const frame = doc.createElement('iframe')
-    frame.src = src
+    // Through our own page, not the embed itself: a frame built straight into
+    // this blank window sends YouTube no Referer, and YouTube refuses to play
+    // (Error 153). app/pip/route.ts.
+    frame.src = `${window.location.origin}/pip?${new URLSearchParams({ src, title })}`
     frame.title = title
     frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'
     frame.allowFullscreen = true
