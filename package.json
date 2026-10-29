@@ -11,7 +11,8 @@
     "generate-icons": "node scripts/generate-icons.mjs",
     "youtube-auth": "node scripts/youtube-analytics-auth.mjs",
     "check-sitemap": "node scripts/check-sitemap.mjs",
-    "check-news": "node scripts/check-news.mjs"
+    "check-news": "node scripts/check-news.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",

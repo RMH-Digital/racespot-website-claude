@@ -134,7 +134,7 @@ export function TimingBoard({
               const c = r.classId !== null ? classOf.get(r.classId) : undefined
               return (
                 <tr key={r.id} className={`border-b border-rs-border/60 ${r.out ? 'opacity-40' : ''}`}>
-                  <td className="py-1.5 pl-3 pr-1 font-display font-bold text-white">{r.pos}</td>
+                  <td className="py-1.5 pl-3 pr-1 font-display font-bold text-white">{r.pos ?? '–'}</td>
                   {full && multiClass && <td className="py-1.5 pr-1 text-rs-muted">{r.classPos ?? ''}</td>}
                   <td className="py-1.5">
                     <span

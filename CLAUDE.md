@@ -324,8 +324,12 @@ Die Regeln, die leicht zu brechen sind:
   Datenschutzerklärung, Abschnitt 7.
 - **Das Frame-Format ist undokumentiert** (`lib/timing/decode.ts`). Ein Fehler
   beim Lesen darf nie den Server stören: Raum als „broken“ markieren, Rückfall.
-- **Raum je Sendung kommt aus dem Talent Dashboard** (`lib/timing/rooms.ts`),
-  ob überhaupt Timing läuft, aus Appgineerings Liste aktiver Räume.
+- **Raum je Sendung:** zuerst der live gemeldete `RacespotN`, dessen Event-Name
+  bei Appgineering eindeutig zur Sendung passt (`lib/timing/liveMatch.ts`, bei
+  Gleichstand keiner — Jürgen, 2026-10-29), sonst das Talent Dashboard bzw. die
+  Rechnung aus dem Schedule (`lib/timing/rooms.ts`). Ob überhaupt Timing läuft,
+  sagt Appgineerings Liste aktiver Räume. `npm test` prüft das am Fall der
+  Nacht vom 29.10. (Racespot1 berechnet, Racespot2 richtig).
 - `/api/timing/` bedient nur unsere Räume (`Racespot\d+`), kein offenes Relais.
 
 ## YouTube Watch Time

@@ -294,7 +294,8 @@ export function flagOf(flags: number | undefined, state: number | undefined): Fl
 
 export interface BoardRow {
   id: number
-  pos: number
+  /** Null while not classified yet: no lap in qualifying arrives as int max (2147483647) */
+  pos: number | null
   classPos: number | null
   num: string
   name: string
@@ -337,6 +338,16 @@ const lapTime = (v: number | undefined) => (v !== undefined && v > 0 && v < 3600
 /** iRacing reports "unlimited" as a week of seconds or more */
 const UNLIMITED_S = 86_400 * 2
 
+/**
+ * A real position, or null. ATVO sends int max (2147483647) for a driver who
+ * has not set a time yet — seen in qualifying on 2026-10-29; anything past a
+ * thousand is no grid position.
+ */
+const MAX_POSITION = 1000
+export function classified(p: number | undefined): number | null {
+  return p !== undefined && p > 0 && p <= MAX_POSITION ? p : null
+}
+
 export function toBoard(state: TimingState): Board {
   const s = state.session
   // A "last lap" far below the session's fastest is a partial one — the run
@@ -350,8 +361,8 @@ export function toBoard(state: TimingState): Board {
     if (!t.position || t.position < 1) continue // not classified yet (spectators, pace car)
     rows.push({
       id,
-      pos: t.position,
-      classPos: t.classPosition && t.classPosition > 0 ? t.classPosition : null,
+      pos: classified(t.position),
+      classPos: classified(t.classPosition),
       num: e.carNumber ?? '',
       name: (e.isTeam && e.teamName ? e.teamName : e.driverName) ?? '',
       team: e.isTeam ? (e.driverName ?? null) : (e.teamName || null),
@@ -368,7 +379,8 @@ export function toBoard(state: TimingState): Board {
       out: Boolean(t.notInWorld || t.disqualified),
     })
   }
-  rows.sort((a, b) => a.pos - b.pos)
+  // Not classified yet at the end, in the order they came.
+  rows.sort((a, b) => (a.pos ?? Infinity) - (b.pos ?? Infinity))
 
   const total = s.lapsTotal !== undefined && s.lapsTotal > 0 && s.lapsTotal < 100_000 ? s.lapsTotal : null
   const remaining = s.sessionTimeRemaining !== undefined && s.sessionTimeRemaining >= 0 && s.sessionTimeRemaining < UNLIMITED_S
