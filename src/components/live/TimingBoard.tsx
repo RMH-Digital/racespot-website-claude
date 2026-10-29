@@ -184,6 +184,10 @@ export function TimingBoard({
   )
 }
 
+/**
+ * The flag as a small badge beside the session, not a coloured bar across
+ * the board (Jürgen, 2026-10-29: the green line had to go). Nothing for none.
+ */
 const FLAG_CLASS: Record<Flag, string> = {
   green: 'bg-rs-flag-green',
   yellow: 'bg-rs-yellow',
@@ -193,6 +197,14 @@ const FLAG_CLASS: Record<Flag, string> = {
   none: 'bg-rs-border',
 }
 
+const FLAG_LABEL: Record<Exclude<Flag, 'none'>, TranslationKey> = {
+  green: 'timing.flag.green',
+  yellow: 'timing.flag.yellow',
+  white: 'timing.flag.white',
+  red: 'timing.flag.red',
+  checkered: 'timing.flag.checkered',
+}
+
 function Header({ board, t, event }: { board: Board; t: T; event: string | null }) {
   const s = board.session
   const SESSION: Record<number, TranslationKey> = { 1: 'timing.session.practice', 2: 'timing.session.qualify', 3: 'timing.session.warmup', 4: 'timing.session.race' }
@@ -200,12 +212,19 @@ function Header({ board, t, event }: { board: Board; t: T; event: string | null 
   const clock = s.timeRemaining !== null && !(s.byLaps && s.lapsTotal) ? duration(s.timeRemaining) : null
   return (
     <div className="border-b border-rs-border bg-rs-dark">
-      <div className={`h-1 ${FLAG_CLASS[s.flag]}`} aria-hidden="true" />
       <div className="flex items-center justify-between gap-3 px-3 py-2.5">
         <div className="min-w-0">
-          <p className="truncate font-display text-xs font-bold uppercase tracking-wider text-white">
-            {sessionLabel ?? event ?? ''}
-          </p>
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate font-display text-xs font-bold uppercase tracking-wider text-white">
+              {sessionLabel ?? event ?? ''}
+            </p>
+            {s.flag !== 'none' && (
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xs border border-rs-border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rs-white/80">
+                <span className={`h-2 w-2 rounded-[2px] ${FLAG_CLASS[s.flag]}`} aria-hidden="true" />
+                {t(FLAG_LABEL[s.flag])}
+              </span>
+            )}
+          </div>
           {(board.track || event) && <p className="truncate text-[11px] text-rs-muted">{[event, board.track].filter(Boolean).join(' · ')}</p>}
         </div>
         <div className="shrink-0 text-right tabular-nums">
