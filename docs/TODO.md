@@ -2038,6 +2038,96 @@ Zeitplan vom 28.10.: 18 Serien gesendet. Nicht im Zeitplan sind IMSA Esports
 (zuletzt 2022), VLMS, eNASCAR College, FIA F4, Sim Racing Expo und VCO Grand
 Slam. Sie bleiben Serien, nur ohne Badge.
 
+## 7z-4. Prüfrunde während der Sendung — 2026-10-29 · OFFEN, Start nach Reset des Wochenlimits (03.11., 10:00)
+
+Live geprüft am 29.10. gegen 01:30 UTC, zwei Streams auf Sendung. Drei Prüfer:
+- UX, Barrierefreiheit und Lighthouse auf racespot.tv
+- Code-Review von Live, Timing und Player
+- SEO
+
+Nichts davon ist gebaut. **Umfang: alles** (K1–K6, W1–W10, N1–N7; Jürgen 2026-10-29, „alles aber erst später“). **Start erst, wenn Jürgen ihn freigibt.** Reihenfolge: zuerst K1–K4 und K6, dann W2, W3 und W6, danach der Rest. Gepusht wird nur mit seinem OK, nicht während einer Sendung.
+
+Kennzahlen (Lighthouse mobil):
+
+| Seite | Barrierefreiheit | Best Practices | LCP | CLS |
+|---|---|---|---|---|
+| Startseite | 96 | – | 520 ms | – |
+| /live | – | 77 | – | 0,11 |
+| /news | 100 | – | 938 ms | – |
+| Artikel | 96 | – | 798 ms | – |
+
+Kein horizontales Scrollen, keine JS-Fehler, keine fehlgeschlagenen Requests.
+
+### Kritisch
+- **K1** Timing-Relay, Sendestart: Viele gleichzeitige erste Abrufe öffnen je eine eigene SignalR-Verbindung, die überzähligen werden nie geschlossen. Fundstelle: `lib/timing/relay.ts` ~139–145, `feeds.set` erst nach `await roomInfo()`. Fix: ein gemeinsames Promise pro Raum (`pending`-Map).
+- **K2** Kein `onclose` am Relay. Gibt `withAutomaticReconnect` auf, bleibt das Board eingefroren und meldet trotzdem `ok`. Fundstelle: `relay.ts` ~72–100. Fix: `onclose` setzt `broken`, dann Neuaufbau; im Client ein Hinweis „veraltet“ bei `age > 30`.
+- **K3** `/api/live-streams` antwortet im `catch` mit 200 und `streams: []`. Alle Zuschauer laden dann neu und sehen offline, der Player stoppt. Fundstelle: `app/api/live-streams/route.ts` ~38–41. Fix: 503 mit `no-store`, `liveTiming` separat abfangen.
+- **K4** Player-Dialog: Shift+Tab springt auf die Seite dahinter, Esc wirkt nicht, wenn der Fokus im iframe liegt. Fundstelle: `components/video/VideoPlayerProvider.tsx`. Fix: natives `<dialog>` mit `showModal()`, im Mini-Modus nicht modal.
+- **K5** YouTube-Live-Chat lädt ohne Klick und setzt `VISITOR_INFO1_LIVE`. Fundstelle: `LiveEmbed.tsx` ~283. **Entschieden (Jürgen, 2026-10-29): erst auf Klick.** Der Chat lädt erst, wenn jemand „Chat anzeigen“ klickt, so wie beim Timing-Rückfall. Den Text im Datenschutz §7 prüfen und en und de zusammen anpassen.
+- **K6** `datePublished` im JSON-LD ist `publishedAt` und weicht vom angezeigten `date` ab, z. B. R1 Fall Season: angezeigt 02.09., im JSON-LD 28.10. Fundstelle: `news/[slug]/page.tsx` ~158. Fix: `datePublished` aus `date` ableiten.
+
+### Wichtig
+- **W1** `VideoObject` pro Teil für Artikel mit `broadcast`: name, description, thumbnailUrl, uploadDate, embedUrl (nocookie), duration. Für die Dauer `videos.list contentDetails` verwenden, das kostet 1 Einheit und wird im Replay-Index pro Prozess gemerkt. `contentUrl` weglassen.
+- **W2** Tabs semantisch: `StreamTabs` als `tablist`/`tab` mit `aria-selected`, Pfeiltasten und roving tabindex, `aria-label` „Streams“ bzw. „Teile“, Höhe `min-h-11`. Chat/Timing in `LiveEmbed.tsx` ~245–262: `tabpanel`, `aria-controls`, Label „Chat und Live Timing“.
+- **W3** Timing-Tabelle:
+  - ohne Position „–“ statt „+0.000“ (`TimingBoard.tsx` gapText);
+  - Spinner nur bei `connecting`, nicht bei `no-data`;
+  - ausgegraute Zeilen über `text-rs-muted` statt `opacity-40` (Kontrast liegt bei 3,9:1).
+- **W4** Timing-Robustheit:
+  - im Client `res.ok` prüfen und `AbortSignal.timeout(5000)` setzen;
+  - Timeout um `subscribe`;
+  - `toBoard()` ins `try`;
+  - negative Antworten 60 s cachen;
+  - `unreachable` statt `unknown-room` bei Netzfehler;
+  - nach einem Aussetzer das letzte Board mit „veraltet“ zeigen statt endgültig auf den Rückfall zu gehen (`TimingBoard.tsx` ~60, `TimingPanel.tsx` ~25).
+- **W5** `/api/broadcasts`: Bei Sheet- oder Quota-Ausfall kommt 200 mit leerer Liste, 5 min gecacht, und das Press Tool liest das als „kein Treffer“. Fix: 503 mit `no-store`.
+- **W6** Kontrast:
+  - KI-Hinweis unter Artikeln 3,66:1, Fundstelle `news/[slug]/page.tsx`, `text-rs-muted/75`. Fix: auf `text-rs-muted`.
+  - `badge-live` Weiß auf #E53E3E 4,12:1, Fundstelle `globals.css` ~204. Fix: dunkleres Rot.
+  - Die Zahl „2“ im Menü bekommt `aria-label`.
+- **W7** /live:
+  - CLS 0,11, Player-Box vorreservieren;
+  - die Breite springt beim Wechsel Chat ↔ Timing (828 → 728 px), gleiche Spaltenbreite für beide.
+- **W8** Startseite: Hero-Bild hat Priorität Low; die 13 Partnerlogos laden eager und landen im Preload. Fundstellen: `PartnerLogos.tsx` ~57–65, `Hero.tsx` ~46. Fix: Logos lazy, Hero `fetchPriority="high"`.
+- **W9** SEO:
+  - `author` als Person, wo eine Byline existiert;
+  - `publisher` per `@id` auf die Organisation, dazu `mainEntityOfPage`;
+  - `article:published_time`/`modified_time`/`section`/`tag`;
+  - fehlende seoTitles nachtragen (MOZA gamescom de: 116 Zeichen, MOZA F4 en: 77) und eine Warnung in `check-news`;
+  - Meta-Description des Summit-Artikels: 170 Zeichen.
+- **W10** Re-Renders:
+  - Context-Werte in `LivePlayerProvider`/`VideoPlayerProvider` mit `useMemo`;
+  - das Board alle 2 s nur bei neuem `cycle` neu setzen;
+  - Zeilen als `memo`.
+
+### Nice-to-have
+- **N1** Ticker-Duplikat mit `aria-hidden` und `inert`; Kalender-Buttons im Ticker sind 24 px.
+- **N2** Tap-Targets unter 44 px: News-Chips, Archiv-Jahre, RSS, Breadcrumbs, Serien-Chip, Pagination, Mini-Player-Buttons.
+- **N3** Stream-Tabs auf Mobil auf ca. 5 Zeichen gekürzt: Kurzname oder `fit` mit Scrollen.
+- **N4** „Watch the broadcast“ als `h2`, `<caption>` für die Timing-Tabelle, Poster mit Titel als `alt`/`aria-label`.
+- **N5** /live: `VideoObject` mit `BroadcastEvent isLiveBroadcast` während einer Sendung; Kalender-Events mit `description`.
+- **N6** Sitemap und Feed:
+  - Sitemap-`lastmod` nicht die Build-Zeit;
+  - `/news/page/2` in die Sitemap;
+  - Feed mit Bild;
+  - NewsArticle mit mehreren Bildformaten.
+- **N7** Code-Kleinkram:
+  - Raum-Regex nur an einer Stelle (`liveMatch.ts` und `api/timing/[room]`);
+  - `check-news` prüft doppelte `videoParts`;
+  - Polling-Kommentar in `TimingBoard.tsx` korrigieren;
+  - `useMemo` im Ticker wirkungslos, weil `getT` neu entsteht;
+  - `visibilitychange`-Refresh.
+
+Ohne Befund geprüft:
+- `/pip`-Validierung
+- `/api/timing` (nur `Racespot\d{1,2}`)
+- `/api/broadcasts`-Parameter
+- YouTube-Quota-Logik
+- Maps, Intervalle
+- hreflang/canonical/noindex
+- RSS
+- robots.txt
+
 ## 8. Kleinere technische Punkte
 
 **Erledigt 2026-09-15:**
