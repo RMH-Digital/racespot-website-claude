@@ -107,11 +107,11 @@ export function Header({ lang }: { lang: Lang }) {
                 `}
               >
                 {showLiveIndicator && (
-                  <span className="w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />
+                  <span className="relative -top-[2px] w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />
                 )}
                 {t(labelKey)}
                 {showLiveIndicator && liveCount > 1 && (
-                  <span className="ml-0.5 bg-rs-live text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="ml-0.5 relative -top-[2px] bg-rs-live text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {liveCount}
                   </span>
                 )}
@@ -206,10 +206,10 @@ export function Header({ lang }: { lang: Lang }) {
                     ${showLiveIndicator ? 'text-rs-live' : active ? 'text-white bg-rs-gray' : 'text-rs-muted'}
                   `}
                 >
-                  {showLiveIndicator && <span className="w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />}
+                  {showLiveIndicator && <span className="relative -top-[2px] w-2 h-2 rounded-full bg-rs-live animate-pulse-live" />}
                   {t(labelKey)}
                   {showLiveIndicator && liveCount > 1 && (
-                    <span className="ml-1 bg-rs-live text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="ml-1 relative -top-[2px] bg-rs-live text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                       {liveCount}
                     </span>
                   )}

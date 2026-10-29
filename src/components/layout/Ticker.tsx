@@ -124,7 +124,7 @@ export function Ticker({ lang, items = [] }: TickerProps) {
       {/* Status label — LIVE → /live, UPCOMING → /calendar */}
       {isLive ? (
         <Link href={localePath(lang, '/live')} title={t('hero.watchLive')} className="shrink-0 flex items-center gap-1.5 px-3.5 h-full bg-black/15 hover:bg-black/25 transition-colors">
-          <span className="w-1.5 h-1.5 rounded-full bg-rs-live animate-pulse-live" />
+          <span className="relative -top-[2px] w-1.5 h-1.5 rounded-full bg-rs-live animate-pulse-live" />
           <span className="text-[11px] font-display font-bold uppercase text-rs-black">{t('ticker.live')}</span>
         </Link>
       ) : (
