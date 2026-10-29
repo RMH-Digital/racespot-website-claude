@@ -1093,7 +1093,6 @@ export const ARTICLES: Article[] = [
     author: "John Carter",
     topics: [
       { id: "esports-series", label: "Esports series & seasons" },
-      { id: "sim-racing-results", label: "Sim racing results" },
     ],
     tags: ["enascar", "iracing"],
     sources: [
