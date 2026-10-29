@@ -185,32 +185,35 @@ export async function timingFor(room: string): Promise<TimingAnswer> {
 }
 
 /**
- * Rooms ATVO is broadcasting to right now, by name — Appgineering lists them
- * on its home page. Null when the list could not be read.
+ * Rooms ATVO is broadcasting to right now, by name (lower case) → the event
+ * name set in the room ("iRacing Short Course | … | Round 5 at Lucas Oil").
+ * Appgineering lists them on its home page. Null when the list could not be
+ * read.
  */
-let liveMemo: { at: number; names: Set<string> | null } | null = null
+let liveMemo: { at: number; rooms: Map<string, string | null> | null } | null = null
 const LIVE_LIST_MS = 60_000
 
-export async function liveRoomNames(): Promise<Set<string> | null> {
-  if (liveMemo && Date.now() - liveMemo.at < LIVE_LIST_MS) return liveMemo.names
-  let names: Set<string> | null = null
+export async function liveRooms(): Promise<Map<string, string | null> | null> {
+  if (liveMemo && Date.now() - liveMemo.at < LIVE_LIST_MS) return liveMemo.rooms
+  let rooms: Map<string, string | null> | null = null
   try {
     const res = await fetch(`${API}/frontend/home/live`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
     if (res.ok) {
       const list: unknown = await res.json()
       if (Array.isArray(list)) {
-        names = new Set(
+        rooms = new Map(
           list.flatMap((r) => {
             const o = r as Record<string, unknown>
             const name = o.roomName ?? (o.room as Record<string, unknown> | undefined)?.roomName ?? o.name
-            return typeof name === 'string' ? [name.toLowerCase()] : []
+            const event = typeof o.raceEventName === 'string' && o.raceEventName.trim() ? o.raceEventName.trim() : null
+            return typeof name === 'string' ? [[name.toLowerCase(), event] as [string, string | null]] : []
           }),
         )
       }
     }
   } catch {
-    names = null
+    rooms = null
   }
-  liveMemo = { at: Date.now(), names }
-  return names
+  liveMemo = { at: Date.now(), rooms }
+  return rooms
 }
